@@ -1,0 +1,34 @@
+{
+  "name": "mals",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start": "concurrently \"npm run start-client\" \"npm run start-server\"",
+    "start:production": "npm run build-client && npm run start-server",
+    "start-server": "node bin/www",
+    "start-client": "node execute-client-command.js start",
+    "build-client": "node execute-client-command.js run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bcgov/nr-mals.git"
+  },
+  "keywords": [
+    "express",
+    "prisma"
+  ],
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/bcgov/nr-mals/issues"
+  },
+  "homepage": "https://github.com/bcgov/nr-mals#readme",
+  "dependencies": {
+    "cookie-parser": "~1.4.4",
+    "debug": "~2.6.9",
+    "express": "~4.16.1",
+    "morgan": "~1.9.1"
+  },
+  "devDependencies": {
+    "concurrently": "^5.2.0"
+  }
+}
