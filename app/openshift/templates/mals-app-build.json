@@ -1,0 +1,236 @@
+{
+  "kind": "Template",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "${NAME}-build-template",
+    "creationTimestamp": null
+  },
+  "objects": [
+    {
+      "apiVersion": "secops.pathfinder.gov.bc.ca/v1alpha1",
+      "kind": "NetworkSecurityPolicy",
+      "metadata": {
+        "finalizers": [
+          "finalizer.secops.pathfinder.gov.bc.ca"
+        ],
+        "name": "egress-internet-${PROJECT_PREFIX}-tools",
+        "namespace": "${PROJECT_PREFIX}-tools"
+      },
+      "spec": {
+        "description": "${PROJECT_PREFIX}-tools to talk to the internet\n",
+        "destination": [
+          [ "ext:network=any" ]
+        ],
+        "source": [
+          [ "$namespace=${PROJECT_PREFIX}-tools" ]
+        ]
+      }
+    },
+    {
+      "apiVersion": "secops.pathfinder.gov.bc.ca/v1alpha1",
+      "kind": "NetworkSecurityPolicy",
+      "metadata": {
+        "finalizers": [
+          "finalizer.secops.pathfinder.gov.bc.ca"
+        ],
+        "name": "int-cluster-k8s-api-permit-${PROJECT_PREFIX}-tools",
+        "namespace": "${PROJECT_PREFIX}-tools"
+      },
+      "spec": {
+        "description": "allow ${PROJECT_PREFIX}-tools pods to talk to the k8s api\n",
+        "destination": [
+          [ "int:network=internal-cluster-api-endpoint" ]
+        ],
+        "source": [
+          [ "- $namespace=${PROJECT_PREFIX}-tools" ]
+        ]
+      }
+    },
+    {
+      "kind": "ImageStream",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "${NAME}"
+      }
+    },
+    {
+      "kind": "BuildConfig",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "${NAME}",
+        "labels": {
+          "app": "${NAME}"
+        }
+      },
+      "spec": {
+        "triggers": [
+          {
+            "type": "ImageChange"
+          },
+          {
+            "type": "ConfigChange"
+          }
+        ],
+        "runPolicy": "Serial",
+        "source": {
+          "type": "Git",
+          "git": {
+            "uri": "${GIT_REPO_URL}",
+            "ref": "${GIT_REF}"
+          },
+          "contextDir": "${SOURCE_CONTEXT_DIR}"
+        },
+        "strategy": {
+          "type": "Source",
+          "sourceStrategy": {
+            "from": {
+              "kind": "${SOURCE_IMAGE_KIND}",
+              "name": "${SOURCE_IMAGE_NAME}:${SOURCE_IMAGE_TAG}"
+            },
+            "env": [
+              {
+                "name": "NPM_RUN",
+                "value": "${NPM_RUN}"
+              },
+              {
+                "name": "UAT_BUILD",
+                "value": "${UAT_BUILD}"
+              },
+              {
+                "name": "PROD_BUILD",
+                "value": "${PROD_BUILD}"
+              }
+            ]
+          }
+        },
+        "output": {
+          "to": {
+            "kind": "ImageStreamTag",
+            "name": "${NAME}:${OUTPUT_IMAGE_TAG}"
+          }
+        },
+        "resources": {
+          "requests": {
+            "cpu": "${CPU_REQUEST}",
+            "memory": "${MEMORY_REQUEST}"
+          },
+          "limits": {
+            "cpu": "${CPU_LIMIT}",
+            "memory": "${MEMORY_LIMIT}"
+          }
+        }
+      }
+    }
+  ],
+  "parameters": [
+    {
+      "name": "NAME",
+      "displayName": "Name",
+      "description": "The name assigned to all of the resources defined in this template.",
+      "required": true,
+      "value": "mals-app"
+    },
+    {
+      "name": "PROJECT_PREFIX",
+      "displayName": "Name",
+      "description": "The project prefix",
+      "required": true,
+      "value": "bsoszr"
+    },
+    {
+      "name": "GIT_REPO_URL",
+      "displayName": "Git Repo URL",
+      "description": "The URL to your GIT repo.",
+      "required": true,
+      "value": "https://github.com/bcgov/nr-mals.git"
+    },
+    {
+      "name": "GIT_REF",
+      "displayName": "Git Reference",
+      "description": "The git reference or branch.",
+      "required": true,
+      "value": "master"
+    },
+    {
+      "name": "SOURCE_CONTEXT_DIR",
+      "displayName": "Source Context Directory",
+      "description": "The source context directory.",
+      "required": false,
+      "value": "/"
+    },
+    {
+      "name": "SOURCE_IMAGE_KIND",
+      "displayName": "Source Image Kind",
+      "description": "The 'kind' (type) of the  source image; typically ImageStreamTag, or DockerImage.",
+      "required": true,
+      "value": "ImageStreamTag"
+    },
+    {
+      "name": "SOURCE_IMAGE_NAME",
+      "displayName": "Source Image Name",
+      "description": "The name of the source image.",
+      "required": true,
+      "value": "nodejs-12-centos"
+    },
+    {
+      "name": "SOURCE_IMAGE_TAG",
+      "displayName": "Source Image Tag",
+      "description": "The tag of the source image.",
+      "required": true,
+      "value": "latest"
+    },
+    {
+      "name": "OUTPUT_IMAGE_TAG",
+      "displayName": "Output Image Tag",
+      "description": "The tag given to the built image.",
+      "required": true,
+      "value": "latest"
+    },
+    {
+      "name": "CPU_LIMIT",
+      "displayName": "Resources CPU Limit",
+      "description": "The resources CPU limit (in cores) for this build.",
+      "required": true,
+      "value": "1"
+    },
+    {
+      "name": "MEMORY_LIMIT",
+      "displayName": "Resources Memory Limit",
+      "description": "The resources Memory limit (in Mi, Gi, etc) for this build.",
+      "required": true,
+      "value": "6Gi"
+    },
+    {
+      "name": "CPU_REQUEST",
+      "displayName": "Resources CPU Request",
+      "description": "The resources CPU request (in cores) for this build.",
+      "required": true,
+      "value": "1"
+    },
+    {
+      "name": "MEMORY_REQUEST",
+      "displayName": "Resources Memory Request",
+      "description": "The resources Memory request (in Mi, Gi, etc) for this build.",
+      "required": true,
+      "value": "4Gi"
+    },
+    {
+      "name": "NPM_RUN",
+      "displayName": "npm run",
+      "description": "Select an alternate / custom runtime mode, defined in your package.json file's scripts section",
+      "value": "start:production"
+    },
+    {
+      "name": "UAT_BUILD",
+      "displayName": "UAT Build",
+      "description": "1 if true",
+      "value": ""
+    },
+    {
+      "name": "PROD_BUILD",
+      "displayName": "Prod Build",
+      "description": "1 if true",
+      "value": ""
+    }
+  ]
+}

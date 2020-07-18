@@ -1,0 +1,21 @@
+#=========================================================
+# OpenShift template parameters for:
+# Component: mals-app
+# Template File: templates/mals-app-build.json
+#=========================================================
+NAME=mals-app
+PROJECT_PREFIX=bsoszr
+GIT_REPO_URL=https://github.com/bcgov/nr-mals.git
+GIT_REF=master
+SOURCE_CONTEXT_DIR=app/server
+SOURCE_IMAGE_KIND=ImageStreamTag
+SOURCE_IMAGE_NAME=nodejs-12-centos
+SOURCE_IMAGE_TAG=latest
+OUTPUT_IMAGE_TAG=latest
+CPU_LIMIT=1
+MEMORY_LIMIT=6Gi
+CPU_REQUEST=1
+MEMORY_REQUEST=4Gi
+NPM_RUN=start:production
+UAT_BUILD=
+PROD_BUILD=
