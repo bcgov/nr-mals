@@ -7,7 +7,7 @@
     "start:production": "npm run build-client && npm run start-server",
     "start-server": "node bin/www",
     "start-client": "npm run start --prefix client",
-    "build-client": "npm run build --prefix client"
+    "build-client": "cd client && npm install && cd .. && npm run build --prefix client"
   },
   "repository": {
     "type": "git",
