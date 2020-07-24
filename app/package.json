@@ -6,7 +6,7 @@
     "postinstall": "cd client && npm install",
     "start": "concurrently \"npm run start-client\" \"npm run start-server\"",
     "start:production": "npm run build-client && npm run start-server",
-    "start-server": "node bin/www",
+    "start-server": "node server/bin/www",
     "start-client": "npm run start --prefix client",
     "build-client": "npm run build --prefix client"
   },
