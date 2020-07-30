@@ -11,8 +11,7 @@ export GIT_REF="master"
 export -a skip_git_overrides=""
 
 # The project components
-export components=${components:-"app"}
-export components=${components:-"db"}
+export components=${components:-"app db"}
 
 # The builds to be triggered after buildconfigs created (not auto-triggered)
 export builds=${builds:-""}
