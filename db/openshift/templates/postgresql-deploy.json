@@ -318,7 +318,7 @@
       "displayName": "Memory Request",
       "description": "Starting amount of memory the container can use.",
       "value": "256Mi"
-    },    
+    },
     {
       "name": "POSTGRESQL_DATABASE_NAME",
       "displayName": "PostgreSQL Database Name",
@@ -340,10 +340,10 @@
       "generate": "expression",
       "from": "[a-zA-Z0-9_~!@#$%^&*()-=<>,.?;:|]{16}"
     },
-	{ 
-	  "name": "POSTGRESQL_MIGRATION_IGNORE_ERRORS",
-	  "value": "yes"
-	},
+    {
+      "name": "POSTGRESQL_MIGRATION_IGNORE_ERRORS",
+      "value": "yes"
+    },
     {
       "name": "BACKUP_DIR",
       "displayName": "The root backup directory",
