@@ -1,0 +1,19 @@
+#header-branding {
+  #working-indicator {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background-color: #2e6da4;
+    border-radius: 3px;
+    font-size: 13px;
+    color: white;
+    padding: 1px 6px;
+    white-space: nowrap;
+
+    .spinner {
+      border-color: white;
+      width: 11px;
+      height: 11px;
+    }
+  }
+}
