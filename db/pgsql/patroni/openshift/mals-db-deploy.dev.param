@@ -1,0 +1,10 @@
+#=========================================================
+# OpenShift template parameters for:
+# Component: mals-db
+# Template File: deployment.yaml
+#=========================================================
+NAME=patroni
+IMAGE_STREAM_TAG=patroni:v12-latest
+PVC_SIZE=1Gi
+APP_DB_NAME=mals
+APP_DB_USERNAME=mals
