@@ -17,7 +17,7 @@ export components=${components:-"app db"}
 export builds=${builds:-""}
 
 # The images to be tagged after build
-export images=${images:-"mals-app"}
+export images=${images:-""}
 
 # The routes for the project
 export routes=${routes:-""}
