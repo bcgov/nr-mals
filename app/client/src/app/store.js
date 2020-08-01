@@ -1,8 +1,15 @@
-import { configureStore } from '@reduxjs/toolkit';
-import counterReducer from '../features/counter/counterSlice';
+import { configureStore, getDefaultMiddleware } from "@reduxjs/toolkit";
+
+import userReducer from "./reducers/user";
+
+const reducer = {
+  user: userReducer,
+};
+
+const middleware = [...getDefaultMiddleware()];
 
 export default configureStore({
-  reducer: {
-    counter: counterReducer,
-  },
+  reducer,
+  middleware,
+  devTools: process.env.NODE_ENV !== "production",
 });
