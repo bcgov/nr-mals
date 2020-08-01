@@ -5,6 +5,6 @@
 NAME=mals-app-test
 # GITHUB_WEBHOOK_SECRET=[a-zA-Z0-9]{40}
 SOURCE_REPOSITORY_URL=https://github.com/bcgov/nr-mals.git
-SOURCE_REPOSITORY_REF=develop
+SOURCE_REPOSITORY_REF=test
 # CONTEXT_DIR=/
 JENKINSFILE_PATH=openshift/mals-app-test-Jenkinsfile

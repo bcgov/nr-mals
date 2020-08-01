@@ -57,7 +57,7 @@
       "kind": "BuildConfig",
       "apiVersion": "v1",
       "metadata": {
-        "name": "${NAME}",
+        "name": "${NAME}-dev",
         "labels": {
           "app": "${NAME}"
         }
@@ -76,7 +76,7 @@
           "type": "Git",
           "git": {
             "uri": "${GIT_REPO_URL}",
-            "ref": "${GIT_REF}"
+            "ref": "${GIT_REF_DEV}"
           },
           "contextDir": "${SOURCE_CONTEXT_DIR}"
         },
@@ -93,12 +93,8 @@
                 "value": "${NPM_RUN}"
               },
               {
-                "name": "UAT_BUILD",
-                "value": "${UAT_BUILD}"
-              },
-              {
-                "name": "PROD_BUILD",
-                "value": "${PROD_BUILD}"
+                "name": "ENVIRONMENT_LABEL",
+                "value": "dev"
               }
             ]
           }
@@ -106,7 +102,135 @@
         "output": {
           "to": {
             "kind": "ImageStreamTag",
-            "name": "${NAME}:${OUTPUT_IMAGE_TAG}"
+            "name": "${NAME}:${OUTPUT_IMAGE_TAG}-dev"
+          }
+        },
+        "resources": {
+          "requests": {
+            "cpu": "${CPU_REQUEST}",
+            "memory": "${MEMORY_REQUEST}"
+          },
+          "limits": {
+            "cpu": "${CPU_LIMIT}",
+            "memory": "${MEMORY_LIMIT}"
+          }
+        }
+      }
+    },
+    {
+      "kind": "BuildConfig",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "${NAME}-test",
+        "labels": {
+          "app": "${NAME}"
+        }
+      },
+      "spec": {
+        "triggers": [
+          {
+            "type": "ImageChange"
+          },
+          {
+            "type": "ConfigChange"
+          }
+        ],
+        "runPolicy": "Serial",
+        "source": {
+          "type": "Git",
+          "git": {
+            "uri": "${GIT_REPO_URL}",
+            "ref": "${GIT_REF_TEST}"
+          },
+          "contextDir": "${SOURCE_CONTEXT_DIR}"
+        },
+        "strategy": {
+          "type": "Source",
+          "sourceStrategy": {
+            "from": {
+              "kind": "${SOURCE_IMAGE_KIND}",
+              "name": "${SOURCE_IMAGE_NAME}:${SOURCE_IMAGE_TAG}"
+            },
+            "env": [
+              {
+                "name": "NPM_RUN",
+                "value": "${NPM_RUN}"
+              },
+              {
+                "name": "ENVIRONMENT_LABEL",
+                "value": "test"
+              }
+            ]
+          }
+        },
+        "output": {
+          "to": {
+            "kind": "ImageStreamTag",
+            "name": "${NAME}:${OUTPUT_IMAGE_TAG}-test"
+          }
+        },
+        "resources": {
+          "requests": {
+            "cpu": "${CPU_REQUEST}",
+            "memory": "${MEMORY_REQUEST}"
+          },
+          "limits": {
+            "cpu": "${CPU_LIMIT}",
+            "memory": "${MEMORY_LIMIT}"
+          }
+        }
+      }
+    },
+    {
+      "kind": "BuildConfig",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "${NAME}-prod",
+        "labels": {
+          "app": "${NAME}"
+        }
+      },
+      "spec": {
+        "triggers": [
+          {
+            "type": "ImageChange"
+          },
+          {
+            "type": "ConfigChange"
+          }
+        ],
+        "runPolicy": "Serial",
+        "source": {
+          "type": "Git",
+          "git": {
+            "uri": "${GIT_REPO_URL}",
+            "ref": "${GIT_REF_PROD}"
+          },
+          "contextDir": "${SOURCE_CONTEXT_DIR}"
+        },
+        "strategy": {
+          "type": "Source",
+          "sourceStrategy": {
+            "from": {
+              "kind": "${SOURCE_IMAGE_KIND}",
+              "name": "${SOURCE_IMAGE_NAME}:${SOURCE_IMAGE_TAG}"
+            },
+            "env": [
+              {
+                "name": "NPM_RUN",
+                "value": "${NPM_RUN}"
+              },
+              {
+                "name": "ENVIRONMENT_LABEL",
+                "value": "prod"
+              }
+            ]
+          }
+        },
+        "output": {
+          "to": {
+            "kind": "ImageStreamTag",
+            "name": "${NAME}:${OUTPUT_IMAGE_TAG}-prod"
           }
         },
         "resources": {
@@ -145,11 +269,25 @@
       "value": "https://github.com/bcgov/nr-mals.git"
     },
     {
-      "name": "GIT_REF",
-      "displayName": "Git Reference",
-      "description": "The git reference or branch.",
+      "name": "GIT_REF_DEV",
+      "displayName": "Git Reference (DEV)",
+      "description": "The git reference or branch for the development environment.",
       "required": true,
       "value": "master"
+    },
+    {
+      "name": "GIT_REF_TEST",
+      "displayName": "Git Reference (TEST)",
+      "description": "The git reference or branch for the test environment.",
+      "required": true,
+      "value": "test"
+    },
+    {
+      "name": "GIT_REF_PROD",
+      "displayName": "Git Reference (PROD)",
+      "description": "The git reference or branch for the production environment.",
+      "required": true,
+      "value": "prod"
     },
     {
       "name": "SOURCE_CONTEXT_DIR",
@@ -219,18 +357,6 @@
       "displayName": "npm run",
       "description": "Select an alternate / custom runtime mode, defined in your package.json file's scripts section",
       "value": "start:production"
-    },
-    {
-      "name": "UAT_BUILD",
-      "displayName": "UAT Build",
-      "description": "1 if true",
-      "value": ""
-    },
-    {
-      "name": "PROD_BUILD",
-      "displayName": "Prod Build",
-      "description": "1 if true",
-      "value": ""
     }
   ]
 }
