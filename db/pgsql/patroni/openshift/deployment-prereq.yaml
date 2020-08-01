@@ -37,7 +37,7 @@ parameters:
 - description: The name of the application for labelling all artifacts.
   displayName: Application Name
   name: NAME
-  value: patroni
+  value: mals-db
 - name: SUFFIX
 - description: Username of the superuser account for initialization.
   displayName: Superuser Username
@@ -62,9 +62,9 @@ parameters:
   generate: expression
   from: '[a-zA-Z0-9]{32}'
 - name: APP_DB_USERNAME
-  value: app
+  value: mals_app
 - name: APP_DB_NAME
-  value: app
+  value: mals
 - name: APP_DB_PASSWORD
   generate: expression
   from: '[a-zA-Z0-9]{32}'

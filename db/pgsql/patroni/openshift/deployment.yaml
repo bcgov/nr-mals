@@ -327,7 +327,7 @@ parameters:
 - description: The name of the application for labelling all artifacts.
   displayName: Application Name
   name: NAME
-  value: patroni
+  value: mals-db
 - name: SUFFIX
   description: A suffix appended to all artifact's name (NAME)
 - description: Maximum amount of memory the container can use.
