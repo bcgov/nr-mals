@@ -338,16 +338,16 @@ parameters:
     resides.
   displayName: ImageStream Namespace
   name: IMAGE_STREAM_NAMESPACE
-  value: "bcgov"
+  value: "bsoszr-tools"
 - name: IMAGE_STREAM_TAG
   description: Patroni ImageTag
-  value: patroni:v12-stable
+  value: "12-latest"
 - description: The size of the persistent volume to create.
   displayName: Persistent Volume Size
   name: PVC_SIZE
   value: 1Gi
 - name: STORAGE_CLASS
-  value: gluster-block
+  value: netapp-block-standard 
 - name: IMAGE_REGISTRY
   #docker-registry.default.svc:5000
   value: docker-registry.default.svc:5000

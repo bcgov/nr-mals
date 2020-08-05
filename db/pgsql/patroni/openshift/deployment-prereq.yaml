@@ -62,7 +62,7 @@ parameters:
   generate: expression
   from: '[a-zA-Z0-9]{32}'
 - name: APP_DB_USERNAME
-  value: mals_app
+  value: app_proxy
 - name: APP_DB_NAME
   value: mals
 - name: APP_DB_PASSWORD
