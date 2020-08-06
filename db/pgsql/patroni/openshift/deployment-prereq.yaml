@@ -14,7 +14,7 @@ labels:
   app.kubernetes.io/component: database
   app.kubernetes.io/name: patroni
   app.kubernetes.io/managed-by: template
-  app.kubernetes.io/version: "12"
+  app.kubernetes.io/version: "10"
 objects:
 - apiVersion: v1
   kind: Secret
@@ -37,7 +37,7 @@ parameters:
 - description: The name of the application for labelling all artifacts.
   displayName: Application Name
   name: NAME
-  value: mals-db
+  value: patroni
 - name: SUFFIX
 - description: Username of the superuser account for initialization.
   displayName: Superuser Username
@@ -62,9 +62,9 @@ parameters:
   generate: expression
   from: '[a-zA-Z0-9]{32}'
 - name: APP_DB_USERNAME
-  value: app_proxy
+  value: app
 - name: APP_DB_NAME
-  value: mals
+  value: app
 - name: APP_DB_PASSWORD
   generate: expression
   from: '[a-zA-Z0-9]{32}'
