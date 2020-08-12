@@ -1,77 +1,112 @@
 # Source & Credit
-Copied from https://github.com/BCDevOps/devops-platform-workshops-labs
-where they Contributed to and copied from https://github.com/zalando/patroni
+Contributed to and copied from https://github.com/zalando/patroni
+
+# Additional Information
+This documentation contains primarily examples on how to get patroni running on our Openshift cluster. For full documentation on Patroni, please see https://patroni.readthedocs.io/en/latest/
 
 # Patroni OpenShift Configuration
-Patroni can be run in OpenShift. Based on the kubernetes configuration, the Dockerfile and Entrypoint has been modified to support the dynamic UID/GID configuration that is applied in OpenShift. This can be run under the standard `restricted` SCC. 
+Patroni can be run in OpenShift. Based on the kubernetes configuration, the Dockerfile and Entrypoint has been modified to support the dynamic UID/GID configuration that is applied in OpenShift. This can be run under the standard `restricted` SCC.
 
 # Examples
 
-## Build the image in your tools namespace
+## Create test project
+
+```
+oc new-project patroni-test
+```
+
+## Build the image
+
+> Note: Update the references when merged upstream.
+>
+> Note: If deploying as a template for multiple users, the following commands should be performed in a shared namespace like `openshift`.
 
 ``` bash
 oc process -f openshift/build.yaml \
- -p GIT_URI=https://github.com/{gitUserName}/devops-platform-workshops-labs \
- -p VERSION=v10-latest | oc apply -f - -n {namespace}-tools
+ -p "GIT_URI=$(git config --get remote.origin.url)" \
+ -p "GIT_REF=$(git rev-parse --abbrev-ref HEAD)" \
+ -p SUFFIX=-pg11 \
+ -p OUT_VERSION=v11-latest \
+ -p PG_VERSION=11 | oc create -f -
+
+# Trigger a build
+oc start-build patroni-pg11
+
+#HINT: avoid unnecessary commits and build from current git clone/checkout directory.
+#oc start-build patroni-001 "--from-dir=$(git rev-parse --show-toplevel)" --wait
+
+oc tag patroni:v11-latest patroni:v11-stable
 ```
 
-Once the build has completed, you can tag this build as stable as well
+Simply change the OUT_VERSION and the PG_VERSION if you would like a build with a different postgres base (also created a separate buildconfig in this example for parallel builds):
 
 ``` bash
-oc tag patroni:v10-latest patroni:v10-stable -n [projectname]-tools
-```
+oc process -f openshift/build.yaml \
+ -p "GIT_URI=$(git config --get remote.origin.url)" \
+ -p "GIT_REF=$(git rev-parse --abbrev-ref HEAD)" \
+ -p SUFFIX=-pg10 \
+ -p OUT_VERSION=v10-latest \
+ -p PG_VERSION=10 | oc create -f -
+ ```
 
-## Create an environment file to hold parameters
-You will need to pass parameters to the templates and an easy way to make sure your variables are tracked is to have an environment file for each namespace or deployment.
+> Note: `oc create` is used for the build explicitly to avoid overwriting/updating the postgres imageStream object.  Additional postgres imageStream Tags are added as long as the PG_VERSION tag does not exist in the imageStream.
 
-eg:
+## Deploy the statefulSet
 
-``` bash
-cat << EOT > dev.env
-NAME=patroni
-IMAGE_STREAM_TAG=patroni:v10-latest
-PVC_SIZE=1Gi
-APP_DB_NAME=grafana
-APP_DB_USERNAME=grafana
-EOT
-```
-
-## Deploy the templates
-
-The template doesn't have a guaranteed order, so the secrets object will need to be created before the main template is applied.
+> Note: `oc create` is used for the pre-requisites to avoid re-generating secrets accidentally
 
 ``` bash
-oc project {namespace-dev}
 oc process -f openshift/deployment-prereq.yaml \
-  --param-file=dev.env --ignore-unknown-parameters=true \
-  | oc apply -f -
+ -p NAME=patroni \
+ -p SUFFIX=-001 | oc create -f -
 
 oc process -f openshift/deployment.yaml \
-  --param-file=dev.env --ignore-unknown-parameters=true \
-  | oc apply -f -
+ -p NAME=patroni \
+ -p "IMAGE_STREAM_NAMESPACE=$(oc project -q)" \
+ -p "IMAGE_STREAM_TAG=patroni:v11-latest" \
+ -p REPLICAS=3 \
+ -p SUFFIX=-001 | oc apply -f -
+
+# HINT: Internal registry changed between OCP3 and OCP4.  Current default is for OCP4.  Simply add the following option to the deployment.yaml to deploy on OCP 3.11
+# -p IMAGE_REGISTRY=docker-registry.default.svc:5000
 ```
 
-#### Accessing the image
-
-If your image is referencing another private namespace, you will need to add the created ServiceAccount to the image namespace with the `system:image-puller` role.
+Additional helpful operational cli samples:
 
 ``` bash
-oc policy add-role-to-user system:image-puller system:serviceaccount:{deploymentNamespace}:patroni \
-  -n {ImageSourceNamespace}
+oc scale StatefulSet/patroni-001 --replicas=1 --timeout=1m
+oc scale StatefulSet/patroni-001 --replicas=0 --timeout=1m && oc delete configmap/patroni-001-config
+
+oc delete configmap,statefulset,service,endpoints -l cluster-name=patroni-001
+
+# Clean everthing
+oc delete all -l cluster-name=patroni-001
+oc delete pvc,secret,configmap,rolebinding,role -l cluster-name=patroni-001
 ```
 
-Alternatively, you can export and tag your image from your -tools project after each build.
+## Template Options
 
-## Clean Everything
+Two configuration templates exist in [templates](templates) directory:
+- Patroni Ephemeral
+- Patroni Persistent
+
+The only difference is whether or not the statefulset requests persistent storage.
+
+## Create the Template
+Install the template into the `openshift` namespace if this should be shared across projects:
 
 ``` bash
-oc delete all -l cluster-name=patroni
-oc delete secret,configmap,rolebinding,role -l cluster-name=patroni
+oc create -f templates/template_patroni_ephemeral.yml -n openshift
+oc create -f templates/template_patroni_persistent.yml -n openshift
 ```
 
-*Note: The above will NOT remove your PVCs or the manual rolebindings in the -tools project.*
+Then, from your own project:
 
-Once the pods are running, two configmaps should be available: 
+``` bash
+oc new-app patroni-pgsql-ephemeral
+```
+
+Once the pods are running, two configmaps should be available:
 
 ``` bash
 $ oc get configmap
@@ -79,3 +114,22 @@ NAME                DATA      AGE
 patroniocp-config   0         1m
 patroniocp-leader   0         1m
 ```
+
+## Development
+
+Install minishift and use the scripts in `test/*` to build/deploy/test
+
+- `test/e2e.sh`: runs all tests
+- `test/build.sh`: Test Build
+- `test/deploy.sh`: Test Deployment
+   - `test/patroni.sh`: Test Patroni
+   - `test/psql.sh`: Test PostgreSQL
+
+## TODO
+
+- [x] Need to add anti-affinity rules
+- [ ] Investigate using redhat postgres image as base image
+
+## References
+- https://github.com/sclorg/postgresql-container/blob/generated/10/root/usr/bin/run-postgresql
+- https://github.com/sclorg/postgresql-container/blob/generated/10/root/usr/share/container-scripts/postgresql/common.sh

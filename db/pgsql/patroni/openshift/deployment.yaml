@@ -17,7 +17,6 @@ labels:
   app.kubernetes.io/component: database
   app.kubernetes.io/name: patroni  
   app.kubernetes.io/managed-by: template
-  app.kubernetes.io/version: "10"
 objects:
 # It doesn't seem to be used/needed - remote it?
 #- apiVersion: v1
@@ -97,7 +96,7 @@ objects:
     name: ${NAME}${SUFFIX}
   spec:
     podManagementPolicy: OrderedReady
-    replicas: 3
+    replicas: ${{REPLICAS}}
     revisionHistoryLimit: 10
     selector:
       matchLabels:
@@ -207,7 +206,13 @@ objects:
             protocol: TCP
           - containerPort: 5432
             protocol: TCP
-          resources: {}
+          resources:
+            requests:
+              cpu: ${CPU_REQUEST}
+              memory: ${MEMORY_REQUEST}
+            limits:
+              cpu: ${CPU_LIMIT}
+              memory: ${MEMORY_LIMIT}
           terminationMessagePath: /dev/termination-log
           terminationMessagePolicy: File
           readinessProbe:
@@ -251,78 +256,6 @@ objects:
 #      cluster-name: ${NAME}${SUFFIX}
 #    name: ${NAME}${SUFFIX}
 #  subsets: []
-- apiVersion: v1
-  kind: ServiceAccount
-  metadata:
-    labels:
-      cluster-name: ${NAME}${SUFFIX}
-    name: ${NAME}${SUFFIX}
-- apiVersion: rbac.authorization.k8s.io/v1
-  kind: Role
-  metadata:
-    labels:
-      cluster-name: ${NAME}${SUFFIX}
-    name: ${NAME}${SUFFIX}
-  rules:
-  - apiGroups:
-    - ""
-    resources:
-    - services
-    verbs:
-    - create
-    - get
-    - list
-    - patch
-    - update
-    - watch
-    - delete
-  - apiGroups:
-    - ""
-    resources:
-    - configmaps
-    verbs:
-    - create
-    - get
-    - list
-    - patch
-    - update
-    - watch
-    - delete
-  - apiGroups:
-    - ""
-    resources:
-    - endpoints
-    verbs:
-    - get
-    - patch
-    - update
-    - create
-    - list
-    - watch
-    - delete
-  - apiGroups:
-    - ""
-    resources:
-    - pods
-    verbs:
-    - get
-    - list
-    - patch
-    - update
-    - watch
-- apiVersion: rbac.authorization.k8s.io/v1
-  kind: RoleBinding
-  metadata:
-    labels:
-      cluster-name: ${NAME}${SUFFIX}
-    name: ${NAME}${SUFFIX}
-  roleRef:
-    apiGroup: rbac.authorization.k8s.io
-    kind: Role
-    name: ${NAME}${SUFFIX}
-  subjects:
-  - kind: ServiceAccount
-    name: ${NAME}${SUFFIX}
 parameters:
 - description: The name of the application for labelling all artifacts.
   displayName: Application Name
@@ -330,6 +263,22 @@ parameters:
   value: patroni
 - name: SUFFIX
   description: A suffix appended to all artifact's name (NAME)
+- name: REPLICAS
+  displayName: REPLICAS
+  description: The number of statefulSet replicas to use.
+  value: '3'
+- description: Starting amount of CPU the container can use.
+  displayName: CPU REQUEST
+  name: CPU_REQUEST
+  value: '250m'
+- description: Maximum amount of CPU the container can use.
+  displayName: CPU Limit
+  name: CPU_LIMIT
+  value: '1'
+- description: Starting amount of memory the container can use.
+  displayName: Memory Request
+  name: MEMORY_REQUEST
+  value: 512Mi
 - description: Maximum amount of memory the container can use.
   displayName: Memory Limit
   name: MEMORY_LIMIT
@@ -341,13 +290,13 @@ parameters:
   value: "bcgov"
 - name: IMAGE_STREAM_TAG
   description: Patroni ImageTag
-  value: patroni:v10-stable
+  value: patroni:v11-stable
 - description: The size of the persistent volume to create.
   displayName: Persistent Volume Size
   name: PVC_SIZE
   value: 1Gi
 - name: STORAGE_CLASS
-  value: netapp-block-standard 
+  value: netapp-block-standard
 - name: IMAGE_REGISTRY
-  #docker-registry.default.svc:5000
-  value: docker-registry.default.svc:5000
+  #ocp3#docker-registry.default.svc:5000
+  value: image-registry.openshift-image-registry.svc:5000
