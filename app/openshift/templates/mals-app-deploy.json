@@ -111,6 +111,10 @@
                   {
                     "name": "PORT",
                     "value": "8080"
+                  },
+                  {
+                    "name": "ENVIRONMENT_LABEL",
+                    "value": "${ENVIRONMENT}"
                   }
                 ],
                 "resources": {
