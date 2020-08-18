@@ -1,9 +1,9 @@
 import { configureStore, getDefaultMiddleware } from "@reduxjs/toolkit";
 
-import userReducer from "./reducers/user";
+import statusReducer from "../features/status/statusSlice";
 
 const reducer = {
-  user: userReducer,
+  status: statusReducer,
 };
 
 const middleware = [...getDefaultMiddleware()];

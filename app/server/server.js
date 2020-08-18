@@ -1,23 +1,29 @@
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+const express = require("express");
+const path = require("path");
+const cookieParser = require("cookie-parser");
+const logger = require("morgan");
 
-var usersRouter = require('./routes/users');
+const statusRouter = require("./routes/status");
 
-var app = express();
+const app = express();
 
-app.use(logger('dev'));
+app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-app.use('/api/users', usersRouter);
+app.use("/api/status", statusRouter);
+app.use("/api/*", (req, res) => {
+  res.status(404).send({
+    code: 404,
+    description: "The requested endpoint could not be found.",
+  });
+});
 
 // serve client
-app.use(express.static(path.join(__dirname, '../client/build')));
-app.get('/*', function (req, res) {
-    res.sendFile(path.join(__dirname, '../client/build', 'index.html'));
+app.use(express.static(path.join(__dirname, "../client/build")));
+app.get("/*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../client/build", "index.html"));
 });
 
 module.exports = app;
