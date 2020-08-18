@@ -4,20 +4,21 @@ ENV_LABEL="prod"
 
 class AppEnvironment {
   String name
+  String project
   String tag
   String previousTag
 }
 
 // EDIT LINE BELOW (Edit your environment TAG names)
 environments = [
-  dev:new AppEnvironment(name:"Development",tag:"dev",previousTag:"dev-previous"),
-  test:new AppEnvironment(name:"Test",tag:"test",previousTag:"test-previous"),
-  prod:new AppEnvironment(name:"Prod",tag:"prod",previousTag:"prod-previous")
+  dev:new AppEnvironment(name:"Development",project:"dev",tag:"dev",previousTag:"dev-previous"),
+  uat:new AppEnvironment(name:"UAT",project:"test",tag:"uat",previousTag:"uat-previous"),
+  test:new AppEnvironment(name:"Test",project:"test",tag:"test",previousTag:"test-previous"),
+  prod:new AppEnvironment(name:"Prod",project:"prod",tag:"prod",previousTag:"prod-previous")
 ]
 
 // You shouldn't have to edit these if you're following the conventions
 ARTIFACT_BUILD = "${APP_NAME}-${ENV_LABEL}"
-RUNTIME_CHAINED_BUILD = "${APP_NAME}"
 
 IMAGESTREAM_NAME = "${APP_NAME}"
 
@@ -78,20 +79,20 @@ def tagImage(srcHash, destination, imageStream) {
 }
 
 // Keeps a copy of last good known configuration for a deployment (just in case)
-def tagLatestStable(environment, backupTag, imageStream) {
+def tagLatestStable(tag, backupTag, imageStream) {
   // skip this on the first run... there's nothing to backup!
-  if (tagExists(environment, imageStream)) {
-    tagImage(environment, backupTag, imageStream)
+  if (tagExists(tag, imageStream)) {
+    tagImage(tag, backupTag, imageStream)
   }
 }
 
-def deployAndVerify(srcHash, environment, imageStream) {
-  echo "Deploying ${APP_NAME} to ${environment}"
-  tagImage(srcHash, environment, imageStream)
-  // verify deployment to an environment; e.g. [your-project-name]-dev
+def deployAndVerify(srcHash, project, tag, imageStream) {
+  echo "Deploying ${APP_NAME} to ${project}"
+  tagImage(srcHash, tag, imageStream)
+  // verify deployment to a project; e.g. [your-project-name]-dev
   openshiftVerifyDeployment(
-    deploymentConfig: APP_NAME,
-    namespace: "${PROJECT_NAMESPACE}-${environment}",
+    deploymentConfig: ARTIFACT_BUILD,
+    namespace: "${PROJECT_NAMESPACE}-${project}",
     waitTime: '900000'
   )
 }
@@ -145,18 +146,20 @@ node('master') {
     echo ">> IMAGE_HASH: ${IMAGE_HASH}"  
   }
 
-  stage('Deploy on Prod') {
-    def environment = environments.prod.tag
-    def stableTag = environments.prod.previousTag
+  stage('Deploy on PROD') {
+    def environment = environments.prod
+    def tag = environment.tag
+    def project = environment.project
+    def stableTag = environment.previousTag
     node {
       try {
-        // hold on to a copy of the last stable PROD environment (in case the upcoming deployment fails...)
-        tagLatestStable(environment, stableTag, IMAGESTREAM_NAME)
-        deployAndVerify(IMAGE_HASH, environment, IMAGESTREAM_NAME)
+        // hold on to a copy of the last stable environment (in case the upcoming deployment fails...)
+        tagLatestStable(tag, stableTag, IMAGESTREAM_NAME)
+        deployAndVerify(IMAGE_HASH, project, tag, IMAGESTREAM_NAME)
         // all is good!
-        notifyGood("New ${APP_NAME} in ${environment} :)", "Changes: ${getChangeString()}")
+        notifyGood("New ${APP_NAME} in ${project} :)", "Changes: ${getChangeString()}")
       } catch(error) {
-        notifyError("Couldn't deploy ${APP_NAME} to ${environment} :(", "Error: '${error.message}'")
+        notifyError("Couldn't deploy ${APP_NAME} to ${project} :(", "Error: '${error.message}'")
         throw error
       }
     }
