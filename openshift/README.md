@@ -69,10 +69,19 @@ The process of deploying the Jenkins pipelines will automatically provision a Je
 
 ### Generate the Deployment Configurations and Deploy the Components
 
-Run the following script for each of the environments and follow the instructions to deploy the application components:
+Run the following script for each of the environments (dev, test, prod) and follow the instructions to deploy the application components:
 
 ```
 genDepls.sh -e <environmentName/>
+```
+
+#### Populate the resources for the UAT environment
+
+The UAT environment exists alongside the TEST environment in the bsoszr-test project.  The resources for the TEST environment are populated in the previous step by running `genDepls.sh -e test`, but the UAT resources have to be added using the following commands:
+
+```
+oc project bsoszr-test
+oc process -f ../app/openshift/templates/mals-app-deploy-environment.json --param-file=../app/openshift/mals-app-deploy-environment.uat.param | oc apply -f -
 ```
 
 ### Wire Up Your Jenkins Pipelines

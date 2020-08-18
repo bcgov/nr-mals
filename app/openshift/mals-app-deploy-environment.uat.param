@@ -1,0 +1,18 @@
+#=========================================================
+# OpenShift template parameters for:
+# Component: mals-app
+# Template File: templates/mals-app-deploy-environment.json
+#=========================================================
+NAME=mals-app-uat
+# APP_NAME=mals
+ENVIRONMENT=uat
+# SOURCE_IMAGE_NAME=mals-app
+# IMAGE_NAMESPACE=bsoszr-tools
+TAG_NAME=uat
+# CPU_LIMIT=1
+# MEMORY_LIMIT=4Gi
+# CPU_REQUEST=100m
+# MEMORY_REQUEST=2Gi
+APPLICATION_DOMAIN=mals-app-uat.pathfinder.bcgov
+APP_SECRETS=mals-app-uat
+IP_WHITELIST=142.34.44.0/24

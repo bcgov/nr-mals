@@ -1,13 +1,21 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useDispatch } from "react-redux";
 import { BrowserRouter, Switch, Route } from "react-router-dom";
 
 import * as Constant from "./utilities/constants";
+import { fetchStatus } from "./features/status/statusSlice";
 import HeaderBranding from "./components/HeaderBranding";
 import HeaderNavigation from "./components/HeaderNavigation";
 
 import "./App.scss";
 
 function App() {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(fetchStatus());
+  }, [dispatch]);
+
   return (
     <BrowserRouter>
       <header>

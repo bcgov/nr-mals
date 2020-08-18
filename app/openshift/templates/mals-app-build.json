@@ -185,6 +185,70 @@
       "kind": "BuildConfig",
       "apiVersion": "v1",
       "metadata": {
+        "name": "${NAME}-uat",
+        "labels": {
+          "app": "${NAME}"
+        }
+      },
+      "spec": {
+        "triggers": [
+          {
+            "type": "ImageChange"
+          },
+          {
+            "type": "ConfigChange"
+          }
+        ],
+        "runPolicy": "Serial",
+        "source": {
+          "type": "Git",
+          "git": {
+            "uri": "${GIT_REPO_URL}",
+            "ref": "${GIT_REF_UAT}"
+          },
+          "contextDir": "${SOURCE_CONTEXT_DIR}"
+        },
+        "strategy": {
+          "type": "Source",
+          "sourceStrategy": {
+            "from": {
+              "kind": "${SOURCE_IMAGE_KIND}",
+              "name": "${SOURCE_IMAGE_NAME}:${SOURCE_IMAGE_TAG}"
+            },
+            "env": [
+              {
+                "name": "NPM_RUN",
+                "value": "${NPM_RUN}"
+              },
+              {
+                "name": "ENVIRONMENT_LABEL",
+                "value": "uat"
+              }
+            ]
+          }
+        },
+        "output": {
+          "to": {
+            "kind": "ImageStreamTag",
+            "name": "${NAME}:${OUTPUT_IMAGE_TAG}-uat"
+          }
+        },
+        "resources": {
+          "requests": {
+            "cpu": "${CPU_REQUEST}",
+            "memory": "${MEMORY_REQUEST}"
+          },
+          "limits": {
+            "cpu": "${CPU_LIMIT}",
+            "memory": "${MEMORY_LIMIT}"
+          }
+        }
+      }
+    },
+    {
+      "kind": "BuildConfig",
+      "apiVersion": "v1",
+      "metadata": {
         "name": "${NAME}-prod",
         "labels": {
           "app": "${NAME}"
@@ -281,6 +345,13 @@
       "description": "The git reference or branch for the test environment.",
       "required": true,
       "value": "test"
+    },
+    {
+      "name": "GIT_REF_UAT",
+      "displayName": "Git Reference (UAT)",
+      "description": "The git reference or branch for the uat environment.",
+      "required": true,
+      "value": "uat"
     },
     {
       "name": "GIT_REF_PROD",
