@@ -7,47 +7,6 @@
   },
   "objects": [
     {
-      "apiVersion": "secops.pathfinder.gov.bc.ca/v1alpha1",
-      "kind": "NetworkSecurityPolicy",
-      "metadata": {
-        "finalizers": [
-          "finalizer.secops.pathfinder.gov.bc.ca"
-        ],
-        "name": "custom-allow-tools-to-${TAG_NAME}",
-        "namespace": "${PROJECT_PREFIX}-${TAG_NAME}"
-      },
-      "spec": {
-        "description": "Allow tools to communicate with ${TAG_NAME} to verify deployment\n",
-        "destination": [
-          [ "$namespace=${PROJECT_PREFIX}-${TAG_NAME}" ]
-        ],
-        "source": [
-          [ "$namespace=${PROJECT_PREFIX}-tools" ]
-        ]
-      }
-    },
-    {
-      "apiVersion": "secops.pathfinder.gov.bc.ca/v1alpha1",
-      "kind": "NetworkSecurityPolicy",
-      "metadata": {
-        "name": "egress-internet-${PROJECT_PREFIX}-${TAG_NAME}",
-        "namespace": "${PROJECT_PREFIX}-${TAG_NAME}"
-      },
-      "spec": {
-        "description": "allow ${PROJECT_PREFIX}-${TAG_NAME} to talk to the internet\n",
-        "destination": [
-          [
-            "ext:network=any"
-          ]
-        ],
-        "source": [
-          [
-            "$namespace=${PROJECT_PREFIX}-${TAG_NAME}"
-          ]
-        ]
-      }
-    },
-    {
       "kind": "DeploymentConfig",
       "apiVersion": "v1",
       "metadata": {
@@ -241,13 +200,6 @@
   ],
   "parameters": [
     {
-      "name": "PROJECT_PREFIX",
-      "displayName": "Name",
-      "description": "The project prefix",
-      "required": true,
-      "value": "bsoszr"
-    },
-    {
       "name": "NAME",
       "displayName": "Name",
       "description": "The name assigned to all of the resources defined in this template.",
@@ -318,6 +270,13 @@
       "displayName": "Application Domain",
       "description": "The exposed hostname that will route to the service, e.g., myappname.pathfinder.bcgov, if left blank a value will be defaulted.",
       "value": "mals-app-dev.pathfinder.bcgov"
+    },
+    {
+      "name": "APP_SECRETS",
+      "displayName": "Application secrets",
+      "description": "Name of the secret object that contains environmental variables for the application.",
+      "required": true,
+      "value": "mals-app"
     },
     {
       "name": "IP_WHITELIST",
