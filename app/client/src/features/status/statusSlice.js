@@ -40,4 +40,6 @@ export const statusSlice = createSlice({
   },
 });
 
+export const selectStatus = (state) => state.status;
+
 export default statusSlice.reducer;
