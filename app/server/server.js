@@ -6,6 +6,8 @@ const logger = require("morgan");
 const statusRouter = require("./routes/status");
 const licenceTypesRouter = require("./routes/licenceTypes");
 const licenceStatusesRouter = require("./routes/licenceStatuses");
+const regionalDistrictsRouter = require("./routes/regionalDistricts");
+const regionsRouter = require("./routes/regions");
 
 const app = express();
 
@@ -17,6 +19,8 @@ app.use(cookieParser());
 app.use("/api/status", statusRouter);
 app.use("/api/licence-types", licenceTypesRouter);
 app.use("/api/licence-statuses", licenceStatusesRouter);
+app.use("/api/regional-districts", regionalDistrictsRouter);
+app.use("/api/regions", regionsRouter);
 app.use("/api/*", (req, res) => {
   res.status(404).send({
     code: 404,
