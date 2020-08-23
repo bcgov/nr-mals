@@ -29,8 +29,10 @@ objects:
     superuser-username: ${PATRONI_SUPERUSER_USERNAME}
     superuser-password: ${PATRONI_SUPERUSER_PASSWORD}
     app-db-name: ${APP_DB_NAME}
-    app-db-username: ${APP_DB_USERNAME}
-    app-db-password: ${APP_DB_PASSWORD}
+    app-db-owner-username: ${APP_DB_OWNER_USERNAME}
+    app-db-owner-password: ${APP_DB_OWNER_PASSWORD}
+    app-proxy-username: ${APP_PROXY_USERNAME}
+    app-proxy-password: ${APP_PROXY_PASSWORD}
 - apiVersion: v1
   kind: ServiceAccount
   metadata:
@@ -131,10 +133,15 @@ parameters:
   name: PATRONI_REPLICATION_PASSWORD
   generate: expression
   from: '[a-zA-Z0-9]{32}'
-- name: APP_DB_USERNAME
-  value: app
 - name: APP_DB_NAME
+  value: app  
+- name: APP_DB_OWNER_USERNAME
   value: app
-- name: APP_DB_PASSWORD
+- name: APP_DB_OWNER_PASSWORD
+  generate: expression
+  from: '[a-zA-Z0-9]{32}'
+- name: APP_PROXY_USERNAME
+  value: app
+- name: APP_PROXY_PASSWORD
   generate: expression
   from: '[a-zA-Z0-9]{32}'
