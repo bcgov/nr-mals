@@ -1,13 +1,12 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
-import * as Api from "../../utilities/api";
-import { ApiError } from "../../utilities/http";
+import Api, { ApiError } from "../../utilities/api.ts";
 
 export const fetchStatus = createAsyncThunk(
   "status/fetchStatus",
   async (_, thunkApi) => {
     try {
-      const response = await Api.getStatus();
+      const response = await Api.get("status");
       return response.data;
     } catch (error) {
       if (error instanceof ApiError) {
