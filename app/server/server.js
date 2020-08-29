@@ -26,4 +26,16 @@ app.get("/*", (req, res) => {
   res.sendFile(path.join(__dirname, "../client/build", "index.html"));
 });
 
+// eslint-disable-next-line no-unused-vars
+app.use(function handleError(error, req, res, next) {
+  if (res.headersSent) {
+    return next(error);
+  }
+
+  return res.status(500).send({
+    code: 500,
+    description: "An unexpected error occurred while handling the request.",
+  });
+});
+
 module.exports = app;
