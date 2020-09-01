@@ -1,11 +1,13 @@
 import React, { useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { BrowserRouter, Switch, Route } from "react-router-dom";
+import { BrowserRouter, Redirect, Route, Switch } from "react-router-dom";
 
 import * as Constant from "./utilities/constants";
 import { fetchStatus } from "./features/status/statusSlice";
 import HeaderBranding from "./components/HeaderBranding";
 import HeaderNavigation from "./components/HeaderNavigation";
+
+import LicensesCreate from "./features/licences/LicencesCreate";
 
 import "./App.scss";
 
@@ -28,47 +30,47 @@ function App() {
             <Route path={`${Constant.SEARCH_LICENSES_PATHNAME}`}>
               <LicensesSearch />
             </Route>
-            <Route path="/licenses/create">
+            <Route path={`${Constant.CREATE_LICENSES_PATHNAME}`}>
               <LicensesCreate />
             </Route>
-            <Route path="/registrants/search">
+            <Route path={`${Constant.SEARCH_REGISTRANTS_PATHNAME}`}>
               <RegistrantsSearch />
             </Route>
-            <Route path="/sites/search">
+            <Route path={`${Constant.SEARCH_SITES_PATHNAME}`}>
               <SitesSearch />
             </Route>
-            <Route path="/sites/create">
+            <Route path={`${Constant.CREATE_SITES_PATHNAME}`}>
               <SitesCreate />
             </Route>
-            <Route path="/contacts/create">
+            <Route path={`${Constant.CREATE_CONTACTS_PATHNAME}`}>
               <ContactsCreate />
             </Route>
-            <Route path="/inspections/search">
+            <Route path={`${Constant.SEARCH_INSPECTIONS_PATHNAME}`}>
               <InspectionsSearch />
             </Route>
-            <Route path="/inspections/create">
+            <Route path={`${Constant.CREATE_INSPECTIONS_PATHNAME}`}>
               <InspectionsCreate />
             </Route>
-            <Route path="/reports">
+            <Route path={`${Constant.REPORTS_PATHNAME}`}>
               <Reports />
             </Route>
-            <Route path="/admin/users-and-roles">
+            <Route path={`${Constant.USERS_AND_ROLES_ADMIN_PATHNAME}`}>
               <UsersAndRoles />
             </Route>
-            <Route path="/admin/license-types">
+            <Route path={`${Constant.LICENSE_TYPES_ADMIN_PATHNAME}`}>
               <LicenseTypes />
             </Route>
-            <Route path="/admin/sites">
+            <Route path={`${Constant.SITES_ADMIN_PATHNAME}`}>
               <Sites />
             </Route>
-            <Route path="/admin/inspections">
+            <Route path={`${Constant.INSPECTIONS_ADMIN_PATHNAME}`}>
               <Inspections />
             </Route>
-            <Route path="/admin/dairy-test-results">
+            <Route path={`${Constant.DAIRY_TEST_RESULTS_ADMIN_PATHNAME}`}>
               <DairyTestResults />
             </Route>
             <Route path="/">
-              <Home />
+              <Redirect to={`${Constant.CREATE_LICENSES_PATHNAME}`} />
             </Route>
           </Switch>
         </div>
@@ -79,10 +81,6 @@ function App() {
 
 function LicensesSearch() {
   return <h2>Search Licenses</h2>;
-}
-
-function LicensesCreate() {
-  return <h2>Create License</h2>;
 }
 
 function RegistrantsSearch() {
@@ -131,10 +129,6 @@ function Inspections() {
 
 function DairyTestResults() {
   return <h2>Dairy Test Results</h2>;
-}
-
-function Home() {
-  return <h2>Home</h2>;
 }
 
 export default App;

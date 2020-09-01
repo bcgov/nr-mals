@@ -74,6 +74,15 @@
                   {
                     "name": "ENVIRONMENT_LABEL",
                     "value": "${ENVIRONMENT}"
+                  },
+                  {
+                    "name": "DATABASE_URL",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "key": "DATABASE_URL",
+                        "name": "${APP_SECRETS}"
+                      }
+                    }
                   }
                 ],
                 "resources": {
