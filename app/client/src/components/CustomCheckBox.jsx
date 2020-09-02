@@ -1,9 +1,9 @@
 import React from "react";
 import PropTypes from "prop-types";
 
-import "./BigCheckBox.scss";
+import "./CustomCheckBox.scss";
 
-const BigCheckBox = React.forwardRef((props, ref) => {
+const CustomCheckBox = React.forwardRef((props, ref) => {
   const { id, label } = props;
 
   return (
@@ -22,9 +22,9 @@ const BigCheckBox = React.forwardRef((props, ref) => {
   );
 });
 
-BigCheckBox.propTypes = {
+CustomCheckBox.propTypes = {
   id: PropTypes.string.isRequired,
   label: PropTypes.string.isRequired,
 };
 
-export default BigCheckBox;
+export default CustomCheckBox;

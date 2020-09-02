@@ -6,7 +6,7 @@ import { Alert, Button, Col, Form, InputGroup } from "react-bootstrap";
 import { REQUEST_STATUS } from "../../utilities/constants";
 import { parseAsInt, parseAsFloat } from "../../utilities/parsing.ts";
 
-import BigCheckBox from "../../components/BigCheckBox";
+import CustomCheckBox from "../../components/CustomCheckBox";
 
 import LicenceTypes from "../lookups/LicenceTypes";
 import LicenceStatuses from "../lookups/LicenceStatuses";
@@ -118,7 +118,7 @@ export default function CreateLicence() {
         <Form.Row>
           <Col md={4}>
             <Form.Group controlId="paymentReceived">
-              <BigCheckBox
+              <CustomCheckBox
                 id="paymentReceived"
                 label="Payment Received"
                 ref={register}
@@ -153,7 +153,7 @@ export default function CreateLicence() {
         <Form.Row>
           <Col sm={4}>
             <Form.Group controlId="actionRequired">
-              <BigCheckBox
+              <CustomCheckBox
                 id="actionRequired"
                 label="Action Required"
                 ref={register}
@@ -162,7 +162,7 @@ export default function CreateLicence() {
           </Col>
           <Col sm={4}>
             <Form.Group controlId="printLicence">
-              <BigCheckBox
+              <CustomCheckBox
                 id="printLicence"
                 label="Print Licence"
                 ref={register}
@@ -171,7 +171,7 @@ export default function CreateLicence() {
           </Col>
           <Col sm={4}>
             <Form.Group controlId="renewalNotice">
-              <BigCheckBox
+              <CustomCheckBox
                 id="renewalNotice"
                 label="Renewal Notice"
                 ref={register}
