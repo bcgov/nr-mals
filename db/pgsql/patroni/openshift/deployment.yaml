@@ -164,20 +164,30 @@ objects:
               secretKeyRef:
                 key: replication-password
                 name: ${NAME}${SUFFIX}
-          - name: APP_USER
+          - name: APP_DB_OWNER_USERNAME
             valueFrom:
               secretKeyRef:
-                key: app-db-username
+                key: app-db-owner-username
                 name: ${NAME}${SUFFIX}
-          - name: APP_PASSWORD
+          - name: APP_DB_OWNER_PASSWORD
             valueFrom:
               secretKeyRef:
-                key: app-db-password
+                key: app-db-owner-password
                 name: ${NAME}${SUFFIX}
-          - name: APP_DATABASE
+          - name: APP_DB_NAME
             valueFrom:
               secretKeyRef:
                 key: app-db-name
+                name: ${NAME}${SUFFIX}
+          - name: APP_PROXY_USERNAME
+            valueFrom:
+              secretKeyRef:
+                key: app-proxy-username
+                name: ${NAME}${SUFFIX}
+          - name: APP_PROXY_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: app-proxy-password
                 name: ${NAME}${SUFFIX}
           - name: PATRONI_SCOPE
             value: ${NAME}${SUFFIX}

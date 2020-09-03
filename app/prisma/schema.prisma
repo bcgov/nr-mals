@@ -1,0 +1,186 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model mal_licence {
+  id                            Int                           @default(autoincrement()) @id
+  licence_number                Int                           @default(autoincrement())
+  licence_type_id               Int
+  person_id                     Int?
+  region_id                     Int?
+  regional_district_id          Int?
+  status_code_id                Int
+  plant_code_id                 Int?
+  species_game_code_id          Int?
+  application_date              DateTime?
+  issue_date                    DateTime?
+  expiry_date                   DateTime?
+  fee_collected                 Float?
+  fee_collected_ind             Boolean                       @default(false)
+  bond_carrier_phone_number     String?
+  bond_number                   String?
+  bond_value                    Float?
+  bond_carrier_name             String?
+  bond_continuation_expiry_date DateTime?
+  action_required               Boolean?
+  licence_prn_requested         Boolean?
+  renewal_prn_requested         Boolean?
+  recheck_prn_requested         Boolean?
+  details                       String?
+  dpl_approved_date             DateTime?
+  dpl_received_date             DateTime?
+  exam_date                     DateTime?
+  exam_fee                      Float?
+  irma_number                   String?
+  former_irma_number            String?
+  dairy_levy                    Float?
+  df_active_ind                 Boolean?
+  total_hives                   Int?
+  psyo_ld_licence_id            Int?
+  psyo_ld_dealer_name           String?
+  lda_ld_licence_id             Int?
+  lda_ld_dealer_name            String?
+  yrd_psyo_licence_id           Int?
+  yrd_psyo_business_name        String?
+  old_identifier                String?
+  create_userid                 String
+  create_timestamp              DateTime
+  update_userid                 String
+  update_timestamp              DateTime
+  mal_licence_type_lu           mal_licence_type_lu           @relation(fields: [licence_type_id], references: [id])
+  mal_plant_code_lu             mal_plant_code_lu?            @relation(fields: [plant_code_id], references: [id])
+  mal_region_lu                 mal_region_lu?                @relation(fields: [region_id], references: [id])
+  mal_regional_district_lu      mal_regional_district_lu?     @relation(fields: [regional_district_id], references: [id])
+  mal_species_game_code_lu      mal_species_game_code_lu?     @relation(fields: [species_game_code_id], references: [id])
+  mal_status_code_lu            mal_status_code_lu            @relation(fields: [status_code_id], references: [id])
+  mal_licence_comment           mal_licence_comment[]
+  mal_licence_registrant_xref   mal_licence_registrant_xref[]
+
+  @@index([irma_number], name: "mal_lic_irma_number_idx")
+  @@index([licence_type_id], name: "mal_lic_licence_type_id_idx")
+  @@index([person_id], name: "mal_lic_person_id_idx")
+  @@index([region_id], name: "mal_lic_region_id_idx")
+  @@index([regional_district_id], name: "mal_lic_regional_district_id_idx")
+  @@index([status_code_id], name: "mal_lic_status_code_id_idx")
+}
+
+model mal_licence_comment {
+  id               Int         @default(autoincrement()) @id
+  licence_id       Int
+  licence_comment  String
+  create_userid    String
+  create_timestamp DateTime
+  update_userid    String
+  update_timestamp DateTime
+  mal_licence      mal_licence @relation(fields: [licence_id], references: [id])
+
+  @@index([licence_id], name: "mal_liccmnt_license_id_idx")
+}
+
+model mal_licence_registrant_xref {
+  id               Int            @default(autoincrement()) @id
+  licence_id       Int
+  registrant_id    Int
+  create_userid    String
+  create_timestamp DateTime
+  update_userid    String
+  update_timestamp DateTime
+  mal_licence      mal_licence    @relation(fields: [licence_id], references: [id])
+  mal_registrant   mal_registrant @relation(fields: [registrant_id], references: [id])
+}
+
+model mal_licence_type_lu {
+  id                   Int           @default(autoincrement()) @id
+  licence_name         String        @unique
+  standard_fee         Float
+  licence_term         Int
+  standard_issue_date  DateTime?
+  standard_expiry_date DateTime?
+  renewal_notice       Int?
+  legislation          String
+  regulation           String?
+  create_userid        String
+  create_timestamp     DateTime
+  update_userid        String
+  update_timestamp     DateTime
+  mal_licence          mal_licence[]
+}
+
+model mal_plant_code_lu {
+  id               Int           @default(autoincrement()) @id
+  code_name        String        @unique
+  code_description String
+  create_userid    String
+  create_timestamp DateTime
+  update_userid    String
+  update_timestamp DateTime
+  mal_licence      mal_licence[]
+}
+
+model mal_region_lu {
+  id                       Int                        @default(autoincrement()) @id
+  region_number            String
+  region_name              String                     @unique
+  create_userid            String
+  create_timestamp         DateTime
+  update_userid            String
+  update_timestamp         DateTime
+  mal_licence              mal_licence[]
+  mal_regional_district_lu mal_regional_district_lu[]
+}
+
+model mal_regional_district_lu {
+  id               Int           @default(autoincrement()) @id
+  region_id        Int
+  district_number  String
+  district_name    String
+  create_userid    String
+  create_timestamp DateTime
+  update_userid    String
+  update_timestamp DateTime
+  mal_region_lu    mal_region_lu @relation(fields: [region_id], references: [id])
+  mal_licence      mal_licence[]
+}
+
+model mal_registrant {
+  id                          Int                           @default(autoincrement()) @id
+  first_name                  String?
+  last_name                   String?
+  middle_initials             String?
+  official_title              String?
+  company_name                String?
+  primary_phone               String?
+  email_address               String?
+  create_userid               String
+  create_timestamp            DateTime
+  update_userid               String
+  update_timestamp            DateTime
+  mal_licence_registrant_xref mal_licence_registrant_xref[]
+}
+
+model mal_species_game_code_lu {
+  id               Int           @default(autoincrement()) @id
+  code_name        String        @unique
+  code_description String
+  create_userid    String
+  create_timestamp DateTime
+  update_userid    String
+  update_timestamp DateTime
+  mal_licence      mal_licence[]
+}
+
+model mal_status_code_lu {
+  id               Int           @default(autoincrement()) @id
+  code_name        String        @unique
+  code_description String
+  create_userid    String
+  create_timestamp DateTime
+  update_userid    String
+  update_timestamp DateTime
+  mal_licence      mal_licence[]
+}
