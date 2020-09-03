@@ -31,7 +31,7 @@ export const licencesSlice = createSlice({
     clearCreatedLicence: (state) => {
       state.createdLicence.data = undefined;
       state.createdLicence.error = undefined;
-      state.createdLicence.status = REQUEST_STATUS.PENDING;
+      state.createdLicence.status = REQUEST_STATUS.IDLE;
     },
   },
   extraReducers: {
