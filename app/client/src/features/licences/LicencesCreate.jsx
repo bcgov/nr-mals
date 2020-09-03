@@ -30,14 +30,7 @@ export default function CreateLicence() {
     dispatch(fetchRegions());
   }, [dispatch]);
 
-  const {
-    register,
-    handleSubmit,
-    errors,
-    watch,
-    formState,
-    setValue,
-  } = useForm();
+  const { register, handleSubmit, errors, watch, setValue } = useForm();
 
   const today = new Date(new Date().setHours(0, 0, 0, 0));
 
@@ -225,16 +218,35 @@ export default function CreateLicence() {
           <Col sm={4} />
           <Col sm={4} />
           <Col sm={4}>
-            <Button
-              type="submit"
-              disabled={formState.isSubmitting}
-              variant="primary"
-              block
-            >
-              Create
-            </Button>
+            <Form.Group>
+              <Button
+                type="submit"
+                disabled={createdLicence.status === REQUEST_STATUS.PENDING}
+                variant="primary"
+                block
+              >
+                {createdLicence.status === REQUEST_STATUS.PENDING
+                  ? "Submitting..."
+                  : "Create"}
+              </Button>
+            </Form.Group>
           </Col>
         </Form.Row>
+        {createdLicence.status === REQUEST_STATUS.REJECTED && (
+          <Form.Row>
+            <Col sm={12}>
+              <Alert variant="danger">
+                <Alert.Heading>
+                  An error was encountered when submitting the form.
+                </Alert.Heading>
+                <p>
+                  {createdLicence.error.code}:{" "}
+                  {createdLicence.error.description}
+                </p>
+              </Alert>
+            </Col>
+          </Form.Row>
+        )}
       </Form>
     </section>
   );
