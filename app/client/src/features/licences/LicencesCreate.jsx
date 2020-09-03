@@ -7,6 +7,7 @@ import { REQUEST_STATUS } from "../../utilities/constants";
 import { parseAsInt, parseAsFloat } from "../../utilities/parsing.ts";
 
 import CustomCheckBox from "../../components/CustomCheckBox";
+import CustomDatePicker from "../../components/CustomDatePicker";
 
 import LicenceTypes from "../lookups/LicenceTypes";
 import LicenceStatuses from "../lookups/LicenceStatuses";
@@ -29,7 +30,31 @@ export default function CreateLicence() {
     dispatch(fetchRegions());
   }, [dispatch]);
 
-  const { register, handleSubmit, errors, watch, formState } = useForm();
+  const {
+    register,
+    handleSubmit,
+    errors,
+    watch,
+    formState,
+    setValue,
+  } = useForm();
+
+  const today = new Date(new Date().setHours(0, 0, 0, 0));
+
+  useEffect(() => {
+    register("applicationDate");
+    setValue("applicationDate", today);
+    register("issuedOnDate", { required: true });
+    setValue("issuedOnDate", today);
+    register("expiryDate");
+    setValue("expiryDate", null);
+  });
+
+  const handleFieldChange = (field) => {
+    return (value) => {
+      setValue(field, value);
+    };
+  };
 
   if (createdLicence.status === REQUEST_STATUS.FULFILLED) {
     return (
@@ -62,8 +87,6 @@ export default function CreateLicence() {
   const parsedRegion = parseAsInt(watchRegion);
 
   const onSubmit = async (data) => {
-    const today = new Date();
-
     const payload = {
       ...data,
       feePaidAmount: parseAsFloat(data.feePaidAmount),
@@ -71,8 +94,6 @@ export default function CreateLicence() {
       licenceType: parseAsInt(data.licenceType),
       region: parseAsInt(data.region),
       regionalDistrict: parseAsInt(data.regionalDistrict),
-      applicationDate: today,
-      issuedOnDate: today,
     };
 
     dispatch(createLicence(payload));
@@ -89,7 +110,14 @@ export default function CreateLicence() {
         </Form.Row>
         <h3>Licence Details</h3>
         <Form.Row>
-          <Col sm={4} />
+          <Col sm={4}>
+            <CustomDatePicker
+              id="applicationDate"
+              label="Application Date"
+              notifyOnChange={handleFieldChange("applicationDate")}
+              defaultValue={today}
+            />
+          </Col>
           <Col sm={8}>
             <Regions
               regions={regions}
@@ -99,7 +127,15 @@ export default function CreateLicence() {
           </Col>
         </Form.Row>
         <Form.Row>
-          <Col sm={4} />
+          <Col sm={4}>
+            <CustomDatePicker
+              id="issuedOnDate"
+              label="Issued On"
+              notifyOnChange={handleFieldChange("issuedOnDate")}
+              defaultValue={today}
+              isInvalid={errors.issuedOnDate}
+            />
+          </Col>
           <Col sm={8}>
             <RegionalDistricts
               regions={regions}
@@ -110,7 +146,13 @@ export default function CreateLicence() {
           </Col>
         </Form.Row>
         <Form.Row>
-          <Col sm={4} />
+          <Col sm={4}>
+            <CustomDatePicker
+              id="expiryDate"
+              label="Expiry Date"
+              notifyOnChange={handleFieldChange("expiryDate")}
+            />
+          </Col>
           <Col sm={8}>
             <LicenceStatuses ref={register} />
           </Col>
