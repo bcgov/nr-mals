@@ -1,4 +1,4 @@
-export const parseAsInt = (string: string) => {
+export const parseAsInt = (string) => {
   const number = parseInt(string, 10);
   if (Number.isNaN(number)) {
     return null;
@@ -6,7 +6,7 @@ export const parseAsInt = (string: string) => {
   return number;
 };
 
-export const parseAsFloat = (string: string) => {
+export const parseAsFloat = (string) => {
   const number = parseFloat(string);
   if (Number.isNaN(number)) {
     return null;
