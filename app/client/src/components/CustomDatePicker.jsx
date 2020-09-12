@@ -105,6 +105,7 @@ const CustomDatePicker = React.forwardRef((props, outerRef) => {
       }
       locale="en-CA"
       wrapperClassName="custom-date-picker"
+      showYearDropdown
     />
   );
 });
