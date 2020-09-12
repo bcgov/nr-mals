@@ -20,3 +20,10 @@ export const LICENSE_TYPES_ADMIN_PATHNAME = "/admin/license-types";
 export const SITES_ADMIN_PATHNAME = "/admin/sites";
 export const INSPECTIONS_ADMIN_PATHNAME = "/admin/inspections";
 export const DAIRY_TEST_RESULTS_ADMIN_PATHNAME = "/admin/dairy-test-results";
+
+export const REQUEST_STATUS = {
+  IDLE: "idle",
+  PENDING: "pending",
+  FULFILLED: "fulfilled",
+  REJECTED: "rejected",
+};

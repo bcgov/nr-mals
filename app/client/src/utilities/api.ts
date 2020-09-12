@@ -1,7 +1,11 @@
-import axios from "axios";
+import axios, { Method } from "axios";
 
 export class ApiError extends Error {
-  constructor(code, description) {
+  code: string;
+
+  description: string;
+
+  constructor(code: string, description: string) {
     super(`${code}: ${description}`);
     this.name = this.constructor.name;
     this.code = code;
@@ -21,7 +25,7 @@ const axiosInstance = axios.create({
   timeout: 2000,
 });
 
-async function request(method, url, params, data) {
+async function request(method: Method, url: any, params: any, data: any) {
   return axiosInstance({
     method,
     url,
@@ -45,19 +49,19 @@ async function request(method, url, params, data) {
 }
 
 export default {
-  async get(url, params) {
+  async get(url: string, params?: any) {
     return request("get", url, params, null);
   },
 
-  async post(url, data) {
+  async post(url: any, data?: any) {
     return request("post", url, null, data);
   },
 
-  async put(url, data) {
+  async put(url: any, data?: any) {
     return request("put", url, null, data);
   },
 
-  async delete(url, data) {
+  async delete(url: any, data?: any) {
     return request("delete", url, null, data);
   },
 };

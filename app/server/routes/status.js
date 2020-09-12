@@ -1,12 +1,10 @@
 const express = require("express");
+const { getCurrentUser } = require("../utilities/user");
 
 const router = express.Router();
 
 router.get("/", (req, res) => {
-  const currentUser = {
-    firstName: "Testy",
-    lastName: "Testerson",
-  };
+  const currentUser = getCurrentUser();
 
   const response = {
     currentUser,
