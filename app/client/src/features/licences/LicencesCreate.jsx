@@ -32,16 +32,16 @@ export default function CreateLicence() {
 
   const { register, handleSubmit, errors, watch, setValue } = useForm();
 
-  const today = new Date(new Date().setHours(0, 0, 0, 0));
-
   useEffect(() => {
+    const today = new Date(new Date().setHours(0, 0, 0, 0));
+
     register("applicationDate");
     setValue("applicationDate", today);
     register("issuedOnDate", { required: true });
     setValue("issuedOnDate", today);
     register("expiryDate");
     setValue("expiryDate", null);
-  });
+  }, [register, setValue]);
 
   const handleFieldChange = (field) => {
     return (value) => {
@@ -91,6 +91,8 @@ export default function CreateLicence() {
 
     dispatch(createLicence(payload));
   };
+
+  const today = new Date(new Date().setHours(0, 0, 0, 0));
 
   return (
     <section>
