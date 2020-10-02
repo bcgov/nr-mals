@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const express = require("express");
 const path = require("path");
 const cookieParser = require("cookie-parser");
@@ -42,9 +44,14 @@ app.use(function handleError(error, req, res, next) {
     return next(error);
   }
 
+  let description = "An unexpected error occurred while handling the request.";
+  if (process.env.ENVIRONMENT_LABEL === "dev") {
+    description = error.message;
+  }
+
   return res.status(500).send({
     code: 500,
-    description: "An unexpected error occurred while handling the request.",
+    description,
   });
 });
 
