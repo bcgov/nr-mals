@@ -6,6 +6,7 @@ import { Container, Row, Col, Spinner, Alert } from "react-bootstrap";
 import { REQUEST_STATUS } from "../../utilities/constants";
 import {
   formatDateString,
+  formatDateTimeString,
   formatMoney,
   formatBoolean,
 } from "../../utilities/formatting.ts";
@@ -16,6 +17,8 @@ import PageHeading from "../../components/PageHeading";
 import SectionHeading from "../../components/SectionHeading";
 
 import { fetchLicence, selectCurrentLicence } from "./licencesSlice";
+
+import "./LicencesView.scss";
 
 export default function LicencesView() {
   const dispatch = useDispatch();
@@ -76,7 +79,7 @@ export default function LicencesView() {
             <div className="w-100 d-xl-none" />
             <HorizontalField
               label="Created On"
-              value={formatDateString(licence.data.createdOn)}
+              value={formatDateTimeString(licence.data.createdOn)}
             />
             <div className="w-100" />
             <HorizontalField
@@ -91,7 +94,7 @@ export default function LicencesView() {
             <div className="w-100 d-xl-none" />
             <HorizontalField
               label="Last Changed On"
-              value={formatDateString(licence.data.updatedOn)}
+              value={formatDateTimeString(licence.data.updatedOn)}
             />
           </Row>
         </Container>

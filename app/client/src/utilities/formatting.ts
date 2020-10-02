@@ -5,6 +5,7 @@ import canadianEnglish from "date-fns/locale/en-CA";
 import { parseAsFloat } from "./parsing";
 
 export const DATE_FORMAT = "P"; // locale-specific short date
+export const DATE_TIME_FORMAT = "Pp"; // locale-specific short date with time in minutes
 
 export const formatDate = (date: Date) => {
   try {
@@ -18,6 +19,23 @@ export const formatDateString = (dateString: string) => {
   try {
     const date = parseISO(dateString);
     return formatDate(date);
+  } catch {
+    return null;
+  }
+};
+
+export const formatDateTime = (date: Date) => {
+  try {
+    return format(date, DATE_TIME_FORMAT, { locale: canadianEnglish });
+  } catch {
+    return null;
+  }
+};
+
+export const formatDateTimeString = (dateString: string) => {
+  try {
+    const date = parseISO(dateString);
+    return formatDateTime(date);
   } catch {
     return null;
   }
