@@ -21,15 +21,21 @@ router.post("/", async (req, res, next) => {
     mal_licence_type_lu: {
       connect: { id: req.body.licenceType },
     },
-    mal_region_lu: {
-      connect: { id: req.body.region },
-    },
+    mal_region_lu:
+      req.body.region === null
+        ? undefined
+        : {
+            connect: { id: req.body.region },
+          },
     mal_status_code_lu: {
       connect: { id: req.body.licenceStatus },
     },
-    mal_regional_district_lu: {
-      connect: { id: req.body.regionalDistrict },
-    },
+    mal_regional_district_lu:
+      req.body.regionalDistrict === null
+        ? undefined
+        : {
+            connect: { id: req.body.regionalDistrict },
+          },
     application_date: req.body.applicationDate,
     issue_date: req.body.issuedOnDate,
     expiry_date: req.body.expiryDate,
