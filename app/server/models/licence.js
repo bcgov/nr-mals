@@ -46,15 +46,21 @@ function convertToPhysicalModel(input) {
     mal_licence_type_lu: {
       connect: { id: input.licenceType },
     },
-    mal_region_lu: {
-      connect: { id: input.region },
-    },
+    mal_region_lu:
+      input.region === null
+        ? undefined
+        : {
+            connect: { id: input.region },
+          },
     mal_status_code_lu: {
       connect: { id: input.licenceStatus },
     },
-    mal_regional_district_lu: {
-      connect: { id: input.regionalDistrict },
-    },
+    mal_regional_district_lu:
+      input.regionalDistrict === null
+        ? undefined
+        : {
+            connect: { id: input.regionalDistrict },
+          },
     application_date: input.applicationDate,
     issue_date: input.issuedOnDate,
     expiry_date: input.expiryDate,
