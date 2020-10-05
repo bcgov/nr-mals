@@ -138,7 +138,7 @@ export default function CreateLicence() {
               <Col sm={8}>
                 <Regions
                   regions={regions}
-                  ref={register({ required: true })}
+                  ref={register}
                   isInvalid={errors.region}
                 />
               </Col>
@@ -157,7 +157,7 @@ export default function CreateLicence() {
                 <RegionalDistricts
                   regions={regions}
                   selectedRegion={parsedRegion}
-                  ref={register({ required: true })}
+                  ref={register}
                   isInvalid={errors.regionalDistrict}
                 />
               </Col>
