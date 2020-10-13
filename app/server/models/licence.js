@@ -1,4 +1,5 @@
 const { formatDate } = require("../utilities/formatting");
+const registrant = require("./registrant");
 
 function convertToLogicalModel(input) {
   const output = {
@@ -36,6 +37,10 @@ function convertToLogicalModel(input) {
     createdOn: input.create_timestamp,
     updatedBy: input.update_userid,
     updatedOn: input.update_timestamp,
+    registrants: input.mal_licence_registrant_xref.map((xref, index) => ({
+      ...registrant.convertToLogicalModel(xref.mal_registrant),
+      key: index,
+    })),
   };
 
   return output;

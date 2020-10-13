@@ -27,3 +27,15 @@ export const REQUEST_STATUS = {
   FULFILLED: "fulfilled",
   REJECTED: "rejected",
 };
+
+export const REGISTRANT_MODE = {
+  CREATE: "create",
+  VIEW: "view",
+  EDIT: "edit",
+};
+
+export const REGISTRANT_STATUS = {
+  NEW: "new",
+  EXISTING: "existing",
+  DELETED: "deleted",
+};
