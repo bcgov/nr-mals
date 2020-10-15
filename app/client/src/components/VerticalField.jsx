@@ -3,6 +3,14 @@ import PropTypes from "prop-types";
 import { Col, Row } from "react-bootstrap";
 
 const VerticalField = ({ label, value }) => {
+  const emptyValue = "\u200b"; // zero-width space
+  const displayedValue =
+    value === null ||
+    value === undefined ||
+    (value.trim && value.trim().length === 0)
+      ? emptyValue
+      : value;
+
   return (
     <>
       <Row>
@@ -11,7 +19,7 @@ const VerticalField = ({ label, value }) => {
         </Col>
       </Row>
       <Row>
-        <Col>{value}</Col>
+        <Col>{displayedValue}</Col>
       </Row>
     </>
   );
