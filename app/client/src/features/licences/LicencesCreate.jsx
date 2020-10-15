@@ -1,13 +1,24 @@
 import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
+import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import { Alert, Button, Col, Form, InputGroup } from "react-bootstrap";
+import {
+  Alert,
+  Button,
+  Col,
+  Container,
+  Form,
+  InputGroup,
+} from "react-bootstrap";
 
-import { REQUEST_STATUS } from "../../utilities/constants";
-import { parseAsInt, parseAsFloat } from "../../utilities/parsing.ts";
+import { REQUEST_STATUS, LICENSES_PATHNAME } from "../../utilities/constants";
+import { parseAsInt, parseAsFloat } from "../../utilities/parsing";
 
 import CustomCheckBox from "../../components/CustomCheckBox";
 import CustomDatePicker from "../../components/CustomDatePicker";
+import LinkButton from "../../components/LinkButton";
+import PageHeading from "../../components/PageHeading";
+import SectionHeading from "../../components/SectionHeading";
 
 import LicenceTypes from "../lookups/LicenceTypes";
 import LicenceStatuses from "../lookups/LicenceStatuses";
@@ -52,11 +63,20 @@ export default function CreateLicence() {
   if (createdLicence.status === REQUEST_STATUS.FULFILLED) {
     return (
       <section>
-        <h2>Create a Licence</h2>
+        <PageHeading>Create a Licence</PageHeading>
         <Alert variant="success">The licence has been created.</Alert>
         <Form>
           <Form.Row>
-            <Col sm={4} />
+            <Col sm={4}>
+              <Link
+                to={`${LICENSES_PATHNAME}/${createdLicence.data.id}`}
+                component={LinkButton}
+                variant="primary"
+                block
+              >
+                View Licence
+              </Link>
+            </Col>
             <Col sm={4} />
             <Col sm={4}>
               <Button
@@ -96,160 +116,163 @@ export default function CreateLicence() {
 
   return (
     <section>
-      <h2>Create a Licence</h2>
-      <Form onSubmit={handleSubmit(onSubmit)} noValidate>
-        <Form.Row>
-          <Col sm={6}>
-            <LicenceTypes ref={register} />
-          </Col>
-        </Form.Row>
-        <h3>Licence Details</h3>
-        <Form.Row>
-          <Col sm={4}>
-            <CustomDatePicker
-              id="applicationDate"
-              label="Application Date"
-              notifyOnChange={handleFieldChange("applicationDate")}
-              defaultValue={today}
-            />
-          </Col>
-          <Col sm={8}>
-            <Regions
-              regions={regions}
-              ref={register}
-              isInvalid={errors.region}
-            />
-          </Col>
-        </Form.Row>
-        <Form.Row>
-          <Col sm={4}>
-            <CustomDatePicker
-              id="issuedOnDate"
-              label="Issued On"
-              notifyOnChange={handleFieldChange("issuedOnDate")}
-              defaultValue={today}
-              isInvalid={errors.issuedOnDate}
-            />
-          </Col>
-          <Col sm={8}>
-            <RegionalDistricts
-              regions={regions}
-              selectedRegion={parsedRegion}
-              ref={register}
-              isInvalid={errors.regionalDistrict}
-            />
-          </Col>
-        </Form.Row>
-        <Form.Row>
-          <Col sm={4}>
-            <CustomDatePicker
-              id="expiryDate"
-              label="Expiry Date"
-              notifyOnChange={handleFieldChange("expiryDate")}
-            />
-          </Col>
-          <Col sm={8}>
-            <LicenceStatuses ref={register} />
-          </Col>
-        </Form.Row>
-        <Form.Row>
-          <Col md={4}>
-            <Form.Group controlId="paymentReceived">
-              <CustomCheckBox
-                id="paymentReceived"
-                label="Payment Received"
-                ref={register}
-              />
-            </Form.Group>
-          </Col>
-          <Col md={4}>
-            {watchPaymentReceived && (
-              <Form.Group controlId="feePaidAmount">
-                <Form.Label>Fee Paid Amount</Form.Label>
-                <InputGroup>
-                  <InputGroup.Prepend>
-                    <InputGroup.Text>$</InputGroup.Text>
-                  </InputGroup.Prepend>
-                  <Form.Control
-                    type="text"
-                    name="feePaidAmount"
-                    ref={register({
-                      required: true,
-                      pattern: /^(\d|[1-9]\d+)(\.\d{2})?$/i,
-                    })}
-                    isInvalid={errors.feePaidAmount}
+      <PageHeading>Create a Licence</PageHeading>
+      <section>
+        <Container>
+          <Form onSubmit={handleSubmit(onSubmit)} noValidate>
+            <Form.Row>
+              <Col sm={6}>
+                <LicenceTypes ref={register} />
+              </Col>
+            </Form.Row>
+            <SectionHeading>Licence Details</SectionHeading>
+            <Form.Row>
+              <Col sm={4}>
+                <CustomDatePicker
+                  id="applicationDate"
+                  label="Application Date"
+                  notifyOnChange={handleFieldChange("applicationDate")}
+                  defaultValue={today}
+                />
+              </Col>
+              <Col sm={8}>
+                <Regions
+                  regions={regions}
+                  ref={register}
+                  isInvalid={errors.region}
+                />
+              </Col>
+            </Form.Row>
+            <Form.Row>
+              <Col sm={4}>
+                <CustomDatePicker
+                  id="issuedOnDate"
+                  label="Issued On"
+                  notifyOnChange={handleFieldChange("issuedOnDate")}
+                  defaultValue={today}
+                  isInvalid={errors.issuedOnDate}
+                />
+              </Col>
+              <Col sm={8}>
+                <RegionalDistricts
+                  regions={regions}
+                  selectedRegion={parsedRegion}
+                  ref={register}
+                  isInvalid={errors.regionalDistrict}
+                />
+              </Col>
+            </Form.Row>
+            <Form.Row>
+              <Col sm={4}>
+                <CustomDatePicker
+                  id="expiryDate"
+                  label="Expiry Date"
+                  notifyOnChange={handleFieldChange("expiryDate")}
+                />
+              </Col>
+              <Col sm={8}>
+                <LicenceStatuses ref={register} />
+              </Col>
+            </Form.Row>
+            <Form.Row>
+              <Col md={4}>
+                <Form.Group controlId="paymentReceived">
+                  <CustomCheckBox
+                    id="paymentReceived"
+                    label="Payment Received"
+                    ref={register}
                   />
-                  <Form.Control.Feedback type="invalid">
-                    Please enter a valid monetary amount.
-                  </Form.Control.Feedback>
-                </InputGroup>
-              </Form.Group>
+                </Form.Group>
+              </Col>
+              <Col md={4}>
+                {watchPaymentReceived && (
+                  <Form.Group controlId="feePaidAmount">
+                    <Form.Label>Fee Paid Amount</Form.Label>
+                    <InputGroup>
+                      <InputGroup.Prepend>
+                        <InputGroup.Text>$</InputGroup.Text>
+                      </InputGroup.Prepend>
+                      <Form.Control
+                        type="text"
+                        name="feePaidAmount"
+                        ref={register({
+                          required: true,
+                          pattern: /^(\d|[1-9]\d+)(\.\d{2})?$/i,
+                        })}
+                        isInvalid={errors.feePaidAmount}
+                      />
+                      <Form.Control.Feedback type="invalid">
+                        Please enter a valid monetary amount.
+                      </Form.Control.Feedback>
+                    </InputGroup>
+                  </Form.Group>
+                )}
+              </Col>
+            </Form.Row>
+            <Form.Row>
+              <Col sm={4}>
+                <Form.Group controlId="actionRequired">
+                  <CustomCheckBox
+                    id="actionRequired"
+                    label="Action Required"
+                    ref={register}
+                  />
+                </Form.Group>
+              </Col>
+              <Col sm={4}>
+                <Form.Group controlId="printLicence">
+                  <CustomCheckBox
+                    id="printLicence"
+                    label="Print Licence"
+                    ref={register}
+                  />
+                </Form.Group>
+              </Col>
+              <Col sm={4}>
+                <Form.Group controlId="renewalNotice">
+                  <CustomCheckBox
+                    id="renewalNotice"
+                    label="Renewal Notice"
+                    ref={register}
+                  />
+                </Form.Group>
+              </Col>
+            </Form.Row>
+            <Form.Row>
+              <Col sm={4} />
+              <Col sm={4} />
+              <Col sm={4}>
+                <Form.Group>
+                  <Button
+                    type="submit"
+                    disabled={createdLicence.status === REQUEST_STATUS.PENDING}
+                    variant="primary"
+                    block
+                  >
+                    {createdLicence.status === REQUEST_STATUS.PENDING
+                      ? "Submitting..."
+                      : "Create"}
+                  </Button>
+                </Form.Group>
+              </Col>
+            </Form.Row>
+            {createdLicence.status === REQUEST_STATUS.REJECTED && (
+              <Form.Row>
+                <Col sm={12}>
+                  <Alert variant="danger">
+                    <Alert.Heading>
+                      An error was encountered while submitting the form.
+                    </Alert.Heading>
+                    <p>
+                      {`${createdLicence.error.code}: ${createdLicence.error.description}`}
+                    </p>
+                  </Alert>
+                </Col>
+              </Form.Row>
             )}
-          </Col>
-        </Form.Row>
-        <Form.Row>
-          <Col sm={4}>
-            <Form.Group controlId="actionRequired">
-              <CustomCheckBox
-                id="actionRequired"
-                label="Action Required"
-                ref={register}
-              />
-            </Form.Group>
-          </Col>
-          <Col sm={4}>
-            <Form.Group controlId="printLicence">
-              <CustomCheckBox
-                id="printLicence"
-                label="Print Licence"
-                ref={register}
-              />
-            </Form.Group>
-          </Col>
-          <Col sm={4}>
-            <Form.Group controlId="renewalNotice">
-              <CustomCheckBox
-                id="renewalNotice"
-                label="Renewal Notice"
-                ref={register}
-              />
-            </Form.Group>
-          </Col>
-        </Form.Row>
-        <Form.Row>
-          <Col sm={4} />
-          <Col sm={4} />
-          <Col sm={4}>
-            <Form.Group>
-              <Button
-                type="submit"
-                disabled={createdLicence.status === REQUEST_STATUS.PENDING}
-                variant="primary"
-                block
-              >
-                {createdLicence.status === REQUEST_STATUS.PENDING
-                  ? "Submitting..."
-                  : "Create"}
-              </Button>
-            </Form.Group>
-          </Col>
-        </Form.Row>
-        {createdLicence.status === REQUEST_STATUS.REJECTED && (
-          <Form.Row>
-            <Col sm={12}>
-              <Alert variant="danger">
-                <Alert.Heading>
-                  An error was encountered when submitting the form.
-                </Alert.Heading>
-                <p>
-                  {createdLicence.error.code}:{" "}
-                  {createdLicence.error.description}
-                </p>
-              </Alert>
-            </Col>
-          </Form.Row>
-        )}
-      </Form>
+          </Form>
+        </Container>
+      </section>
     </section>
   );
 }
