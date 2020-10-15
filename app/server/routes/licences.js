@@ -1,10 +1,17 @@
 const express = require("express");
 const { PrismaClient } = require("@prisma/client");
-const { getCurrentUser } = require("../utilities/user");
+const { populateAuditingColumns } = require("../utilities/auditing");
 const licence = require("../models/licence");
+const registrant = require("../models/registrant");
 
 const router = express.Router();
 const prisma = new PrismaClient();
+
+const REGISTRANT_STATUS = {
+  NEW: "new",
+  EXISTING: "existing",
+  DELETED: "deleted",
+};
 
 async function findLicence(licenceId) {
   return prisma.mal_licence.findOne({
@@ -16,6 +23,11 @@ async function findLicence(licenceId) {
       mal_region_lu: true,
       mal_regional_district_lu: true,
       mal_status_code_lu: true,
+      mal_licence_registrant_xref: {
+        select: {
+          mal_registrant: true,
+        },
+      },
     },
   });
 }
@@ -24,6 +36,17 @@ async function createLicence(payload) {
   return prisma.mal_licence.create({
     data: payload,
   });
+}
+
+async function createRegistrants(payloads) {
+  return Promise.all(
+    payloads.map(async (payload) => {
+      const result = await prisma.mal_licence_registrant_xref.create({
+        data: payload,
+      });
+      return result;
+    })
+  );
 }
 
 router.get("/:licenceId(\\d+)", async (req, res, next) => {
@@ -46,20 +69,30 @@ router.get("/:licenceId(\\d+)", async (req, res, next) => {
 });
 
 router.post("/", async (req, res, next) => {
-  const currentUser = getCurrentUser();
   const now = new Date();
 
-  const payload = licence.convertToPhysicalModel({
-    ...req.body,
-    createdBy: currentUser.idir,
-    createdOn: now,
-    updatedBy: currentUser.idir,
-    updatedOn: now,
-  });
+  const licencePayload = licence.convertToPhysicalModel(
+    populateAuditingColumns(req.body, now, now)
+  );
+  const newRegistrants = req.body.registrants
+    ? req.body.registrants.filter(
+        (r) => r && r.status === REGISTRANT_STATUS.NEW
+      )
+    : [];
 
-  await createLicence(payload)
-    .then((record) => {
-      return res.send(record);
+  await createLicence(licencePayload)
+    .then(async (record) => {
+      const licenceId = record.id;
+
+      const newRegistrantPayloads = newRegistrants.map((r) =>
+        registrant.convertToNewLicenceXrefPhysicalModel(r, licenceId, now)
+      );
+      await createRegistrants(newRegistrantPayloads);
+
+      return licenceId;
+    })
+    .then((licenceId) => {
+      return res.send({ id: licenceId });
     })
     .catch(next)
     .finally(async () => prisma.$disconnect());
