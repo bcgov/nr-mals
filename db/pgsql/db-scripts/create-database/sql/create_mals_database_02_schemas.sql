@@ -8,6 +8,8 @@ SET client_min_messages = warning;
 
 drop schema if exists public;
 
+drop schema if exists mals_app;
+
 create schema mals_app;
 grant all on schema mals_app to mals;
 
