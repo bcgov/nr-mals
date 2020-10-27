@@ -1,21 +1,14 @@
-import React, { useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import React from "react";
+import PropTypes from "prop-types";
+import { useSelector } from "react-redux";
 import { Form, Alert, Spinner } from "react-bootstrap";
 
 import { REQUEST_STATUS } from "../../utilities/constants";
 
-import {
-  fetchLicenceStatuses,
-  selectLicenceStatuses,
-} from "./licenceStatusesSlice";
+import { selectLicenceStatuses } from "./licenceStatusesSlice";
 
-export default React.forwardRef((props, ref) => {
+const LicenceStatuses = React.forwardRef(({ isInvalid }, ref) => {
   const licenceStatuses = useSelector(selectLicenceStatuses);
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    dispatch(fetchLicenceStatuses());
-  }, [dispatch]);
 
   let control = (
     <div>
@@ -25,15 +18,26 @@ export default React.forwardRef((props, ref) => {
     </div>
   );
 
-  if (licenceStatuses.status === REQUEST_STATUS.FULFILLED) {
+  if (licenceStatuses.data) {
     control = (
-      <Form.Control as="select" name="licenceStatus" ref={ref} custom>
-        {licenceStatuses.data.map((type) => (
-          <option key={type.id} value={type.id}>
-            {type.code_description}
-          </option>
-        ))}
-      </Form.Control>
+      <>
+        <Form.Control
+          as="select"
+          name="licenceStatus"
+          isInvalid={isInvalid}
+          ref={ref}
+          custom
+        >
+          {licenceStatuses.data.map((type) => (
+            <option key={type.id} value={type.id}>
+              {type.code_description}
+            </option>
+          ))}
+        </Form.Control>
+        <Form.Control.Feedback type="invalid">
+          Please select a licence status.
+        </Form.Control.Feedback>
+      </>
     );
   } else if (licenceStatuses.status === REQUEST_STATUS.REJECTED) {
     control = <Alert variant="danger">Error loading licence statuses</Alert>;
@@ -46,3 +50,13 @@ export default React.forwardRef((props, ref) => {
     </Form.Group>
   );
 });
+
+LicenceStatuses.propTypes = {
+  isInvalid: PropTypes.object,
+};
+
+LicenceStatuses.defaultProps = {
+  isInvalid: undefined,
+};
+
+export default LicenceStatuses;

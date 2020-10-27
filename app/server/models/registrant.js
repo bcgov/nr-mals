@@ -1,4 +1,4 @@
-const { populateAuditingColumns } = require("../utilities/auditing");
+const { populateAuditColumnsCreate } = require("../utilities/auditing");
 
 function convertToLogicalModel(input) {
   const output = {
@@ -51,14 +51,14 @@ function convertLicenceXrefToPhysicalModel(input) {
 function convertToNewLicenceXrefPhysicalModel(input, licenceId, date) {
   const output = {
     ...convertLicenceXrefToPhysicalModel(
-      populateAuditingColumns(undefined, date, date)
+      populateAuditColumnsCreate(undefined, date, date)
     ),
     mal_licence: {
       connect: { id: licenceId },
     },
     mal_registrant: {
       create: convertToPhysicalModel(
-        populateAuditingColumns(input, date, date)
+        populateAuditColumnsCreate(input, date, date)
       ),
     },
   };

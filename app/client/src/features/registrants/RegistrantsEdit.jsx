@@ -4,7 +4,7 @@ import { Button, Tab } from "react-bootstrap";
 
 import { REGISTRANT_MODE, REGISTRANT_STATUS } from "../../utilities/constants";
 
-import RegistrantEdit from "./RegistrantEdit";
+import RegistrantDetailsEdit from "./RegistrantDetailsEdit";
 
 function useRegistrantController(
   registrants,
@@ -108,7 +108,7 @@ export default function RegistrantsEdit({
       {activeRegistrants.map((registrant) => {
         return (
           <Tab.Pane key={registrant.key} eventKey={registrant.key}>
-            <RegistrantEdit registrant={registrant} form={form} />
+            <RegistrantDetailsEdit registrant={registrant} form={form} />
             <Button
               onClick={() => removeRegistrant(registrant.key)}
               variant="secondary"

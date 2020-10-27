@@ -1,0 +1,2577 @@
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', 'mals_app', true);
+ set_config 
+------------
+ mals_app
+(1 row)
+
+SET check_function_bodies = false;
+SET client_min_messages = warning;	
+	
+--
+-- DROP:  ALL TABLES
+--
+
+DROP TABLE IF EXISTS mal_inventory_fur_farm;
+DROP TABLE IF EXISTS mal_inventory_game_farm;
+DROP TABLE IF EXISTS mal_licence_comment;
+DROP TABLE IF EXISTS mal_licence_registrant_xref;
+DROP TABLE IF EXISTS mal_registrant;
+DROP TABLE IF EXISTS mal_licence;
+DROP TABLE IF EXISTS mal_licence_type_lu;
+DROP TABLE IF EXISTS mal_plant_code_lu;
+DROP TABLE IF EXISTS mal_regional_district_lu;
+DROP TABLE IF EXISTS mal_region_lu;
+DROP TABLE IF EXISTS mal_status_code_lu;
+DROP TABLE IF EXISTS mal_species_dairy_inventory_code_lu;
+DROP TABLE IF EXISTS mal_species_dairy_code_lu;
+DROP TABLE IF EXISTS mal_species_fur_inventory_code_lu;
+DROP TABLE IF EXISTS mal_species_fur_code_lu;
+DROP TABLE IF EXISTS mal_species_game_inventory_code_lu;
+DROP TABLE IF EXISTS mal_species_game_code_lu;
+DROP TABLE IF EXISTS mal_species_sale_inventory_code_lu;
+DROP TABLE IF EXISTS mal_species_sale_code_lu;
+/*
+DROP TABLE IF EXISTS ;
+*/
+
+
+--
+-- TABLE:  MAL_ADD_REASON_CODE_LU
+--
+
+CREATE TABLE mal_add_reason_code_lu (
+	id integer generated always as identity (start with 60000 increment by 1) NOT NULL,
+	code_name varchar(50) UNIQUE NOT NULL,
+	code_description varchar(120) NOT NULL,
+	active_flag boolean NOT NULL,
+	create_userid varchar(63) NOT NULL,
+	create_timestamp timestamp NOT NULL,
+	update_userid varchar(63) NOT NULL,
+	update_timestamp timestamp NOT NULL
+) ;
+ALTER TABLE mal_add_reason_code_lu ADD PRIMARY KEY (id);
+CREATE UNIQUE INDEX mal_arcd_code_name_uk ON mal_add_reason_code_lu (code_name);
+
+--
+-- TABLE:  MAL_DELETE_REASON_CODE_LU
+--
+
+CREATE TABLE mal_delete_reason_code_lu (
+	id integer generated always as identity (start with 60000 increment by 1) NOT NULL,
+	code_name varchar(50) UNIQUE NOT NULL,
+	code_description varchar(120) NOT NULL,
+	active_flag boolean NOT NULL,
+	create_userid varchar(63) NOT NULL,
+	create_timestamp timestamp NOT NULL,
+	update_userid varchar(63) NOT NULL,
+	update_timestamp timestamp NOT NULL
+) ;
+ALTER TABLE mal_delete_reason_code_lu ADD PRIMARY KEY (id);
+CREATE UNIQUE INDEX mal_drcd_code_name_uk ON mal_delete_reason_code_lu (code_name);
+
+--
+-- TABLE:  MAL_INVENTORY_FUR_FARM
+--
+
+CREATE TABLE mal_inventory_fur_farm (
+	id integer generated always as identity (start with 60000 increment by 1) NOT NULL,
+	licence_id integer NOT NULL,
+	species_fur_code_id NOT integer,
+	species_fur_inventory_code_id integer NOT NULL,
+	recorded_date timestamp NOT NULL,
+	recorded_value double precision NOT NULL,
+	old_identifier varchar(100),
+	create_userid varchar(30) NOT NULL,
+	create_timestamp timestamp NOT NULL,
+	update_userid varchar(30) NOT NULL,
+	update_timestamp timestamp NOT NULL
+) ;
+ALTER TABLE mal_inventory_fur_farm ADD PRIMARY KEY (id);
+CREATE UNIQUE INDEX inv_invfurfrm_uidx ON mal_inventory_fur_farm (licence_id, species_fur_code_id, species_fur_inventory_code_id, recorded_date);
+ALTER TABLE mal_inventory_fur_farm ADD CONSTRAINT inv_invfurfrm_uk UNIQUE USING INDEX inv_invfurfrm_uidx;
+CREATE INDEX mal_invfurfrm_licence_id_idx ON mal_inventory_fur_farm (licence_id);
+CREATE INDEX mal_invfurfrm_species_fur_code_id_idx ON mal_inventory_fur_farm (species_fur_code_id);
+CREATE INDEX mal_invfurfrm_species_fur_inventory_code_id_idx ON mal_inventory_fur_farm (species_fur_inventory_code_id);
+
+--
+-- TABLE:  MAL_INVENTORY_GAME_FARM
+--
+
+CREATE TABLE mal_inventory_game_farm (
+	id integer generated always as identity (start with 60000 increment by 1) NOT NULL,
+	licence_id integer NOT NULL,
+	species_game_code_id integer NOT NULL,
+	species_game_inventory_code_id integer NOT NULL,
+	add_reason_code_id integer NULL, 
+	delete_reason_code_id integer NULL, 
+	recorded_date timestamp NOT NULL,
+	recorded_value double precision NOT NULL,	
+	tag_number varchar(10) NULL,
+	abattoir varchar(20) NULL,
+	buyer_seller  varchar(50) NULL,	
+	create_userid varchar(30) NOT NULL,
+	create_timestamp timestamp NOT NULL,
+	update_userid varchar(30) NOT NULL,
+	update_timestamp timestamp NOT NULL
+) ;
+COMMENT ON COLUMN mal_inventory_game_farm.tag_number IS E'The unique number of the tag for this animal.';
+ALTER TABLE mal_inventory_game_farm ADD PRIMARY KEY (id);
+CREATE UNIQUE INDEX inv_invgamfrm_uidx ON mal_inventory_game_farm (licence_id, species_game_code_id, species_game_inventory_code_id, recorded_date, tag_number);
+ALTER TABLE mal_inventory_game_farm ADD CONSTRAINT inv_invgamfrm_uk UNIQUE USING INDEX inv_invgamfrm_uidx;
+CREATE INDEX mal_invgamfrm_licence_id_idx ON mal_inventory_game_farm (licence_id);
+CREATE INDEX mal_invgamfrm_species_game_code_id_idx ON mal_inventory_game_farm (species_game_code_id);
+CREATE INDEX mal_invgamfrm_species_game_inventory_code_id_idx ON mal_inventory_game_farm (species_game_inventory_code_id);
+
+--
+-- TABLE:  MAL_LICENCE
+--
+
+CREATE TABLE mal_licence (
+	id integer generated always as identity (start with 60000 increment by 1) NOT NULL,
+	licence_number integer generated always as identity (start with 60000 increment by 1) NOT NULL,
+	licence_type_id integer NOT NULL,
+	person_id integer,
+	region_id integer,
+	regional_district_id integer, 
+	status_code_id integer NOT NULL,
+	plant_code_id integer,
+	species_game_code_id integer,
+	application_date date,
+	issue_date date,
+	expiry_date date,
+	fee_collected numeric(10,2),
+	fee_collected_ind boolean NOT NULL DEFAULT false,
+	bond_carrier_phone_number varchar(10),
+	bond_number varchar(50),
+	bond_value numeric(10,2),
+	bond_carrier_name varchar(50),
+	bond_continuation_expiry_date date,
+	action_required boolean,
+	licence_prn_requested boolean,
+	renewal_prn_requested boolean,
+	recheck_prn_requested boolean,
+	details varchar(2000),
+	dpl_approved_date date,
+	dpl_received_date date,
+	exam_date date,
+	exam_fee numeric(10,2),
+	irma_number varchar(10),
+	former_irma_number varchar(10),
+	dairy_levy numeric(38),
+	df_active_ind boolean,
+	hives_per_apiary integer,
+	total_hives integer,
+	psyo_ld_licence_id integer,
+	psyo_ld_dealer_name varchar(50),
+	lda_ld_licence_id integer,
+	lda_ld_dealer_name varchar(50),
+	yrd_psyo_licence_id integer,
+	yrd_psyo_business_name varchar(50),
+	old_identifier varchar(100),
+	create_userid varchar(63) NOT NULL,
+	create_timestamp timestamp NOT NULL,
+	update_userid varchar(63) NOT NULL,
+	update_timestamp timestamp NOT NULL
+) ;
+ALTER TABLE mal_licence ADD PRIMARY KEY (id);
+CREATE INDEX mal_lic_irma_number_idx          on mal_licence using btree (irma_number);
+CREATE INDEX mal_lic_licence_type_id_idx      on mal_licence using btree (licence_type_id);
+CREATE INDEX mal_lic_person_id_idx            on mal_licence using btree (person_id);
+CREATE INDEX mal_lic_plant_code_idx           on mal_licence using btree (plant_code_id);
+CREATE INDEX mal_lic_region_id_idx            on mal_licence using btree (region_id);
+CREATE INDEX mal_lic_regional_district_id_idx on mal_licence using btree (regional_district_id);
+CREATE INDEX mal_lic_status_code_id_idx       on mal_licence using btree (status_code_id);
+
+--
+-- TABLE:  MAL_LICENCE_COMMENT
+--
+
+CREATE TABLE mal_licence_comment (
+	id integer generated always as identity (start with 60000 increment by 1) NOT NULL,
+	licence_id integer NOT NULL,
+	licence_comment varchar(4000) NOT NULL,
+	create_userid varchar(63) NOT NULL,
+	create_timestamp timestamp NOT NULL,
+	update_userid varchar(63) NOT NULL,
+	update_timestamp timestamp NOT NULL
+) ;
+ALTER TABLE mal_licence_comment ADD PRIMARY KEY (id);
+CREATE INDEX mal_liccmnt_license_id_idx on mal_licence_comment using btree (licence_id);
+
+--
+-- TABLE:  MAL_LICENCE_REGISTRANT_XREF
+--
+
+CREATE TABLE mal_licence_registrant_xref (
+	id integer generated always as identity (start with 60000 increment by 1) NOT NULL,
+	licence_id integer NOT NULL,
+	registrant_id integer NOT NULL,
+	create_userid varchar(63) NOT NULL,
+	create_timestamp timestamp NOT NULL,
+	update_userid varchar(63) NOT NULL,
+	update_timestamp timestamp NOT NULL
+) ;
+ALTER TABLE mal_licence_registrant_xref ADD PRIMARY KEY (id);
+CREATE INDEX mal_licregxref_licence_id_idx on mal_licence_registrant_xref using btree (licence_id);
+CREATE INDEX mal_licregxref_registrant_id_idx on mal_licence_registrant_xref using btree (registrant_id);
+
+--
+-- TABLE:  MAL_LICENCE_TYPE_LU
+--
+
+CREATE TABLE mal_licence_type_lu (
+	id integer generated always as identity (start with 60000 increment by 1) NOT NULL,
+	licence_name varchar(50) UNIQUE NOT NULL,
+	standard_fee numeric(10,2) NOT NULL,
+	licence_term integer NOT NULL,
+	standard_issue_date timestamp,
+	standard_expiry_date timestamp,
+	renewal_notice smallint,
+	legislation varchar(2000) NOT NULL,
+	regulation varchar(2000),
+	create_userid varchar(63) NOT NULL,
+	create_timestamp timestamp NOT NULL,
+	update_userid varchar(63) NOT NULL,
+	update_timestamp timestamp NOT NULL
+) ;
+ALTER TABLE mal_licence_type_lu ADD PRIMARY KEY (id);
+CREATE UNIQUE INDEX mal_lictyp_licence_name_uk ON mal_licence_type_lu (licence_name, standard_issue_date);
+
+--
+-- TABLE:  MAL_PLANT_CODE_LU
+--
+
+CREATE TABLE mal_plant_code_lu (
+	id integer generated always as identity (start with 60000 increment by 1) NOT NULL,
+	code_name varchar(50) UNIQUE NOT NULL,
+	code_description varchar(120) NOT NULL,
+	active_flag boolean NOT NULL,
+	create_userid varchar(63) NOT NULL,
+	create_timestamp timestamp NOT NULL,
+	update_userid varchar(63) NOT NULL,
+	update_timestamp timestamp NOT NULL
+) ;
+ALTER TABLE mal_plant_code_lu ADD PRIMARY KEY (id);
+CREATE UNIQUE INDEX mal_plntcd_code_name_uk ON mal_plant_code_lu (code_name);
+
+--
+-- TABLE:  MAL_REGION_LU
+--
+
+CREATE TABLE mal_region_lu (
+	id integer generated always as identity (start with 60000 increment by 1) NOT NULL,
+	region_number varchar(50) NOT NULL,
+	region_name varchar(200) UNIQUE NOT NULL,
+	active_flag boolean NOT NULL,
+	create_userid varchar(63) NOT NULL,
+	create_timestamp timestamp NOT NULL,
+	update_userid varchar(63) NOT NULL,
+	update_timestamp timestamp NOT NULL
+) ;
+ALTER TABLE mal_region_lu ADD PRIMARY KEY (id);
+CREATE UNIQUE INDEX mal_reg_region_number_uk on mal_region_lu using btree (region_number);
+
+--
+-- TABLE:  MAL_REGIONAL_DISTRICT_LU
+--
+
+CREATE TABLE mal_regional_district_lu (
+	id integer generated always as identity (start with 60000 increment by 1) NOT NULL,
+	region_id integer NOT NULL,
+	district_number varchar(50) NOT NULL,
+	district_name varchar(200) NOT NULL,
+	active_flag boolean NOT NULL,
+	create_userid varchar(63) NOT NULL,
+	create_timestamp timestamp NOT NULL,
+	update_userid varchar(63) NOT NULL,
+	update_timestamp timestamp NOT NULL
+) ;
+ALTER TABLE mal_regional_district_lu ADD PRIMARY KEY (id);
+CREATE UNIQUE INDEX mal_regdist_region_district_uk on mal_regional_district_lu using btree (region_id, district_number);
+
+--
+-- TABLE:  MAL_REGISTRANT
+--
+
+CREATE TABLE mal_registrant (
+	id integer generated always as identity (start with 60000 increment by 1) NOT NULL,
+	first_name varchar(200),
+	last_name varchar(200),
+	middle_initials varchar(3),
+	official_title varchar(200),
+	company_name varchar(200),
+	primary_phone varchar(10),
+	email_address varchar(128),
+	create_userid varchar(63) NOT NULL,
+	create_timestamp timestamp NOT NULL,
+	update_userid varchar(63) NOT NULL,
+	update_timestamp timestamp NOT NULL
+) ;
+ALTER TABLE mal_registrant ADD PRIMARY KEY (id);
+CREATE INDEX mal_rgst_last_name_idx on mal_registrant using btree (last_name);
+CREATE INDEX mal_rgst_company_name_idx on mal_registrant using btree (company_name);
+
+--
+-- TABLE:  MAL_SPECIES_DAIRY_CODE_LU
+--
+
+CREATE TABLE mal_species_dairy_code_lu (
+	id integer generated always as identity (start with 60000 increment by 1) NOT NULL,
+	code_name varchar(50) UNIQUE NOT NULL,
+	code_description varchar(120) NULL,
+	active_flag boolean NOT NULL,
+	create_userid varchar(63) NOT NULL,
+	create_timestamp timestamp NOT NULL,
+	update_userid varchar(63) NOT NULL,
+	update_timestamp timestamp NOT NULL
+) ;
+ALTER TABLE mal_species_dairy_code_lu ADD PRIMARY KEY (id);
+CREATE UNIQUE INDEX mal_spcdrycd_code_name_uk on mal_species_dairy_code_lu using btree (code_name);
+	
+--
+-- TABLE:  MAL_SPECIES_DAIRY_INVENTORY_CODE_LU
+--
+
+CREATE TABLE mal_species_dairy_inventory_code_lu (
+	id integer generated always as identity (start with 60000 increment by 1) NOT NULL,
+	species_dairy_code_id integer NOT null,
+	code_name varchar(50) NOT NULL,
+	code_description varchar(120) NULL,
+	active_flag boolean NOT NULL,
+	create_userid varchar(63) NOT NULL,
+	create_timestamp timestamp NOT NULL,
+	update_userid varchar(63) NOT NULL,
+	update_timestamp timestamp NOT NULL
+) ;
+ALTER TABLE mal_species_dairy_inventory_code_lu ADD PRIMARY KEY (id);
+CREATE UNIQUE INDEX mal_spcdryinvcd_id_code_uk on mal_species_dairy_inventory_code_lu using btree (species_dairy_code_id, code_name);
+	
+--
+-- TABLE:  MAL_SPECIES_FUR_CODE_LU
+--
+
+CREATE TABLE mal_species_fur_code_lu (
+	id integer generated always as identity (start with 60000 increment by 1) NOT NULL,
+	code_name varchar(50) UNIQUE NOT NULL,
+	code_description varchar(120) NULL,
+	active_flag boolean NOT NULL,
+	create_userid varchar(63) NOT NULL,
+	create_timestamp timestamp NOT NULL,
+	update_userid varchar(63) NOT NULL,
+	update_timestamp timestamp NOT NULL
+) ;
+ALTER TABLE mal_species_fur_code_lu ADD PRIMARY KEY (id);
+CREATE UNIQUE INDEX mal_spcfurcd_code_name_uk on mal_species_fur_code_lu using btree (code_name);
+	
+--
+-- TABLE:  MAL_SPECIES_FUR_INVENTORY_CODE_LU
+--
+
+CREATE TABLE mal_species_fur_inventory_code_lu (
+	id integer generated always as identity (start with 60000 increment by 1) NOT NULL,
+	species_fur_code_id integer NOT null,
+	code_name varchar(50) NOT NULL,
+	code_description varchar(120) NULL,
+	active_flag boolean NOT NULL,
+	create_userid varchar(63) NOT NULL,
+	create_timestamp timestamp NOT NULL,
+	update_userid varchar(63) NOT NULL,
+	update_timestamp timestamp NOT NULL
+) ;
+ALTER TABLE mal_species_fur_inventory_code_lu ADD PRIMARY KEY (id);
+CREATE UNIQUE INDEX mal_spcfurinvcd_id_code_uk on mal_species_fur_inventory_code_lu using btree (species_fur_code_id, code_name);
+
+--
+-- TABLE:  MAL_SPECIES_GAME_CODE_LU
+--
+
+CREATE TABLE mal_species_game_code_lu (
+	id integer generated always as identity (start with 60000 increment by 1) NOT NULL,
+	code_name varchar(50) UNIQUE NOT NULL,
+	code_description varchar(120) NULL,
+	active_flag boolean NOT NULL,
+	create_userid varchar(63) NOT NULL,
+	create_timestamp timestamp NOT NULL,
+	update_userid varchar(63) NOT NULL,
+	update_timestamp timestamp NOT NULL
+) ;
+ALTER TABLE mal_species_game_code_lu ADD PRIMARY KEY (id);
+CREATE UNIQUE INDEX mal_spcgamcd_uk on mal_species_game_code_lu using btree (code_name);
+
+--
+-- TABLE:  MAL_SPECIES_GAME_INVENTORY_CODE_LU
+--
+
+CREATE TABLE mal_species_game_inventory_code_lu (
+	id integer generated always as identity (start with 60000 increment by 1) NOT NULL,
+	species_game_code_id integer NOT null,
+	code_name varchar(50) NOT NULL,
+	code_description varchar(120) NULL,
+	active_flag boolean NOT NULL,
+	create_userid varchar(63) NOT NULL,
+	create_timestamp timestamp NOT NULL,
+	update_userid varchar(63) NOT NULL,
+	update_timestamp timestamp NOT NULL
+) ;
+ALTER TABLE mal_species_game_inventory_code_lu ADD PRIMARY KEY (id);
+CREATE UNIQUE INDEX mal_spcgaminvcd_id_code_uk on mal_species_game_inventory_code_lu using btree (species_game_code_id, code_name);
+	
+--
+-- TABLE:  MAL_SPECIES_SALE_CODE_LU
+--
+
+CREATE TABLE mal_species_sale_code_lu (
+	id integer generated always as identity (start with 60000 increment by 1) NOT NULL,
+	code_name varchar(50) UNIQUE NOT NULL,
+	code_description varchar(120) NULL,
+	active_flag boolean NOT NULL,
+	create_userid varchar(63) NOT NULL,
+	create_timestamp timestamp NOT NULL,
+	update_userid varchar(63) NOT NULL,
+	update_timestamp timestamp NOT NULL
+) ;
+ALTER TABLE mal_species_sale_code_lu ADD PRIMARY KEY (id);
+CREATE UNIQUE INDEX mal_spcsalcd_code_name_uk on mal_species_sale_code_lu using btree (code_name);
+	
+--
+-- TABLE:  MAL_SPECIES_SALE_INVENTORY_CODE_LU
+--
+
+CREATE TABLE mal_species_sale_inventory_code_lu (
+	id integer generated always as identity (start with 60000 increment by 1) NOT NULL,
+	species_sale_code_id integer NOT null,
+	code_name varchar(50) NOT NULL,
+	code_description varchar(120) NOT NULL,
+	active_flag boolean NOT NULL,
+	create_userid varchar(63) NOT NULL,
+	create_timestamp timestamp NOT NULL,
+	update_userid varchar(63) NOT NULL,
+	update_timestamp timestamp NOT NULL
+) ;
+ALTER TABLE mal_species_sale_inventory_code_lu ADD PRIMARY KEY (id);
+CREATE UNIQUE INDEX mal_spcsalinvcd_id_code_uk on mal_species_sale_inventory_code_lu using btree (species_sale_code_id, code_name);
+
+--
+-- TABLE:  MAL_STATUS_CODE_LU
+--
+
+CREATE TABLE mal_status_code_lu (
+	id integer generated always as identity (start with 60000 increment by 1) NOT NULL,
+	code_name varchar(50) UNIQUE NOT NULL,
+	code_description varchar(120) NULL,
+	active_flag boolean NOT NULL,
+	create_userid varchar(63) NOT NULL,
+	create_timestamp timestamp NOT NULL,
+	update_userid varchar(63) NOT NULL,
+	update_timestamp timestamp NOT NULL
+) ;
+ALTER TABLE mal_status_code_lu ADD PRIMARY KEY (id);
+CREATE UNIQUE INDEX mal_statcd_code_name_uk on mal_status_code_lu using btree (code_name);
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', 'mals_app', true);
+ set_config 
+------------
+ mals_app
+(1 row)
+
+SET check_function_bodies = false;
+SET client_min_messages = warning;
+
+--
+-- TABLE:  MAL_FUR_FARM
+--
+alter table mal_inventory_fur_farm 
+  add constraint iff_lic_fk foreign key (licence_id) 
+  references mal_licence(id) 
+  on delete no action not deferrable initially immediate;
+--
+alter table mal_inventory_fur_farm 
+  add constraint iff_sfcl_fk foreign key (species_fur_code_id) 
+  references mal_species_fur_code_lu(id) 
+  on delete no action not deferrable initially immediate;
+--
+alter table mal_inventory_fur_farm 
+  add constraint iff_sficl_fk foreign key (species_fur_inventory_code_id) 
+  references mal_species_fur_inventory_code_lu(id) 
+  on delete no action not deferrable initially immediate;
+
+--
+-- TABLE:  MAL_GAME_FARM
+--
+alter table mal_inventory_game_farm 
+  add constraint igf_addrsn_fk foreign key (add_reason_code_id) 
+  references mal_add_reason_code_lu(id) 
+  on delete no action not deferrable initially immediate;
+--
+alter table mal_inventory_game_farm 
+  add constraint igf_delrsn_fk foreign key (delete_reason_code_id) 
+  references mal_delete_reason_code_lu(id) 
+  on delete no action not deferrable initially immediate;
+--
+alter table mal_inventory_game_farm 
+  add constraint igf_lic_fk foreign key (licence_id) 
+  references mal_licence(id) 
+  on delete no action not deferrable initially immediate;
+--
+alter table mal_inventory_game_farm 
+  add constraint igf_sfcl_fk foreign key (species_game_code_id) 
+  references mal_species_game_code_lu(id) 
+  on delete no action not deferrable initially immediate;
+--
+alter table mal_inventory_game_farm 
+  add constraint igf_sficl_fk foreign key (species_game_inventory_code_id) 
+  references mal_species_game_inventory_code_lu(id) 
+  on delete no action not deferrable initially immediate;
+
+--
+-- TABLE:  MAL_LICENCE
+--
+alter table mal_licence 
+  add constraint lic_lictyp_fk foreign key (licence_type_id) 
+  references mal_licence_type_lu(id) 
+  on delete no action not deferrable initially immediate;
+
+alter table mal_licence 
+  add constraint lic_reg_fk foreign key (region_id) 
+  references mal_region_lu(id) 
+  on delete no action not deferrable initially immediate;
+
+alter table mal_licence 
+  add constraint lic_regdist_fk foreign key (regional_district_id) 
+  references mal_regional_district_lu(id) 
+  on delete no action not deferrable initially immediate;
+
+alter table mal_licence 
+  add constraint lic_stat_fk foreign key (status_code_id) 
+  references mal_status_code_lu(id) 
+  on delete no action not deferrable initially immediate;
+
+alter table mal_licence 
+  add constraint lic_plnt_fk foreign key (plant_code_id) 
+  references mal_plant_code_lu(id) 
+  on delete no action not deferrable initially immediate;
+
+alter table mal_licence 
+  add constraint lic_specgame_fk foreign key (species_game_code_id) 
+  references mal_species_game_code_lu(id) 
+  on delete no action not deferrable initially immediate;
+
+--
+-- TABLE:  MAL_LICENCE_COMMENT
+--
+alter table mal_licence_comment 
+  add constraint liccmnt_lic_fk foreign key (licence_id) 
+  references mal_licence(id) 
+  on delete no action not deferrable initially immediate;
+
+--
+-- TABLE:  MAL_LICENCE_REGISTRANT_XREF
+--
+alter table mal_licence_registrant_xref 
+  add constraint licrgstxref_lic_fk foreign key (licence_id) 
+  references mal_licence(id) 
+  on delete no action not deferrable initially immediate;
+alter table mal_licence_registrant_xref 
+  add constraint licrgstxref_rgst_fk foreign key (registrant_id) 
+  references mal_registrant(id) 
+  on delete no action not deferrable initially immediate;
+ 
+--
+-- TABLE:  MAL_REGIONAL_DISTRICT
+--
+alter table mal_regional_district_lu
+  add constraint regdist_reg_fk foreign key (region_id) 
+  references mal_region_lu(id) 
+  on delete no action not deferrable initially immediate;
+  
+--
+-- TABLE:  MAL_SPECIES_DAIRY_INVENTORY_CODE_LU
+--
+alter table mals_app.mal_species_dairy_inventory_code_lu
+  add constraint sdicl_sdcl_fk foreign key (species_dairy_code_id) 
+  references mals_app.mal_species_dairy_code_lu(id) 
+  on delete no action not deferrable initially immediate;
+  
+--
+-- TABLE:  MAL_SPECIES_FUR_INVENTORY_CODE_LU
+--
+alter table mals_app.mal_species_fur_inventory_code_lu
+  add constraint sficl_sfcl_fk foreign key (species_fur_code_id) 
+  references mals_app.mal_species_fur_code_lu(id) 
+  on delete no action not deferrable initially immediate;
+  
+--
+-- TABLE:  MAL_SPECIES_GAME_INVENTORY_CODE_LU
+--
+alter table mals_app.mal_species_game_inventory_code_lu
+  add CONSTRAINT sgicl_sgcl_fk foreign key (species_game_code_id) 
+  references mals_app.mal_species_game_code_lu(id) 
+  on delete no action not deferrable initially immediate;
+  
+--
+-- TABLE:  MAL_SPECIES_SALE_INVENTORY_CODE_LU
+--
+alter table mals_app.mal_species_sale_inventory_code_lu
+  add constraint ssicl_sscl_fk foreign key (species_sale_code_id) 
+  references mals_app.mal_species_sale_code_lu(id) 
+  on delete no action not deferrable initially immediate;
+  
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', 'mals_app', true);
+ set_config 
+------------
+ mals_app
+(1 row)
+
+SET check_function_bodies = false;
+SET client_min_messages = warning;
+
+
+grant select, insert, update, delete on mal_add_reason_code_lu               to mals_app_role;
+grant select, insert, update, delete on mal_delete_reason_code_lu            to mals_app_role;
+grant select, insert, update, delete on mal_inventory_fur_farm               to mals_app_role;
+grant select, insert, update, delete on mal_inventory_game_farm              to mals_app_role;
+grant select, insert, update, delete on mal_licence                          to mals_app_role;
+grant select, insert, update, delete on mal_licence_comment                  to mals_app_role;
+grant select, insert, update, delete on mal_licence_registrant_xref          to mals_app_role;
+grant select, insert, update, delete on mal_licence_type_lu                  to mals_app_role;
+grant select, insert, update, delete on mal_plant_code_lu                    to mals_app_role;
+grant select, insert, update, delete on mal_region_lu                        to mals_app_role;
+grant select, insert, update, delete on mal_regional_district_lu             to mals_app_role;
+grant select, insert, update, delete on mal_registrant                       to mals_app_role;
+grant select, insert, update, delete on mal_species_dairy_code_lu            to mals_app_role;
+grant select, insert, update, delete on mal_species_dairy_inventory_code_lu  to mals_app_role;
+grant select, insert, update, delete on mal_species_fur_code_lu              to mals_app_role;
+grant select, insert, update, delete on mal_species_fur_inventory_code_lu    to mals_app_role;
+grant select, insert, update, delete on mal_species_game_code_lu             to mals_app_role;
+grant select, insert, update, delete on mal_species_game_inventory_code_lu   to mals_app_role;
+grant select, insert, update, delete on mal_species_sale_code_lu             to mals_app_role;
+grant select, insert, update, delete on mal_species_sale_inventory_code_lu   to mals_app_role;
+grant select, insert, update, delete on mal_status_code_lu                   to mals_app_role;
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', 'mals_app', true);
+ set_config 
+------------
+ mals_app
+(1 row)
+
+SET check_function_bodies = false;
+SET client_min_messages = warning;
+
+--
+-- FUNCTION:  FN_UPDATE_AUDIT_COLUMNS
+--
+
+create or replace function fn_update_audit_columns() 
+returns trigger as $$
+	begin
+	if TG_OP = 'UPDATE' then
+		NEW.update_timestamp  = current_timestamp;
+	elsif TG_OP = 'INSERT' then
+		NEW.create_userid     = coalesce(NEW.create_userid, current_user);
+		NEW.create_timestamp  = current_timestamp;
+		NEW.update_userid     = coalesce(NEW.update_userid, current_user);
+		NEW.update_timestamp  = current_timestamp;
+	end if;
+	return NEW;
+	end;
+$$ language 'plpgsql';
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', 'mals_app', true);
+ set_config 
+------------
+ mals_app
+(1 row)
+
+SET check_function_bodies = false;
+SET client_min_messages = warning;
+
+-- TABLE:  MAL_ADD_REASON_CODE_LU
+--
+create trigger trg_mal_add_reason_code_lu_biu
+before insert or update on mal_add_reason_code_lu
+  for each row execute function fn_update_audit_columns();
+
+-- TABLE:  MAL_DELETE_REASON_CODE_LU
+--
+create trigger trg_mal_delete_reason_code_lu_biu
+before insert or update on mal_delete_reason_code_lu
+  for each row execute function fn_update_audit_columns();
+
+-- TABLE:  MAL_INVENTORY_FUR_FARM
+--
+create trigger trg_mal_inventory_fur_farm_biu
+before insert or update on mal_inventory_fur_farm
+  for each row execute function fn_update_audit_columns();
+
+-- TABLE:  MAL_INVENTORY_GAME_FARM
+--
+create trigger trg_mal_inventory_game_farm_biu
+before insert or update on mal_inventory_game_farm
+  for each row execute function fn_update_audit_columns();
+ 
+--
+-- TABLE:  MAL_LICENCE
+--
+create trigger trg_mal_licence_biu
+before insert or update on mal_licence
+  for each row execute function fn_update_audit_columns();
+
+--
+-- TABLE:  MAL_LICENCE_COMMENT
+--
+create trigger trg_mal_licence_comment_biu
+before insert or update on mal_licence_comment
+  for each row execute function fn_update_audit_columns();
+
+--
+-- TABLE:  MAL_LICENCE_REGISTRANT_XREF
+--
+create trigger trg_mal_licence_registrant_xref_biu
+before insert or update on mal_licence_registrant_xref
+  for each row execute function fn_update_audit_columns();
+
+--
+-- TABLE:  MAL_LICENCE_TYPE_LU
+--
+create trigger trg_mal_licence_type_lu_biu
+before insert or update on mal_licence_type_lu
+  for each row execute function fn_update_audit_columns();
+
+--
+-- TABLE:  MAL_PLANT_CODE_LU
+--
+create trigger trg_mal_plant_code_lu_biu
+before insert or update on mal_plant_code_lu
+  for each row execute function fn_update_audit_columns();
+
+--
+-- TABLE:  MAL_REGION_LU
+--
+create trigger trg_mal_region_lu_biu
+before insert or update on mal_region_lu
+  for each row execute function fn_update_audit_columns();
+
+--
+-- TABLE:  MAL_REGIONAL_DISTRICT_LU
+--
+create trigger trg_mal_regional_district_lu_biu
+before insert or update on mal_regional_district_lu
+  for each row execute function fn_update_audit_columns();
+
+--
+-- TABLE:  MAL_REGISTRANT
+--
+create trigger trg_mal_registrant_biu
+before insert or update on mal_registrant
+  for each row execute function fn_update_audit_columns();
+
+-- TABLE:  MAL_SPECIES_DAIRY_CODE_LU
+--
+create trigger trg_mal_species_dairy_code_lu_biu
+before insert or update on mal_species_dairy_code_lu
+  for each row execute function fn_update_audit_columns();
+
+-- TABLE:  MAL_SPECIES_DAIRY_INVENTORY_CODE_LU
+--
+create trigger trg_mal_species_dairy_inventory_code_lu_biu
+before insert or update on mal_species_dairy_inventory_code_lu
+  for each row execute function fn_update_audit_columns();
+
+-- TABLE:  MAL_SPECIES_FUR_CODE_LU
+--
+create trigger trg_mal_species_fur_code_lu_biu
+before insert or update on mal_species_fur_code_lu
+  for each row execute function fn_update_audit_columns();
+
+-- TABLE:  MAL_SPECIES_FUR_INVENTORY_CODE_LU
+--
+create trigger trg_mal_species_fur_inventory_code_lu_biu
+before insert or update on mal_species_fur_inventory_code_lu
+  for each row execute function fn_update_audit_columns();
+
+--
+-- TABLE:  MAL_SPECIES_GAME_CODE_LU
+--
+create trigger trg_mal_species_game_code_lu_biu
+before insert or update on mal_species_game_code_lu
+  for each row execute function fn_update_audit_columns();
+
+-- TABLE:  MAL_SPECIES_GAME_INVENTORY_CODE_LU
+--
+create trigger trg_mal_species_game_inventory_code_lu_biu
+before insert or update on mal_species_game_inventory_code_lu
+  for each row execute function fn_update_audit_columns();
+
+-- TABLE:  MAL_SPECIES_SALE_CODE_LU
+--
+create trigger trg_mal_species_sale_code_lu_biu
+before insert or update on mal_species_sale_code_lu
+  for each row execute function fn_update_audit_columns();
+
+-- TABLE:  MAL_SPECIES_SALE_INVENTORY_CODE_LU
+--
+create trigger trg_mal_species_sale_inventory_code_lu_biu
+before insert or update on mal_species_sale_inventory_code_lu
+  for each row execute function fn_update_audit_columns();
+
+--
+-- TABLE:  MAL_STATUS_CODE_LU
+--
+create trigger trg_mal_status_code_lu_biu
+before insert or update on mal_status_code_lu
+  for each row execute function fn_update_audit_columns();
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', 'mals_app', true);
+ set_config 
+------------
+ mals_app
+(1 row)
+
+SET check_function_bodies = false;
+SET client_min_messages = warning;
+
+--
+-- TABLE:  MAL_STATUS_CODE_LU
+--
+
+insert into mal_status_code_lu(code_name, code_description)
+  values ('DRA','Draft');
+  
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', 'mals_app', true);
+ set_config 
+------------
+ mals_app
+(1 row)
+
+SET check_function_bodies = false;
+SET client_min_messages = warning;	
+	
+--
+-- DROP:  ALL TABLES
+--
+
+DROP TABLE IF EXISTS mal_inventory_fur_farm;
+DROP TABLE IF EXISTS mal_inventory_game_farm;
+DROP TABLE IF EXISTS mal_licence_comment;
+DROP TABLE IF EXISTS mal_licence_registrant_xref;
+DROP TABLE IF EXISTS mal_registrant;
+DROP TABLE IF EXISTS mal_licence;
+DROP TABLE IF EXISTS mal_licence_type_lu;
+DROP TABLE IF EXISTS mal_plant_code_lu;
+DROP TABLE IF EXISTS mal_regional_district_lu;
+DROP TABLE IF EXISTS mal_region_lu;
+DROP TABLE IF EXISTS mal_status_code_lu;
+DROP TABLE IF EXISTS mal_species_dairy_inventory_code_lu;
+DROP TABLE IF EXISTS mal_species_dairy_code_lu;
+DROP TABLE IF EXISTS mal_species_fur_inventory_code_lu;
+DROP TABLE IF EXISTS mal_species_fur_code_lu;
+DROP TABLE IF EXISTS mal_species_game_inventory_code_lu;
+DROP TABLE IF EXISTS mal_species_game_code_lu;
+DROP TABLE IF EXISTS mal_species_sale_inventory_code_lu;
+DROP TABLE IF EXISTS mal_species_sale_code_lu;
+/*
+DROP TABLE IF EXISTS ;
+*/
+
+
+--
+-- TABLE:  MAL_ADD_REASON_CODE_LU
+--
+
+CREATE TABLE mal_add_reason_code_lu (
+	id integer generated always as identity (start with 60000 increment by 1) NOT NULL,
+	code_name varchar(50) UNIQUE NOT NULL,
+	code_description varchar(120) NOT NULL,
+	active_flag boolean NOT NULL,
+	create_userid varchar(63) NOT NULL,
+	create_timestamp timestamp NOT NULL,
+	update_userid varchar(63) NOT NULL,
+	update_timestamp timestamp NOT NULL
+) ;
+ALTER TABLE mal_add_reason_code_lu ADD PRIMARY KEY (id);
+CREATE UNIQUE INDEX mal_arcd_code_name_uk ON mal_add_reason_code_lu (code_name);
+
+--
+-- TABLE:  MAL_DELETE_REASON_CODE_LU
+--
+
+CREATE TABLE mal_delete_reason_code_lu (
+	id integer generated always as identity (start with 60000 increment by 1) NOT NULL,
+	code_name varchar(50) UNIQUE NOT NULL,
+	code_description varchar(120) NOT NULL,
+	active_flag boolean NOT NULL,
+	create_userid varchar(63) NOT NULL,
+	create_timestamp timestamp NOT NULL,
+	update_userid varchar(63) NOT NULL,
+	update_timestamp timestamp NOT NULL
+) ;
+ALTER TABLE mal_delete_reason_code_lu ADD PRIMARY KEY (id);
+CREATE UNIQUE INDEX mal_drcd_code_name_uk ON mal_delete_reason_code_lu (code_name);
+
+--
+-- TABLE:  MAL_INVENTORY_FUR_FARM
+--
+
+CREATE TABLE mal_inventory_fur_farm (
+	id integer generated always as identity (start with 60000 increment by 1) NOT NULL,
+	licence_id integer NOT NULL,
+	species_fur_code_id integer NOT NULL,
+	species_fur_inventory_code_id integer NOT NULL,
+	recorded_date timestamp NOT NULL,
+	recorded_value double precision NOT NULL,
+	old_identifier varchar(100),
+	create_userid varchar(30) NOT NULL,
+	create_timestamp timestamp NOT NULL,
+	update_userid varchar(30) NOT NULL,
+	update_timestamp timestamp NOT NULL
+) ;
+ALTER TABLE mal_inventory_fur_farm ADD PRIMARY KEY (id);
+CREATE UNIQUE INDEX inv_invfurfrm_uidx ON mal_inventory_fur_farm (licence_id, species_fur_code_id, species_fur_inventory_code_id, recorded_date);
+ALTER TABLE mal_inventory_fur_farm ADD CONSTRAINT inv_invfurfrm_uk UNIQUE USING INDEX inv_invfurfrm_uidx;
+CREATE INDEX mal_invfurfrm_licence_id_idx ON mal_inventory_fur_farm (licence_id);
+CREATE INDEX mal_invfurfrm_species_fur_code_id_idx ON mal_inventory_fur_farm (species_fur_code_id);
+CREATE INDEX mal_invfurfrm_species_fur_inventory_code_id_idx ON mal_inventory_fur_farm (species_fur_inventory_code_id);
+
+--
+-- TABLE:  MAL_INVENTORY_GAME_FARM
+--
+
+CREATE TABLE mal_inventory_game_farm (
+	id integer generated always as identity (start with 60000 increment by 1) NOT NULL,
+	licence_id integer NOT NULL,
+	species_game_code_id integer NOT NULL,
+	species_game_inventory_code_id integer NOT NULL,
+	add_reason_code_id integer NULL, 
+	delete_reason_code_id integer NULL, 
+	recorded_date timestamp NOT NULL,
+	recorded_value double precision NOT NULL,	
+	tag_number varchar(10) NULL,
+	abattoir varchar(20) NULL,
+	buyer_seller  varchar(50) NULL,	
+	create_userid varchar(30) NOT NULL,
+	create_timestamp timestamp NOT NULL,
+	update_userid varchar(30) NOT NULL,
+	update_timestamp timestamp NOT NULL
+) ;
+COMMENT ON COLUMN mal_inventory_game_farm.tag_number IS E'The unique number of the tag for this animal.';
+ALTER TABLE mal_inventory_game_farm ADD PRIMARY KEY (id);
+CREATE UNIQUE INDEX inv_invgamfrm_uidx ON mal_inventory_game_farm (licence_id, species_game_code_id, species_game_inventory_code_id, recorded_date, tag_number);
+ALTER TABLE mal_inventory_game_farm ADD CONSTRAINT inv_invgamfrm_uk UNIQUE USING INDEX inv_invgamfrm_uidx;
+CREATE INDEX mal_invgamfrm_licence_id_idx ON mal_inventory_game_farm (licence_id);
+CREATE INDEX mal_invgamfrm_species_game_code_id_idx ON mal_inventory_game_farm (species_game_code_id);
+CREATE INDEX mal_invgamfrm_species_game_inventory_code_id_idx ON mal_inventory_game_farm (species_game_inventory_code_id);
+
+--
+-- TABLE:  MAL_LICENCE
+--
+
+CREATE TABLE mal_licence (
+	id integer generated always as identity (start with 60000 increment by 1) NOT NULL,
+	licence_number integer generated always as identity (start with 60000 increment by 1) NOT NULL,
+	licence_type_id integer NOT NULL,
+	person_id integer,
+	region_id integer,
+	regional_district_id integer, 
+	status_code_id integer NOT NULL,
+	plant_code_id integer,
+	species_game_code_id integer,
+	application_date date,
+	issue_date date,
+	expiry_date date,
+	fee_collected numeric(10,2),
+	fee_collected_ind boolean NOT NULL DEFAULT false,
+	bond_carrier_phone_number varchar(10),
+	bond_number varchar(50),
+	bond_value numeric(10,2),
+	bond_carrier_name varchar(50),
+	bond_continuation_expiry_date date,
+	action_required boolean,
+	licence_prn_requested boolean,
+	renewal_prn_requested boolean,
+	recheck_prn_requested boolean,
+	details varchar(2000),
+	dpl_approved_date date,
+	dpl_received_date date,
+	exam_date date,
+	exam_fee numeric(10,2),
+	irma_number varchar(10),
+	former_irma_number varchar(10),
+	dairy_levy numeric(38),
+	df_active_ind boolean,
+	hives_per_apiary integer,
+	total_hives integer,
+	psyo_ld_licence_id integer,
+	psyo_ld_dealer_name varchar(50),
+	lda_ld_licence_id integer,
+	lda_ld_dealer_name varchar(50),
+	yrd_psyo_licence_id integer,
+	yrd_psyo_business_name varchar(50),
+	old_identifier varchar(100),
+	create_userid varchar(63) NOT NULL,
+	create_timestamp timestamp NOT NULL,
+	update_userid varchar(63) NOT NULL,
+	update_timestamp timestamp NOT NULL
+) ;
+ALTER TABLE mal_licence ADD PRIMARY KEY (id);
+CREATE INDEX mal_lic_irma_number_idx          on mal_licence using btree (irma_number);
+CREATE INDEX mal_lic_licence_type_id_idx      on mal_licence using btree (licence_type_id);
+CREATE INDEX mal_lic_person_id_idx            on mal_licence using btree (person_id);
+CREATE INDEX mal_lic_plant_code_idx           on mal_licence using btree (plant_code_id);
+CREATE INDEX mal_lic_region_id_idx            on mal_licence using btree (region_id);
+CREATE INDEX mal_lic_regional_district_id_idx on mal_licence using btree (regional_district_id);
+CREATE INDEX mal_lic_status_code_id_idx       on mal_licence using btree (status_code_id);
+
+--
+-- TABLE:  MAL_LICENCE_COMMENT
+--
+
+CREATE TABLE mal_licence_comment (
+	id integer generated always as identity (start with 60000 increment by 1) NOT NULL,
+	licence_id integer NOT NULL,
+	licence_comment varchar(4000) NOT NULL,
+	create_userid varchar(63) NOT NULL,
+	create_timestamp timestamp NOT NULL,
+	update_userid varchar(63) NOT NULL,
+	update_timestamp timestamp NOT NULL
+) ;
+ALTER TABLE mal_licence_comment ADD PRIMARY KEY (id);
+CREATE INDEX mal_liccmnt_license_id_idx on mal_licence_comment using btree (licence_id);
+
+--
+-- TABLE:  MAL_LICENCE_REGISTRANT_XREF
+--
+
+CREATE TABLE mal_licence_registrant_xref (
+	id integer generated always as identity (start with 60000 increment by 1) NOT NULL,
+	licence_id integer NOT NULL,
+	registrant_id integer NOT NULL,
+	create_userid varchar(63) NOT NULL,
+	create_timestamp timestamp NOT NULL,
+	update_userid varchar(63) NOT NULL,
+	update_timestamp timestamp NOT NULL
+) ;
+ALTER TABLE mal_licence_registrant_xref ADD PRIMARY KEY (id);
+CREATE INDEX mal_licregxref_licence_id_idx on mal_licence_registrant_xref using btree (licence_id);
+CREATE INDEX mal_licregxref_registrant_id_idx on mal_licence_registrant_xref using btree (registrant_id);
+
+--
+-- TABLE:  MAL_LICENCE_TYPE_LU
+--
+
+CREATE TABLE mal_licence_type_lu (
+	id integer generated always as identity (start with 60000 increment by 1) NOT NULL,
+	licence_name varchar(50) UNIQUE NOT NULL,
+	standard_fee numeric(10,2) NOT NULL,
+	licence_term integer NOT NULL,
+	standard_issue_date timestamp,
+	standard_expiry_date timestamp,
+	renewal_notice smallint,
+	legislation varchar(2000) NOT NULL,
+	regulation varchar(2000),
+	create_userid varchar(63) NOT NULL,
+	create_timestamp timestamp NOT NULL,
+	update_userid varchar(63) NOT NULL,
+	update_timestamp timestamp NOT NULL
+) ;
+ALTER TABLE mal_licence_type_lu ADD PRIMARY KEY (id);
+CREATE UNIQUE INDEX mal_lictyp_licence_name_uk ON mal_licence_type_lu (licence_name, standard_issue_date);
+
+--
+-- TABLE:  MAL_PLANT_CODE_LU
+--
+
+CREATE TABLE mal_plant_code_lu (
+	id integer generated always as identity (start with 60000 increment by 1) NOT NULL,
+	code_name varchar(50) UNIQUE NOT NULL,
+	code_description varchar(120) NOT NULL,
+	active_flag boolean NOT NULL,
+	create_userid varchar(63) NOT NULL,
+	create_timestamp timestamp NOT NULL,
+	update_userid varchar(63) NOT NULL,
+	update_timestamp timestamp NOT NULL
+) ;
+ALTER TABLE mal_plant_code_lu ADD PRIMARY KEY (id);
+CREATE UNIQUE INDEX mal_plntcd_code_name_uk ON mal_plant_code_lu (code_name);
+
+--
+-- TABLE:  MAL_REGION_LU
+--
+
+CREATE TABLE mal_region_lu (
+	id integer generated always as identity (start with 60000 increment by 1) NOT NULL,
+	region_number varchar(50) NOT NULL,
+	region_name varchar(200) UNIQUE NOT NULL,
+	active_flag boolean NOT NULL,
+	create_userid varchar(63) NOT NULL,
+	create_timestamp timestamp NOT NULL,
+	update_userid varchar(63) NOT NULL,
+	update_timestamp timestamp NOT NULL
+) ;
+ALTER TABLE mal_region_lu ADD PRIMARY KEY (id);
+CREATE UNIQUE INDEX mal_reg_region_number_uk on mal_region_lu using btree (region_number);
+
+--
+-- TABLE:  MAL_REGIONAL_DISTRICT_LU
+--
+
+CREATE TABLE mal_regional_district_lu (
+	id integer generated always as identity (start with 60000 increment by 1) NOT NULL,
+	region_id integer NOT NULL,
+	district_number varchar(50) NOT NULL,
+	district_name varchar(200) NOT NULL,
+	active_flag boolean NOT NULL,
+	create_userid varchar(63) NOT NULL,
+	create_timestamp timestamp NOT NULL,
+	update_userid varchar(63) NOT NULL,
+	update_timestamp timestamp NOT NULL
+) ;
+ALTER TABLE mal_regional_district_lu ADD PRIMARY KEY (id);
+CREATE UNIQUE INDEX mal_regdist_region_district_uk on mal_regional_district_lu using btree (region_id, district_number);
+
+--
+-- TABLE:  MAL_REGISTRANT
+--
+
+CREATE TABLE mal_registrant (
+	id integer generated always as identity (start with 60000 increment by 1) NOT NULL,
+	first_name varchar(200),
+	last_name varchar(200),
+	middle_initials varchar(3),
+	official_title varchar(200),
+	company_name varchar(200),
+	primary_phone varchar(10),
+	email_address varchar(128),
+	create_userid varchar(63) NOT NULL,
+	create_timestamp timestamp NOT NULL,
+	update_userid varchar(63) NOT NULL,
+	update_timestamp timestamp NOT NULL
+) ;
+ALTER TABLE mal_registrant ADD PRIMARY KEY (id);
+CREATE INDEX mal_rgst_last_name_idx on mal_registrant using btree (last_name);
+CREATE INDEX mal_rgst_company_name_idx on mal_registrant using btree (company_name);
+
+--
+-- TABLE:  MAL_SPECIES_DAIRY_CODE_LU
+--
+
+CREATE TABLE mal_species_dairy_code_lu (
+	id integer generated always as identity (start with 60000 increment by 1) NOT NULL,
+	code_name varchar(50) UNIQUE NOT NULL,
+	code_description varchar(120) NULL,
+	active_flag boolean NOT NULL,
+	create_userid varchar(63) NOT NULL,
+	create_timestamp timestamp NOT NULL,
+	update_userid varchar(63) NOT NULL,
+	update_timestamp timestamp NOT NULL
+) ;
+ALTER TABLE mal_species_dairy_code_lu ADD PRIMARY KEY (id);
+CREATE UNIQUE INDEX mal_spcdrycd_code_name_uk on mal_species_dairy_code_lu using btree (code_name);
+	
+--
+-- TABLE:  MAL_SPECIES_DAIRY_INVENTORY_CODE_LU
+--
+
+CREATE TABLE mal_species_dairy_inventory_code_lu (
+	id integer generated always as identity (start with 60000 increment by 1) NOT NULL,
+	species_dairy_code_id integer NOT null,
+	code_name varchar(50) NOT NULL,
+	code_description varchar(120) NULL,
+	active_flag boolean NOT NULL,
+	create_userid varchar(63) NOT NULL,
+	create_timestamp timestamp NOT NULL,
+	update_userid varchar(63) NOT NULL,
+	update_timestamp timestamp NOT NULL
+) ;
+ALTER TABLE mal_species_dairy_inventory_code_lu ADD PRIMARY KEY (id);
+CREATE UNIQUE INDEX mal_spcdryinvcd_id_code_uk on mal_species_dairy_inventory_code_lu using btree (species_dairy_code_id, code_name);
+	
+--
+-- TABLE:  MAL_SPECIES_FUR_CODE_LU
+--
+
+CREATE TABLE mal_species_fur_code_lu (
+	id integer generated always as identity (start with 60000 increment by 1) NOT NULL,
+	code_name varchar(50) UNIQUE NOT NULL,
+	code_description varchar(120) NULL,
+	active_flag boolean NOT NULL,
+	create_userid varchar(63) NOT NULL,
+	create_timestamp timestamp NOT NULL,
+	update_userid varchar(63) NOT NULL,
+	update_timestamp timestamp NOT NULL
+) ;
+ALTER TABLE mal_species_fur_code_lu ADD PRIMARY KEY (id);
+CREATE UNIQUE INDEX mal_spcfurcd_code_name_uk on mal_species_fur_code_lu using btree (code_name);
+	
+--
+-- TABLE:  MAL_SPECIES_FUR_INVENTORY_CODE_LU
+--
+
+CREATE TABLE mal_species_fur_inventory_code_lu (
+	id integer generated always as identity (start with 60000 increment by 1) NOT NULL,
+	species_fur_code_id integer NOT null,
+	code_name varchar(50) NOT NULL,
+	code_description varchar(120) NULL,
+	active_flag boolean NOT NULL,
+	create_userid varchar(63) NOT NULL,
+	create_timestamp timestamp NOT NULL,
+	update_userid varchar(63) NOT NULL,
+	update_timestamp timestamp NOT NULL
+) ;
+ALTER TABLE mal_species_fur_inventory_code_lu ADD PRIMARY KEY (id);
+CREATE UNIQUE INDEX mal_spcfurinvcd_id_code_uk on mal_species_fur_inventory_code_lu using btree (species_fur_code_id, code_name);
+
+--
+-- TABLE:  MAL_SPECIES_GAME_CODE_LU
+--
+
+CREATE TABLE mal_species_game_code_lu (
+	id integer generated always as identity (start with 60000 increment by 1) NOT NULL,
+	code_name varchar(50) UNIQUE NOT NULL,
+	code_description varchar(120) NULL,
+	active_flag boolean NOT NULL,
+	create_userid varchar(63) NOT NULL,
+	create_timestamp timestamp NOT NULL,
+	update_userid varchar(63) NOT NULL,
+	update_timestamp timestamp NOT NULL
+) ;
+ALTER TABLE mal_species_game_code_lu ADD PRIMARY KEY (id);
+CREATE UNIQUE INDEX mal_spcgamcd_uk on mal_species_game_code_lu using btree (code_name);
+
+--
+-- TABLE:  MAL_SPECIES_GAME_INVENTORY_CODE_LU
+--
+
+CREATE TABLE mal_species_game_inventory_code_lu (
+	id integer generated always as identity (start with 60000 increment by 1) NOT NULL,
+	species_game_code_id integer NOT null,
+	code_name varchar(50) NOT NULL,
+	code_description varchar(120) NULL,
+	active_flag boolean NOT NULL,
+	create_userid varchar(63) NOT NULL,
+	create_timestamp timestamp NOT NULL,
+	update_userid varchar(63) NOT NULL,
+	update_timestamp timestamp NOT NULL
+) ;
+ALTER TABLE mal_species_game_inventory_code_lu ADD PRIMARY KEY (id);
+CREATE UNIQUE INDEX mal_spcgaminvcd_id_code_uk on mal_species_game_inventory_code_lu using btree (species_game_code_id, code_name);
+	
+--
+-- TABLE:  MAL_SPECIES_SALE_CODE_LU
+--
+
+CREATE TABLE mal_species_sale_code_lu (
+	id integer generated always as identity (start with 60000 increment by 1) NOT NULL,
+	code_name varchar(50) UNIQUE NOT NULL,
+	code_description varchar(120) NULL,
+	active_flag boolean NOT NULL,
+	create_userid varchar(63) NOT NULL,
+	create_timestamp timestamp NOT NULL,
+	update_userid varchar(63) NOT NULL,
+	update_timestamp timestamp NOT NULL
+) ;
+ALTER TABLE mal_species_sale_code_lu ADD PRIMARY KEY (id);
+CREATE UNIQUE INDEX mal_spcsalcd_code_name_uk on mal_species_sale_code_lu using btree (code_name);
+	
+--
+-- TABLE:  MAL_SPECIES_SALE_INVENTORY_CODE_LU
+--
+
+CREATE TABLE mal_species_sale_inventory_code_lu (
+	id integer generated always as identity (start with 60000 increment by 1) NOT NULL,
+	species_sale_code_id integer NOT null,
+	code_name varchar(50) NOT NULL,
+	code_description varchar(120) NOT NULL,
+	active_flag boolean NOT NULL,
+	create_userid varchar(63) NOT NULL,
+	create_timestamp timestamp NOT NULL,
+	update_userid varchar(63) NOT NULL,
+	update_timestamp timestamp NOT NULL
+) ;
+ALTER TABLE mal_species_sale_inventory_code_lu ADD PRIMARY KEY (id);
+CREATE UNIQUE INDEX mal_spcsalinvcd_id_code_uk on mal_species_sale_inventory_code_lu using btree (species_sale_code_id, code_name);
+
+--
+-- TABLE:  MAL_STATUS_CODE_LU
+--
+
+CREATE TABLE mal_status_code_lu (
+	id integer generated always as identity (start with 60000 increment by 1) NOT NULL,
+	code_name varchar(50) UNIQUE NOT NULL,
+	code_description varchar(120) NULL,
+	active_flag boolean NOT NULL,
+	create_userid varchar(63) NOT NULL,
+	create_timestamp timestamp NOT NULL,
+	update_userid varchar(63) NOT NULL,
+	update_timestamp timestamp NOT NULL
+) ;
+ALTER TABLE mal_status_code_lu ADD PRIMARY KEY (id);
+CREATE UNIQUE INDEX mal_statcd_code_name_uk on mal_status_code_lu using btree (code_name);
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', 'mals_app', true);
+ set_config 
+------------
+ mals_app
+(1 row)
+
+SET check_function_bodies = false;
+SET client_min_messages = warning;
+
+--
+-- TABLE:  MAL_FUR_FARM
+--
+alter table mal_inventory_fur_farm 
+  add constraint iff_lic_fk foreign key (licence_id) 
+  references mal_licence(id) 
+  on delete no action not deferrable initially immediate;
+--
+alter table mal_inventory_fur_farm 
+  add constraint iff_sfcl_fk foreign key (species_fur_code_id) 
+  references mal_species_fur_code_lu(id) 
+  on delete no action not deferrable initially immediate;
+--
+alter table mal_inventory_fur_farm 
+  add constraint iff_sficl_fk foreign key (species_fur_inventory_code_id) 
+  references mal_species_fur_inventory_code_lu(id) 
+  on delete no action not deferrable initially immediate;
+
+--
+-- TABLE:  MAL_GAME_FARM
+--
+alter table mal_inventory_game_farm 
+  add constraint igf_addrsn_fk foreign key (add_reason_code_id) 
+  references mal_add_reason_code_lu(id) 
+  on delete no action not deferrable initially immediate;
+--
+alter table mal_inventory_game_farm 
+  add constraint igf_delrsn_fk foreign key (delete_reason_code_id) 
+  references mal_delete_reason_code_lu(id) 
+  on delete no action not deferrable initially immediate;
+--
+alter table mal_inventory_game_farm 
+  add constraint igf_lic_fk foreign key (licence_id) 
+  references mal_licence(id) 
+  on delete no action not deferrable initially immediate;
+--
+alter table mal_inventory_game_farm 
+  add constraint igf_sfcl_fk foreign key (species_game_code_id) 
+  references mal_species_game_code_lu(id) 
+  on delete no action not deferrable initially immediate;
+--
+alter table mal_inventory_game_farm 
+  add constraint igf_sficl_fk foreign key (species_game_inventory_code_id) 
+  references mal_species_game_inventory_code_lu(id) 
+  on delete no action not deferrable initially immediate;
+
+--
+-- TABLE:  MAL_LICENCE
+--
+alter table mal_licence 
+  add constraint lic_lictyp_fk foreign key (licence_type_id) 
+  references mal_licence_type_lu(id) 
+  on delete no action not deferrable initially immediate;
+
+alter table mal_licence 
+  add constraint lic_reg_fk foreign key (region_id) 
+  references mal_region_lu(id) 
+  on delete no action not deferrable initially immediate;
+
+alter table mal_licence 
+  add constraint lic_regdist_fk foreign key (regional_district_id) 
+  references mal_regional_district_lu(id) 
+  on delete no action not deferrable initially immediate;
+
+alter table mal_licence 
+  add constraint lic_stat_fk foreign key (status_code_id) 
+  references mal_status_code_lu(id) 
+  on delete no action not deferrable initially immediate;
+
+alter table mal_licence 
+  add constraint lic_plnt_fk foreign key (plant_code_id) 
+  references mal_plant_code_lu(id) 
+  on delete no action not deferrable initially immediate;
+
+alter table mal_licence 
+  add constraint lic_specgame_fk foreign key (species_game_code_id) 
+  references mal_species_game_code_lu(id) 
+  on delete no action not deferrable initially immediate;
+
+--
+-- TABLE:  MAL_LICENCE_COMMENT
+--
+alter table mal_licence_comment 
+  add constraint liccmnt_lic_fk foreign key (licence_id) 
+  references mal_licence(id) 
+  on delete no action not deferrable initially immediate;
+
+--
+-- TABLE:  MAL_LICENCE_REGISTRANT_XREF
+--
+alter table mal_licence_registrant_xref 
+  add constraint licrgstxref_lic_fk foreign key (licence_id) 
+  references mal_licence(id) 
+  on delete no action not deferrable initially immediate;
+alter table mal_licence_registrant_xref 
+  add constraint licrgstxref_rgst_fk foreign key (registrant_id) 
+  references mal_registrant(id) 
+  on delete no action not deferrable initially immediate;
+ 
+--
+-- TABLE:  MAL_REGIONAL_DISTRICT
+--
+alter table mal_regional_district_lu
+  add constraint regdist_reg_fk foreign key (region_id) 
+  references mal_region_lu(id) 
+  on delete no action not deferrable initially immediate;
+  
+--
+-- TABLE:  MAL_SPECIES_DAIRY_INVENTORY_CODE_LU
+--
+alter table mals_app.mal_species_dairy_inventory_code_lu
+  add constraint sdicl_sdcl_fk foreign key (species_dairy_code_id) 
+  references mals_app.mal_species_dairy_code_lu(id) 
+  on delete no action not deferrable initially immediate;
+  
+--
+-- TABLE:  MAL_SPECIES_FUR_INVENTORY_CODE_LU
+--
+alter table mals_app.mal_species_fur_inventory_code_lu
+  add constraint sficl_sfcl_fk foreign key (species_fur_code_id) 
+  references mals_app.mal_species_fur_code_lu(id) 
+  on delete no action not deferrable initially immediate;
+  
+--
+-- TABLE:  MAL_SPECIES_GAME_INVENTORY_CODE_LU
+--
+alter table mals_app.mal_species_game_inventory_code_lu
+  add CONSTRAINT sgicl_sgcl_fk foreign key (species_game_code_id) 
+  references mals_app.mal_species_game_code_lu(id) 
+  on delete no action not deferrable initially immediate;
+  
+--
+-- TABLE:  MAL_SPECIES_SALE_INVENTORY_CODE_LU
+--
+alter table mals_app.mal_species_sale_inventory_code_lu
+  add constraint ssicl_sscl_fk foreign key (species_sale_code_id) 
+  references mals_app.mal_species_sale_code_lu(id) 
+  on delete no action not deferrable initially immediate;
+  
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', 'mals_app', true);
+ set_config 
+------------
+ mals_app
+(1 row)
+
+SET check_function_bodies = false;
+SET client_min_messages = warning;
+
+
+grant select, insert, update, delete on mal_add_reason_code_lu               to mals_app_role;
+grant select, insert, update, delete on mal_delete_reason_code_lu            to mals_app_role;
+grant select, insert, update, delete on mal_inventory_fur_farm               to mals_app_role;
+grant select, insert, update, delete on mal_inventory_game_farm              to mals_app_role;
+grant select, insert, update, delete on mal_licence                          to mals_app_role;
+grant select, insert, update, delete on mal_licence_comment                  to mals_app_role;
+grant select, insert, update, delete on mal_licence_registrant_xref          to mals_app_role;
+grant select, insert, update, delete on mal_licence_type_lu                  to mals_app_role;
+grant select, insert, update, delete on mal_plant_code_lu                    to mals_app_role;
+grant select, insert, update, delete on mal_region_lu                        to mals_app_role;
+grant select, insert, update, delete on mal_regional_district_lu             to mals_app_role;
+grant select, insert, update, delete on mal_registrant                       to mals_app_role;
+grant select, insert, update, delete on mal_species_dairy_code_lu            to mals_app_role;
+grant select, insert, update, delete on mal_species_dairy_inventory_code_lu  to mals_app_role;
+grant select, insert, update, delete on mal_species_fur_code_lu              to mals_app_role;
+grant select, insert, update, delete on mal_species_fur_inventory_code_lu    to mals_app_role;
+grant select, insert, update, delete on mal_species_game_code_lu             to mals_app_role;
+grant select, insert, update, delete on mal_species_game_inventory_code_lu   to mals_app_role;
+grant select, insert, update, delete on mal_species_sale_code_lu             to mals_app_role;
+grant select, insert, update, delete on mal_species_sale_inventory_code_lu   to mals_app_role;
+grant select, insert, update, delete on mal_status_code_lu                   to mals_app_role;
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', 'mals_app', true);
+ set_config 
+------------
+ mals_app
+(1 row)
+
+SET check_function_bodies = false;
+SET client_min_messages = warning;
+
+--
+-- FUNCTION:  FN_UPDATE_AUDIT_COLUMNS
+--
+
+create or replace function fn_update_audit_columns() 
+returns trigger as $$
+	begin
+	if TG_OP = 'UPDATE' then
+		NEW.update_timestamp  = current_timestamp;
+	elsif TG_OP = 'INSERT' then
+		NEW.create_userid     = coalesce(NEW.create_userid, current_user);
+		NEW.create_timestamp  = current_timestamp;
+		NEW.update_userid     = coalesce(NEW.update_userid, current_user);
+		NEW.update_timestamp  = current_timestamp;
+	end if;
+	return NEW;
+	end;
+$$ language 'plpgsql';
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', 'mals_app', true);
+ set_config 
+------------
+ mals_app
+(1 row)
+
+SET check_function_bodies = false;
+SET client_min_messages = warning;
+
+-- TABLE:  MAL_ADD_REASON_CODE_LU
+--
+create trigger trg_mal_add_reason_code_lu_biu
+before insert or update on mal_add_reason_code_lu
+  for each row execute function fn_update_audit_columns();
+
+-- TABLE:  MAL_DELETE_REASON_CODE_LU
+--
+create trigger trg_mal_delete_reason_code_lu_biu
+before insert or update on mal_delete_reason_code_lu
+  for each row execute function fn_update_audit_columns();
+
+-- TABLE:  MAL_INVENTORY_FUR_FARM
+--
+create trigger trg_mal_inventory_fur_farm_biu
+before insert or update on mal_inventory_fur_farm
+  for each row execute function fn_update_audit_columns();
+
+-- TABLE:  MAL_INVENTORY_GAME_FARM
+--
+create trigger trg_mal_inventory_game_farm_biu
+before insert or update on mal_inventory_game_farm
+  for each row execute function fn_update_audit_columns();
+ 
+--
+-- TABLE:  MAL_LICENCE
+--
+create trigger trg_mal_licence_biu
+before insert or update on mal_licence
+  for each row execute function fn_update_audit_columns();
+
+--
+-- TABLE:  MAL_LICENCE_COMMENT
+--
+create trigger trg_mal_licence_comment_biu
+before insert or update on mal_licence_comment
+  for each row execute function fn_update_audit_columns();
+
+--
+-- TABLE:  MAL_LICENCE_REGISTRANT_XREF
+--
+create trigger trg_mal_licence_registrant_xref_biu
+before insert or update on mal_licence_registrant_xref
+  for each row execute function fn_update_audit_columns();
+
+--
+-- TABLE:  MAL_LICENCE_TYPE_LU
+--
+create trigger trg_mal_licence_type_lu_biu
+before insert or update on mal_licence_type_lu
+  for each row execute function fn_update_audit_columns();
+
+--
+-- TABLE:  MAL_PLANT_CODE_LU
+--
+create trigger trg_mal_plant_code_lu_biu
+before insert or update on mal_plant_code_lu
+  for each row execute function fn_update_audit_columns();
+
+--
+-- TABLE:  MAL_REGION_LU
+--
+create trigger trg_mal_region_lu_biu
+before insert or update on mal_region_lu
+  for each row execute function fn_update_audit_columns();
+
+--
+-- TABLE:  MAL_REGIONAL_DISTRICT_LU
+--
+create trigger trg_mal_regional_district_lu_biu
+before insert or update on mal_regional_district_lu
+  for each row execute function fn_update_audit_columns();
+
+--
+-- TABLE:  MAL_REGISTRANT
+--
+create trigger trg_mal_registrant_biu
+before insert or update on mal_registrant
+  for each row execute function fn_update_audit_columns();
+
+-- TABLE:  MAL_SPECIES_DAIRY_CODE_LU
+--
+create trigger trg_mal_species_dairy_code_lu_biu
+before insert or update on mal_species_dairy_code_lu
+  for each row execute function fn_update_audit_columns();
+
+-- TABLE:  MAL_SPECIES_DAIRY_INVENTORY_CODE_LU
+--
+create trigger trg_mal_species_dairy_inventory_code_lu_biu
+before insert or update on mal_species_dairy_inventory_code_lu
+  for each row execute function fn_update_audit_columns();
+
+-- TABLE:  MAL_SPECIES_FUR_CODE_LU
+--
+create trigger trg_mal_species_fur_code_lu_biu
+before insert or update on mal_species_fur_code_lu
+  for each row execute function fn_update_audit_columns();
+
+-- TABLE:  MAL_SPECIES_FUR_INVENTORY_CODE_LU
+--
+create trigger trg_mal_species_fur_inventory_code_lu_biu
+before insert or update on mal_species_fur_inventory_code_lu
+  for each row execute function fn_update_audit_columns();
+
+--
+-- TABLE:  MAL_SPECIES_GAME_CODE_LU
+--
+create trigger trg_mal_species_game_code_lu_biu
+before insert or update on mal_species_game_code_lu
+  for each row execute function fn_update_audit_columns();
+
+-- TABLE:  MAL_SPECIES_GAME_INVENTORY_CODE_LU
+--
+create trigger trg_mal_species_game_inventory_code_lu_biu
+before insert or update on mal_species_game_inventory_code_lu
+  for each row execute function fn_update_audit_columns();
+
+-- TABLE:  MAL_SPECIES_SALE_CODE_LU
+--
+create trigger trg_mal_species_sale_code_lu_biu
+before insert or update on mal_species_sale_code_lu
+  for each row execute function fn_update_audit_columns();
+
+-- TABLE:  MAL_SPECIES_SALE_INVENTORY_CODE_LU
+--
+create trigger trg_mal_species_sale_inventory_code_lu_biu
+before insert or update on mal_species_sale_inventory_code_lu
+  for each row execute function fn_update_audit_columns();
+
+--
+-- TABLE:  MAL_STATUS_CODE_LU
+--
+create trigger trg_mal_status_code_lu_biu
+before insert or update on mal_status_code_lu
+  for each row execute function fn_update_audit_columns();
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', 'mals_app', true);
+ set_config 
+------------
+ mals_app
+(1 row)
+
+SET check_function_bodies = false;
+SET client_min_messages = warning;
+
+--
+-- TABLE:  MAL_STATUS_CODE_LU
+--
+
+insert into mal_status_code_lu(code_name, code_description)
+  values ('DRA','Draft');
+  
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', 'mals_app', true);
+ set_config 
+------------
+ mals_app
+(1 row)
+
+SET check_function_bodies = false;
+SET client_min_messages = warning;	
+	
+--
+-- DROP:  ALL TABLES
+--
+
+DROP TABLE IF EXISTS mal_inventory_fur_farm;
+DROP TABLE IF EXISTS mal_inventory_game_farm;
+DROP TABLE IF EXISTS mal_licence_comment;
+DROP TABLE IF EXISTS mal_licence_registrant_xref;
+DROP TABLE IF EXISTS mal_registrant;
+DROP TABLE IF EXISTS mal_licence;
+DROP TABLE IF EXISTS mal_licence_type_lu;
+DROP TABLE IF EXISTS mal_plant_code_lu;
+DROP TABLE IF EXISTS mal_regional_district_lu;
+DROP TABLE IF EXISTS mal_region_lu;
+DROP TABLE IF EXISTS mal_status_code_lu;
+DROP TABLE IF EXISTS mal_species_dairy_inventory_code_lu;
+DROP TABLE IF EXISTS mal_species_dairy_code_lu;
+DROP TABLE IF EXISTS mal_species_fur_inventory_code_lu;
+DROP TABLE IF EXISTS mal_species_fur_code_lu;
+DROP TABLE IF EXISTS mal_species_game_inventory_code_lu;
+DROP TABLE IF EXISTS mal_species_game_code_lu;
+DROP TABLE IF EXISTS mal_species_sale_inventory_code_lu;
+DROP TABLE IF EXISTS mal_species_sale_code_lu;
+/*
+DROP TABLE IF EXISTS ;
+*/
+
+
+--
+-- TABLE:  MAL_ADD_REASON_CODE_LU
+--
+
+CREATE TABLE mal_add_reason_code_lu (
+	id integer generated always as identity (start with 60000 increment by 1) NOT NULL,
+	code_name varchar(50) UNIQUE NOT NULL,
+	code_description varchar(120) NOT NULL,
+	active_flag boolean NOT NULL,
+	create_userid varchar(63) NOT NULL,
+	create_timestamp timestamp NOT NULL,
+	update_userid varchar(63) NOT NULL,
+	update_timestamp timestamp NOT NULL
+) ;
+ALTER TABLE mal_add_reason_code_lu ADD PRIMARY KEY (id);
+CREATE UNIQUE INDEX mal_arcd_code_name_uk ON mal_add_reason_code_lu (code_name);
+
+--
+-- TABLE:  MAL_DELETE_REASON_CODE_LU
+--
+
+CREATE TABLE mal_delete_reason_code_lu (
+	id integer generated always as identity (start with 60000 increment by 1) NOT NULL,
+	code_name varchar(50) UNIQUE NOT NULL,
+	code_description varchar(120) NOT NULL,
+	active_flag boolean NOT NULL,
+	create_userid varchar(63) NOT NULL,
+	create_timestamp timestamp NOT NULL,
+	update_userid varchar(63) NOT NULL,
+	update_timestamp timestamp NOT NULL
+) ;
+ALTER TABLE mal_delete_reason_code_lu ADD PRIMARY KEY (id);
+CREATE UNIQUE INDEX mal_drcd_code_name_uk ON mal_delete_reason_code_lu (code_name);
+
+--
+-- TABLE:  MAL_INVENTORY_FUR_FARM
+--
+
+CREATE TABLE mal_inventory_fur_farm (
+	id integer generated always as identity (start with 60000 increment by 1) NOT NULL,
+	licence_id integer NOT NULL,
+	species_fur_code_id integer NOT NULL,
+	species_fur_inventory_code_id integer NOT NULL,
+	recorded_date timestamp NOT NULL,
+	recorded_value double precision NOT NULL,
+	old_identifier varchar(100),
+	create_userid varchar(30) NOT NULL,
+	create_timestamp timestamp NOT NULL,
+	update_userid varchar(30) NOT NULL,
+	update_timestamp timestamp NOT NULL
+) ;
+ALTER TABLE mal_inventory_fur_farm ADD PRIMARY KEY (id);
+CREATE UNIQUE INDEX inv_invfurfrm_uidx ON mal_inventory_fur_farm (licence_id, species_fur_code_id, species_fur_inventory_code_id, recorded_date);
+ALTER TABLE mal_inventory_fur_farm ADD CONSTRAINT inv_invfurfrm_uk UNIQUE USING INDEX inv_invfurfrm_uidx;
+CREATE INDEX mal_invfurfrm_licence_id_idx ON mal_inventory_fur_farm (licence_id);
+CREATE INDEX mal_invfurfrm_species_fur_code_id_idx ON mal_inventory_fur_farm (species_fur_code_id);
+CREATE INDEX mal_invfurfrm_species_fur_inventory_code_id_idx ON mal_inventory_fur_farm (species_fur_inventory_code_id);
+
+--
+-- TABLE:  MAL_INVENTORY_GAME_FARM
+--
+
+CREATE TABLE mal_inventory_game_farm (
+	id integer generated always as identity (start with 60000 increment by 1) NOT NULL,
+	licence_id integer NOT NULL,
+	species_game_code_id integer NOT NULL,
+	species_game_inventory_code_id integer NOT NULL,
+	add_reason_code_id integer NULL, 
+	delete_reason_code_id integer NULL, 
+	recorded_date timestamp NOT NULL,
+	recorded_value double precision NOT NULL,	
+	tag_number varchar(10) NULL,
+	abattoir varchar(20) NULL,
+	buyer_seller  varchar(50) NULL,	
+	create_userid varchar(30) NOT NULL,
+	create_timestamp timestamp NOT NULL,
+	update_userid varchar(30) NOT NULL,
+	update_timestamp timestamp NOT NULL
+) ;
+COMMENT ON COLUMN mal_inventory_game_farm.tag_number IS E'The unique number of the tag for this animal.';
+ALTER TABLE mal_inventory_game_farm ADD PRIMARY KEY (id);
+CREATE UNIQUE INDEX inv_invgamfrm_uidx ON mal_inventory_game_farm (licence_id, species_game_code_id, species_game_inventory_code_id, recorded_date, tag_number);
+ALTER TABLE mal_inventory_game_farm ADD CONSTRAINT inv_invgamfrm_uk UNIQUE USING INDEX inv_invgamfrm_uidx;
+CREATE INDEX mal_invgamfrm_licence_id_idx ON mal_inventory_game_farm (licence_id);
+CREATE INDEX mal_invgamfrm_species_game_code_id_idx ON mal_inventory_game_farm (species_game_code_id);
+CREATE INDEX mal_invgamfrm_species_game_inventory_code_id_idx ON mal_inventory_game_farm (species_game_inventory_code_id);
+
+--
+-- TABLE:  MAL_LICENCE
+--
+
+CREATE TABLE mal_licence (
+	id integer generated always as identity (start with 60000 increment by 1) NOT NULL,
+	licence_number integer generated always as identity (start with 60000 increment by 1) NOT NULL,
+	licence_type_id integer NOT NULL,
+	person_id integer,
+	region_id integer,
+	regional_district_id integer, 
+	status_code_id integer NOT NULL,
+	plant_code_id integer,
+	species_game_code_id integer,
+	application_date date,
+	issue_date date,
+	expiry_date date,
+	fee_collected numeric(10,2),
+	fee_collected_ind boolean NOT NULL DEFAULT false,
+	bond_carrier_phone_number varchar(10),
+	bond_number varchar(50),
+	bond_value numeric(10,2),
+	bond_carrier_name varchar(50),
+	bond_continuation_expiry_date date,
+	action_required boolean,
+	licence_prn_requested boolean,
+	renewal_prn_requested boolean,
+	recheck_prn_requested boolean,
+	details varchar(2000),
+	dpl_approved_date date,
+	dpl_received_date date,
+	exam_date date,
+	exam_fee numeric(10,2),
+	irma_number varchar(10),
+	former_irma_number varchar(10),
+	dairy_levy numeric(38),
+	df_active_ind boolean,
+	hives_per_apiary integer,
+	total_hives integer,
+	psyo_ld_licence_id integer,
+	psyo_ld_dealer_name varchar(50),
+	lda_ld_licence_id integer,
+	lda_ld_dealer_name varchar(50),
+	yrd_psyo_licence_id integer,
+	yrd_psyo_business_name varchar(50),
+	old_identifier varchar(100),
+	create_userid varchar(63) NOT NULL,
+	create_timestamp timestamp NOT NULL,
+	update_userid varchar(63) NOT NULL,
+	update_timestamp timestamp NOT NULL
+) ;
+ALTER TABLE mal_licence ADD PRIMARY KEY (id);
+CREATE INDEX mal_lic_irma_number_idx          on mal_licence using btree (irma_number);
+CREATE INDEX mal_lic_licence_type_id_idx      on mal_licence using btree (licence_type_id);
+CREATE INDEX mal_lic_person_id_idx            on mal_licence using btree (person_id);
+CREATE INDEX mal_lic_plant_code_idx           on mal_licence using btree (plant_code_id);
+CREATE INDEX mal_lic_region_id_idx            on mal_licence using btree (region_id);
+CREATE INDEX mal_lic_regional_district_id_idx on mal_licence using btree (regional_district_id);
+CREATE INDEX mal_lic_status_code_id_idx       on mal_licence using btree (status_code_id);
+
+--
+-- TABLE:  MAL_LICENCE_COMMENT
+--
+
+CREATE TABLE mal_licence_comment (
+	id integer generated always as identity (start with 60000 increment by 1) NOT NULL,
+	licence_id integer NOT NULL,
+	licence_comment varchar(4000) NOT NULL,
+	create_userid varchar(63) NOT NULL,
+	create_timestamp timestamp NOT NULL,
+	update_userid varchar(63) NOT NULL,
+	update_timestamp timestamp NOT NULL
+) ;
+ALTER TABLE mal_licence_comment ADD PRIMARY KEY (id);
+CREATE INDEX mal_liccmnt_license_id_idx on mal_licence_comment using btree (licence_id);
+
+--
+-- TABLE:  MAL_LICENCE_REGISTRANT_XREF
+--
+
+CREATE TABLE mal_licence_registrant_xref (
+	id integer generated always as identity (start with 60000 increment by 1) NOT NULL,
+	licence_id integer NOT NULL,
+	registrant_id integer NOT NULL,
+	create_userid varchar(63) NOT NULL,
+	create_timestamp timestamp NOT NULL,
+	update_userid varchar(63) NOT NULL,
+	update_timestamp timestamp NOT NULL
+) ;
+ALTER TABLE mal_licence_registrant_xref ADD PRIMARY KEY (id);
+CREATE INDEX mal_licregxref_licence_id_idx on mal_licence_registrant_xref using btree (licence_id);
+CREATE INDEX mal_licregxref_registrant_id_idx on mal_licence_registrant_xref using btree (registrant_id);
+
+--
+-- TABLE:  MAL_LICENCE_TYPE_LU
+--
+
+CREATE TABLE mal_licence_type_lu (
+	id integer generated always as identity (start with 60000 increment by 1) NOT NULL,
+	licence_name varchar(50) UNIQUE NOT NULL,
+	standard_fee numeric(10,2) NOT NULL,
+	licence_term integer NOT NULL,
+	standard_issue_date timestamp,
+	standard_expiry_date timestamp,
+	renewal_notice smallint,
+	legislation varchar(2000) NOT NULL,
+	regulation varchar(2000),
+	create_userid varchar(63) NOT NULL,
+	create_timestamp timestamp NOT NULL,
+	update_userid varchar(63) NOT NULL,
+	update_timestamp timestamp NOT NULL
+) ;
+ALTER TABLE mal_licence_type_lu ADD PRIMARY KEY (id);
+CREATE UNIQUE INDEX mal_lictyp_licence_name_uk ON mal_licence_type_lu (licence_name, standard_issue_date);
+
+--
+-- TABLE:  MAL_PLANT_CODE_LU
+--
+
+CREATE TABLE mal_plant_code_lu (
+	id integer generated always as identity (start with 60000 increment by 1) NOT NULL,
+	code_name varchar(50) UNIQUE NOT NULL,
+	code_description varchar(120) NOT NULL,
+	active_flag boolean NOT NULL,
+	create_userid varchar(63) NOT NULL,
+	create_timestamp timestamp NOT NULL,
+	update_userid varchar(63) NOT NULL,
+	update_timestamp timestamp NOT NULL
+) ;
+ALTER TABLE mal_plant_code_lu ADD PRIMARY KEY (id);
+CREATE UNIQUE INDEX mal_plntcd_code_name_uk ON mal_plant_code_lu (code_name);
+
+--
+-- TABLE:  MAL_REGION_LU
+--
+
+CREATE TABLE mal_region_lu (
+	id integer generated always as identity (start with 60000 increment by 1) NOT NULL,
+	region_number varchar(50) NOT NULL,
+	region_name varchar(200) UNIQUE NOT NULL,
+	active_flag boolean NOT NULL,
+	create_userid varchar(63) NOT NULL,
+	create_timestamp timestamp NOT NULL,
+	update_userid varchar(63) NOT NULL,
+	update_timestamp timestamp NOT NULL
+) ;
+ALTER TABLE mal_region_lu ADD PRIMARY KEY (id);
+CREATE UNIQUE INDEX mal_reg_region_number_uk on mal_region_lu using btree (region_number);
+
+--
+-- TABLE:  MAL_REGIONAL_DISTRICT_LU
+--
+
+CREATE TABLE mal_regional_district_lu (
+	id integer generated always as identity (start with 60000 increment by 1) NOT NULL,
+	region_id integer NOT NULL,
+	district_number varchar(50) NOT NULL,
+	district_name varchar(200) NOT NULL,
+	active_flag boolean NOT NULL,
+	create_userid varchar(63) NOT NULL,
+	create_timestamp timestamp NOT NULL,
+	update_userid varchar(63) NOT NULL,
+	update_timestamp timestamp NOT NULL
+) ;
+ALTER TABLE mal_regional_district_lu ADD PRIMARY KEY (id);
+CREATE UNIQUE INDEX mal_regdist_region_district_uk on mal_regional_district_lu using btree (region_id, district_number);
+
+--
+-- TABLE:  MAL_REGISTRANT
+--
+
+CREATE TABLE mal_registrant (
+	id integer generated always as identity (start with 60000 increment by 1) NOT NULL,
+	first_name varchar(200),
+	last_name varchar(200),
+	middle_initials varchar(3),
+	official_title varchar(200),
+	company_name varchar(200),
+	primary_phone varchar(10),
+	email_address varchar(128),
+	create_userid varchar(63) NOT NULL,
+	create_timestamp timestamp NOT NULL,
+	update_userid varchar(63) NOT NULL,
+	update_timestamp timestamp NOT NULL
+) ;
+ALTER TABLE mal_registrant ADD PRIMARY KEY (id);
+CREATE INDEX mal_rgst_last_name_idx on mal_registrant using btree (last_name);
+CREATE INDEX mal_rgst_company_name_idx on mal_registrant using btree (company_name);
+
+--
+-- TABLE:  MAL_SPECIES_DAIRY_CODE_LU
+--
+
+CREATE TABLE mal_species_dairy_code_lu (
+	id integer generated always as identity (start with 60000 increment by 1) NOT NULL,
+	code_name varchar(50) UNIQUE NOT NULL,
+	code_description varchar(120) NULL,
+	active_flag boolean NOT NULL,
+	create_userid varchar(63) NOT NULL,
+	create_timestamp timestamp NOT NULL,
+	update_userid varchar(63) NOT NULL,
+	update_timestamp timestamp NOT NULL
+) ;
+ALTER TABLE mal_species_dairy_code_lu ADD PRIMARY KEY (id);
+CREATE UNIQUE INDEX mal_spcdrycd_code_name_uk on mal_species_dairy_code_lu using btree (code_name);
+	
+--
+-- TABLE:  MAL_SPECIES_DAIRY_INVENTORY_CODE_LU
+--
+
+CREATE TABLE mal_species_dairy_inventory_code_lu (
+	id integer generated always as identity (start with 60000 increment by 1) NOT NULL,
+	species_dairy_code_id integer NOT null,
+	code_name varchar(50) NOT NULL,
+	code_description varchar(120) NULL,
+	active_flag boolean NOT NULL,
+	create_userid varchar(63) NOT NULL,
+	create_timestamp timestamp NOT NULL,
+	update_userid varchar(63) NOT NULL,
+	update_timestamp timestamp NOT NULL
+) ;
+ALTER TABLE mal_species_dairy_inventory_code_lu ADD PRIMARY KEY (id);
+CREATE UNIQUE INDEX mal_spcdryinvcd_id_code_uk on mal_species_dairy_inventory_code_lu using btree (species_dairy_code_id, code_name);
+	
+--
+-- TABLE:  MAL_SPECIES_FUR_CODE_LU
+--
+
+CREATE TABLE mal_species_fur_code_lu (
+	id integer generated always as identity (start with 60000 increment by 1) NOT NULL,
+	code_name varchar(50) UNIQUE NOT NULL,
+	code_description varchar(120) NULL,
+	active_flag boolean NOT NULL,
+	create_userid varchar(63) NOT NULL,
+	create_timestamp timestamp NOT NULL,
+	update_userid varchar(63) NOT NULL,
+	update_timestamp timestamp NOT NULL
+) ;
+ALTER TABLE mal_species_fur_code_lu ADD PRIMARY KEY (id);
+CREATE UNIQUE INDEX mal_spcfurcd_code_name_uk on mal_species_fur_code_lu using btree (code_name);
+	
+--
+-- TABLE:  MAL_SPECIES_FUR_INVENTORY_CODE_LU
+--
+
+CREATE TABLE mal_species_fur_inventory_code_lu (
+	id integer generated always as identity (start with 60000 increment by 1) NOT NULL,
+	species_fur_code_id integer NOT null,
+	code_name varchar(50) NOT NULL,
+	code_description varchar(120) NULL,
+	active_flag boolean NOT NULL,
+	create_userid varchar(63) NOT NULL,
+	create_timestamp timestamp NOT NULL,
+	update_userid varchar(63) NOT NULL,
+	update_timestamp timestamp NOT NULL
+) ;
+ALTER TABLE mal_species_fur_inventory_code_lu ADD PRIMARY KEY (id);
+CREATE UNIQUE INDEX mal_spcfurinvcd_id_code_uk on mal_species_fur_inventory_code_lu using btree (species_fur_code_id, code_name);
+
+--
+-- TABLE:  MAL_SPECIES_GAME_CODE_LU
+--
+
+CREATE TABLE mal_species_game_code_lu (
+	id integer generated always as identity (start with 60000 increment by 1) NOT NULL,
+	code_name varchar(50) UNIQUE NOT NULL,
+	code_description varchar(120) NULL,
+	active_flag boolean NOT NULL,
+	create_userid varchar(63) NOT NULL,
+	create_timestamp timestamp NOT NULL,
+	update_userid varchar(63) NOT NULL,
+	update_timestamp timestamp NOT NULL
+) ;
+ALTER TABLE mal_species_game_code_lu ADD PRIMARY KEY (id);
+CREATE UNIQUE INDEX mal_spcgamcd_uk on mal_species_game_code_lu using btree (code_name);
+
+--
+-- TABLE:  MAL_SPECIES_GAME_INVENTORY_CODE_LU
+--
+
+CREATE TABLE mal_species_game_inventory_code_lu (
+	id integer generated always as identity (start with 60000 increment by 1) NOT NULL,
+	species_game_code_id integer NOT null,
+	code_name varchar(50) NOT NULL,
+	code_description varchar(120) NULL,
+	active_flag boolean NOT NULL,
+	create_userid varchar(63) NOT NULL,
+	create_timestamp timestamp NOT NULL,
+	update_userid varchar(63) NOT NULL,
+	update_timestamp timestamp NOT NULL
+) ;
+ALTER TABLE mal_species_game_inventory_code_lu ADD PRIMARY KEY (id);
+CREATE UNIQUE INDEX mal_spcgaminvcd_id_code_uk on mal_species_game_inventory_code_lu using btree (species_game_code_id, code_name);
+	
+--
+-- TABLE:  MAL_SPECIES_SALE_CODE_LU
+--
+
+CREATE TABLE mal_species_sale_code_lu (
+	id integer generated always as identity (start with 60000 increment by 1) NOT NULL,
+	code_name varchar(50) UNIQUE NOT NULL,
+	code_description varchar(120) NULL,
+	active_flag boolean NOT NULL,
+	create_userid varchar(63) NOT NULL,
+	create_timestamp timestamp NOT NULL,
+	update_userid varchar(63) NOT NULL,
+	update_timestamp timestamp NOT NULL
+) ;
+ALTER TABLE mal_species_sale_code_lu ADD PRIMARY KEY (id);
+CREATE UNIQUE INDEX mal_spcsalcd_code_name_uk on mal_species_sale_code_lu using btree (code_name);
+	
+--
+-- TABLE:  MAL_SPECIES_SALE_INVENTORY_CODE_LU
+--
+
+CREATE TABLE mal_species_sale_inventory_code_lu (
+	id integer generated always as identity (start with 60000 increment by 1) NOT NULL,
+	species_sale_code_id integer NOT null,
+	code_name varchar(50) NOT NULL,
+	code_description varchar(120) NOT NULL,
+	active_flag boolean NOT NULL,
+	create_userid varchar(63) NOT NULL,
+	create_timestamp timestamp NOT NULL,
+	update_userid varchar(63) NOT NULL,
+	update_timestamp timestamp NOT NULL
+) ;
+ALTER TABLE mal_species_sale_inventory_code_lu ADD PRIMARY KEY (id);
+CREATE UNIQUE INDEX mal_spcsalinvcd_id_code_uk on mal_species_sale_inventory_code_lu using btree (species_sale_code_id, code_name);
+
+--
+-- TABLE:  MAL_STATUS_CODE_LU
+--
+
+CREATE TABLE mal_status_code_lu (
+	id integer generated always as identity (start with 60000 increment by 1) NOT NULL,
+	code_name varchar(50) UNIQUE NOT NULL,
+	code_description varchar(120) NULL,
+	active_flag boolean NOT NULL,
+	create_userid varchar(63) NOT NULL,
+	create_timestamp timestamp NOT NULL,
+	update_userid varchar(63) NOT NULL,
+	update_timestamp timestamp NOT NULL
+) ;
+ALTER TABLE mal_status_code_lu ADD PRIMARY KEY (id);
+CREATE UNIQUE INDEX mal_statcd_code_name_uk on mal_status_code_lu using btree (code_name);
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', 'mals_app', true);
+ set_config 
+------------
+ mals_app
+(1 row)
+
+SET check_function_bodies = false;
+SET client_min_messages = warning;
+
+--
+-- TABLE:  MAL_FUR_FARM
+--
+alter table mal_inventory_fur_farm 
+  add constraint iff_lic_fk foreign key (licence_id) 
+  references mal_licence(id) 
+  on delete no action not deferrable initially immediate;
+--
+alter table mal_inventory_fur_farm 
+  add constraint iff_sfcl_fk foreign key (species_fur_code_id) 
+  references mal_species_fur_code_lu(id) 
+  on delete no action not deferrable initially immediate;
+--
+alter table mal_inventory_fur_farm 
+  add constraint iff_sficl_fk foreign key (species_fur_inventory_code_id) 
+  references mal_species_fur_inventory_code_lu(id) 
+  on delete no action not deferrable initially immediate;
+
+--
+-- TABLE:  MAL_GAME_FARM
+--
+alter table mal_inventory_game_farm 
+  add constraint igf_addrsn_fk foreign key (add_reason_code_id) 
+  references mal_add_reason_code_lu(id) 
+  on delete no action not deferrable initially immediate;
+--
+alter table mal_inventory_game_farm 
+  add constraint igf_delrsn_fk foreign key (delete_reason_code_id) 
+  references mal_delete_reason_code_lu(id) 
+  on delete no action not deferrable initially immediate;
+--
+alter table mal_inventory_game_farm 
+  add constraint igf_lic_fk foreign key (licence_id) 
+  references mal_licence(id) 
+  on delete no action not deferrable initially immediate;
+--
+alter table mal_inventory_game_farm 
+  add constraint igf_sfcl_fk foreign key (species_game_code_id) 
+  references mal_species_game_code_lu(id) 
+  on delete no action not deferrable initially immediate;
+--
+alter table mal_inventory_game_farm 
+  add constraint igf_sficl_fk foreign key (species_game_inventory_code_id) 
+  references mal_species_game_inventory_code_lu(id) 
+  on delete no action not deferrable initially immediate;
+
+--
+-- TABLE:  MAL_LICENCE
+--
+alter table mal_licence 
+  add constraint lic_lictyp_fk foreign key (licence_type_id) 
+  references mal_licence_type_lu(id) 
+  on delete no action not deferrable initially immediate;
+
+alter table mal_licence 
+  add constraint lic_reg_fk foreign key (region_id) 
+  references mal_region_lu(id) 
+  on delete no action not deferrable initially immediate;
+
+alter table mal_licence 
+  add constraint lic_regdist_fk foreign key (regional_district_id) 
+  references mal_regional_district_lu(id) 
+  on delete no action not deferrable initially immediate;
+
+alter table mal_licence 
+  add constraint lic_stat_fk foreign key (status_code_id) 
+  references mal_status_code_lu(id) 
+  on delete no action not deferrable initially immediate;
+
+alter table mal_licence 
+  add constraint lic_plnt_fk foreign key (plant_code_id) 
+  references mal_plant_code_lu(id) 
+  on delete no action not deferrable initially immediate;
+
+alter table mal_licence 
+  add constraint lic_specgame_fk foreign key (species_game_code_id) 
+  references mal_species_game_code_lu(id) 
+  on delete no action not deferrable initially immediate;
+
+--
+-- TABLE:  MAL_LICENCE_COMMENT
+--
+alter table mal_licence_comment 
+  add constraint liccmnt_lic_fk foreign key (licence_id) 
+  references mal_licence(id) 
+  on delete no action not deferrable initially immediate;
+
+--
+-- TABLE:  MAL_LICENCE_REGISTRANT_XREF
+--
+alter table mal_licence_registrant_xref 
+  add constraint licrgstxref_lic_fk foreign key (licence_id) 
+  references mal_licence(id) 
+  on delete no action not deferrable initially immediate;
+alter table mal_licence_registrant_xref 
+  add constraint licrgstxref_rgst_fk foreign key (registrant_id) 
+  references mal_registrant(id) 
+  on delete no action not deferrable initially immediate;
+ 
+--
+-- TABLE:  MAL_REGIONAL_DISTRICT
+--
+alter table mal_regional_district_lu
+  add constraint regdist_reg_fk foreign key (region_id) 
+  references mal_region_lu(id) 
+  on delete no action not deferrable initially immediate;
+  
+--
+-- TABLE:  MAL_SPECIES_DAIRY_INVENTORY_CODE_LU
+--
+alter table mals_app.mal_species_dairy_inventory_code_lu
+  add constraint sdicl_sdcl_fk foreign key (species_dairy_code_id) 
+  references mals_app.mal_species_dairy_code_lu(id) 
+  on delete no action not deferrable initially immediate;
+  
+--
+-- TABLE:  MAL_SPECIES_FUR_INVENTORY_CODE_LU
+--
+alter table mals_app.mal_species_fur_inventory_code_lu
+  add constraint sficl_sfcl_fk foreign key (species_fur_code_id) 
+  references mals_app.mal_species_fur_code_lu(id) 
+  on delete no action not deferrable initially immediate;
+  
+--
+-- TABLE:  MAL_SPECIES_GAME_INVENTORY_CODE_LU
+--
+alter table mals_app.mal_species_game_inventory_code_lu
+  add CONSTRAINT sgicl_sgcl_fk foreign key (species_game_code_id) 
+  references mals_app.mal_species_game_code_lu(id) 
+  on delete no action not deferrable initially immediate;
+  
+--
+-- TABLE:  MAL_SPECIES_SALE_INVENTORY_CODE_LU
+--
+alter table mals_app.mal_species_sale_inventory_code_lu
+  add constraint ssicl_sscl_fk foreign key (species_sale_code_id) 
+  references mals_app.mal_species_sale_code_lu(id) 
+  on delete no action not deferrable initially immediate;
+  
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', 'mals_app', true);
+ set_config 
+------------
+ mals_app
+(1 row)
+
+SET check_function_bodies = false;
+SET client_min_messages = warning;
+
+
+grant select, insert, update, delete on mal_add_reason_code_lu               to mals_app_role;
+grant select, insert, update, delete on mal_delete_reason_code_lu            to mals_app_role;
+grant select, insert, update, delete on mal_inventory_fur_farm               to mals_app_role;
+grant select, insert, update, delete on mal_inventory_game_farm              to mals_app_role;
+grant select, insert, update, delete on mal_licence                          to mals_app_role;
+grant select, insert, update, delete on mal_licence_comment                  to mals_app_role;
+grant select, insert, update, delete on mal_licence_registrant_xref          to mals_app_role;
+grant select, insert, update, delete on mal_licence_type_lu                  to mals_app_role;
+grant select, insert, update, delete on mal_plant_code_lu                    to mals_app_role;
+grant select, insert, update, delete on mal_region_lu                        to mals_app_role;
+grant select, insert, update, delete on mal_regional_district_lu             to mals_app_role;
+grant select, insert, update, delete on mal_registrant                       to mals_app_role;
+grant select, insert, update, delete on mal_species_dairy_code_lu            to mals_app_role;
+grant select, insert, update, delete on mal_species_dairy_inventory_code_lu  to mals_app_role;
+grant select, insert, update, delete on mal_species_fur_code_lu              to mals_app_role;
+grant select, insert, update, delete on mal_species_fur_inventory_code_lu    to mals_app_role;
+grant select, insert, update, delete on mal_species_game_code_lu             to mals_app_role;
+grant select, insert, update, delete on mal_species_game_inventory_code_lu   to mals_app_role;
+grant select, insert, update, delete on mal_species_sale_code_lu             to mals_app_role;
+grant select, insert, update, delete on mal_species_sale_inventory_code_lu   to mals_app_role;
+grant select, insert, update, delete on mal_status_code_lu                   to mals_app_role;
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', 'mals_app', true);
+ set_config 
+------------
+ mals_app
+(1 row)
+
+SET check_function_bodies = false;
+SET client_min_messages = warning;
+
+--
+-- FUNCTION:  FN_UPDATE_AUDIT_COLUMNS
+--
+
+create or replace function fn_update_audit_columns() 
+returns trigger as $$
+	begin
+	if TG_OP = 'UPDATE' then
+		NEW.update_timestamp  = current_timestamp;
+	elsif TG_OP = 'INSERT' then
+		NEW.create_userid     = coalesce(NEW.create_userid, current_user);
+		NEW.create_timestamp  = current_timestamp;
+		NEW.update_userid     = coalesce(NEW.update_userid, current_user);
+		NEW.update_timestamp  = current_timestamp;
+	end if;
+	return NEW;
+	end;
+$$ language 'plpgsql';
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', 'mals_app', true);
+ set_config 
+------------
+ mals_app
+(1 row)
+
+SET check_function_bodies = false;
+SET client_min_messages = warning;
+
+-- TABLE:  MAL_ADD_REASON_CODE_LU
+--
+create trigger trg_mal_add_reason_code_lu_biu
+before insert or update on mal_add_reason_code_lu
+  for each row execute function fn_update_audit_columns();
+
+-- TABLE:  MAL_DELETE_REASON_CODE_LU
+--
+create trigger trg_mal_delete_reason_code_lu_biu
+before insert or update on mal_delete_reason_code_lu
+  for each row execute function fn_update_audit_columns();
+
+-- TABLE:  MAL_INVENTORY_FUR_FARM
+--
+create trigger trg_mal_inventory_fur_farm_biu
+before insert or update on mal_inventory_fur_farm
+  for each row execute function fn_update_audit_columns();
+
+-- TABLE:  MAL_INVENTORY_GAME_FARM
+--
+create trigger trg_mal_inventory_game_farm_biu
+before insert or update on mal_inventory_game_farm
+  for each row execute function fn_update_audit_columns();
+ 
+--
+-- TABLE:  MAL_LICENCE
+--
+create trigger trg_mal_licence_biu
+before insert or update on mal_licence
+  for each row execute function fn_update_audit_columns();
+
+--
+-- TABLE:  MAL_LICENCE_COMMENT
+--
+create trigger trg_mal_licence_comment_biu
+before insert or update on mal_licence_comment
+  for each row execute function fn_update_audit_columns();
+
+--
+-- TABLE:  MAL_LICENCE_REGISTRANT_XREF
+--
+create trigger trg_mal_licence_registrant_xref_biu
+before insert or update on mal_licence_registrant_xref
+  for each row execute function fn_update_audit_columns();
+
+--
+-- TABLE:  MAL_LICENCE_TYPE_LU
+--
+create trigger trg_mal_licence_type_lu_biu
+before insert or update on mal_licence_type_lu
+  for each row execute function fn_update_audit_columns();
+
+--
+-- TABLE:  MAL_PLANT_CODE_LU
+--
+create trigger trg_mal_plant_code_lu_biu
+before insert or update on mal_plant_code_lu
+  for each row execute function fn_update_audit_columns();
+
+--
+-- TABLE:  MAL_REGION_LU
+--
+create trigger trg_mal_region_lu_biu
+before insert or update on mal_region_lu
+  for each row execute function fn_update_audit_columns();
+
+--
+-- TABLE:  MAL_REGIONAL_DISTRICT_LU
+--
+create trigger trg_mal_regional_district_lu_biu
+before insert or update on mal_regional_district_lu
+  for each row execute function fn_update_audit_columns();
+
+--
+-- TABLE:  MAL_REGISTRANT
+--
+create trigger trg_mal_registrant_biu
+before insert or update on mal_registrant
+  for each row execute function fn_update_audit_columns();
+
+-- TABLE:  MAL_SPECIES_DAIRY_CODE_LU
+--
+create trigger trg_mal_species_dairy_code_lu_biu
+before insert or update on mal_species_dairy_code_lu
+  for each row execute function fn_update_audit_columns();
+
+-- TABLE:  MAL_SPECIES_DAIRY_INVENTORY_CODE_LU
+--
+create trigger trg_mal_species_dairy_inventory_code_lu_biu
+before insert or update on mal_species_dairy_inventory_code_lu
+  for each row execute function fn_update_audit_columns();
+
+-- TABLE:  MAL_SPECIES_FUR_CODE_LU
+--
+create trigger trg_mal_species_fur_code_lu_biu
+before insert or update on mal_species_fur_code_lu
+  for each row execute function fn_update_audit_columns();
+
+-- TABLE:  MAL_SPECIES_FUR_INVENTORY_CODE_LU
+--
+create trigger trg_mal_species_fur_inventory_code_lu_biu
+before insert or update on mal_species_fur_inventory_code_lu
+  for each row execute function fn_update_audit_columns();
+
+--
+-- TABLE:  MAL_SPECIES_GAME_CODE_LU
+--
+create trigger trg_mal_species_game_code_lu_biu
+before insert or update on mal_species_game_code_lu
+  for each row execute function fn_update_audit_columns();
+
+-- TABLE:  MAL_SPECIES_GAME_INVENTORY_CODE_LU
+--
+create trigger trg_mal_species_game_inventory_code_lu_biu
+before insert or update on mal_species_game_inventory_code_lu
+  for each row execute function fn_update_audit_columns();
+
+-- TABLE:  MAL_SPECIES_SALE_CODE_LU
+--
+create trigger trg_mal_species_sale_code_lu_biu
+before insert or update on mal_species_sale_code_lu
+  for each row execute function fn_update_audit_columns();
+
+-- TABLE:  MAL_SPECIES_SALE_INVENTORY_CODE_LU
+--
+create trigger trg_mal_species_sale_inventory_code_lu_biu
+before insert or update on mal_species_sale_inventory_code_lu
+  for each row execute function fn_update_audit_columns();
+
+--
+-- TABLE:  MAL_STATUS_CODE_LU
+--
+create trigger trg_mal_status_code_lu_biu
+before insert or update on mal_status_code_lu
+  for each row execute function fn_update_audit_columns();
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', 'mals_app', true);
+ set_config 
+------------
+ mals_app
+(1 row)
+
+SET check_function_bodies = false;
+SET client_min_messages = warning;
+
+--
+-- TABLE:  MAL_STATUS_CODE_LU
+--
+
+insert into mal_status_code_lu(code_name, code_description, active_flag)
+  values ('DRA','Draft', true);
+  
