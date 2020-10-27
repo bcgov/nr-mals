@@ -63,13 +63,19 @@ export default function LicenceDetailsView({ licence }) {
         )}
       </Row>
       <Row className="mt-3">
-        <Col lg={6}>
+        <Col lg={4}>
           <VerticalField
             label="Action Required"
             value={formatBoolean(licence.actionRequired)}
           />
         </Col>
-        <Col lg={6}>
+        <Col lg={4}>
+          <VerticalField
+            label="Print Licence"
+            value={formatBoolean(licence.printLicence)}
+          />
+        </Col>
+        <Col lg={4}>
           <VerticalField
             label="Renewal Notice"
             value={formatBoolean(licence.renewalNotice)}
