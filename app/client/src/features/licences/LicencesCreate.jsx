@@ -11,7 +11,11 @@ import {
   InputGroup,
 } from "react-bootstrap";
 
-import { REQUEST_STATUS, LICENSES_PATHNAME } from "../../utilities/constants";
+import {
+  REQUEST_STATUS,
+  LICENSES_PATHNAME,
+  REGISTRANT_MODE,
+} from "../../utilities/constants";
 import { parseAsInt, parseAsFloat } from "../../utilities/parsing";
 
 import CustomCheckBox from "../../components/CustomCheckBox";
@@ -25,6 +29,8 @@ import LicenceStatuses from "../lookups/LicenceStatuses";
 import Regions from "../lookups/Regions";
 import RegionalDistricts from "../lookups/RegionalDistricts";
 
+import RegistrantsSection from "../registrants/RegistrantsSection";
+
 import { fetchRegions, selectRegions } from "../lookups/regionsSlice";
 import {
   createLicence,
@@ -32,16 +38,113 @@ import {
   clearCreatedLicence,
 } from "./licencesSlice";
 
-export default function CreateLicence() {
+function submissionController(setError, dispatch, values) {
+  const validateRegistrants = (registrants) => {
+    if (!registrants || registrants.length === 0) {
+      setError("noRegistrants", {
+        type: "invalid",
+        message: "A licence must have at least one registrant.",
+      });
+      return false;
+    }
+
+    let errorCount = 0;
+
+    registrants.forEach((registrant, index) => {
+      // validate phone numbers
+      if (!registrant.primaryPhone.match(/^$|\(\d{3}\) \d{3}-\d{4}/g)) {
+        setError(`registrants[${index}].primaryPhone`, {
+          type: "invalid",
+        });
+        errorCount += 1;
+      }
+
+      // validate names
+      if (
+        !(
+          (registrant.firstName.trim().length > 0 &&
+            registrant.lastName.trim().length > 0) ||
+          registrant.companyName.trim().length > 0
+        )
+      ) {
+        setError(`registrants[${index}].names`, {
+          type: "invalid",
+        });
+        errorCount += 1;
+      }
+    });
+
+    return errorCount === 0;
+  };
+
+  const formatRegistrants = (registrants) => {
+    if (registrants === undefined) {
+      return undefined;
+    }
+
+    return registrants.map((registrant) => {
+      return {
+        ...registrant,
+        primaryPhone: registrant.primaryPhone.replace(/\D/g, ""),
+      };
+    });
+  };
+
+  const onSubmit = async (data) => {
+    const validationResult = validateRegistrants(data.registrants);
+    if (validationResult === false) {
+      return;
+    }
+
+    const payload = {
+      ...data,
+      feePaidAmount: parseAsFloat(data.feePaidAmount),
+      licenceStatus: parseAsInt(data.licenceStatus),
+      licenceType: parseAsInt(data.licenceType),
+      region: parseAsInt(data.region),
+      regionalDistrict: parseAsInt(data.regionalDistrict),
+      registrants: formatRegistrants(data.registrants),
+    };
+
+    dispatch(createLicence(payload));
+  };
+
+  const onInvalid = () => {
+    // re-validate so errors that have been cleared but not fixed will appear once again
+    validateRegistrants(values.registrants);
+  };
+
+  return { onSubmit, onInvalid };
+}
+
+export default function LicencesCreate() {
   const regions = useSelector(selectRegions);
   const createdLicence = useSelector(selectCreatedLicence);
   const dispatch = useDispatch();
 
+  const form = useForm({
+    reValidateMode: "onBlur",
+  });
+  const {
+    register,
+    handleSubmit,
+    errors,
+    watch,
+    getValues,
+    setValue,
+    setError,
+  } = form;
+
+  const values = getValues();
+  const { onSubmit, onInvalid } = submissionController(
+    setError,
+    dispatch,
+    values
+  );
+
   useEffect(() => {
     dispatch(fetchRegions());
   }, [dispatch]);
-
-  const { register, handleSubmit, errors, watch, setValue } = useForm();
 
   useEffect(() => {
     const today = new Date(new Date().setHours(0, 0, 0, 0));
@@ -99,33 +202,25 @@ export default function CreateLicence() {
 
   const parsedRegion = parseAsInt(watchRegion);
 
-  const onSubmit = async (data) => {
-    const payload = {
-      ...data,
-      feePaidAmount: parseAsFloat(data.feePaidAmount),
-      licenceStatus: parseAsInt(data.licenceStatus),
-      licenceType: parseAsInt(data.licenceType),
-      region: parseAsInt(data.region),
-      regionalDistrict: parseAsInt(data.regionalDistrict),
-    };
-
-    dispatch(createLicence(payload));
-  };
-
   const today = new Date(new Date().setHours(0, 0, 0, 0));
 
   return (
     <section>
       <PageHeading>Create a Licence</PageHeading>
-      <section>
-        <Container>
-          <Form onSubmit={handleSubmit(onSubmit)} noValidate>
+      <Form onSubmit={handleSubmit(onSubmit, onInvalid)} noValidate>
+        <section>
+          <Container>
             <Form.Row>
               <Col sm={6}>
                 <LicenceTypes ref={register} />
               </Col>
             </Form.Row>
-            <SectionHeading>Licence Details</SectionHeading>
+          </Container>
+        </section>
+        <RegistrantsSection mode={REGISTRANT_MODE.CREATE} form={form} />
+        <section>
+          <SectionHeading>Licence Details</SectionHeading>
+          <Container>
             <Form.Row>
               <Col sm={4}>
                 <CustomDatePicker
@@ -270,9 +365,9 @@ export default function CreateLicence() {
                 </Col>
               </Form.Row>
             )}
-          </Form>
-        </Container>
-      </section>
+          </Container>
+        </section>
+      </Form>
     </section>
   );
 }

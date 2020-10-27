@@ -297,10 +297,10 @@ parameters:
     resides.
   displayName: ImageStream Namespace
   name: IMAGE_STREAM_NAMESPACE
-  value: "bcgov"
+  value: "bsoszr-tools"
 - name: IMAGE_STREAM_TAG
   description: Patroni ImageTag
-  value: patroni:v11-stable
+  value: patroni:v12-latest
 - description: The size of the persistent volume to create.
   displayName: Persistent Volume Size
   name: PVC_SIZE
@@ -309,4 +309,5 @@ parameters:
   value: netapp-block-standard
 - name: IMAGE_REGISTRY
   #ocp3#docker-registry.default.svc:5000
-  value: image-registry.openshift-image-registry.svc:5000
+  #ocp4#image-registry.openshift-image-registry.svc:5000
+  value: docker-registry.default.svc:5000

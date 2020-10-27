@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<talendfile:ContextType xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:talendfile="platform:/resource/org.talend.model/model/TalendFile.xsd" xmi:id="_vBTh4PYWEeq5asAD8Lylzg" confirmationNeeded="false" name="Default">
+  <contextParameter xmi:id="_vBTh4fYWEeq5asAD8Lylzg" comment="" name="MALS_Oracle_ServiceName" prompt="MALS_Oracle_ServiceName?" promptNeeded="true" type="id_String" value=""/>
+  <contextParameter xmi:id="_vBTh4vYWEeq5asAD8Lylzg" comment="" name="MALS_Oracle_Port" prompt="MALS_Oracle_Port?" promptNeeded="true" type="id_String" value="1521"/>
+  <contextParameter xmi:id="_vBTh4_YWEeq5asAD8Lylzg" comment="" name="MALS_Oracle_Schema" prompt="MALS_Oracle_Schema?" promptNeeded="true" type="id_String" value="MALS"/>
+  <contextParameter xmi:id="_vBTh5PYWEeq5asAD8Lylzg" comment="" name="MALS_Oracle_Login" prompt="MALS_Oracle_Login?" promptNeeded="true" type="id_String" value="mals"/>
+  <contextParameter xmi:id="_vBTh5fYWEeq5asAD8Lylzg" comment="" name="MALS_Oracle_Server" prompt="MALS_Oracle_Server?" promptNeeded="true" type="id_String" value=""/>
+  <contextParameter xmi:id="_vBTh5vYWEeq5asAD8Lylzg" comment="" name="MALS_Oracle_Password" prompt="MALS_Oracle_Password?" promptNeeded="true" type="id_Password" value=""/>
+  <contextParameter xmi:id="_vBTh5_YWEeq5asAD8Lylzg" comment="" name="MALS_Oracle_AdditionalParams" prompt="MALS_Oracle_AdditionalParams?" promptNeeded="true" type="id_String" value=""/>
+</talendfile:ContextType>

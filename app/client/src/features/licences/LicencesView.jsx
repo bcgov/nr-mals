@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
 import { Container, Row, Col, Spinner, Alert } from "react-bootstrap";
 
-import { REQUEST_STATUS } from "../../utilities/constants";
+import { REQUEST_STATUS, REGISTRANT_MODE } from "../../utilities/constants";
 import {
   formatDateString,
   formatDateTimeString,
@@ -15,6 +15,8 @@ import HorizontalField from "../../components/HorizontalField";
 import VerticalField from "../../components/VerticalField";
 import PageHeading from "../../components/PageHeading";
 import SectionHeading from "../../components/SectionHeading";
+
+import RegistrantsSection from "../registrants/RegistrantsSection";
 
 import { fetchLicence, selectCurrentLicence } from "./licencesSlice";
 
@@ -99,9 +101,13 @@ export default function LicencesView() {
           </Row>
         </Container>
       </header>
+      <RegistrantsSection
+        initialRegistrants={licence.data.registrants}
+        mode={REGISTRANT_MODE.VIEW}
+      />
       <section>
+        <SectionHeading>License Details</SectionHeading>
         <Container>
-          <SectionHeading>License Details</SectionHeading>
           <Row className="mt-3">
             <Col lg={6}>
               <VerticalField

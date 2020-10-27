@@ -134,14 +134,14 @@ parameters:
   generate: expression
   from: '[a-zA-Z0-9]{32}'
 - name: APP_DB_NAME
-  value: app  
+  value: mals  
 - name: APP_DB_OWNER_USERNAME
-  value: app
+  value: mals
 - name: APP_DB_OWNER_PASSWORD
   generate: expression
   from: '[a-zA-Z0-9]{32}'
 - name: APP_PROXY_USERNAME
-  value: app
+  value: app_proxy_user
 - name: APP_PROXY_PASSWORD
   generate: expression
   from: '[a-zA-Z0-9]{32}'
