@@ -33,7 +33,7 @@ export default function LicenceDetailsEdit({ form, initialValues }) {
   return (
     <>
       <Form.Row>
-        <Col sm={4}>
+        <Col lg={4}>
           <CustomDatePicker
             id="applicationDate"
             label="Application Date"
@@ -41,7 +41,7 @@ export default function LicenceDetailsEdit({ form, initialValues }) {
             defaultValue={initialValues.applicationDate}
           />
         </Col>
-        <Col sm={8}>
+        <Col lg={8}>
           <Regions
             regions={regions}
             ref={register}
@@ -51,7 +51,7 @@ export default function LicenceDetailsEdit({ form, initialValues }) {
         </Col>
       </Form.Row>
       <Form.Row>
-        <Col sm={4}>
+        <Col lg={4}>
           <CustomDatePicker
             id="issuedOnDate"
             label="Issued On"
@@ -60,7 +60,7 @@ export default function LicenceDetailsEdit({ form, initialValues }) {
             isInvalid={errors.issuedOnDate}
           />
         </Col>
-        <Col sm={8}>
+        <Col lg={8}>
           <RegionalDistricts
             regions={regions}
             selectedRegion={parsedRegion}
@@ -71,7 +71,7 @@ export default function LicenceDetailsEdit({ form, initialValues }) {
         </Col>
       </Form.Row>
       <Form.Row>
-        <Col sm={4}>
+        <Col lg={4}>
           <CustomDatePicker
             id="expiryDate"
             label="Expiry Date"
@@ -79,7 +79,7 @@ export default function LicenceDetailsEdit({ form, initialValues }) {
             defaultValue={initialValues.expiryDate}
           />
         </Col>
-        <Col sm={8}>
+        <Col lg={8}>
           <LicenceStatuses
             ref={register({ required: true })}
             isInvalid={errors.licenceStatus}
@@ -87,7 +87,7 @@ export default function LicenceDetailsEdit({ form, initialValues }) {
         </Col>
       </Form.Row>
       <Form.Row>
-        <Col md={4}>
+        <Col lg={4}>
           <Form.Group controlId="paymentReceived">
             <CustomCheckBox
               id="paymentReceived"
@@ -96,7 +96,7 @@ export default function LicenceDetailsEdit({ form, initialValues }) {
             />
           </Form.Group>
         </Col>
-        <Col md={4}>
+        <Col lg={4}>
           {watchPaymentReceived && (
             <Form.Group controlId="feePaidAmount">
               <Form.Label>Fee Paid Amount</Form.Label>
@@ -123,7 +123,7 @@ export default function LicenceDetailsEdit({ form, initialValues }) {
         </Col>
       </Form.Row>
       <Form.Row>
-        <Col sm={4}>
+        <Col lg={4}>
           <Form.Group controlId="actionRequired">
             <CustomCheckBox
               id="actionRequired"
@@ -132,7 +132,7 @@ export default function LicenceDetailsEdit({ form, initialValues }) {
             />
           </Form.Group>
         </Col>
-        <Col sm={4}>
+        <Col lg={4}>
           <Form.Group controlId="printLicence">
             <CustomCheckBox
               id="printLicence"
@@ -141,7 +141,7 @@ export default function LicenceDetailsEdit({ form, initialValues }) {
             />
           </Form.Group>
         </Col>
-        <Col sm={4}>
+        <Col lg={4}>
           <Form.Group controlId="renewalNotice">
             <CustomCheckBox
               id="renewalNotice"
