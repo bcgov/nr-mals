@@ -300,7 +300,7 @@ parameters:
   value: "bsoszr-tools"
 - name: IMAGE_STREAM_TAG
   description: Patroni ImageTag
-  value: patroni:v12-latest
+  value: patroni:v13-latest
 - description: The size of the persistent volume to create.
   displayName: Persistent Volume Size
   name: PVC_SIZE

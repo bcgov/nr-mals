@@ -13,7 +13,7 @@ SUFFIX="-prod"
 # MEMORY_REQUEST          value: 512Mi
 # MEMORY_LIMIT            value: 512Mi
 # IMAGE_STREAM_NAMESPACE  value: "bsoszr-tools"
-# IMAGE_STREAM_TAG        value: patroni:v12-latest
+# IMAGE_STREAM_TAG        value: patroni:v13-latest
 # PVC_SIZE                value: 1Gi
 # STORAGE_CLASS           value: netapp-block-standard
 # IMAGE_REGISTRY          value: docker-registry.default.svc:5000
