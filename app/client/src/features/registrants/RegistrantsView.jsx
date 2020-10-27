@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { Tab } from "react-bootstrap";
 
 import { REGISTRANT_STATUS } from "../../utilities/constants";
-import RegistrantView from "./RegistrantView";
+import RegistrantDetailsView from "./RegistrantDetailsView";
 
 export default function RegistrantsView({ registrants }) {
   const activeRegistrants = registrants.filter(
@@ -17,7 +17,7 @@ export default function RegistrantsView({ registrants }) {
       {activeRegistrants.map((registrant) => {
         return (
           <Tab.Pane key={registrant.key} eventKey={registrant.key}>
-            <RegistrantView registrant={registrant} />
+            <RegistrantDetailsView registrant={registrant} />
           </Tab.Pane>
         );
       })}

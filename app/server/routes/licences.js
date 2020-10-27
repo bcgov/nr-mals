@@ -1,6 +1,9 @@
 const express = require("express");
 const { PrismaClient } = require("@prisma/client");
-const { populateAuditingColumns } = require("../utilities/auditing");
+const {
+  populateAuditColumnsCreate,
+  populateAuditColumnsUpdate,
+} = require("../utilities/auditing");
 const licence = require("../models/licence");
 const registrant = require("../models/registrant");
 
@@ -15,6 +18,26 @@ const REGISTRANT_STATUS = {
 
 async function findLicence(licenceId) {
   return prisma.mal_licence.findOne({
+    where: {
+      id: licenceId,
+    },
+    include: {
+      mal_licence_type_lu: true,
+      mal_region_lu: true,
+      mal_regional_district_lu: true,
+      mal_status_code_lu: true,
+      mal_licence_registrant_xref: {
+        select: {
+          mal_registrant: true,
+        },
+      },
+    },
+  });
+}
+
+async function updateLicence(licenceId, payload) {
+  return prisma.mal_licence.update({
+    data: payload,
     where: {
       id: licenceId,
     },
@@ -68,11 +91,38 @@ router.get("/:licenceId(\\d+)", async (req, res, next) => {
     .finally(async () => prisma.$disconnect());
 });
 
+router.put("/:licenceId(\\d+)", async (req, res, next) => {
+  const licenceId = parseInt(req.params.licenceId, 10);
+
+  const now = new Date();
+
+  const licencePayload = licence.convertToPhysicalModel(
+    populateAuditColumnsUpdate(req.body, now),
+    true
+  );
+
+  await updateLicence(licenceId, licencePayload)
+    .then(async (record) => {
+      if (record === null) {
+        return res.status(404).send({
+          code: 404,
+          description: "The requested licence could not be found.",
+        });
+      }
+
+      const payload = licence.convertToLogicalModel(record);
+      return res.send(payload);
+    })
+    .catch(next)
+    .finally(async () => prisma.$disconnect());
+});
+
 router.post("/", async (req, res, next) => {
   const now = new Date();
 
   const licencePayload = licence.convertToPhysicalModel(
-    populateAuditingColumns(req.body, now, now)
+    populateAuditColumnsCreate(req.body, now, now),
+    false
   );
   const newRegistrants = req.body.registrants
     ? req.body.registrants.filter(

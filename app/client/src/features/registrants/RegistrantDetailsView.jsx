@@ -5,7 +5,7 @@ import { Col, Row } from "react-bootstrap";
 
 import VerticalField from "../../components/VerticalField";
 
-export default function RegistrantView({ registrant }) {
+export default function RegistrantDetailsView({ registrant }) {
   return (
     <>
       <Row className="mt-3">
@@ -46,6 +46,6 @@ export default function RegistrantView({ registrant }) {
   );
 }
 
-RegistrantView.propTypes = {
+RegistrantDetailsView.propTypes = {
   registrant: PropTypes.object.isRequired,
 };

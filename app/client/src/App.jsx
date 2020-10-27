@@ -8,8 +8,9 @@ import { fetchStatus } from "./features/status/statusSlice";
 import HeaderBranding from "./components/HeaderBranding";
 import HeaderNavigation from "./components/HeaderNavigation";
 
-import LicensesCreate from "./features/licences/LicencesCreate";
-import LicensesView from "./features/licences/LicencesView";
+import CreateLicencePage from "./features/licences/CreateLicencePage";
+
+import ViewLicencePage from "./features/licences/ViewLicencePage";
 
 import "./App.scss";
 
@@ -30,13 +31,13 @@ function App() {
         <Container className="mt-3">
           <Switch>
             <Route path={`${Constant.SEARCH_LICENSES_PATHNAME}`}>
-              <LicensesSearch />
+              <SearchLicencePage />
             </Route>
             <Route path={`${Constant.CREATE_LICENSES_PATHNAME}`}>
-              <LicensesCreate />
+              <CreateLicencePage />
             </Route>
             <Route path={`${Constant.LICENSES_PATHNAME}/:id`}>
-              <LicensesView />
+              <ViewLicencePage />
             </Route>
             <Route path={`${Constant.SEARCH_REGISTRANTS_PATHNAME}`}>
               <RegistrantsSearch />
@@ -84,7 +85,7 @@ function App() {
   );
 }
 
-function LicensesSearch() {
+function SearchLicencePage() {
   return <h2>Search Licenses</h2>;
 }
 
