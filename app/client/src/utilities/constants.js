@@ -28,6 +28,11 @@ export const REQUEST_STATUS = {
   REJECTED: "rejected",
 };
 
+export const LICENCE_MODE = {
+  VIEW: "view",
+  EDIT: "edit",
+};
+
 export const REGISTRANT_MODE = {
   CREATE: "create",
   VIEW: "view",

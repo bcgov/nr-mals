@@ -46,14 +46,25 @@ function convertToLogicalModel(input) {
   return output;
 }
 
-function convertToPhysicalModel(input) {
+function convertToPhysicalModel(input, update) {
+  const disconnectRelation = {
+    disconnect: true,
+  };
+
+  let emptyRegion;
+  if (input.originalRegion !== null) {
+    emptyRegion = disconnectRelation;
+  }
+
+  let emptyRegionalDistrict;
+  if (input.originalRegionalDistrict !== null) {
+    emptyRegionalDistrict = disconnectRelation;
+  }
+
   const output = {
-    mal_licence_type_lu: {
-      connect: { id: input.licenceType },
-    },
     mal_region_lu:
       input.region === null
-        ? undefined
+        ? emptyRegion
         : {
             connect: { id: input.region },
           },
@@ -62,7 +73,7 @@ function convertToPhysicalModel(input) {
     },
     mal_regional_district_lu:
       input.regionalDistrict === null
-        ? undefined
+        ? emptyRegionalDistrict
         : {
             connect: { id: input.regionalDistrict },
           },
@@ -79,6 +90,12 @@ function convertToPhysicalModel(input) {
     update_userid: input.updatedBy,
     update_timestamp: input.updatedOn,
   };
+
+  if (!update) {
+    output.mal_licence_type_lu = {
+      connect: { id: input.licenceType },
+    };
+  }
 
   return output;
 }
