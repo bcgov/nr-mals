@@ -1,6 +1,6 @@
 const { getCurrentUser } = require("./user");
 
-function populateAuditingColumns(
+function populateAuditColumnsCreate(
   entity = undefined,
   createdOnDate = undefined,
   updatedOnDate = undefined
@@ -17,4 +17,18 @@ function populateAuditingColumns(
   };
 }
 
-module.exports = { populateAuditingColumns };
+function populateAuditColumnsUpdate(
+  entity = undefined,
+  updatedOnDate = undefined
+) {
+  const currentUser = getCurrentUser();
+  const now = new Date();
+
+  return {
+    ...entity,
+    updatedBy: currentUser.idir,
+    updatedOn: updatedOnDate || now,
+  };
+}
+
+module.exports = { populateAuditColumnsCreate, populateAuditColumnsUpdate };

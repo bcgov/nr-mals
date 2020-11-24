@@ -56,3 +56,7 @@ export const formatMoneyString = (moneyString: string) => {
 export const formatBoolean = (boolean: boolean) => {
   return boolean ? "Yes" : "No";
 };
+
+export const formatNumber = (number: number) => {
+  return number === null ? null : number.toString();
+};
