@@ -23,7 +23,7 @@ import {
 import LicenceDetailsEdit from "./LicenceDetailsEdit";
 import LicenceDetailsView from "./LicenceDetailsView";
 
-export default function LicenceDetailsSection({ licence }) {
+export default function LicenceDetailsViewEdit({ licence }) {
   const { status, error, mode } = licence;
 
   const dispatch = useDispatch();
@@ -95,7 +95,7 @@ export default function LicenceDetailsSection({ licence }) {
         <SectionHeading onEdit={onEdit} showEditButton>
           License Details
         </SectionHeading>
-        <Container>
+        <Container className="mt-3 mb-4">
           <LicenceDetailsView licence={licence.data} />
         </Container>
       </section>
@@ -135,7 +135,7 @@ export default function LicenceDetailsSection({ licence }) {
     <Form onSubmit={handleSubmit(onSubmit)} noValidate>
       <section>
         <SectionHeading>License Details</SectionHeading>
-        <Container>
+        <Container className="mt-3 mb-4">
           <LicenceDetailsEdit
             form={form}
             initialValues={initialFormValues}
@@ -154,6 +154,6 @@ export default function LicenceDetailsSection({ licence }) {
   );
 }
 
-LicenceDetailsSection.propTypes = {
+LicenceDetailsViewEdit.propTypes = {
   licence: PropTypes.object.isRequired,
 };

@@ -22,7 +22,7 @@ export class ApiError extends Error {
 
 const axiosInstance = axios.create({
   baseURL: "/api/",
-  timeout: 2000,
+  timeout: 10000,
 });
 
 async function request(method: Method, url: any, params: any, data: any) {
