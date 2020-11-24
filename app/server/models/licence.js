@@ -77,7 +77,6 @@ function convertToPhysicalModel(input, update) {
         : {
             connect: { id: input.regionalDistrict },
           },
-    application_date: input.applicationDate,
     issue_date: input.issuedOnDate,
     expiry_date: input.expiryDate,
     fee_collected: input.feePaidAmount,
@@ -92,6 +91,7 @@ function convertToPhysicalModel(input, update) {
   };
 
   if (!update) {
+    output.application_date = input.applicationDate;
     output.mal_licence_type_lu = {
       connect: { id: input.licenceType },
     };

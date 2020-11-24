@@ -7,6 +7,7 @@ import { Alert, Button, Col, Container, Form } from "react-bootstrap";
 import {
   REQUEST_STATUS,
   LICENSES_PATHNAME,
+  LICENCE_MODE,
   REGISTRANT_MODE,
 } from "../../utilities/constants";
 import { parseAsInt, parseAsFloat } from "../../utilities/parsing";
@@ -220,7 +221,11 @@ export default function CreateLicencePage() {
         <section>
           <SectionHeading>License Details</SectionHeading>
           <Container>
-            <LicenceDetailsEdit form={form} initialValues={initialFormValues} />
+            <LicenceDetailsEdit
+              form={form}
+              initialValues={initialFormValues}
+              mode={LICENCE_MODE.CREATE}
+            />
             <SubmissionButtons
               submitButtonLabel={submissionLabel}
               submitButtonDisabled={submitting}

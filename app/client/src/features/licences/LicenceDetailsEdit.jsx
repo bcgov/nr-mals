@@ -3,10 +3,13 @@ import PropTypes from "prop-types";
 import { useSelector } from "react-redux";
 import { Form, Col, InputGroup } from "react-bootstrap";
 
+import { LICENCE_MODE } from "../../utilities/constants";
 import { parseAsInt } from "../../utilities/parsing";
+import { formatDate } from "../../utilities/formatting.ts";
 
 import CustomCheckBox from "../../components/CustomCheckBox";
 import CustomDatePicker from "../../components/CustomDatePicker";
+import VerticalField from "../../components/VerticalField";
 
 import { selectRegions } from "../lookups/regionsSlice";
 
@@ -14,7 +17,7 @@ import LicenceStatuses from "../lookups/LicenceStatuses";
 import Regions from "../lookups/Regions";
 import RegionalDistricts from "../lookups/RegionalDistricts";
 
-export default function LicenceDetailsEdit({ form, initialValues }) {
+export default function LicenceDetailsEdit({ form, initialValues, mode }) {
   const { watch, setValue, register, errors } = form;
 
   const regions = useSelector(selectRegions);
@@ -30,17 +33,27 @@ export default function LicenceDetailsEdit({ form, initialValues }) {
 
   const parsedRegion = parseAsInt(watchRegion);
 
+  let applicationDate = (
+    <VerticalField
+      label="Application Date"
+      value={formatDate(initialValues.applicationDate)}
+    />
+  );
+  if (mode === LICENCE_MODE.CREATE) {
+    applicationDate = (
+      <CustomDatePicker
+        id="applicationDate"
+        label="Application Date"
+        notifyOnChange={handleFieldChange("applicationDate")}
+        defaultValue={initialValues.applicationDate}
+      />
+    );
+  }
+
   return (
     <>
       <Form.Row>
-        <Col lg={4}>
-          <CustomDatePicker
-            id="applicationDate"
-            label="Application Date"
-            notifyOnChange={handleFieldChange("applicationDate")}
-            defaultValue={initialValues.applicationDate}
-          />
-        </Col>
+        <Col lg={4}>{applicationDate}</Col>
         <Col lg={8}>
           <Regions
             regions={regions}
@@ -158,4 +171,5 @@ export default function LicenceDetailsEdit({ form, initialValues }) {
 LicenceDetailsEdit.propTypes = {
   form: PropTypes.object.isRequired,
   initialValues: PropTypes.object.isRequired,
+  mode: PropTypes.string.isRequired,
 };
