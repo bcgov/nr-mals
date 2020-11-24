@@ -8,7 +8,7 @@ datasource db {
 }
 
 model mal_add_reason_code_lu {
-  id                      Int                       @default(autoincrement()) @id
+  id                      Int                       @id @default(autoincrement())
   code_name               String                    @unique
   code_description        String
   active_flag             Boolean
@@ -20,7 +20,7 @@ model mal_add_reason_code_lu {
 }
 
 model mal_delete_reason_code_lu {
-  id                      Int                       @default(autoincrement()) @id
+  id                      Int                       @id @default(autoincrement())
   code_name               String                    @unique
   code_description        String
   active_flag             Boolean
@@ -32,7 +32,7 @@ model mal_delete_reason_code_lu {
 }
 
 model mal_inventory_fur_farm {
-  id                                Int                               @default(autoincrement()) @id
+  id                                Int                               @id @default(autoincrement())
   licence_id                        Int
   species_fur_code_id               Int
   species_fur_inventory_code_id     Int
@@ -47,14 +47,14 @@ model mal_inventory_fur_farm {
   mal_species_fur_code_lu           mal_species_fur_code_lu           @relation(fields: [species_fur_code_id], references: [id])
   mal_species_fur_inventory_code_lu mal_species_fur_inventory_code_lu @relation(fields: [species_fur_inventory_code_id], references: [id])
 
+  @@unique([licence_id, species_fur_code_id, species_fur_inventory_code_id, recorded_date], name: "inv_invfurfrm_uk")
   @@index([licence_id], name: "mal_invfurfrm_licence_id_idx")
   @@index([species_fur_code_id], name: "mal_invfurfrm_species_fur_code_id_idx")
   @@index([species_fur_inventory_code_id], name: "mal_invfurfrm_species_fur_inventory_code_id_idx")
-  @@unique([licence_id, species_fur_code_id, species_fur_inventory_code_id, recorded_date], name: "inv_invfurfrm_uk")
 }
 
 model mal_inventory_game_farm {
-  id                                 Int                                @default(autoincrement()) @id
+  id                                 Int                                @id @default(autoincrement())
   licence_id                         Int
   species_game_code_id               Int
   species_game_inventory_code_id     Int
@@ -75,14 +75,14 @@ model mal_inventory_game_farm {
   mal_species_game_code_lu           mal_species_game_code_lu           @relation(fields: [species_game_code_id], references: [id])
   mal_species_game_inventory_code_lu mal_species_game_inventory_code_lu @relation(fields: [species_game_inventory_code_id], references: [id])
 
+  @@unique([licence_id, species_game_code_id, species_game_inventory_code_id, recorded_date, tag_number], name: "inv_invgamfrm_uk")
   @@index([licence_id], name: "mal_invgamfrm_licence_id_idx")
   @@index([species_game_code_id], name: "mal_invgamfrm_species_game_code_id_idx")
   @@index([species_game_inventory_code_id], name: "mal_invgamfrm_species_game_inventory_code_id_idx")
-  @@unique([licence_id, species_game_code_id, species_game_inventory_code_id, recorded_date, tag_number], name: "inv_invgamfrm_uk")
 }
 
 model mal_licence {
-  id                            Int                           @default(autoincrement()) @id
+  id                            Int                           @id @default(autoincrement())
   licence_number                Int                           @default(autoincrement())
   licence_type_id               Int
   person_id                     Int?
@@ -148,7 +148,7 @@ model mal_licence {
 }
 
 model mal_licence_comment {
-  id               Int         @default(autoincrement()) @id
+  id               Int         @id @default(autoincrement())
   licence_id       Int
   licence_comment  String
   create_userid    String
@@ -161,7 +161,7 @@ model mal_licence_comment {
 }
 
 model mal_licence_registrant_xref {
-  id               Int            @default(autoincrement()) @id
+  id               Int            @id @default(autoincrement())
   licence_id       Int
   registrant_id    Int
   create_userid    String
@@ -176,7 +176,7 @@ model mal_licence_registrant_xref {
 }
 
 model mal_licence_type_lu {
-  id                   Int           @default(autoincrement()) @id
+  id                   Int           @id @default(autoincrement())
   licence_name         String        @unique
   standard_fee         Float
   licence_term         Int
@@ -195,7 +195,7 @@ model mal_licence_type_lu {
 }
 
 model mal_plant_code_lu {
-  id               Int           @default(autoincrement()) @id
+  id               Int           @id @default(autoincrement())
   code_name        String        @unique
   code_description String
   active_flag      Boolean
@@ -207,7 +207,7 @@ model mal_plant_code_lu {
 }
 
 model mal_region_lu {
-  id                       Int                        @default(autoincrement()) @id
+  id                       Int                        @id @default(autoincrement())
   region_number            String                     @unique
   region_name              String                     @unique
   active_flag              Boolean
@@ -220,7 +220,7 @@ model mal_region_lu {
 }
 
 model mal_regional_district_lu {
-  id               Int           @default(autoincrement()) @id
+  id               Int           @id @default(autoincrement())
   region_id        Int
   district_number  String
   district_name    String
@@ -236,7 +236,7 @@ model mal_regional_district_lu {
 }
 
 model mal_registrant {
-  id                          Int                           @default(autoincrement()) @id
+  id                          Int                           @id @default(autoincrement())
   first_name                  String?
   last_name                   String?
   middle_initials             String?
@@ -255,7 +255,7 @@ model mal_registrant {
 }
 
 model mal_species_dairy_code_lu {
-  id                                  Int                                   @default(autoincrement()) @id
+  id                                  Int                                   @id @default(autoincrement())
   code_name                           String                                @unique
   code_description                    String?
   active_flag                         Boolean
@@ -267,7 +267,7 @@ model mal_species_dairy_code_lu {
 }
 
 model mal_species_dairy_inventory_code_lu {
-  id                        Int                       @default(autoincrement()) @id
+  id                        Int                       @id @default(autoincrement())
   species_dairy_code_id     Int
   code_name                 String
   code_description          String?
@@ -282,7 +282,7 @@ model mal_species_dairy_inventory_code_lu {
 }
 
 model mal_species_fur_code_lu {
-  id                                Int                                 @default(autoincrement()) @id
+  id                                Int                                 @id @default(autoincrement())
   code_name                         String                              @unique
   code_description                  String?
   active_flag                       Boolean
@@ -295,7 +295,7 @@ model mal_species_fur_code_lu {
 }
 
 model mal_species_fur_inventory_code_lu {
-  id                      Int                      @default(autoincrement()) @id
+  id                      Int                      @id @default(autoincrement())
   species_fur_code_id     Int
   code_name               String
   code_description        String?
@@ -311,7 +311,7 @@ model mal_species_fur_inventory_code_lu {
 }
 
 model mal_species_game_code_lu {
-  id                                 Int                                  @default(autoincrement()) @id
+  id                                 Int                                  @id @default(autoincrement())
   code_name                          String                               @unique
   code_description                   String?
   active_flag                        Boolean
@@ -325,7 +325,7 @@ model mal_species_game_code_lu {
 }
 
 model mal_species_game_inventory_code_lu {
-  id                       Int                       @default(autoincrement()) @id
+  id                       Int                       @id @default(autoincrement())
   species_game_code_id     Int
   code_name                String
   code_description         String?
@@ -341,7 +341,7 @@ model mal_species_game_inventory_code_lu {
 }
 
 model mal_species_sale_code_lu {
-  id                                 Int                                  @default(autoincrement()) @id
+  id                                 Int                                  @id @default(autoincrement())
   code_name                          String                               @unique
   code_description                   String?
   active_flag                        Boolean
@@ -353,7 +353,7 @@ model mal_species_sale_code_lu {
 }
 
 model mal_species_sale_inventory_code_lu {
-  id                       Int                      @default(autoincrement()) @id
+  id                       Int                      @id @default(autoincrement())
   species_sale_code_id     Int
   code_name                String
   code_description         String?
@@ -368,7 +368,7 @@ model mal_species_sale_inventory_code_lu {
 }
 
 model mal_status_code_lu {
-  id               Int           @default(autoincrement()) @id
+  id               Int           @id @default(autoincrement())
   code_name        String        @unique
   code_description String?
   active_flag      Boolean
