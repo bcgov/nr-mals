@@ -35,6 +35,18 @@ async function findLicence(licenceId) {
   });
 }
 
+async function findLicenceRegistrantXref(licenceId, registrantId) {
+  if (licenceId === undefined || registrantId === undefined) {
+    return null;
+  }
+  return prisma.mal_licence_registrant_xref.findFirst({
+    where: {
+      licence_id: licenceId,
+      registrant_id: registrantId,
+    },
+  });
+}
+
 async function updateLicence(licenceId, payload) {
   return prisma.mal_licence.update({
     data: payload,
@@ -67,6 +79,45 @@ async function createRegistrants(payloads) {
       const result = await prisma.mal_licence_registrant_xref.create({
         data: payload,
       });
+      return result;
+    })
+  );
+}
+
+async function deleteRegistrants(licenceId, registrants) {
+  return Promise.all(
+    registrants.map(async (r) => {
+      const xref = await findLicenceRegistrantXref(licenceId, r.id);
+      if (xref === null) {
+        return null;
+      }
+
+      await prisma.mal_licence_registrant_xref.delete({
+        where: {
+          id: xref.id,
+        },
+      });
+
+      const result = await prisma.mal_registrant.delete({
+        where: {
+          id: r.id,
+        },
+      });
+
+      return result;
+    })
+  );
+}
+
+async function updateRegistrants(licenceId, payloads) {
+  return Promise.all(
+    payloads.map(async (payload) => {
+      const xref = await findLicenceRegistrantXref(licenceId, payload.where.id);
+      if (xref === null) {
+        return null;
+      }
+
+      const result = await prisma.mal_registrant.update(payload);
       return result;
     })
   );
@@ -111,6 +162,54 @@ router.put("/:licenceId(\\d+)", async (req, res, next) => {
       }
 
       const payload = licence.convertToLogicalModel(record);
+      return res.send(payload);
+    })
+    .catch(next)
+    .finally(async () => prisma.$disconnect());
+});
+
+router.put("/:licenceId(\\d+)/registrants", async (req, res, next) => {
+  const licenceId = parseInt(req.params.licenceId, 10);
+  const now = new Date();
+
+  const registrants = req.body.map((r) => ({
+    ...r,
+    id: parseInt(r.id, 10),
+  }));
+
+  const registrantsToCreate = registrants.filter(
+    (r) => r.status === REGISTRANT_STATUS.NEW
+  );
+  const registrantsToDelete = registrants.filter(
+    (r) => r.status === REGISTRANT_STATUS.DELETED
+  );
+  const registrantsToUpdate = registrants.filter(
+    (r) => r.status === REGISTRANT_STATUS.EXISTING
+  );
+
+  await findLicence(licenceId)
+    .then(async (record) => {
+      if (record === null) {
+        return res.status(404).send({
+          code: 404,
+          description: "The requested licence could not be found.",
+        });
+      }
+
+      const createRegistrantPayloads = registrantsToCreate.map((r) =>
+        registrant.convertToNewLicenceXrefPhysicalModel(r, licenceId, now)
+      );
+      const updateRegistrantPayloads = registrantsToUpdate.map((r) =>
+        registrant.convertToUpdatePhysicalModel(r, now)
+      );
+
+      await createRegistrants(createRegistrantPayloads);
+      await deleteRegistrants(licenceId, registrantsToDelete);
+      await updateRegistrants(licenceId, updateRegistrantPayloads);
+
+      const updatedRecord = await findLicence(licenceId);
+
+      const payload = licence.convertToLogicalModel(updatedRecord);
       return res.send(payload);
     })
     .catch(next)

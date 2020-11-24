@@ -44,4 +44,5 @@ export const REGISTRANT_STATUS = {
   NEW: "new",
   EXISTING: "existing",
   DELETED: "deleted",
+  CANCELLED: "cancelled",
 };

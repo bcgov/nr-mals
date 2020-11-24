@@ -20,7 +20,12 @@ import SubmissionButtons from "../../components/SubmissionButtons";
 
 import LicenceTypes from "../lookups/LicenceTypes";
 
-import RegistrantsSection from "../registrants/RegistrantsSection";
+import RegistrantsTab from "../registrants/RegistrantsTab";
+
+import {
+  validateRegistrants,
+  formatRegistrants,
+} from "../registrants/registrantUtility";
 
 import { fetchLicenceStatuses } from "../lookups/licenceStatusesSlice";
 import { fetchRegions } from "../lookups/regionsSlice";
@@ -49,60 +54,13 @@ const initialFormValues = {
   // don't specify a default licenceStatus so it defaults to the first option, Active
 };
 
-function submissionController(setError, dispatch, values) {
-  const validateRegistrants = (registrants) => {
-    if (!registrants || registrants.length === 0) {
-      setError("noRegistrants", {
-        type: "invalid",
-        message: "A licence must have at least one registrant.",
-      });
-      return false;
-    }
-
-    let errorCount = 0;
-
-    registrants.forEach((registrant, index) => {
-      // validate phone numbers
-      if (!registrant.primaryPhone.match(/^$|\(\d{3}\) \d{3}-\d{4}/g)) {
-        setError(`registrants[${index}].primaryPhone`, {
-          type: "invalid",
-        });
-        errorCount += 1;
-      }
-
-      // validate names
-      if (
-        !(
-          (registrant.firstName.trim().length > 0 &&
-            registrant.lastName.trim().length > 0) ||
-          registrant.companyName.trim().length > 0
-        )
-      ) {
-        setError(`registrants[${index}].names`, {
-          type: "invalid",
-        });
-        errorCount += 1;
-      }
-    });
-
-    return errorCount === 0;
-  };
-
-  const formatRegistrants = (registrants) => {
-    if (registrants === undefined) {
-      return undefined;
-    }
-
-    return registrants.map((registrant) => {
-      return {
-        ...registrant,
-        primaryPhone: registrant.primaryPhone.replace(/\D/g, ""),
-      };
-    });
-  };
-
+function submissionController(setError, clearErrors, dispatch) {
   const onSubmit = async (data) => {
-    const validationResult = validateRegistrants(data.registrants);
+    const validationResult = validateRegistrants(
+      data.registrants,
+      setError,
+      clearErrors
+    );
     if (validationResult === false) {
       return;
     }
@@ -122,12 +80,7 @@ function submissionController(setError, dispatch, values) {
     dispatch(createLicence(payload));
   };
 
-  const onInvalid = () => {
-    // re-validate so errors that have been cleared but not fixed will appear once again
-    validateRegistrants(values.registrants);
-  };
-
-  return { onSubmit, onInvalid };
+  return { onSubmit };
 }
 
 export default function CreateLicencePage() {
@@ -142,7 +95,7 @@ export default function CreateLicencePage() {
   const form = useForm({
     reValidateMode: "onBlur",
   });
-  const { register, handleSubmit, getValues, setValue, setError } = form;
+  const { register, handleSubmit, setValue, setError, clearErrors } = form;
 
   useEffect(() => {
     register("applicationDate");
@@ -154,12 +107,7 @@ export default function CreateLicencePage() {
     formFields.forEach((field) => setValue(field, initialFormValues[field]));
   }, [setValue]);
 
-  const values = getValues();
-  const { onSubmit, onInvalid } = submissionController(
-    setError,
-    dispatch,
-    values
-  );
+  const { onSubmit } = submissionController(setError, clearErrors, dispatch);
 
   const submitting = createdLicence.status === REQUEST_STATUS.PENDING;
 
@@ -207,7 +155,7 @@ export default function CreateLicencePage() {
   return (
     <section>
       <PageHeading>Create a Licence</PageHeading>
-      <Form onSubmit={handleSubmit(onSubmit, onInvalid)} noValidate>
+      <Form onSubmit={handleSubmit(onSubmit)} noValidate>
         <section>
           <Container>
             <Form.Row>
@@ -217,10 +165,15 @@ export default function CreateLicencePage() {
             </Form.Row>
           </Container>
         </section>
-        <RegistrantsSection mode={REGISTRANT_MODE.CREATE} form={form} />
+        <section>
+          <SectionHeading>Registrant Details</SectionHeading>
+          <Container className="mt-3 mb-4">
+            <RegistrantsTab mode={REGISTRANT_MODE.CREATE} form={form} />
+          </Container>
+        </section>
         <section>
           <SectionHeading>License Details</SectionHeading>
-          <Container>
+          <Container className="mt-3 mb-4">
             <LicenceDetailsEdit
               form={form}
               initialValues={initialFormValues}

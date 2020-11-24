@@ -4,6 +4,8 @@ import { Controller } from "react-hook-form";
 import NumberFormat from "react-number-format";
 import { Row, Col, Form } from "react-bootstrap";
 
+import { formatPhoneNumber } from "../../utilities/formatting.ts";
+
 export default function RegistrantEdit({ form, registrant }) {
   const { register, errors, control, clearErrors } = form;
   const fieldName = `registrants[${registrant.key}]`;
@@ -18,7 +20,14 @@ export default function RegistrantEdit({ form, registrant }) {
           type="hidden"
           id={`${fieldName}.status`}
           name={`${fieldName}.status`}
-          value={registrant.status}
+          value={registrant.status || ""}
+          ref={register}
+        />
+        <input
+          type="hidden"
+          id={`${fieldName}.id`}
+          name={`${fieldName}.id`}
+          value={registrant.id || ""}
           ref={register}
         />
         <Row>
@@ -28,6 +37,7 @@ export default function RegistrantEdit({ form, registrant }) {
               <Form.Control
                 type="text"
                 name={`${fieldName}.firstName`}
+                defaultValue={registrant.firstName}
                 ref={register}
                 isInvalid={registrantErrors && registrantErrors.names}
                 onBlur={() => clearErrors(`${fieldName}.names`)}
@@ -40,6 +50,7 @@ export default function RegistrantEdit({ form, registrant }) {
               <Form.Control
                 type="text"
                 name={`${fieldName}.lastName`}
+                defaultValue={registrant.lastName}
                 ref={register}
                 isInvalid={registrantErrors && registrantErrors.names}
                 onBlur={() => clearErrors(`${fieldName}.names`)}
@@ -52,6 +63,7 @@ export default function RegistrantEdit({ form, registrant }) {
               <Form.Control
                 type="text"
                 name={`${fieldName}.officialTitle`}
+                defaultValue={registrant.officialTitle}
                 ref={register}
               />
             </Form.Group>
@@ -64,6 +76,7 @@ export default function RegistrantEdit({ form, registrant }) {
               <Form.Control
                 type="text"
                 name={`${fieldName}.companyName`}
+                defaultValue={registrant.companyName}
                 ref={register}
                 isInvalid={registrantErrors && registrantErrors.names}
                 onBlur={() => clearErrors(`${fieldName}.names`)}
@@ -80,7 +93,7 @@ export default function RegistrantEdit({ form, registrant }) {
                 as={NumberFormat}
                 name={`${fieldName}.primaryPhone`}
                 control={control}
-                defaultValue=""
+                defaultValue={formatPhoneNumber(registrant.primaryPhone)}
                 format="(###) ###-####"
                 mask="_"
                 customInput={Form.Control}
@@ -97,6 +110,7 @@ export default function RegistrantEdit({ form, registrant }) {
               <Form.Control
                 type="text"
                 name={`${fieldName}.email`}
+                defaultValue={registrant.email}
                 ref={register}
               />
             </Form.Group>
