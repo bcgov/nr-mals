@@ -52,12 +52,12 @@ function convertToPhysicalModel(input, update) {
   };
 
   let emptyRegion;
-  if (input.originalRegion !== null) {
+  if (input.originalRegion !== undefined) {
     emptyRegion = disconnectRelation;
   }
 
   let emptyRegionalDistrict;
-  if (input.originalRegionalDistrict !== null) {
+  if (input.originalRegionalDistrict !== undefined) {
     emptyRegionalDistrict = disconnectRelation;
   }
 

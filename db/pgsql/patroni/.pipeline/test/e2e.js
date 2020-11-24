@@ -108,7 +108,7 @@ describe('e2e2', function() {
         'INSTANCE': `${phases[phase].name}-pgsql${phases[phase].suffix}`,
         'IMAGE_STREAM_NAMESPACE': phases[phase].namespace,
         'OPENSHIFT_IMAGE_REGISTRY': '172.30.1.1:5000',
-        'IMAGE_STREAM_TAG': `patroni:v10-${phases[phase].changeId}`
+        'IMAGE_STREAM_TAG': `patroni:v13-${phases[phase].changeId}`
       }
     }))
 

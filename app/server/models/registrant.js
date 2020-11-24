@@ -1,4 +1,7 @@
-const { populateAuditColumnsCreate } = require("../utilities/auditing");
+const {
+  populateAuditColumnsCreate,
+  populateAuditColumnsUpdate,
+} = require("../utilities/auditing");
 
 function convertToLogicalModel(input) {
   const output = {
@@ -18,20 +21,22 @@ function convertToLogicalModel(input) {
   return output;
 }
 
-function convertToPhysicalModel(input) {
+function convertToPhysicalModel(input, update) {
   const output = {
-    id: input.id,
     first_name: input.firstName,
     last_name: input.lastName,
     official_title: input.officialTitle,
     company_name: input.companyName,
     primary_phone: input.primaryPhone,
     email_address: input.email,
-    create_userid: input.createdBy,
-    create_timestamp: input.createdOn,
     update_userid: input.updatedBy,
     update_timestamp: input.updatedOn,
   };
+
+  if (!update) {
+    output.create_userid = input.createdBy;
+    output.create_timestamp = input.createdOn;
+  }
 
   return output;
 }
@@ -58,9 +63,19 @@ function convertToNewLicenceXrefPhysicalModel(input, licenceId, date) {
     },
     mal_registrant: {
       create: convertToPhysicalModel(
-        populateAuditColumnsCreate(input, date, date)
+        populateAuditColumnsCreate(input, date, date),
+        false
       ),
     },
+  };
+
+  return output;
+}
+
+function convertToUpdatePhysicalModel(input, date) {
+  const output = {
+    where: { id: input.id },
+    data: convertToPhysicalModel(populateAuditColumnsUpdate(input, date), true),
   };
 
   return output;
@@ -70,4 +85,5 @@ module.exports = {
   convertToPhysicalModel,
   convertToLogicalModel,
   convertToNewLicenceXrefPhysicalModel,
+  convertToUpdatePhysicalModel,
 };

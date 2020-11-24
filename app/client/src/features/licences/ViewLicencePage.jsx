@@ -3,15 +3,15 @@ import { useSelector, useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
 import { Spinner, Alert } from "react-bootstrap";
 
-import { REQUEST_STATUS, REGISTRANT_MODE } from "../../utilities/constants";
+import { REQUEST_STATUS } from "../../utilities/constants";
 
 import PageHeading from "../../components/PageHeading";
 
-import RegistrantsSection from "../registrants/RegistrantsSection";
+import RegistrantsViewEdit from "../registrants/RegistrantsViewEdit";
 
 import { fetchLicence, selectCurrentLicence } from "./licencesSlice";
 
-import LicenceDetailsSection from "./LicenceDetailsSection";
+import LicenceDetailsViewEdit from "./LicenceDetailsViewEdit";
 
 import LicenceHeader from "./LicenceHeader";
 
@@ -31,11 +31,8 @@ export default function ViewLicencePage() {
     content = (
       <>
         <LicenceHeader licence={licence.data} />
-        <RegistrantsSection
-          initialRegistrants={licence.data.registrants}
-          mode={REGISTRANT_MODE.VIEW}
-        />
-        <LicenceDetailsSection licence={licence} />
+        <RegistrantsViewEdit licence={licence} />
+        <LicenceDetailsViewEdit licence={licence} />
       </>
     );
   } else if (
