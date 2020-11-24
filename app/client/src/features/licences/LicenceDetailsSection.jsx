@@ -136,7 +136,11 @@ export default function LicenceDetailsSection({ licence }) {
       <section>
         <SectionHeading>License Details</SectionHeading>
         <Container>
-          <LicenceDetailsEdit form={form} initialValues={initialFormValues} />
+          <LicenceDetailsEdit
+            form={form}
+            initialValues={initialFormValues}
+            mode={LICENCE_MODE.EDIT}
+          />
           <SubmissionButtons
             submitButtonLabel={submissionLabel}
             submitButtonDisabled={submitting}
