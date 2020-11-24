@@ -29,6 +29,7 @@ export const REQUEST_STATUS = {
 };
 
 export const LICENCE_MODE = {
+  CREATE: "create",
   VIEW: "view",
   EDIT: "edit",
 };
