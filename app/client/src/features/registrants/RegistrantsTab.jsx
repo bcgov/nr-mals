@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { useParams } from "react-router";
 import PropTypes from "prop-types";
 import { ErrorMessage } from "@hookform/error-message";
 import { Card, Nav, Tab, Alert } from "react-bootstrap";
@@ -14,8 +15,18 @@ export default function RegistrantsTab({ initialRegistrants, mode, form }) {
     errors = form.errors;
   }
 
+  const licenceId = useParams().id;
   const [registrants, setRegistrants] = useState([...initialRegistrants]);
-  const [selectedTabKey, setSelectedTabKey] = useState(0);
+  const [selectedTabKey, setSelectedTabKey] = useState(
+    sessionStorage.getItem("licenceId") === licenceId
+      ? sessionStorage.getItem("selectedTabKey")
+      : 0
+  );
+
+  useEffect(() => {
+    sessionStorage.setItem("licenceId", licenceId);
+    sessionStorage.setItem("selectedTabKey", selectedTabKey);
+  }, [selectedTabKey]);
 
   let registrantOutput;
   switch (mode) {
