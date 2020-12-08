@@ -17,3 +17,8 @@ body {
 #footer {
   flex-shrink: 0;
 }
+
+// fix date-picker calendar appearing behind other elements
+.react-datepicker-popper {
+  z-index: 2147483647 !important;
+}
