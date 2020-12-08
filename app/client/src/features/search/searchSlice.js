@@ -22,7 +22,7 @@ export const searchSlice = createSlice({
   initialState: {
     licences: {
       searchType: SEARCH_TYPE.SIMPLE,
-      parameters: undefined,
+      parameters: {},
       results: {
         data: undefined,
         error: undefined,
@@ -32,7 +32,7 @@ export const searchSlice = createSlice({
   },
   reducers: {
     clearLicenceParameters: (state) => {
-      state.licences.parameters = undefined;
+      state.licences.parameters = {};
       state.licences.searchType = SEARCH_TYPE.SIMPLE;
     },
     clearLicenceResults: (state) => {

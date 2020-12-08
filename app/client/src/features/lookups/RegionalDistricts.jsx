@@ -5,7 +5,7 @@ import { Form, Alert, Spinner } from "react-bootstrap";
 import { REQUEST_STATUS } from "../../utilities/constants";
 
 const RegionalDistricts = React.forwardRef((props, ref) => {
-  const { regions, selectedRegion, defaultValue, isInvalid } = props;
+  const { regions, selectedRegion, onChange, defaultValue, isInvalid } = props;
 
   let control = (
     <div>
@@ -34,6 +34,7 @@ const RegionalDistricts = React.forwardRef((props, ref) => {
         name="regionalDistrict"
         ref={ref}
         isInvalid={isInvalid}
+        onChange={onChange}
         defaultValue={defaultValue}
         custom
       >
@@ -63,12 +64,14 @@ const RegionalDistricts = React.forwardRef((props, ref) => {
 RegionalDistricts.propTypes = {
   regions: PropTypes.object.isRequired,
   selectedRegion: PropTypes.number,
+  onChange: PropTypes.func,
   defaultValue: PropTypes.string,
   isInvalid: PropTypes.object,
 };
 RegionalDistricts.defaultProps = {
   selectedRegion: null,
   defaultValue: null,
+  onChange: undefined,
   isInvalid: undefined,
 };
 
