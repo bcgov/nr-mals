@@ -120,7 +120,7 @@ export default function RegistrantsEdit({
             <RegistrantDetailsEdit registrant={registrant} form={form} />
             <Button
               onClick={() => removeRegistrant(registrant.key)}
-              variant="secondary"
+              variant="danger"
               className="mt-3 mb-3"
               disabled={activeRegistrants.length === 1}
             >
