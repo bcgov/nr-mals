@@ -9,8 +9,10 @@ import HeaderBranding from "./components/HeaderBranding";
 import HeaderNavigation from "./components/HeaderNavigation";
 
 import CreateLicencePage from "./features/licences/CreateLicencePage";
-
 import ViewLicencePage from "./features/licences/ViewLicencePage";
+
+import LicenceSearchPage from "./features/search/LicenceSearchPage";
+import LicenceResultsPage from "./features/search/LicenceResultsPage";
 
 import "./App.scss";
 
@@ -31,7 +33,10 @@ function App() {
         <Container className="mt-3">
           <Switch>
             <Route path={`${Constant.SEARCH_LICENSES_PATHNAME}`}>
-              <SearchLicencePage />
+              <LicenceSearchPage />
+            </Route>
+            <Route path={`${Constant.LICENSE_RESULTS_PATHNAME}`}>
+              <LicenceResultsPage />
             </Route>
             <Route path={`${Constant.CREATE_LICENSES_PATHNAME}`}>
               <CreateLicencePage />
@@ -83,10 +88,6 @@ function App() {
       </main>
     </BrowserRouter>
   );
-}
-
-function SearchLicencePage() {
-  return <h2>Search Licenses</h2>;
 }
 
 function RegistrantsSearch() {
