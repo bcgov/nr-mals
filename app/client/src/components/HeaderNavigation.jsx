@@ -37,9 +37,6 @@ function HeaderNavigation() {
                 <DropdownNavLink to={Constant.SEARCH_LICENSES_PATHNAME}>
                   Search Licenses
                 </DropdownNavLink>
-                <DropdownNavLink to={Constant.CREATE_LICENSES_PATHNAME}>
-                  Create License
-                </DropdownNavLink>
               </HeaderDropdown>
               <HeaderDropdown
                 id="registrants-dropdown"

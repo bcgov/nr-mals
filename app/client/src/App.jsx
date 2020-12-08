@@ -81,7 +81,7 @@ function App() {
               <DairyTestResults />
             </Route>
             <Route path="/">
-              <Redirect to={`${Constant.CREATE_LICENSES_PATHNAME}`} />
+              <Redirect to={`${Constant.SEARCH_LICENSES_PATHNAME}`} />
             </Route>
           </Switch>
         </Container>
