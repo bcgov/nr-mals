@@ -1,7 +1,11 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 import Api, { ApiError } from "../../utilities/api.ts";
-import { REQUEST_STATUS, LICENCE_MODE } from "../../utilities/constants";
+import {
+  REQUEST_STATUS,
+  LICENCE_MODE,
+  REGISTRANT_MODE,
+} from "../../utilities/constants";
 
 export const createLicence = createAsyncThunk(
   "licences/createLicence",
@@ -23,6 +27,21 @@ export const updateLicence = createAsyncThunk(
   async ({ licence, id }, thunkApi) => {
     try {
       const response = await Api.put(`licences/${id}`, licence);
+      return response.data;
+    } catch (error) {
+      if (error instanceof ApiError) {
+        return thunkApi.rejectWithValue(error.serialize());
+      }
+      return thunkApi.rejectWithValue({ code: -1, description: error.message });
+    }
+  }
+);
+
+export const updateLicenceRegistrants = createAsyncThunk(
+  "licences/updateLicenceRegistrants",
+  async ({ registrants, id }, thunkApi) => {
+    try {
+      const response = await Api.put(`licences/${id}/registrants`, registrants);
       return response.data;
     } catch (error) {
       if (error instanceof ApiError) {
@@ -61,6 +80,7 @@ export const licencesSlice = createSlice({
       error: undefined,
       status: REQUEST_STATUS.IDLE,
       mode: LICENCE_MODE.VIEW,
+      registrantMode: REGISTRANT_MODE.VIEW,
     },
   },
   reducers: {
@@ -79,6 +99,12 @@ export const licencesSlice = createSlice({
     },
     setCurrentLicenceModeToView: (state) => {
       state.currentLicence.mode = LICENCE_MODE.VIEW;
+    },
+    setCurrentLicenceRegistrantModeToEdit: (state) => {
+      state.currentLicence.registrantMode = REGISTRANT_MODE.EDIT;
+    },
+    setCurrentLicenceRegistrantModeToView: (state) => {
+      state.currentLicence.registrantMode = REGISTRANT_MODE.VIEW;
     },
   },
   extraReducers: {
@@ -105,6 +131,7 @@ export const licencesSlice = createSlice({
       state.currentLicence.error = undefined;
       state.currentLicence.status = REQUEST_STATUS.FULFILLED;
       state.currentLicence.mode = LICENCE_MODE.VIEW;
+      state.currentLicence.registrantMode = REGISTRANT_MODE.VIEW;
     },
     [fetchLicence.rejected]: (state, action) => {
       state.currentLicence.data = undefined;
@@ -125,6 +152,20 @@ export const licencesSlice = createSlice({
       state.currentLicence.error = action.payload;
       state.currentLicence.status = REQUEST_STATUS.REJECTED;
     },
+    [updateLicenceRegistrants.pending]: (state) => {
+      state.currentLicence.error = undefined;
+      state.currentLicence.status = REQUEST_STATUS.PENDING;
+    },
+    [updateLicenceRegistrants.fulfilled]: (state, action) => {
+      state.currentLicence.data = action.payload;
+      state.currentLicence.error = undefined;
+      state.currentLicence.status = REQUEST_STATUS.FULFILLED;
+      state.currentLicence.registrantMode = REGISTRANT_MODE.VIEW;
+    },
+    [updateLicenceRegistrants.rejected]: (state, action) => {
+      state.currentLicence.error = action.payload;
+      state.currentLicence.status = REQUEST_STATUS.REJECTED;
+    },
   },
 });
 
@@ -138,6 +179,8 @@ export const {
   clearCurrentLicence,
   setCurrentLicenceModeToEdit,
   setCurrentLicenceModeToView,
+  setCurrentLicenceRegistrantModeToEdit,
+  setCurrentLicenceRegistrantModeToView,
 } = actions;
 
 export default reducer;

@@ -21,7 +21,7 @@ oc process -f openshift/deployment-prereq.yaml \
 
 oc process -f openshift/deployment.yaml \
     -p "IMAGE_STREAM_NAMESPACE=$(oc project -q)" \
-    -p "IMAGE_STREAM_TAG=patroni:v10-latest" \
+    -p "IMAGE_STREAM_TAG=patroni:v13-latest" \
     -p SUFFIX=-001 -l app=patroni-001 | oc apply -f -
 
 

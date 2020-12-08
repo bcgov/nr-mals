@@ -60,3 +60,15 @@ export const formatBoolean = (boolean: boolean) => {
 export const formatNumber = (number: number) => {
   return number === null ? null : number.toString();
 };
+
+export const formatPhoneNumber = (number: string) => {
+  if (!number || number.length < 10) {
+    return "";
+  }
+
+  const start = number.substring(0, 3);
+  const middle = number.substring(3, 6);
+  const end = number.substring(6, 10);
+
+  return `(${start}) ${middle}-${end}`;
+};

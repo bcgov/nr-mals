@@ -9,7 +9,7 @@ import HorizontalField from "../../components/HorizontalField";
 export default function LicenceHeader({ licence }) {
   return (
     <header>
-      <Container className="mt-3 pb-3">
+      <Container className="mt-3 mb-4">
         <Row>
           <HorizontalField
             label="Licence Number"

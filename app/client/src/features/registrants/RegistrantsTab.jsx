@@ -1,16 +1,14 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { ErrorMessage } from "@hookform/error-message";
-import { Card, Nav, Tab, Container, Alert } from "react-bootstrap";
+import { Card, Nav, Tab, Alert } from "react-bootstrap";
 
 import { REGISTRANT_MODE, REGISTRANT_STATUS } from "../../utilities/constants";
-
-import SectionHeading from "../../components/SectionHeading";
 
 import RegistrantsEdit from "./RegistrantsEdit";
 import RegistrantsView from "./RegistrantsView";
 
-export default function RegistrantsSection({ initialRegistrants, mode, form }) {
+export default function RegistrantsTab({ initialRegistrants, mode, form }) {
   let errors;
   if (form) {
     errors = form.errors;
@@ -22,9 +20,7 @@ export default function RegistrantsSection({ initialRegistrants, mode, form }) {
   let registrantOutput;
   switch (mode) {
     case REGISTRANT_MODE.VIEW:
-      registrantOutput = (
-        <RegistrantsView form={form} registrants={registrants} />
-      );
+      registrantOutput = <RegistrantsView registrants={registrants} />;
       break;
     case REGISTRANT_MODE.CREATE:
     case REGISTRANT_MODE.EDIT:
@@ -87,44 +83,41 @@ export default function RegistrantsSection({ initialRegistrants, mode, form }) {
   }
 
   return (
-    <section>
-      <SectionHeading>Registrant Details</SectionHeading>
-      <Container>
-        <Tab.Container
-          id="registrant-tabs"
-          activeKey={selectedTabKey}
-          transition={false}
-        >
-          <Card>
-            {cardHeader}
-            <Card.Body>
-              <Tab.Content>{registrantOutput}</Tab.Content>
-            </Card.Body>
-          </Card>
-        </Tab.Container>
-        {errors && (
-          <ErrorMessage
-            errors={errors}
-            name="noRegistrants"
-            render={({ message }) => (
-              <Alert variant="danger" className="mt-3">
-                {message}
-              </Alert>
-            )}
-          />
-        )}
-      </Container>
-    </section>
+    <>
+      <Tab.Container
+        id="registrant-tabs"
+        activeKey={selectedTabKey}
+        transition={false}
+      >
+        <Card className="mb-3">
+          {cardHeader}
+          <Card.Body>
+            <Tab.Content>{registrantOutput}</Tab.Content>
+          </Card.Body>
+        </Card>
+      </Tab.Container>
+      {errors && (
+        <ErrorMessage
+          errors={errors}
+          name="noRegistrants"
+          render={({ message }) => (
+            <Alert variant="danger" className="mt-3">
+              {message}
+            </Alert>
+          )}
+        />
+      )}
+    </>
   );
 }
 
-RegistrantsSection.propTypes = {
+RegistrantsTab.propTypes = {
   initialRegistrants: PropTypes.arrayOf(PropTypes.object),
   mode: PropTypes.string.isRequired,
   form: PropTypes.object,
 };
 
-RegistrantsSection.defaultProps = {
+RegistrantsTab.defaultProps = {
   initialRegistrants: [],
   form: null,
 };

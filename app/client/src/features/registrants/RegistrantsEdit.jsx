@@ -55,6 +55,8 @@ function useRegistrantController(
       registrant.status = REGISTRANT_STATUS.CANCELLED;
     }
 
+    clearErrors(`registrants[${index}]`);
+
     // update the registrants collection
     const updatedRegistrants = [...registrants];
     updatedRegistrants[index] = registrant;
@@ -105,13 +107,20 @@ export default function RegistrantsEdit({
 
   return (
     <>
-      {activeRegistrants.map((registrant) => {
+      {registrants.map((registrant) => {
+        const hidden =
+          registrant.status === REGISTRANT_STATUS.DELETED ||
+          registrant.status === REGISTRANT_STATUS.CANCELLED;
         return (
-          <Tab.Pane key={registrant.key} eventKey={registrant.key}>
+          <Tab.Pane
+            key={registrant.key}
+            eventKey={registrant.key}
+            className={`${hidden ? "d-none" : null}`}
+          >
             <RegistrantDetailsEdit registrant={registrant} form={form} />
             <Button
               onClick={() => removeRegistrant(registrant.key)}
-              variant="secondary"
+              variant="danger"
               className="mt-3 mb-3"
               disabled={activeRegistrants.length === 1}
             >
