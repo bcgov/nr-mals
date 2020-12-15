@@ -17,7 +17,7 @@ const REGISTRANT_STATUS = {
 };
 
 async function findLicence(licenceId) {
-  return prisma.mal_licence.findOne({
+  return prisma.mal_licence.findUnique({
     where: {
       id: licenceId,
     },
