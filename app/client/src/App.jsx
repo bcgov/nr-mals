@@ -12,6 +12,8 @@ import CreateLicencePage from "./features/licences/CreateLicencePage";
 
 import ViewLicencePage from "./features/licences/ViewLicencePage";
 
+import ReportsPage from "./features/reports/ReportsPage";
+
 import "./App.scss";
 
 function App() {
@@ -58,7 +60,7 @@ function App() {
               <InspectionsCreate />
             </Route>
             <Route path={`${Constant.REPORTS_PATHNAME}`}>
-              <Reports />
+              <ReportsPage />
             </Route>
             <Route path={`${Constant.USERS_AND_ROLES_ADMIN_PATHNAME}`}>
               <UsersAndRoles />
@@ -111,10 +113,6 @@ function InspectionsSearch() {
 
 function InspectionsCreate() {
   return <h2>Create Inspection</h2>;
-}
-
-function Reports() {
-  return <h2>Reports</h2>;
 }
 
 function UsersAndRoles() {

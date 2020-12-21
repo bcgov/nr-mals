@@ -53,6 +53,10 @@
   "homepage": "https://github.com/bcgov/nr-mals#readme",
   "dependencies": {
     "@prisma/client": "^2.11.0",
+    "@types/axios-token-interceptor": "^0.2.1",
+    "axios": "^0.21.0",
+    "axios-oauth-client": "^1.4.0",
+    "axios-token-interceptor": "^0.2.0",
     "cookie-parser": "~1.4.4",
     "debug": "~2.6.9",
     "dotenv": "^8.2.0",
