@@ -64,7 +64,66 @@ function getSearchFilter(params) {
     filter = {
       OR: orArray,
     };
+  } else {
+    const andArray = [];
+
+    const licenceTypeId = parseInt(params.licenceType, 10);
+    const licenceStatusId = parseInt(params.licenceStatus, 10);
+    const regionId = parseInt(params.region, 10);
+    const regionalDistrictId = parseInt(params.regionalDistrict, 10);
+
+    if (!Number.isNaN(licenceTypeId)) {
+      andArray.push({ licence_type_id: licenceTypeId });
+    }
+    if (!Number.isNaN(licenceStatusId)) {
+      andArray.push({ status_code_id: licenceStatusId });
+    }
+    if (!Number.isNaN(regionId)) {
+      andArray.push({ region_id: regionId });
+    }
+    if (!Number.isNaN(regionalDistrictId)) {
+      andArray.push({ regional_district_id: regionalDistrictId });
+    }
+    if (params.registrantName) {
+      andArray.push({
+        last_name: { contains: params.registrantName, mode: "insensitive" },
+      });
+    }
+    if (params.registrantEmail) {
+      andArray.push({
+        email_address: {
+          contains: params.registrantEmail,
+          mode: "insensitive",
+        },
+      });
+    }
+    if (params.city) {
+      andArray.push({ city: { contains: params.city, mode: "insensitive" } });
+    }
+    if (params.issuedDateFrom) {
+      andArray.push({ issue_date: { gte: params.issuedDateFrom } });
+    }
+    if (params.issuedDateTo) {
+      andArray.push({ issue_date: { lte: params.issuedDateTo } });
+    }
+    if (params.renewalDateFrom) {
+      andArray.push({ application_date: { gte: params.renewalDateFrom } });
+    }
+    if (params.renewalDateTo) {
+      andArray.push({ application_date: { lte: params.renewalDateTo } });
+    }
+    if (params.expiryDateFrom) {
+      andArray.push({ expiry_date: { gte: params.expiryDateFrom } });
+    }
+    if (params.expiryDateTo) {
+      andArray.push({ expiry_date: { lte: params.expiryDateTo } });
+    }
+
+    filter = {
+      AND: andArray,
+    };
   }
+
   return filter;
 }
 

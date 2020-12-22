@@ -45,9 +45,6 @@ export default function LicenceSearchPage() {
   }, [dispatch]);
 
   const setParameter = (name, value) => {
-    if (isDate(value)) {
-      value = formatDate(value);
-    }
     setParameters({
       ...parameters,
       [name]: value,
