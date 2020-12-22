@@ -134,6 +134,7 @@ export default function LicenceResultsPage() {
                   </Button>
                   <Button disabled>{results.page}</Button>
                   <Button
+                    disabled={results.page * 20 > results.count}
                     onClick={() =>
                       navigateToSearchPage(dispatch, (results.page ?? 0) + 1)
                     }
