@@ -53,12 +53,12 @@ function getSearchFilter(params) {
     const orArray = [
       { last_name: { contains: params.keyword, mode: "insensitive" } },
       { company_name: { contains: params.keyword, mode: "insensitive" } },
-      { irma_number: { contains: params.keyword, mode: "insensitive" } },
+      { irma_number: params.keyword },
     ];
 
     const keywordInt = parseInt(params.keyword, 10);
     if (!Number.isNaN(keywordInt)) {
-      orArray.push({ licence_number: { contains: keywordInt } });
+      orArray.push({ licence_number: keywordInt });
     }
 
     filter = {
