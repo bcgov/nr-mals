@@ -2,6 +2,7 @@
 export const HOME_PATHNAME = "/";
 export const LICENSES_PATHNAME = "/licenses";
 export const SEARCH_LICENSES_PATHNAME = "/licenses/search";
+export const LICENSE_RESULTS_PATHNAME = "/licenses/results";
 export const CREATE_LICENSES_PATHNAME = "/licenses/create";
 export const REGISTRANTS_PATHNAME = "/registrants";
 export const SEARCH_REGISTRANTS_PATHNAME = "/registrants/search";
@@ -26,6 +27,11 @@ export const REQUEST_STATUS = {
   PENDING: "pending",
   FULFILLED: "fulfilled",
   REJECTED: "rejected",
+};
+
+export const SEARCH_TYPE = {
+  SIMPLE: "simple",
+  ADVANCED: "advanced",
 };
 
 export const LICENCE_MODE = {

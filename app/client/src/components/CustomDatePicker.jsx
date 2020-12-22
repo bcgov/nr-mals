@@ -92,6 +92,7 @@ const CustomDatePicker = React.forwardRef((props, outerRef) => {
       selected={date}
       dateFormat={DATE_FORMAT}
       onChange={setDateWrapper}
+      popperPlacement="right"
       customInput={
         <CustomDatePickerInput
           date={date}
