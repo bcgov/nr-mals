@@ -46,7 +46,7 @@ function formatResultRow(result) {
       <td className="text-nowrap">{formatDateString(result.issuedOnDate)}</td>
       <td className="text-nowrap">{formatDateString(result.expiryDate)}</td>
       <td className="text-nowrap">{result.region}</td>
-      <td className="text-nowrap">{result.district}</td>
+      <td className="text-nowrap">{result.regionalDistrict}</td>
     </tr>
   );
 }
