@@ -1,17 +1,60 @@
 import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
-import { Alert, Container, Spinner, Row, Col } from "react-bootstrap";
+import {
+  Alert,
+  Container,
+  Spinner,
+  Table,
+  Row,
+  Col,
+  Button,
+  ButtonGroup,
+} from "react-bootstrap";
 
 import {
   REQUEST_STATUS,
   CREATE_LICENSES_PATHNAME,
+  LICENSES_PATHNAME,
 } from "../../utilities/constants";
+
+import {
+  formatDateString,
+  formatListShorten,
+} from "../../utilities/formatting.ts";
 
 import LinkButton from "../../components/LinkButton";
 import PageHeading from "../../components/PageHeading";
 
-import { fetchLicenceResults, selectLicenceResults } from "./searchSlice";
+import {
+  fetchLicenceResults,
+  selectLicenceResults,
+  setLicenceSearchPage,
+} from "./searchSlice";
+
+function formatResultRow(result) {
+  const url = `${LICENSES_PATHNAME}/${result.licenceId}`;
+  return (
+    <tr>
+      <td className="text-nowrap">
+        <Link to={url}>{result.licenceNumber}</Link>
+      </td>
+      <td className="text-nowrap">{result.licenceType}</td>
+      <td className="text-nowrap">{formatListShorten(result.lastNames)}</td>
+      <td className="text-nowrap">{formatListShorten(result.companyNames)}</td>
+      <td className="text-nowrap">{result.licenceStatus}</td>
+      <td className="text-nowrap">{formatDateString(result.issuedOnDate)}</td>
+      <td className="text-nowrap">{formatDateString(result.expiryDate)}</td>
+      <td className="text-nowrap">{result.region}</td>
+      <td className="text-nowrap">{result.district}</td>
+    </tr>
+  );
+}
+
+function navigateToSearchPage(dispatch, page) {
+  dispatch(setLicenceSearchPage(page));
+  dispatch(fetchLicenceResults());
+}
 
 export default function LicenceResultsPage() {
   const results = useSelector(selectLicenceResults);
@@ -32,21 +75,6 @@ export default function LicenceResultsPage() {
         </Spinner>
       </div>
     );
-  } else if (results.status === REQUEST_STATUS.FULFILLED) {
-    control = (
-      <Row className="mt-3">
-        <Col sm={4}>
-          <Link
-            to={CREATE_LICENSES_PATHNAME}
-            component={LinkButton}
-            variant="primary"
-            block
-          >
-            Create Licence
-          </Link>
-        </Col>
-      </Row>
-    );
   } else if (results.status === REQUEST_STATUS.REJECTED) {
     control = (
       <Alert variant="danger">
@@ -57,6 +85,66 @@ export default function LicenceResultsPage() {
           {results.error.code}: {results.error.description}
         </p>
       </Alert>
+    );
+  } else if (results.status === REQUEST_STATUS.FULFILLED) {
+    control = (
+      <>
+        <Table striped size="sm" responsive className="mt-3" hover>
+          <thead className="thead-dark">
+            <th>Licence</th>
+            <th className="text-nowrap">Licence Type</th>
+            <th className="text-nowrap">Last Names</th>
+            <th className="text-nowrap">Company Names</th>
+            <th className="text-nowrap">Licence Status</th>
+            <th className="text-nowrap">Issued On Date</th>
+            <th className="text-nowrap">Expiry Date</th>
+            <th>Region</th>
+            <th>District</th>
+          </thead>
+          <tbody>{results.data.map((result) => formatResultRow(result))}</tbody>
+        </Table>
+        <Row className="mt-3">
+          <Col lg={{ span: 6, offset: 6 }}>
+            <Row>
+              <Col>
+                Showing {results.data.length} of {results.count} entries
+              </Col>
+              <Col>
+                <ButtonGroup>
+                  <Button
+                    disabled={results.page < 2}
+                    onClick={() =>
+                      navigateToSearchPage(dispatch, (results.page ?? 2) - 1)
+                    }
+                  >
+                    Previous
+                  </Button>
+                  <Button disabled>{results.page}</Button>
+                  <Button
+                    onClick={() =>
+                      navigateToSearchPage(dispatch, (results.page ?? 0) + 1)
+                    }
+                  >
+                    Next
+                  </Button>
+                </ButtonGroup>
+              </Col>
+            </Row>
+          </Col>
+        </Row>
+        <Row className="mt-3">
+          <Col lg={4}>
+            <Link
+              to={CREATE_LICENSES_PATHNAME}
+              component={LinkButton}
+              variant="primary"
+              block
+            >
+              Create Licence
+            </Link>
+          </Col>
+        </Row>
+      </>
     );
   }
 

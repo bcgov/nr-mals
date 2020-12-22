@@ -378,3 +378,23 @@ model mal_status_code_lu {
   update_timestamp DateTime
   mal_licence      mal_licence[]
 }
+
+model mal_licence_summary_vw {
+  licence_id           Int       @unique
+  licence_type_id      Int
+  status_code_id       Int
+  region_id            Int?
+  regional_district_id Int?
+  licence_number       Int
+  irma_number          String?
+  licence_type         String?
+  last_name            String?
+  company_name         String?
+  email_address        String?
+  licence_status       String?
+  application_date     DateTime?
+  issue_date           DateTime?
+  expiry_date          DateTime?
+  region_name          String?
+  district_name        String?
+}

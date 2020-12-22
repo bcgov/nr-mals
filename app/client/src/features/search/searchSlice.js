@@ -1,13 +1,15 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
-import { ApiError } from "../../utilities/api.ts";
+import Api, { ApiError } from "../../utilities/api.ts";
 import { REQUEST_STATUS, SEARCH_TYPE } from "../../utilities/constants";
 
 export const fetchLicenceResults = createAsyncThunk(
   "search/fetchLicenceResults",
-  async (thunkApi) => {
+  async (_, thunkApi) => {
     try {
-      return [];
+      const parameters = selectLicenceParameters(thunkApi.getState());
+      const response = await Api.get(`licences/search`, parameters);
+      return response.data;
     } catch (error) {
       if (error instanceof ApiError) {
         return thunkApi.rejectWithValue(error.serialize());
@@ -25,6 +27,8 @@ export const searchSlice = createSlice({
       parameters: {},
       results: {
         data: undefined,
+        page: undefined,
+        count: undefined,
         error: undefined,
         status: REQUEST_STATUS.IDLE,
       },
@@ -51,6 +55,9 @@ export const searchSlice = createSlice({
       state.licences.parameters = action.payload;
       state.licences.results.status = REQUEST_STATUS.IDLE;
     },
+    setLicenceSearchPage: (state, action) => {
+      state.licences.parameters.page = action.payload;
+    },
   },
   extraReducers: {
     [fetchLicenceResults.pending]: (state) => {
@@ -58,7 +65,9 @@ export const searchSlice = createSlice({
       state.licences.results.status = REQUEST_STATUS.PENDING;
     },
     [fetchLicenceResults.fulfilled]: (state, action) => {
-      state.licences.results.data = action.payload;
+      state.licences.results.data = action.payload.results;
+      state.licences.results.page = action.payload.page;
+      state.licences.results.count = action.payload.count;
       state.licences.results.error = undefined;
       state.licences.results.status = REQUEST_STATUS.FULFILLED;
     },
@@ -83,6 +92,7 @@ export const {
   clearLicenceResults,
   toggleLicenceSearchType,
   setLicenceParameters,
+  setLicenceSearchPage,
 } = actions;
 
 export default reducer;
