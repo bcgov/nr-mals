@@ -52,7 +52,7 @@
   },
   "homepage": "https://github.com/bcgov/nr-mals#readme",
   "dependencies": {
-    "@prisma/client": "^2.11.0",
+    "@prisma/client": "^2.13.0",
     "@types/axios-token-interceptor": "^0.2.1",
     "axios": "^0.21.0",
     "axios-oauth-client": "^1.4.0",
@@ -65,7 +65,7 @@
     "morgan": "~1.9.1"
   },
   "devDependencies": {
-    "@prisma/cli": "^2.11.0",
+    "@prisma/cli": "^2.13.0",
     "concurrently": "^5.2.0",
     "eslint": "^7.6.0",
     "eslint-config-airbnb-base": "^14.2.0",
