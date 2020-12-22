@@ -86,7 +86,20 @@ export default function LicenceResultsPage() {
         </p>
       </Alert>
     );
-  } else if (results.status === REQUEST_STATUS.FULFILLED) {
+  } else if (
+    results.status === REQUEST_STATUS.FULFILLED &&
+    results.count === 0
+  ) {
+    control = (
+      <Alert variant="success">
+        <div>Sorry, there were no results matching your search terms.</div>
+        <div>
+          Search Tips: check your spelling and try again, or try a different
+          search term.
+        </div>
+      </Alert>
+    );
+  } else if (results.status === REQUEST_STATUS.FULFILLED && results.count > 0) {
     control = (
       <>
         <Table striped size="sm" responsive className="mt-3" hover>
