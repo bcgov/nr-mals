@@ -68,8 +68,8 @@ export default function LicenceSearchPage() {
   return (
     <section>
       <PageHeading>Find a Licence</PageHeading>
-      <Form noValidate>
-        <section>
+      <section>
+        <Form noValidate onSubmit={performSimpleSearch}>
           <Container>
             <Form.Row>
               <Col lg={8}>
@@ -86,11 +86,10 @@ export default function LicenceSearchPage() {
               </Col>
               <Col lg={1}>
                 <Button
-                  type="button"
+                  type="submit"
                   disabled={searchType === SEARCH_TYPE.ADVANCED}
                   variant="primary"
                   block
-                  onClick={performSimpleSearch}
                 >
                   <FaSearch />
                 </Button>
@@ -117,9 +116,11 @@ export default function LicenceSearchPage() {
               </Col>
             </Form.Row>
           </Container>
-        </section>
-        {searchType === SEARCH_TYPE.ADVANCED && (
-          <section>
+        </Form>
+      </section>
+      {searchType === SEARCH_TYPE.ADVANCED && (
+        <section>
+          <Form noValidate onSubmit={performAdvancedSearch}>
             <Container>
               <Form.Row>
                 <Col lg={6}>
@@ -267,20 +268,15 @@ export default function LicenceSearchPage() {
               </Form.Row>
               <Form.Row className="mt-5">
                 <Col lg={{ span: 2, offset: 10 }}>
-                  <Button
-                    type="button"
-                    variant="primary"
-                    block
-                    onClick={performAdvancedSearch}
-                  >
+                  <Button type="submit" variant="primary" block>
                     Search
                   </Button>
                 </Col>
               </Form.Row>
             </Container>
-          </section>
-        )}
-      </Form>
+          </Form>
+        </section>
+      )}
     </section>
   );
 }
