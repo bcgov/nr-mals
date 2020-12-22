@@ -47,6 +47,43 @@ async function findLicenceRegistrantXref(licenceId, registrantId) {
   });
 }
 
+function getSearchFilter(params) {
+  let filter = {};
+  if (params.keyword) {
+    const orArray = [
+      { last_name: { contains: params.keyword, mode: "insensitive" } },
+      { company_name: { contains: params.keyword, mode: "insensitive" } },
+      { irma_number: { contains: params.keyword, mode: "insensitive" } },
+    ];
+
+    const keywordInt = parseInt(params.keyword, 10);
+    if (!Number.isNaN(keywordInt)) {
+      orArray.push({ licence_number: { contains: keywordInt } });
+    }
+
+    filter = {
+      OR: orArray,
+    };
+  }
+  return filter;
+}
+
+async function countLicences(params) {
+  const filter = getSearchFilter(params);
+  return prisma.mal_licence_summary_vw.count({
+    where: filter,
+  });
+}
+
+async function findLicences(params, skip, take) {
+  const filter = getSearchFilter(params);
+  return prisma.mal_licence_summary_vw.findMany({
+    where: filter,
+    skip,
+    take,
+  });
+}
+
 async function updateLicence(licenceId, payload) {
   return prisma.mal_licence.update({
     data: payload,
@@ -136,6 +173,46 @@ router.get("/:licenceId(\\d+)", async (req, res, next) => {
       }
 
       const payload = licence.convertToLogicalModel(record);
+      return res.send(payload);
+    })
+    .catch(next)
+    .finally(async () => prisma.$disconnect());
+});
+
+router.get("/search", async (req, res, next) => {
+  let { page } = req.query;
+  if (page) {
+    page = parseInt(page, 10);
+  } else {
+    page = 1;
+  }
+
+  const size = 20;
+  const skip = (page - 1) * size;
+
+  const params = req.query;
+
+  await findLicences(params, skip, size)
+    .then(async (records) => {
+      if (records === null) {
+        return res.status(404).send({
+          code: 404,
+          description: "The requested licence could not be found.",
+        });
+      }
+
+      const results = records.map((record) =>
+        licence.convertSearchResultToLogicalModel(record)
+      );
+
+      const count = await countLicences(params);
+
+      const payload = {
+        results,
+        page,
+        count,
+      };
+
       return res.send(payload);
     })
     .catch(next)

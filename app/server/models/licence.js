@@ -46,6 +46,26 @@ function convertToLogicalModel(input) {
   return output;
 }
 
+function convertSearchResultToLogicalModel(input) {
+  const output = {
+    licenceId: input.licence_id,
+    licenceType: input.licence_type,
+    licenceStatus: input.licence_status,
+    region: input.region_name,
+    regionalDistrict: input.district_name,
+    licenceNumber: input.licence_number,
+    irmaNumber: input.irma_number,
+    lastNames: input.last_name,
+    companyNames: input.company_name,
+    emailAddresses: input.email_ddress,
+    applicationDate: input.application_date,
+    issuedOnDate: input.issue_date,
+    expiryDate: input.expiry_date,
+  };
+
+  return output;
+}
+
 function convertToPhysicalModel(input, update) {
   const disconnectRelation = {
     disconnect: true,
@@ -100,4 +120,8 @@ function convertToPhysicalModel(input, update) {
   return output;
 }
 
-module.exports = { convertToPhysicalModel, convertToLogicalModel };
+module.exports = {
+  convertToPhysicalModel,
+  convertToLogicalModel,
+  convertSearchResultToLogicalModel,
+};
