@@ -1,4 +1,4 @@
--- Connecting to the pod Postgres and executing SQL statements to create the database and objects.
+-- Connecting to Postgres and executing SQL statements to create the database and objects.
 -- These examples below use two Windows command shells.
 
 -- Openshift Command Line tool (oc) download
@@ -17,8 +17,8 @@
 
         oc port-forward <<pod name>> <<local port>>:<<pod port>>
 		
-		-- Example using local port 5434 so as not to conflict with a local Postgres database that is listening on 5432.
-		oc port-forward patroni-dev-0 5434:5432
+		-- Example using local port 5440 so as not to conflict with a local Postgres database that is listening on 5432.
+		oc port-forward patroni-dev-0 5440:5432
 		
 
 -- CMD Shell 2
@@ -41,8 +41,8 @@
 		
 	or the objects of an individual Feature Set. 
 		
-        create_mals_fs-2.bat <<app-db-owner-password>>
+        create_mals_fs-2.bat <<app-db-owner-password>> <<port-forward port number>>
 		
 		-- Example
         cd C:\temp\GitHub\nr-mals\db\pgsql\db-scripts\create-fs-2
-        create_mals_fs-2.bat ABCDEFGHIJ1234567890abcdefghij12
+        create_mals_objects.bat ABCDEFGHIJ1234567890abcdefghij12 5440
