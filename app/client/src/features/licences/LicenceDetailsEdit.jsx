@@ -50,7 +50,19 @@ export default function LicenceDetailsEdit({
       setValue("irmaNumber", undefined);
       setValue("expiryDate", null);
     }
-  }, [licenceTypeId]);
+
+    if (config.replacePaymentReceivedWithHiveFields) {
+      setValue("paymentReceived", undefined);
+      setValue("feePaidAmount", undefined);
+      setValue("totalHives", null);
+      setValue("hivesPerApiary", null);
+    } else {
+      setValue("totalHives", undefined);
+      setValue("hivesPerApiary", undefined);
+      setValue("paymentReceived", false);
+      setValue("feePaidAmount", null);
+    }
+  }, [licenceTypeId, setValue]);
 
   let applicationDate = (
     <VerticalField
@@ -130,42 +142,69 @@ export default function LicenceDetailsEdit({
           />
         </Col>
       </Form.Row>
-      <Form.Row>
-        <Col lg={4}>
-          <Form.Group controlId="paymentReceived">
-            <CustomCheckBox
-              id="paymentReceived"
-              label="Payment Received"
-              ref={register}
-            />
-          </Form.Group>
-        </Col>
-        <Col lg={4}>
-          {watchPaymentReceived && (
-            <Form.Group controlId="feePaidAmount">
-              <Form.Label>Fee Paid Amount</Form.Label>
-              <InputGroup>
-                <InputGroup.Prepend>
-                  <InputGroup.Text>$</InputGroup.Text>
-                </InputGroup.Prepend>
-                <Form.Control
-                  type="text"
-                  name="feePaidAmount"
-                  ref={register({
-                    required: true,
-                    pattern: /^(\d|[1-9]\d+)(\.\d{2})?$/i,
-                  })}
-                  isInvalid={errors.feePaidAmount}
-                  defaultValue={initialValues.feePaidAmount}
-                />
-                <Form.Control.Feedback type="invalid">
-                  Please enter a valid monetary amount.
-                </Form.Control.Feedback>
-              </InputGroup>
+      {config.replacePaymentReceivedWithHiveFields ? (
+        <Form.Row>
+          <Col lg={4}>
+            <Form.Group controlId="totalHives">
+              <Form.Label>Total Hives</Form.Label>
+              <Form.Control
+                type="number"
+                name="totalHives"
+                defaultValue={initialValues.totalHives}
+                ref={register}
+              />
             </Form.Group>
-          )}
-        </Col>
-      </Form.Row>
+          </Col>
+          <Col lg={4}>
+            <Form.Group controlId="hivesPerApiary">
+              <Form.Label>Hives per Apiary</Form.Label>
+              <Form.Control
+                type="number"
+                name="hivesPerApiary"
+                defaultValue={initialValues.hivesPerApiary}
+                ref={register}
+              />
+            </Form.Group>
+          </Col>
+        </Form.Row>
+      ) : (
+        <Form.Row>
+          <Col lg={4}>
+            <Form.Group controlId="paymentReceived">
+              <CustomCheckBox
+                id="paymentReceived"
+                label="Payment Received"
+                ref={register}
+              />
+            </Form.Group>
+          </Col>
+          <Col lg={4}>
+            {watchPaymentReceived && (
+              <Form.Group controlId="feePaidAmount">
+                <Form.Label>Fee Paid Amount</Form.Label>
+                <InputGroup>
+                  <InputGroup.Prepend>
+                    <InputGroup.Text>$</InputGroup.Text>
+                  </InputGroup.Prepend>
+                  <Form.Control
+                    type="text"
+                    name="feePaidAmount"
+                    ref={register({
+                      required: true,
+                      pattern: /^(\d|[1-9]\d+)(\.\d{2})?$/i,
+                    })}
+                    isInvalid={errors.feePaidAmount}
+                    defaultValue={initialValues.feePaidAmount}
+                  />
+                  <Form.Control.Feedback type="invalid">
+                    Please enter a valid monetary amount.
+                  </Form.Control.Feedback>
+                </InputGroup>
+              </Form.Group>
+            )}
+          </Col>
+        </Form.Row>
+      )}
       <Form.Row>
         <Col lg={4}>
           <Form.Group controlId="actionRequired">

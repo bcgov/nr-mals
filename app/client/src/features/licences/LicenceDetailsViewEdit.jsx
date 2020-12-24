@@ -57,6 +57,8 @@ export default function LicenceDetailsViewEdit({ licence }) {
     printLicence: licence.data.printLicence,
     renewalNotice: licence.data.renewalNotice,
     irmaNumber: licence.data.irmaNumber,
+    totalHives: licence.data.totalHives,
+    hivesPerApiary: licence.data.hivesPerApiary,
   };
 
   useEffect(() => {
@@ -72,6 +74,8 @@ export default function LicenceDetailsViewEdit({ licence }) {
     setValue("printLicence", licence.data.printLicence);
     setValue("renewalNotice", licence.data.renewalNotice);
     setValue("irmaNumber", licence.data.irmaNumber);
+    setValue("totalHives", licence.data.totalHives);
+    setValue("hivesPerApiary", licence.data.hivesPerApiary);
   }, [
     setValue,
     licence.data.applicationDate,
@@ -86,6 +90,8 @@ export default function LicenceDetailsViewEdit({ licence }) {
     licence.data.printLicence,
     licence.data.renewalNotice,
     licence.data.irmaNumber,
+    licence.data.totalHives,
+    licence.data.hivesPerApiary,
     mode,
   ]);
 

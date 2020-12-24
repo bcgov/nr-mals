@@ -53,22 +53,36 @@ export default function LicenceDetailsView({ licence }) {
           <VerticalField label="Licence Status" value={licence.licenceStatus} />
         </Col>
       </Row>
-      <Row className="mt-3">
-        <Col lg={4}>
-          <VerticalField
-            label="Payment Received"
-            value={formatBoolean(licence.paymentReceived)}
-          />
-        </Col>
-        {licence.paymentReceived && (
+      {config.replacePaymentReceivedWithHiveFields ? (
+        <Row className="mt-3">
           <Col lg={4}>
+            <VerticalField label="Total Hives" value={licence.totalHives} />
+          </Col>
+          <Col lg={8}>
             <VerticalField
-              label="Fee Paid Amount"
-              value={formatMoney(licence.feePaidAmount)}
+              label="Hives per Apiary"
+              value={licence.hivesPerApiary}
             />
           </Col>
-        )}
-      </Row>
+        </Row>
+      ) : (
+        <Row className="mt-3">
+          <Col lg={4}>
+            <VerticalField
+              label="Payment Received"
+              value={formatBoolean(licence.paymentReceived)}
+            />
+          </Col>
+          {licence.paymentReceived && (
+            <Col lg={4}>
+              <VerticalField
+                label="Fee Paid Amount"
+                value={formatMoney(licence.feePaidAmount)}
+              />
+            </Col>
+          )}
+        </Row>
+      )}
       <Row className="mt-3">
         <Col lg={4}>
           <VerticalField

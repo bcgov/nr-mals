@@ -35,6 +35,8 @@ import {
   clearCreatedLicence,
 } from "./licencesSlice";
 
+import { LICENCE_TYPE_ID_APIARY } from "./constants";
+
 import LicenceDetailsEdit from "./LicenceDetailsEdit";
 
 const today = new Date(new Date().setHours(0, 0, 0, 0));
@@ -44,12 +46,15 @@ const initialFormValues = {
   issuedOnDate: today,
   regionalDistrict: null,
   expiryDate: null,
-  paymentReceived: null,
-  feePaidAmount: null,
-  actionRequired: null,
-  printLicence: null,
-  renewalNotice: null,
+  actionRequired: false,
+  printLicence: false,
+  renewalNotice: false,
   // don't specify a default licenceStatus so it defaults to the first option, Active
+  // initial licence type is apiary
+  // paymentReceived: false,
+  // feePaidAmount: null,
+  totalHives: null,
+  hivesPerApiary: null,
 };
 
 function submissionController(setError, clearErrors, dispatch) {
@@ -67,7 +72,7 @@ function submissionController(setError, clearErrors, dispatch) {
       ...data,
       feePaidAmount: data.paymentReceived
         ? parseAsFloat(data.feePaidAmount)
-        : null,
+        : undefined,
       licenceStatus: parseAsInt(data.licenceStatus),
       licenceType: parseAsInt(data.licenceType),
       region: parseAsInt(data.region),

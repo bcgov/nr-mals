@@ -1,4 +1,5 @@
 const { formatDate } = require("../utilities/formatting");
+const { parseAsInt } = require("../utilities/parsing");
 const registrant = require("./registrant");
 
 function convertToLogicalModel(input) {
@@ -34,6 +35,8 @@ function convertToLogicalModel(input) {
     printLicence: input.licence_prn_requested,
     renewalNotice: input.renewal_prn_requested,
     irmaNumber: input.irma_number,
+    totalHives: input.total_hives,
+    hivesPerApiary: input.hives_per_apiary,
     createdBy: input.create_userid,
     createdOn: input.create_timestamp,
     updatedBy: input.update_userid,
@@ -101,11 +104,13 @@ function convertToPhysicalModel(input, update) {
     issue_date: input.issuedOnDate,
     expiry_date: input.expiryDate,
     fee_collected: input.feePaidAmount,
-    fee_collected_ind: input.paymentReceived,
+    fee_collected_ind: input.paymentReceived ?? false,
     action_required: input.actionRequired,
     licence_prn_requested: input.printLicence,
     renewal_prn_requested: input.renewalNotice,
     irma_number: input.irmaNumber,
+    total_hives: parseAsInt(input.totalHives),
+    hives_per_apiary: parseAsInt(input.hivesPerApiary),
     create_userid: input.createdBy,
     create_timestamp: input.createdOn,
     update_userid: input.updatedBy,
