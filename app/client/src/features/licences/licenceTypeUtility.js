@@ -16,6 +16,7 @@ import {
   LICENCE_TYPE_ID_LIMITED_MEDICATED_FEED,
 } from "./constants";
 
+// eslint-disable-next-line import/prefer-default-export
 export const getLicenceTypeConfiguration = (licenceTypeId) => {
   switch (licenceTypeId) {
     case LICENCE_TYPE_ID_HIDE_DEALER:

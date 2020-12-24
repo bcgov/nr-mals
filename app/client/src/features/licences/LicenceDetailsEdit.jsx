@@ -62,7 +62,12 @@ export default function LicenceDetailsEdit({
       setValue("paymentReceived", false);
       setValue("feePaidAmount", null);
     }
-  }, [licenceTypeId, setValue]);
+  }, [
+    licenceTypeId,
+    setValue,
+    config.replaceExpiryDateWithIrmaNumber,
+    config.replacePaymentReceivedWithHiveFields,
+  ]);
 
   let applicationDate = (
     <VerticalField

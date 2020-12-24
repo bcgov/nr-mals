@@ -3,6 +3,12 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import Api, { ApiError } from "../../utilities/api.ts";
 import { REQUEST_STATUS, SEARCH_TYPE } from "../../utilities/constants";
 
+export const selectLicenceSearchType = (state) =>
+  state.search.licences.searchType;
+export const selectLicenceParameters = (state) =>
+  state.search.licences.parameters;
+export const selectLicenceResults = (state) => state.search.licences.results;
+
 export const fetchLicenceResults = createAsyncThunk(
   "search/fetchLicenceResults",
   async (_, thunkApi) => {
@@ -78,12 +84,6 @@ export const searchSlice = createSlice({
     },
   },
 });
-
-export const selectLicenceSearchType = (state) =>
-  state.search.licences.searchType;
-export const selectLicenceParameters = (state) =>
-  state.search.licences.parameters;
-export const selectLicenceResults = (state) => state.search.licences.results;
 
 const { actions, reducer } = searchSlice;
 
