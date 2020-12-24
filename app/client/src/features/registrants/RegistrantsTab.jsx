@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from "react";
-import { useParams } from "react-router";
+import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import PropTypes from "prop-types";
 import { ErrorMessage } from "@hookform/error-message";
 import { Card, Nav, Tab, Alert } from "react-bootstrap";
@@ -26,7 +26,7 @@ export default function RegistrantsTab({ initialRegistrants, mode, form }) {
   useEffect(() => {
     sessionStorage.setItem("licenceId", licenceId);
     sessionStorage.setItem("selectedTabKey", selectedTabKey);
-  }, [selectedTabKey]);
+  }, [selectedTabKey, licenceId]);
 
   let registrantOutput;
   switch (mode) {

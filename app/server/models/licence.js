@@ -107,7 +107,7 @@ function convertToPhysicalModel(input, update) {
     issue_date: input.issuedOnDate,
     expiry_date: input.expiryDate,
     fee_collected: input.feePaidAmount,
-    fee_collected_ind: input.paymentReceived ?? false,
+    fee_collected_ind: input.paymentReceived || false,
     action_required: input.actionRequired,
     licence_prn_requested: input.printLicence,
     renewal_prn_requested: input.renewalNotice,

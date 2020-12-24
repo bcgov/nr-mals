@@ -116,9 +116,9 @@ export default function CreateLicencePage() {
   }, [register]);
 
   useEffect(() => {
-    for (const [field, value] of Object.entries(initialFormValues)) {
+    Object.entries(initialFormValues).forEach(([field, value]) => {
       setValue(field, value);
-    }
+    });
   }, [setValue]);
 
   const watchLicenceType = parseAsInt(
@@ -144,9 +144,14 @@ export default function CreateLicencePage() {
 
     if (expiryDate) {
       setValue("expiryDate", expiryDate);
-      initialFormValues["expiryDate"] = expiryDate;
+      initialFormValues.expiryDate = expiryDate;
     }
-  }, [setValue, watchLicenceType]);
+  }, [
+    setValue,
+    config.expiryInTwoYears,
+    config.expiryMonth,
+    config.yearsAddedToExpiryDate,
+  ]);
 
   const { onSubmit } = submissionController(setError, clearErrors, dispatch);
 
