@@ -3,9 +3,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
 import { Button, Col, Container, Form, FormControl } from "react-bootstrap";
 import { FaSearch, FaChevronDown, FaChevronUp } from "react-icons/fa";
-import { isDate } from "date-fns";
 
-import { formatDate } from "../../utilities/formatting";
 import {
   SEARCH_TYPE,
   LICENSE_RESULTS_PATHNAME,
