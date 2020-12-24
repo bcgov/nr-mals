@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { Alert, Button, Col, Container, Form } from "react-bootstrap";
+import { startOfToday, add, set } from "date-fns";
 
 import {
   REQUEST_STATUS,
@@ -36,16 +37,17 @@ import {
 } from "./licencesSlice";
 
 import { LICENCE_TYPE_ID_APIARY } from "./constants";
+import { getLicenceTypeConfiguration } from "./licenceTypeUtility";
 
 import LicenceDetailsEdit from "./LicenceDetailsEdit";
 
-const today = new Date(new Date().setHours(0, 0, 0, 0));
+const today = startOfToday();
 const initialFormValues = {
   applicationDate: today,
   region: null,
   issuedOnDate: today,
   regionalDistrict: null,
-  expiryDate: null,
+  expiryDate: add(today, { years: 2 }),
   actionRequired: false,
   printLicence: false,
   renewalNotice: false,
@@ -122,6 +124,29 @@ export default function CreateLicencePage() {
   const watchLicenceType = parseAsInt(
     watch("licenceType", LICENCE_TYPE_ID_APIARY)
   );
+
+  const config = getLicenceTypeConfiguration(watchLicenceType);
+
+  // set default expiry date differently based on the selected licence type
+  useEffect(() => {
+    let expiryDate;
+    if (config.expiryInTwoYears) {
+      expiryDate = add(today, { years: 2 });
+    } else if (config.expiryMonth) {
+      expiryDate = set(today, { date: 31, month: config.expiryMonth - 1 }); // months are indexed at 0
+      if (expiryDate < today) {
+        expiryDate = add(expiryDate, { years: 1 });
+      }
+      if (config.yearsAddedToExpiryDate) {
+        expiryDate = add(expiryDate, { years: config.yearsAddedToExpiryDate });
+      }
+    }
+
+    if (expiryDate) {
+      setValue("expiryDate", expiryDate);
+      initialFormValues["expiryDate"] = expiryDate;
+    }
+  }, [setValue, watchLicenceType]);
 
   const { onSubmit } = submissionController(setError, clearErrors, dispatch);
 
