@@ -66,6 +66,16 @@ export default function LicenceResultsPage() {
   }, [dispatch]);
 
   let control = null;
+  const createLicenceButton = (
+    <Link
+      to={CREATE_LICENSES_PATHNAME}
+      component={LinkButton}
+      variant="primary"
+      block
+    >
+      Create Licence
+    </Link>
+  );
 
   if (results.status === REQUEST_STATUS.PENDING) {
     control = (
@@ -91,13 +101,18 @@ export default function LicenceResultsPage() {
     results.count === 0
   ) {
     control = (
-      <Alert variant="success">
-        <div>Sorry, there were no results matching your search terms.</div>
-        <div>
-          Search Tips: check your spelling and try again, or try a different
-          search term.
-        </div>
-      </Alert>
+      <>
+        <Alert variant="success" className="mt-3">
+          <div>Sorry, there were no results matching your search terms.</div>
+          <div>
+            Search Tips: check your spelling and try again, or try a different
+            search term.
+          </div>
+        </Alert>
+        <Row className="mt-3">
+          <Col md="3">{createLicenceButton}</Col>
+        </Row>
+      </>
     );
   } else if (results.status === REQUEST_STATUS.FULFILLED && results.count > 0) {
     control = (
@@ -117,45 +132,30 @@ export default function LicenceResultsPage() {
           <tbody>{results.data.map((result) => formatResultRow(result))}</tbody>
         </Table>
         <Row className="mt-3">
-          <Col lg={{ span: 6, offset: 6 }}>
-            <Row>
-              <Col>
-                Showing {results.data.length} of {results.count} entries
-              </Col>
-              <Col>
-                <ButtonGroup>
-                  <Button
-                    disabled={results.page < 2}
-                    onClick={() =>
-                      navigateToSearchPage(dispatch, (results.page ?? 2) - 1)
-                    }
-                  >
-                    Previous
-                  </Button>
-                  <Button disabled>{results.page}</Button>
-                  <Button
-                    disabled={results.page * 20 > results.count}
-                    onClick={() =>
-                      navigateToSearchPage(dispatch, (results.page ?? 0) + 1)
-                    }
-                  >
-                    Next
-                  </Button>
-                </ButtonGroup>
-              </Col>
-            </Row>
+          <Col md="3">{createLicenceButton}</Col>
+          <Col className="d-flex justify-content-center">
+            Showing {results.data.length} of {results.count} entries
           </Col>
-        </Row>
-        <Row className="mt-3">
-          <Col lg={4}>
-            <Link
-              to={CREATE_LICENSES_PATHNAME}
-              component={LinkButton}
-              variant="primary"
-              block
-            >
-              Create Licence
-            </Link>
+          <Col md="auto">
+            <ButtonGroup>
+              <Button
+                disabled={results.page < 2}
+                onClick={() =>
+                  navigateToSearchPage(dispatch, (results.page ?? 2) - 1)
+                }
+              >
+                Previous
+              </Button>
+              <Button disabled>{results.page}</Button>
+              <Button
+                disabled={results.page * 20 > results.count}
+                onClick={() =>
+                  navigateToSearchPage(dispatch, (results.page ?? 0) + 1)
+                }
+              >
+                Next
+              </Button>
+            </ButtonGroup>
           </Col>
         </Row>
       </>
