@@ -35,8 +35,6 @@ import {
   clearCreatedLicence,
 } from "./licencesSlice";
 
-import { formFields } from "./constants";
-
 import LicenceDetailsEdit from "./LicenceDetailsEdit";
 
 const today = new Date(new Date().setHours(0, 0, 0, 0));
@@ -95,7 +93,14 @@ export default function CreateLicencePage() {
   const form = useForm({
     reValidateMode: "onBlur",
   });
-  const { register, handleSubmit, setValue, setError, clearErrors } = form;
+  const {
+    register,
+    watch,
+    handleSubmit,
+    setValue,
+    setError,
+    clearErrors,
+  } = form;
 
   useEffect(() => {
     register("applicationDate");
@@ -104,8 +109,14 @@ export default function CreateLicencePage() {
   }, [register]);
 
   useEffect(() => {
-    formFields.forEach((field) => setValue(field, initialFormValues[field]));
+    for (const [field, value] of Object.entries(initialFormValues)) {
+      setValue(field, value);
+    }
   }, [setValue]);
+
+  const watchLicenceType = parseAsInt(
+    watch("licenceType", LICENCE_TYPE_ID_APIARY)
+  );
 
   const { onSubmit } = submissionController(setError, clearErrors, dispatch);
 
@@ -177,6 +188,7 @@ export default function CreateLicencePage() {
             <LicenceDetailsEdit
               form={form}
               initialValues={initialFormValues}
+              licenceTypeId={watchLicenceType}
               mode={LICENCE_MODE.CREATE}
             />
             <SubmissionButtons

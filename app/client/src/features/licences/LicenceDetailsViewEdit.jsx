@@ -56,6 +56,7 @@ export default function LicenceDetailsViewEdit({ licence }) {
     actionRequired: licence.data.actionRequired,
     printLicence: licence.data.printLicence,
     renewalNotice: licence.data.renewalNotice,
+    irmaNumber: licence.data.irmaNumber,
   };
 
   useEffect(() => {
@@ -70,6 +71,7 @@ export default function LicenceDetailsViewEdit({ licence }) {
     setValue("actionRequired", licence.data.actionRequired);
     setValue("printLicence", licence.data.printLicence);
     setValue("renewalNotice", licence.data.renewalNotice);
+    setValue("irmaNumber", licence.data.irmaNumber);
   }, [
     setValue,
     licence.data.applicationDate,
@@ -83,6 +85,7 @@ export default function LicenceDetailsViewEdit({ licence }) {
     licence.data.actionRequired,
     licence.data.printLicence,
     licence.data.renewalNotice,
+    licence.data.irmaNumber,
     mode,
   ]);
 
@@ -139,6 +142,7 @@ export default function LicenceDetailsViewEdit({ licence }) {
           <LicenceDetailsEdit
             form={form}
             initialValues={initialFormValues}
+            licenceTypeId={licence.data.licenceTypeId}
             mode={LICENCE_MODE.EDIT}
           />
           <SubmissionButtons
