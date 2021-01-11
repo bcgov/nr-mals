@@ -5,6 +5,7 @@ import lookupsReducer from "../features/lookups/lookupsReducer";
 import statusReducer from "../features/status/statusSlice";
 import cdogsReducer from "../features/reports/cdogsSlice";
 import searchReducer from "../features/search/searchSlice";
+import commentsReducer from "../features/comments/commentsSlice";
 
 const reducer = {
   licences: licencesReducer,
@@ -12,6 +13,7 @@ const reducer = {
   status: statusReducer,
   cdogs: cdogsReducer,
   search: searchReducer,
+  comments: commentsReducer,
 };
 
 const middleware = [...getDefaultMiddleware()];
