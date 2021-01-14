@@ -28,7 +28,7 @@ app.use("/api/regional-districts", regionalDistrictsRouter);
 app.use("/api/regions", regionsRouter);
 app.use("/api/status", statusRouter);
 app.use("/api/cdogs", cdogsRouter);
-app.use("/api/comments", commentsRouter);
+app.use("/api/comments", commentsRouter.router);
 app.use("/api/*", (req, res) => {
   res.status(404).send({
     code: 404,

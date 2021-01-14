@@ -80,4 +80,4 @@ router.post("/", async (req, res, next) => {
     .finally(async () => prisma.$disconnect());
 });
 
-module.exports = router;
+module.exports = { router:router, createComment:createComment };

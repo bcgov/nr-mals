@@ -36,10 +36,11 @@ import {
   clearCreatedLicence,
 } from "./licencesSlice";
 
-import { LICENCE_TYPE_ID_APIARY } from "./constants";
+import { LICENCE_TYPE_ID_APIARY, LICENCE_TYPE_ID_LIVESTOCK_DEALER, LICENCE_TYPE_ID_PUBLIC_SALE_YARD_OPERATOR, LICENCE_TYPE_ID_PURCHASE_LIVE_POULTRY } from "./constants";
 import { getLicenceTypeConfiguration } from "./licenceTypeUtility";
 
 import LicenceDetailsEdit from "./LicenceDetailsEdit";
+import BondInformationEdit from "./BondInformationEdit";
 
 const today = startOfToday();
 const initialFormValues = {
@@ -69,12 +70,16 @@ function submissionController(setError, clearErrors, dispatch) {
     if (validationResult === false) {
       return;
     }
-
+    
     const payload = {
       ...data,
       feePaidAmount: data.paymentReceived
         ? parseAsFloat(data.feePaidAmount)
         : undefined,
+      bondValue: data.bondValue
+        ? parseAsFloat(data.bondValue)
+        : undefined,
+      bondCarrierPhoneNumber: data.bondCarrierPhoneNumber ? data.bondCarrierPhoneNumber.replace(/\D/g, "") : undefined,
       licenceStatus: parseAsInt(data.licenceStatus),
       licenceType: parseAsInt(data.licenceType),
       region: parseAsInt(data.region),
@@ -126,6 +131,9 @@ export default function CreateLicencePage() {
   );
 
   const config = getLicenceTypeConfiguration(watchLicenceType);
+
+  const requiresBondInformation = [ LICENCE_TYPE_ID_PUBLIC_SALE_YARD_OPERATOR, LICENCE_TYPE_ID_PURCHASE_LIVE_POULTRY, LICENCE_TYPE_ID_LIVESTOCK_DEALER ];
+  const showBondInformation = requiresBondInformation.find(x => x == watchLicenceType) !== undefined;
 
   // set default expiry date differently based on the selected licence type
   useEffect(() => {
@@ -226,6 +234,29 @@ export default function CreateLicencePage() {
               licenceTypeId={watchLicenceType}
               mode={LICENCE_MODE.CREATE}
             />
+          </Container>
+        </section>
+        { showBondInformation ? 
+          <section>
+            <SectionHeading>Bond Information</SectionHeading>
+            <Container className="mt-3 mb-4">
+              <BondInformationEdit
+                form={form}
+                initialValues={initialFormValues}
+                licenceTypeId={watchLicenceType}
+                mode={LICENCE_MODE.CREATE}
+              />
+            </Container>
+          </section>
+        : null }
+        <section>
+          <SectionHeading>Comments</SectionHeading>
+          <Container className="mt-3 mb-4">
+            <Form.Control as="textarea" rows={6} name="commentText" ref={register} className="mb-1"/>
+          </Container>
+        </section>
+        <section>
+          <Container className="mt-3 mb-4">
             <SubmissionButtons
               submitButtonLabel={submissionLabel}
               submitButtonDisabled={submitting}
