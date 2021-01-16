@@ -8,6 +8,7 @@ import {
   SEARCH_TYPE,
   LICENSE_RESULTS_PATHNAME,
 } from "../../utilities/constants";
+import { formatDate } from "../../utilities/formatting";
 import { parseAsDate, parseAsInt } from "../../utilities/parsing";
 
 import CustomDatePicker from "../../components/CustomDatePicker";
@@ -174,7 +175,7 @@ export default function LicenceSearchPage() {
                     id="issuedDateFrom"
                     label="Issued On Date From"
                     notifyOnChange={(value) =>
-                      setParameter("issuedDateFrom", value)
+                      setParameter("issuedDateFrom", formatDate(value))
                     }
                     defaultValue={parseAsDate(defaultParameters.issuedDateFrom)}
                   />
@@ -184,7 +185,7 @@ export default function LicenceSearchPage() {
                     id="issuedDateTo"
                     label="Issued On Date To"
                     notifyOnChange={(value) =>
-                      setParameter("issuedDateTo", value)
+                      setParameter("issuedDateTo", formatDate(value))
                     }
                     defaultValue={parseAsDate(defaultParameters.issuedDateTo)}
                   />
@@ -203,7 +204,7 @@ export default function LicenceSearchPage() {
                     id="renewalDateFrom"
                     label="Renewal Date From"
                     notifyOnChange={(value) =>
-                      setParameter("renewalDateFrom", value)
+                      setParameter("renewalDateFrom", formatDate(value))
                     }
                     defaultValue={parseAsDate(
                       defaultParameters.renewalDateFrom
@@ -215,7 +216,7 @@ export default function LicenceSearchPage() {
                     id="renewalDateTo"
                     label="Renewal Date To"
                     notifyOnChange={(value) =>
-                      setParameter("renewalDateTo", value)
+                      setParameter("renewalDateTo", formatDate(value))
                     }
                     defaultValue={parseAsDate(defaultParameters.renewalDateTo)}
                   />
@@ -237,7 +238,7 @@ export default function LicenceSearchPage() {
                     id="expiryDateFrom"
                     label="Expiry Date From"
                     notifyOnChange={(value) =>
-                      setParameter("expiryDateFrom", value)
+                      setParameter("expiryDateFrom", formatDate(value))
                     }
                     defaultValue={parseAsDate(defaultParameters.expiryDateFrom)}
                   />
@@ -247,7 +248,7 @@ export default function LicenceSearchPage() {
                     id="expiryDateTo"
                     label="Expiry Date To"
                     notifyOnChange={(value) =>
-                      setParameter("expiryDateTo", value)
+                      setParameter("expiryDateTo", formatDate(value))
                     }
                     defaultValue={parseAsDate(defaultParameters.expiryDateTo)}
                   />
