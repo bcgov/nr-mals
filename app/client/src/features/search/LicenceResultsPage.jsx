@@ -35,7 +35,7 @@ import {
 function formatResultRow(result) {
   const url = `${LICENSES_PATHNAME}/${result.licenceId}`;
   return (
-    <tr>
+    <tr key={result.licenceId}>
       <td className="text-nowrap">
         <Link to={url}>{result.licenceNumber}</Link>
       </td>
@@ -119,15 +119,17 @@ export default function LicenceResultsPage() {
       <>
         <Table striped size="sm" responsive className="mt-3" hover>
           <thead className="thead-dark">
-            <th>Licence</th>
-            <th className="text-nowrap">Licence Type</th>
-            <th className="text-nowrap">Last Names</th>
-            <th className="text-nowrap">Company Names</th>
-            <th className="text-nowrap">Licence Status</th>
-            <th className="text-nowrap">Issued On Date</th>
-            <th className="text-nowrap">Expiry Date</th>
-            <th>Region</th>
-            <th>District</th>
+            <tr>
+              <th>Licence</th>
+              <th className="text-nowrap">Licence Type</th>
+              <th className="text-nowrap">Last Names</th>
+              <th className="text-nowrap">Company Names</th>
+              <th className="text-nowrap">Licence Status</th>
+              <th className="text-nowrap">Issued On Date</th>
+              <th className="text-nowrap">Expiry Date</th>
+              <th>Region</th>
+              <th>District</th>
+            </tr>
           </thead>
           <tbody>{results.data.map((result) => formatResultRow(result))}</tbody>
         </Table>

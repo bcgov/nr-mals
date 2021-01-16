@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 import Api, { ApiError } from "../../utilities/api.ts";
 import { REQUEST_STATUS, SEARCH_TYPE } from "../../utilities/constants";
+import { parseAsDate } from "../../utilities/parsing";
 
 export const selectLicenceSearchType = (state) =>
   state.search.licences.searchType;
@@ -14,7 +15,18 @@ export const fetchLicenceResults = createAsyncThunk(
   async (_, thunkApi) => {
     try {
       const parameters = selectLicenceParameters(thunkApi.getState());
-      const response = await Api.get(`licences/search`, parameters);
+
+      const parsedParameters = {
+        ...parameters,
+        issuedDateFrom: parseAsDate(parameters.issuedDateFrom),
+        issuedDateTo: parseAsDate(parameters.issuedDateTo),
+        renewalDateFrom: parseAsDate(parameters.renewalDateFrom),
+        renewalDateTo: parseAsDate(parameters.renewalDateTo),
+        expiryDateFrom: parseAsDate(parameters.expiryDateFrom),
+        expiryDateTo: parseAsDate(parameters.expiryDateTo),
+      };
+
+      const response = await Api.get(`licences/search`, parsedParameters);
       return response.data;
     } catch (error) {
       if (error instanceof ApiError) {
