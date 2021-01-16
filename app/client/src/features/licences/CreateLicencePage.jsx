@@ -151,7 +151,7 @@ export default function CreateLicencePage() {
     config.expiryInTwoYears,
     config.expiryMonth,
     config.yearsAddedToExpiryDate,
-    config.expiryInTwoYears,
+    config.replaceExpiryDateWithIrmaNumber,
   ]);
 
   const { onSubmit } = submissionController(setError, clearErrors, dispatch);
