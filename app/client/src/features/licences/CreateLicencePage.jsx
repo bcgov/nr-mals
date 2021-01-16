@@ -129,7 +129,7 @@ export default function CreateLicencePage() {
 
   // set default expiry date differently based on the selected licence type
   useEffect(() => {
-    let expiryDate;
+    let expiryDate = null;
     if (config.expiryInTwoYears) {
       expiryDate = add(today, { years: 2 });
     } else if (config.expiryMonth) {
@@ -140,17 +140,18 @@ export default function CreateLicencePage() {
       if (config.yearsAddedToExpiryDate) {
         expiryDate = add(expiryDate, { years: config.yearsAddedToExpiryDate });
       }
+    } else if (config.replaceExpiryDateWithIrmaNumber) {
+      expiryDate = undefined;
     }
 
-    if (expiryDate) {
-      setValue("expiryDate", expiryDate);
-      initialFormValues.expiryDate = expiryDate;
-    }
+    setValue("expiryDate", expiryDate);
+    initialFormValues.expiryDate = expiryDate;
   }, [
     setValue,
     config.expiryInTwoYears,
     config.expiryMonth,
     config.yearsAddedToExpiryDate,
+    config.expiryInTwoYears,
   ]);
 
   const { onSubmit } = submissionController(setError, clearErrors, dispatch);
