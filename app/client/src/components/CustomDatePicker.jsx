@@ -34,11 +34,17 @@ const CustomDatePicker = React.forwardRef((props, outerRef) => {
     notifyOnChange(value);
   };
 
-  const defaultValueRepresentation = defaultValue.getTime();
+  const defaultValueRepresentation = defaultValue
+    ? defaultValue.getTime()
+    : null;
 
   // reset date when defaultValue changes
   useEffect(() => {
-    setDate(new Date(defaultValueRepresentation));
+    if (defaultValueRepresentation === null) {
+      setDate(null);
+    } else {
+      setDate(new Date(defaultValueRepresentation));
+    }
   }, [defaultValueRepresentation]);
 
   const CustomDatePickerInput = React.forwardRef(({ onClick }, ref) => {
