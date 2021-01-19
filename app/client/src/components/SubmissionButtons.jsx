@@ -9,6 +9,10 @@ const SubmissionButtons = ({
   cancelButtonLabel,
   cancelButtonDisabled,
   cancelButtonOnClick,
+  draftButtonVisible,
+  draftButtonLabel,
+  draftButtonDisabled,
+  draftButtonOnClick,
   align,
   buttonSize,
 }) => {
@@ -25,6 +29,24 @@ const SubmissionButtons = ({
           block
         >
           {cancelButtonLabel}
+        </Button>
+      </Form.Group>
+    );
+  }
+
+  let draftButton;
+  if (draftButtonVisible) {
+    draftButton = (
+      <Form.Group>
+        <Button
+          size={buttonSize}
+          type="submit"
+          onClick={draftButtonOnClick}
+          disabled={draftButtonDisabled}
+          variant="primary"
+          block
+        >
+          {draftButtonLabel}
         </Button>
       </Form.Group>
     );
@@ -55,7 +77,7 @@ const SubmissionButtons = ({
   return (
     <Form.Row>
       <Col sm={4}>{cancelButton}</Col>
-      <Col sm={4} />
+      <Col sm={4}>{draftButton}</Col>
       <Col sm={4}>
         <Form.Group>
           <Button
@@ -80,6 +102,10 @@ SubmissionButtons.propTypes = {
   cancelButtonLabel: PropTypes.string,
   cancelButtonDisabled: PropTypes.bool,
   cancelButtonOnClick: PropTypes.func,
+  draftButtonVisible: PropTypes.bool,
+  draftButtonLabel: PropTypes.string,
+  draftButtonDisabled: PropTypes.bool,
+  draftButtonOnClick: PropTypes.func,
   align: PropTypes.string,
   buttonSize: PropTypes.string,
 };
@@ -91,6 +117,10 @@ SubmissionButtons.defaultProps = {
   cancelButtonLabel: "Cancel",
   cancelButtonDisabled: false,
   cancelButtonOnClick: Function.prototype,
+  draftButtonVisible: false,
+  draftButtonLabel: "Save Draft",
+  draftButtonDisabled: false,
+  draftButtonOnClick: Function.prototype,
   align: "default",
   buttonSize: "md"
 };

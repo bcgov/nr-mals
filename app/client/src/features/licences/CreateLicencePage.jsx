@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, Redirect } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { Alert, Button, Col, Container, Form } from "react-bootstrap";
 import { startOfToday, add, set } from "date-fns";
@@ -36,6 +36,8 @@ import {
   clearCreatedLicence,
 } from "./licencesSlice";
 
+import { LICENCE_STATUS } from "../../utilities/constants";
+
 import { LICENCE_TYPE_ID_APIARY, LICENCE_TYPE_ID_LIVESTOCK_DEALER, LICENCE_TYPE_ID_PUBLIC_SALE_YARD_OPERATOR, LICENCE_TYPE_ID_PURCHASE_LIVE_POULTRY } from "./constants";
 import { getLicenceTypeConfiguration } from "./licenceTypeUtility";
 
@@ -60,6 +62,11 @@ const initialFormValues = {
   hivesPerApiary: null,
 };
 
+let draft = false;
+const draftOnClick = () => {
+  draft = true;
+}
+
 function submissionController(setError, clearErrors, dispatch) {
   const onSubmit = async (data) => {
     const validationResult = validateRegistrants(
@@ -80,18 +87,21 @@ function submissionController(setError, clearErrors, dispatch) {
         ? parseAsFloat(data.bondValue)
         : undefined,
       bondCarrierPhoneNumber: data.bondCarrierPhoneNumber ? data.bondCarrierPhoneNumber.replace(/\D/g, "") : undefined,
-      licenceStatus: parseAsInt(data.licenceStatus),
+      licenceStatus: parseAsInt(draft ? LICENCE_STATUS.DRAFT : data.licenceStatus),
       licenceType: parseAsInt(data.licenceType),
       region: parseAsInt(data.region),
       regionalDistrict: parseAsInt(data.regionalDistrict),
       registrants: formatRegistrants(data.registrants),
     };
 
+    console.log(payload);
     dispatch(createLicence(payload));
   };
 
   return { onSubmit };
 }
+
+
 
 export default function CreateLicencePage() {
   const createdLicence = useSelector(selectCreatedLicence);
@@ -171,39 +181,45 @@ export default function CreateLicencePage() {
   }
 
   const submissionLabel = submitting ? "Submitting..." : "Create";
+  const draftLabel = submitting ? "Submitting..." : "Save Draft";
 
   if (createdLicence.status === REQUEST_STATUS.FULFILLED) {
-    return (
-      <section>
-        <PageHeading>Create a Licence</PageHeading>
-        <Alert variant="success">The licence has been created.</Alert>
-        <Form>
-          <Form.Row>
-            <Col sm={4}>
-              <Link
-                to={`${LICENSES_PATHNAME}/${createdLicence.data.id}`}
-                component={LinkButton}
-                variant="primary"
-                block
-              >
-                View Licence
-              </Link>
-            </Col>
-            <Col sm={4} />
-            <Col sm={4}>
-              <Button
-                type="button"
-                onClick={() => dispatch(clearCreatedLicence())}
-                variant="primary"
-                block
-              >
-                Create Another Licence
-              </Button>
-            </Col>
-          </Form.Row>
-        </Form>
-      </section>
-    );
+    if( draft === true ) {
+      return <Redirect to={`${LICENSES_PATHNAME}/search`} />
+    }
+    else {
+      return (
+        <section>
+          <PageHeading>Create a Licence</PageHeading>
+          <Alert variant="success">The licence has been created.</Alert>
+          <Form>
+            <Form.Row>
+              <Col sm={4}>
+                <Link
+                  to={`${LICENSES_PATHNAME}/${createdLicence.data.id}`}
+                  component={LinkButton}
+                  variant="primary"
+                  block
+                >
+                  View Licence
+                </Link>
+              </Col>
+              <Col sm={4} />
+              <Col sm={4}>
+                <Button
+                  type="button"
+                  onClick={() => dispatch(clearCreatedLicence())}
+                  variant="primary"
+                  block
+                >
+                  Create Another Licence
+                </Button>
+              </Col>
+            </Form.Row>
+          </Form>
+        </section>
+      );
+    }
   }
 
   return (
@@ -260,6 +276,10 @@ export default function CreateLicencePage() {
             <SubmissionButtons
               submitButtonLabel={submissionLabel}
               submitButtonDisabled={submitting}
+              draftButtonVisible
+              draftButtonLabel={draftLabel}
+              draftButtonDisabled={submitting}
+              draftButtonOnClick={draftOnClick}
             />
             <ErrorMessageRow errorMessage={errorMessage} />
           </Container>
