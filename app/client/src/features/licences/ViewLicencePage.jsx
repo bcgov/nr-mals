@@ -15,6 +15,8 @@ import LicenceDetailsViewEdit from "./LicenceDetailsViewEdit";
 
 import LicenceHeader from "./LicenceHeader";
 
+import Comments from "../comments/Comments";
+
 import "./ViewLicencePage.scss";
 
 export default function ViewLicencePage() {
@@ -33,6 +35,7 @@ export default function ViewLicencePage() {
         <LicenceHeader licence={licence.data} />
         <RegistrantsViewEdit licence={licence} />
         <LicenceDetailsViewEdit licence={licence} />
+        <Comments licence={licence.data} />
       </>
     );
   } else if (
