@@ -52,3 +52,7 @@ export const REGISTRANT_STATUS = {
   DELETED: "deleted",
   CANCELLED: "cancelled",
 };
+
+export const LICENCE_STATUS = {
+  DRAFT: 60005
+};

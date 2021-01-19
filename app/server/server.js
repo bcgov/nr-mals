@@ -12,6 +12,7 @@ const regionalDistrictsRouter = require("./routes/regionalDistricts");
 const regionsRouter = require("./routes/regions");
 const statusRouter = require("./routes/status");
 const cdogsRouter = require("./routes/cdogs");
+const commentsRouter = require("./routes/comments");
 
 const app = express();
 
@@ -27,6 +28,7 @@ app.use("/api/regional-districts", regionalDistrictsRouter);
 app.use("/api/regions", regionsRouter);
 app.use("/api/status", statusRouter);
 app.use("/api/cdogs", cdogsRouter);
+app.use("/api/comments", commentsRouter.router);
 app.use("/api/*", (req, res) => {
   res.status(404).send({
     code: 404,
