@@ -28,15 +28,13 @@ import {
   formatRegistrants,
 } from "../registrants/registrantUtility";
 
-import { fetchLicenceStatuses } from "../lookups/licenceStatusesSlice";
+import { fetchLicenceStatuses, selectLicenceStatuses } from "../lookups/licenceStatusesSlice";
 import { fetchRegions } from "../lookups/regionsSlice";
 import {
   createLicence,
   selectCreatedLicence,
   clearCreatedLicence,
 } from "./licencesSlice";
-
-import { LICENCE_STATUS } from "../../utilities/constants";
 
 import { LICENCE_TYPE_ID_APIARY, LICENCE_TYPE_ID_LIVESTOCK_DEALER, LICENCE_TYPE_ID_PUBLIC_SALE_YARD_OPERATOR, LICENCE_TYPE_ID_PURCHASE_LIVE_POULTRY } from "./constants";
 import { getLicenceTypeConfiguration } from "./licenceTypeUtility";
@@ -62,10 +60,11 @@ const initialFormValues = {
   hivesPerApiary: null,
 };
 
-let draft = false;
+let createDraft = false;
 const draftOnClick = () => {
-  draft = true;
+  createDraft = true;
 }
+let licenceStatuses = null;
 
 function submissionController(setError, clearErrors, dispatch) {
   const onSubmit = async (data) => {
@@ -77,7 +76,17 @@ function submissionController(setError, clearErrors, dispatch) {
     if (validationResult === false) {
       return;
     }
-    
+
+    let draftId = null;
+    if( createDraft ) {
+      if (licenceStatuses.data) {
+        const draft = licenceStatuses.data.find(x => x.code_description === "Draft");
+        if( draft !== undefined ) {
+          draftId = draft.id;
+        }
+      }
+    }
+
     const payload = {
       ...data,
       feePaidAmount: data.paymentReceived
@@ -87,14 +96,14 @@ function submissionController(setError, clearErrors, dispatch) {
         ? parseAsFloat(data.bondValue)
         : undefined,
       bondCarrierPhoneNumber: data.bondCarrierPhoneNumber ? data.bondCarrierPhoneNumber.replace(/\D/g, "") : undefined,
-      licenceStatus: parseAsInt(draft ? LICENCE_STATUS.DRAFT : data.licenceStatus),
+      licenceStatus: parseAsInt(createDraft && draftId !== null ? draftId : data.licenceStatus),
       licenceType: parseAsInt(data.licenceType),
       region: parseAsInt(data.region),
       regionalDistrict: parseAsInt(data.regionalDistrict),
       registrants: formatRegistrants(data.registrants),
     };
 
-    console.log(payload);
+    //console.log(payload);
     dispatch(createLicence(payload));
   };
 
@@ -105,6 +114,8 @@ function submissionController(setError, clearErrors, dispatch) {
 
 export default function CreateLicencePage() {
   const createdLicence = useSelector(selectCreatedLicence);
+  licenceStatuses = useSelector(selectLicenceStatuses);
+
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -185,7 +196,7 @@ export default function CreateLicencePage() {
   const draftLabel = submitting ? "Submitting..." : "Save Draft";
 
   if (createdLicence.status === REQUEST_STATUS.FULFILLED) {
-    if( draft === true ) {
+    if( createDraft === true ) {
       return <Redirect to={`${LICENSES_PATHNAME}/search`} />
     }
     else {
