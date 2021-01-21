@@ -10,7 +10,10 @@ import {
 
 import VerticalField from "../../components/VerticalField";
 
+import { getLicenceTypeConfiguration } from "./licenceTypeUtility";
+
 export default function LicenceDetailsView({ licence }) {
+  const config = getLicenceTypeConfiguration(licence.licenceTypeId);
   return (
     <>
       <Row className="mt-3">
@@ -37,31 +40,49 @@ export default function LicenceDetailsView({ licence }) {
       </Row>
       <Row className="mt-3">
         <Col lg={4}>
-          <VerticalField
-            label="Expiry Date"
-            value={formatDateString(licence.expiryDate)}
-          />
+          {config.replaceExpiryDateWithIrmaNumber ? (
+            <VerticalField label="IRMA Number" value={licence.irmaNumber} />
+          ) : (
+            <VerticalField
+              label="Expiry Date"
+              value={formatDateString(licence.expiryDate)}
+            />
+          )}
         </Col>
         <Col lg={8}>
           <VerticalField label="Licence Status" value={licence.licenceStatus} />
         </Col>
       </Row>
-      <Row className="mt-3">
-        <Col lg={4}>
-          <VerticalField
-            label="Payment Received"
-            value={formatBoolean(licence.paymentReceived)}
-          />
-        </Col>
-        {licence.paymentReceived && (
+      {config.replacePaymentReceivedWithHiveFields ? (
+        <Row className="mt-3">
           <Col lg={4}>
+            <VerticalField label="Total Hives" value={licence.totalHives} />
+          </Col>
+          <Col lg={8}>
             <VerticalField
-              label="Fee Paid Amount"
-              value={formatMoney(licence.feePaidAmount)}
+              label="Hives per Apiary"
+              value={licence.hivesPerApiary}
             />
           </Col>
-        )}
-      </Row>
+        </Row>
+      ) : (
+        <Row className="mt-3">
+          <Col lg={4}>
+            <VerticalField
+              label="Payment Received"
+              value={formatBoolean(licence.paymentReceived)}
+            />
+          </Col>
+          {licence.paymentReceived && (
+            <Col lg={4}>
+              <VerticalField
+                label="Fee Paid Amount"
+                value={formatMoney(licence.feePaidAmount)}
+              />
+            </Col>
+          )}
+        </Row>
+      )}
       <Row className="mt-3">
         <Col lg={4}>
           <VerticalField

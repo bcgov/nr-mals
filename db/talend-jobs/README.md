@@ -6,7 +6,19 @@ Openshift Command Line tool (oc) download.
 
 	https://github.com/openshift/origin/releases
 
-Requires invocation of port-forward using the Openshift Command Line tool (oc).
+To import the MALS_2 Talend Project from your local Git repository;
+
+	Start Talend.
+	If this is the first time that you have executed Talend you will need to select a folder for your workspace.
+	Select 'Import an existing project', then click 'Select'.
+	Type the Project Name, ie 'MALS2'.
+	Click 'Select archive file' then 'Browse' to the local Git repository;
+		..\nr-mals\db\talend-jobs
+	Select the archive 'MALS2.zip', then click 'Open' and you will be returned to the main Import dialogue box.
+	Click 'Finish'. It will take several seconds to load the archive file.
+		
+
+Talend job execution requires invocation of port-forward using the Openshift Command Line tool (oc).
 
 	OpenShift port-forwarding permits local client tools to connect to the OpenShift Postgres databases.
 	Using different local ports for each environment helps to prevent accidentally updating the wrong database.

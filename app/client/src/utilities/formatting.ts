@@ -72,3 +72,23 @@ export const formatPhoneNumber = (number: string) => {
 
   return `(${start}) ${middle}-${end}`;
 };
+
+export const formatListShorten = (
+  list: string,
+  inputSeparator: string = "~",
+  outputSeparator: string = "; ",
+  limit: number = 2
+) => {
+  if (list === undefined || list === null) {
+    return undefined;
+  }
+
+  const array = list.split(inputSeparator, limit);
+
+  return array
+    .filter(
+      (element) =>
+        element !== null && element !== undefined && element.length > 0
+    )
+    .join(outputSeparator);
+};

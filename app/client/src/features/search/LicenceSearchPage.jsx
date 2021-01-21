@@ -3,13 +3,12 @@ import { useSelector, useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
 import { Button, Col, Container, Form, FormControl } from "react-bootstrap";
 import { FaSearch, FaChevronDown, FaChevronUp } from "react-icons/fa";
-import { isDate } from "date-fns";
 
-import { formatDate } from "../../utilities/formatting";
 import {
   SEARCH_TYPE,
   LICENSE_RESULTS_PATHNAME,
 } from "../../utilities/constants";
+import { formatDate } from "../../utilities/formatting";
 import { parseAsDate, parseAsInt } from "../../utilities/parsing";
 
 import CustomDatePicker from "../../components/CustomDatePicker";
@@ -45,9 +44,6 @@ export default function LicenceSearchPage() {
   }, [dispatch]);
 
   const setParameter = (name, value) => {
-    if (isDate(value)) {
-      value = formatDate(value);
-    }
     setParameters({
       ...parameters,
       [name]: value,
@@ -71,8 +67,8 @@ export default function LicenceSearchPage() {
   return (
     <section>
       <PageHeading>Find a Licence</PageHeading>
-      <Form noValidate>
-        <section>
+      <section>
+        <Form noValidate onSubmit={performSimpleSearch}>
           <Container>
             <Form.Row>
               <Col lg={8}>
@@ -89,11 +85,10 @@ export default function LicenceSearchPage() {
               </Col>
               <Col lg={1}>
                 <Button
-                  type="button"
+                  type="submit"
                   disabled={searchType === SEARCH_TYPE.ADVANCED}
                   variant="primary"
                   block
-                  onClick={performSimpleSearch}
                 >
                   <FaSearch />
                 </Button>
@@ -120,9 +115,11 @@ export default function LicenceSearchPage() {
               </Col>
             </Form.Row>
           </Container>
-        </section>
-        {searchType === SEARCH_TYPE.ADVANCED && (
-          <section>
+        </Form>
+      </section>
+      {searchType === SEARCH_TYPE.ADVANCED && (
+        <section>
+          <Form noValidate onSubmit={performAdvancedSearch}>
             <Container>
               <Form.Row>
                 <Col lg={6}>
@@ -178,7 +175,7 @@ export default function LicenceSearchPage() {
                     id="issuedDateFrom"
                     label="Issued On Date From"
                     notifyOnChange={(value) =>
-                      setParameter("issuedDateFrom", value)
+                      setParameter("issuedDateFrom", formatDate(value))
                     }
                     defaultValue={parseAsDate(defaultParameters.issuedDateFrom)}
                   />
@@ -188,7 +185,7 @@ export default function LicenceSearchPage() {
                     id="issuedDateTo"
                     label="Issued On Date To"
                     notifyOnChange={(value) =>
-                      setParameter("issuedDateTo", value)
+                      setParameter("issuedDateTo", formatDate(value))
                     }
                     defaultValue={parseAsDate(defaultParameters.issuedDateTo)}
                   />
@@ -207,7 +204,7 @@ export default function LicenceSearchPage() {
                     id="renewalDateFrom"
                     label="Renewal Date From"
                     notifyOnChange={(value) =>
-                      setParameter("renewalDateFrom", value)
+                      setParameter("renewalDateFrom", formatDate(value))
                     }
                     defaultValue={parseAsDate(
                       defaultParameters.renewalDateFrom
@@ -219,7 +216,7 @@ export default function LicenceSearchPage() {
                     id="renewalDateTo"
                     label="Renewal Date To"
                     notifyOnChange={(value) =>
-                      setParameter("renewalDateTo", value)
+                      setParameter("renewalDateTo", formatDate(value))
                     }
                     defaultValue={parseAsDate(defaultParameters.renewalDateTo)}
                   />
@@ -241,7 +238,7 @@ export default function LicenceSearchPage() {
                     id="expiryDateFrom"
                     label="Expiry Date From"
                     notifyOnChange={(value) =>
-                      setParameter("expiryDateFrom", value)
+                      setParameter("expiryDateFrom", formatDate(value))
                     }
                     defaultValue={parseAsDate(defaultParameters.expiryDateFrom)}
                   />
@@ -251,7 +248,7 @@ export default function LicenceSearchPage() {
                     id="expiryDateTo"
                     label="Expiry Date To"
                     notifyOnChange={(value) =>
-                      setParameter("expiryDateTo", value)
+                      setParameter("expiryDateTo", formatDate(value))
                     }
                     defaultValue={parseAsDate(defaultParameters.expiryDateTo)}
                   />
@@ -270,20 +267,15 @@ export default function LicenceSearchPage() {
               </Form.Row>
               <Form.Row className="mt-5">
                 <Col lg={{ span: 2, offset: 10 }}>
-                  <Button
-                    type="button"
-                    variant="primary"
-                    block
-                    onClick={performAdvancedSearch}
-                  >
+                  <Button type="submit" variant="primary" block>
                     Search
                   </Button>
                 </Col>
               </Form.Row>
             </Container>
-          </section>
-        )}
-      </Form>
+          </Form>
+        </section>
+      )}
     </section>
   );
 }

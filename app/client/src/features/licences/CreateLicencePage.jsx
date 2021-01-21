@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { Alert, Button, Col, Container, Form } from "react-bootstrap";
+import { startOfToday, add, set } from "date-fns";
 
 import {
   REQUEST_STATUS,
@@ -35,23 +36,27 @@ import {
   clearCreatedLicence,
 } from "./licencesSlice";
 
-import { formFields } from "./constants";
+import { LICENCE_TYPE_ID_APIARY } from "./constants";
+import { getLicenceTypeConfiguration } from "./licenceTypeUtility";
 
 import LicenceDetailsEdit from "./LicenceDetailsEdit";
 
-const today = new Date(new Date().setHours(0, 0, 0, 0));
+const today = startOfToday();
 const initialFormValues = {
   applicationDate: today,
   region: null,
   issuedOnDate: today,
   regionalDistrict: null,
-  expiryDate: null,
-  paymentReceived: null,
-  feePaidAmount: null,
-  actionRequired: null,
-  printLicence: null,
-  renewalNotice: null,
+  expiryDate: add(today, { years: 2 }),
+  actionRequired: false,
+  printLicence: false,
+  renewalNotice: false,
   // don't specify a default licenceStatus so it defaults to the first option, Active
+  // initial licence type is apiary
+  // paymentReceived: false,
+  // feePaidAmount: null,
+  totalHives: null,
+  hivesPerApiary: null,
 };
 
 function submissionController(setError, clearErrors, dispatch) {
@@ -69,7 +74,7 @@ function submissionController(setError, clearErrors, dispatch) {
       ...data,
       feePaidAmount: data.paymentReceived
         ? parseAsFloat(data.feePaidAmount)
-        : null,
+        : undefined,
       licenceStatus: parseAsInt(data.licenceStatus),
       licenceType: parseAsInt(data.licenceType),
       region: parseAsInt(data.region),
@@ -95,7 +100,14 @@ export default function CreateLicencePage() {
   const form = useForm({
     reValidateMode: "onBlur",
   });
-  const { register, handleSubmit, setValue, setError, clearErrors } = form;
+  const {
+    register,
+    watch,
+    handleSubmit,
+    setValue,
+    setError,
+    clearErrors,
+  } = form;
 
   useEffect(() => {
     register("applicationDate");
@@ -104,8 +116,43 @@ export default function CreateLicencePage() {
   }, [register]);
 
   useEffect(() => {
-    formFields.forEach((field) => setValue(field, initialFormValues[field]));
+    Object.entries(initialFormValues).forEach(([field, value]) => {
+      setValue(field, value);
+    });
   }, [setValue]);
+
+  const watchLicenceType = parseAsInt(
+    watch("licenceType", LICENCE_TYPE_ID_APIARY)
+  );
+
+  const config = getLicenceTypeConfiguration(watchLicenceType);
+
+  // set default expiry date differently based on the selected licence type
+  useEffect(() => {
+    let expiryDate = null;
+    if (config.expiryInTwoYears) {
+      expiryDate = add(today, { years: 2 });
+    } else if (config.expiryMonth) {
+      expiryDate = set(today, { date: 31, month: config.expiryMonth - 1 }); // months are indexed at 0
+      if (expiryDate < today) {
+        expiryDate = add(expiryDate, { years: 1 });
+      }
+      if (config.yearsAddedToExpiryDate) {
+        expiryDate = add(expiryDate, { years: config.yearsAddedToExpiryDate });
+      }
+    } else if (config.replaceExpiryDateWithIrmaNumber) {
+      expiryDate = undefined;
+    }
+
+    setValue("expiryDate", expiryDate);
+    initialFormValues.expiryDate = expiryDate;
+  }, [
+    setValue,
+    config.expiryInTwoYears,
+    config.expiryMonth,
+    config.yearsAddedToExpiryDate,
+    config.replaceExpiryDateWithIrmaNumber,
+  ]);
 
   const { onSubmit } = submissionController(setError, clearErrors, dispatch);
 
@@ -177,6 +224,7 @@ export default function CreateLicencePage() {
             <LicenceDetailsEdit
               form={form}
               initialValues={initialFormValues}
+              licenceTypeId={watchLicenceType}
               mode={LICENCE_MODE.CREATE}
             />
             <SubmissionButtons

@@ -64,4 +64,9 @@ export default {
   async delete(url: any, data?: any) {
     return request("delete", url, null, data);
   },
+
+  getApiInstance() {
+    return axiosInstance;
+  }
+
 };

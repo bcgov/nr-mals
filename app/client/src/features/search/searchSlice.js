@@ -1,13 +1,33 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
-import { ApiError } from "../../utilities/api.ts";
+import Api, { ApiError } from "../../utilities/api.ts";
 import { REQUEST_STATUS, SEARCH_TYPE } from "../../utilities/constants";
+import { parseAsDate } from "../../utilities/parsing";
+
+export const selectLicenceSearchType = (state) =>
+  state.search.licences.searchType;
+export const selectLicenceParameters = (state) =>
+  state.search.licences.parameters;
+export const selectLicenceResults = (state) => state.search.licences.results;
 
 export const fetchLicenceResults = createAsyncThunk(
   "search/fetchLicenceResults",
-  async (thunkApi) => {
+  async (_, thunkApi) => {
     try {
-      return [];
+      const parameters = selectLicenceParameters(thunkApi.getState());
+
+      const parsedParameters = {
+        ...parameters,
+        issuedDateFrom: parseAsDate(parameters.issuedDateFrom),
+        issuedDateTo: parseAsDate(parameters.issuedDateTo),
+        renewalDateFrom: parseAsDate(parameters.renewalDateFrom),
+        renewalDateTo: parseAsDate(parameters.renewalDateTo),
+        expiryDateFrom: parseAsDate(parameters.expiryDateFrom),
+        expiryDateTo: parseAsDate(parameters.expiryDateTo),
+      };
+
+      const response = await Api.get(`licences/search`, parsedParameters);
+      return response.data;
     } catch (error) {
       if (error instanceof ApiError) {
         return thunkApi.rejectWithValue(error.serialize());
@@ -25,6 +45,8 @@ export const searchSlice = createSlice({
       parameters: {},
       results: {
         data: undefined,
+        page: undefined,
+        count: undefined,
         error: undefined,
         status: REQUEST_STATUS.IDLE,
       },
@@ -51,6 +73,9 @@ export const searchSlice = createSlice({
       state.licences.parameters = action.payload;
       state.licences.results.status = REQUEST_STATUS.IDLE;
     },
+    setLicenceSearchPage: (state, action) => {
+      state.licences.parameters.page = action.payload;
+    },
   },
   extraReducers: {
     [fetchLicenceResults.pending]: (state) => {
@@ -58,7 +83,9 @@ export const searchSlice = createSlice({
       state.licences.results.status = REQUEST_STATUS.PENDING;
     },
     [fetchLicenceResults.fulfilled]: (state, action) => {
-      state.licences.results.data = action.payload;
+      state.licences.results.data = action.payload.results;
+      state.licences.results.page = action.payload.page;
+      state.licences.results.count = action.payload.count;
       state.licences.results.error = undefined;
       state.licences.results.status = REQUEST_STATUS.FULFILLED;
     },
@@ -70,12 +97,6 @@ export const searchSlice = createSlice({
   },
 });
 
-export const selectLicenceSearchType = (state) =>
-  state.search.licences.searchType;
-export const selectLicenceParameters = (state) =>
-  state.search.licences.parameters;
-export const selectLicenceResults = (state) => state.search.licences.results;
-
 const { actions, reducer } = searchSlice;
 
 export const {
@@ -83,6 +104,7 @@ export const {
   clearLicenceResults,
   toggleLicenceSearchType,
   setLicenceParameters,
+  setLicenceSearchPage,
 } = actions;
 
 export default reducer;

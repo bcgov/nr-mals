@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import DatePicker, { registerLocale } from "react-datepicker";
 import { Button, Form, InputGroup } from "react-bootstrap";
@@ -33,6 +33,19 @@ const CustomDatePicker = React.forwardRef((props, outerRef) => {
     setDate(value);
     notifyOnChange(value);
   };
+
+  const defaultValueRepresentation = defaultValue
+    ? defaultValue.getTime()
+    : null;
+
+  // reset date when defaultValue changes
+  useEffect(() => {
+    if (defaultValueRepresentation === null) {
+      setDate(null);
+    } else {
+      setDate(new Date(defaultValueRepresentation));
+    }
+  }, [defaultValueRepresentation]);
 
   const CustomDatePickerInput = React.forwardRef(({ onClick }, ref) => {
     const handleOnBlur = (e) => {
