@@ -16,6 +16,8 @@ import ReportsPage from "./features/reports/ReportsPage";
 import LicenceSearchPage from "./features/search/LicenceSearchPage";
 import LicenceResultsPage from "./features/search/LicenceResultsPage";
 
+import ModalComponent from "./components/ModalComponent";
+
 import "./App.scss";
 
 function App() {
@@ -32,6 +34,7 @@ function App() {
         <HeaderNavigation />
       </header>
       <main role="main">
+        <ModalComponent />
         <Container className="mt-3">
           <Switch>
             <Route path={`${Constant.SEARCH_LICENSES_PATHNAME}`}>
