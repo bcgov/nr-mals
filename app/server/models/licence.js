@@ -9,7 +9,7 @@ function convertToLogicalModel(input) {
     licenceType:
       input.mal_licence_type_lu == null
         ? null
-        : input.mal_licence_type_lu.licence_name,
+        : input.mal_licence_type_lu.licence_type,
     licenceTypeId: input.licence_type_id,
     region:
       input.mal_region_lu == null
@@ -42,6 +42,23 @@ function convertToLogicalModel(input) {
     bondValue: input.bond_value,
     bondCarrierName: input.bond_carrier_name,
     bondContinuationExpiryDate: formatDate(input.bond_continuation_expiry_date),
+
+    address_line_1: null,
+    address_line_2: null,
+    address_line_3: null,
+    city: null,
+    province: null,
+    postal_code: null,
+    country: null,
+    mail_address_line_1: null,
+    mail_address_line_2: null,
+    mail_address_line_3: null,
+    mail_city: null,
+    mail_province: null,
+    mail_postal_code: null,
+    mail_country: null,
+
+
     createdBy: input.create_userid,
     createdOn: input.create_timestamp,
     updatedBy: input.update_userid,

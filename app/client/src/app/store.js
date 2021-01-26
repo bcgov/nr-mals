@@ -1,5 +1,6 @@
 import { configureStore, getDefaultMiddleware } from "@reduxjs/toolkit";
 
+import appReducer from "../app/appSlice";
 import licencesReducer from "../features/licences/licencesSlice";
 import lookupsReducer from "../features/lookups/lookupsReducer";
 import statusReducer from "../features/status/statusSlice";
@@ -8,6 +9,7 @@ import searchReducer from "../features/search/searchSlice";
 import commentsReducer from "../features/comments/commentsSlice";
 
 const reducer = {
+  app: appReducer,
   licences: licencesReducer,
   lookups: lookupsReducer,
   status: statusReducer,
@@ -16,7 +18,13 @@ const reducer = {
   comments: commentsReducer,
 };
 
-const middleware = [...getDefaultMiddleware()];
+const middleware = [...getDefaultMiddleware({
+  serializableCheck: {
+    // Ignore these action types
+    ignoredActions: ['app/SHOW_MODAL'],
+  }
+})
+];
 
 export default configureStore({
   reducer,
