@@ -59,6 +59,8 @@ export default function LicenceDetailsViewEdit({ licence }) {
     irmaNumber: licence.data.irmaNumber,
     totalHives: licence.data.totalHives,
     hivesPerApiary: licence.data.hivesPerApiary,
+    addresses: licence.data.addresses,
+    phoneNumbers: licence.data.phoneNumbers,
   };
 
   useEffect(() => {

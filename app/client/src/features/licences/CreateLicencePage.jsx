@@ -58,6 +58,8 @@ const initialFormValues = {
   // feePaidAmount: null,
   totalHives: null,
   hivesPerApiary: null,
+  addresses: [],
+  phoneNumbers: [],
 };
 
 let createDraft = false;
@@ -103,7 +105,7 @@ function submissionController(setError, clearErrors, dispatch) {
       registrants: formatRegistrants(data.registrants),
     };
 
-    //console.log(payload);
+    //console.log(data);
     dispatch(createLicence(payload));
   };
 

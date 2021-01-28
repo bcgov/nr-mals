@@ -53,3 +53,14 @@ export const REGISTRANT_STATUS = {
   CANCELLED: "cancelled",
 };
 
+export const ADDRESS_TYPES = {
+  PRIMARY: "Primary",
+  MAILING: "Mailing",
+};
+
+export const PHONE_NUMBER_TYPES = {
+  PRIMARY: "Primary",
+  SECONDARY: "Secondary",
+  FAX: "Fax",
+};
+

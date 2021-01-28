@@ -82,78 +82,79 @@ model mal_inventory_game_farm {
 }
 
 model mal_licence {
-  id                            Int                           @id @default(autoincrement())
-  licence_number                Int                           @default(autoincrement())
-  licence_type_id               Int
-  region_id                     Int?
-  regional_district_id          Int?
-  status_code_id                Int
-  plant_code_id                 Int?
-  species_game_code_id          Int?
-  application_date              DateTime?
-  issue_date                    DateTime?
-  expiry_date                   DateTime?
-  print_certificate             Boolean?
-  fee_collected                 Float?
-  fee_collected_ind             Boolean                       @default(false)
-  old_identifier                String?
-  address_line_1                String?
-  address_line_2                String?
-  address_line_3                String?
-  city                          String?
-  province                      String?
-  postal_code                   String?
-  country                       String?
-  mail_address_line_1           String?
-  mail_address_line_2           String?
-  mail_address_line_3           String?
-  mail_city                     String?
-  mail_province                 String?
-  mail_postal_code              String?
-  mail_country                  String?
-  gps_coordinates               String?
-  bond_carrier_phone_number     String?
-  bond_number                   String?
-  bond_value                    Float?
-  bond_carrier_name             String?
-  bond_continuation_expiry_date DateTime?
-  action_required               Boolean?
-  licence_prn_requested         Boolean?
-  renewal_prn_requested         Boolean?
-  recheck_prn_requested         Boolean?
-  licence_details               String?
-  dpl_approved_date             DateTime?
-  dpl_received_date             DateTime?
-  exam_date                     DateTime?
-  exam_fee                      Float?
-  irma_number                   String?
-  former_irma_number            String?
-  dairy_levy                    Float?
-  df_active_ind                 Boolean?
-  hives_per_apiary              Int?
-  total_hives                   Int?
-  psyo_ld_licence_id            Int?
-  psyo_ld_dealer_name           String?
-  lda_ld_licence_id             Int?
-  lda_ld_dealer_name            String?
-  yrd_psyo_licence_id           Int?
-  yrd_psyo_business_name        String?
-  create_userid                 String
-  create_timestamp              DateTime
-  update_userid                 String
-  update_timestamp              DateTime
-  mal_licence_type_lu           mal_licence_type_lu           @relation(fields: [licence_type_id], references: [id])
-  mal_plant_code_lu             mal_plant_code_lu?            @relation(fields: [plant_code_id], references: [id])
-  mal_region_lu                 mal_region_lu?                @relation(fields: [region_id], references: [id])
-  mal_regional_district_lu      mal_regional_district_lu?     @relation(fields: [regional_district_id], references: [id])
-  mal_species_game_code_lu      mal_species_game_code_lu?     @relation(fields: [species_game_code_id], references: [id])
-  mal_status_code_lu            mal_status_code_lu            @relation(fields: [status_code_id], references: [id])
-  mal_inventory_fur_farm        mal_inventory_fur_farm[]
-  mal_inventory_game_farm       mal_inventory_game_farm[]
-  mal_licence_comment           mal_licence_comment[]
-  mal_licence_registrant_xref   mal_licence_registrant_xref[]
-  mal_registrant                mal_registrant[]
-  mal_site                      mal_site[]
+  id                                                               Int                           @id @default(autoincrement())
+  licence_number                                                   Int                           @default(autoincrement())
+  licence_type_id                                                  Int
+  primary_registrant_id                                            Int?
+  region_id                                                        Int?
+  regional_district_id                                             Int?
+  status_code_id                                                   Int
+  plant_code_id                                                    Int?
+  species_game_code_id                                             Int?
+  application_date                                                 DateTime?
+  issue_date                                                       DateTime?
+  expiry_date                                                      DateTime?
+  reissue_date                                                     DateTime?
+  print_certificate                                                Boolean?
+  fee_collected                                                    Float?
+  fee_collected_ind                                                Boolean                       @default(false)
+  old_identifier                                                   String?
+  address_line_1                                                   String?
+  address_line_2                                                   String?
+  city                                                             String?
+  province                                                         String?
+  postal_code                                                      String?
+  country                                                          String?
+  mail_address_line_1                                              String?
+  mail_address_line_2                                              String?
+  mail_city                                                        String?
+  mail_province                                                    String?
+  mail_postal_code                                                 String?
+  mail_country                                                     String?
+  gps_coordinates                                                  String?
+  bond_carrier_phone_number                                        String?
+  bond_number                                                      String?
+  bond_value                                                       Float?
+  bond_carrier_name                                                String?
+  bond_continuation_expiry_date                                    DateTime?
+  action_required                                                  Boolean?
+  licence_prn_requested                                            Boolean?
+  renewal_prn_requested                                            Boolean?
+  recheck_prn_requested                                            Boolean?
+  licence_details                                                  String?
+  dpl_approved_date                                                DateTime?
+  dpl_received_date                                                DateTime?
+  exam_date                                                        DateTime?
+  exam_fee                                                         Float?
+  irma_number                                                      String?
+  former_irma_number                                               String?
+  dairy_levy                                                       Float?
+  df_active_ind                                                    Boolean?
+  hives_per_apiary                                                 Int?
+  total_hives                                                      Int?
+  psyo_ld_licence_id                                               Int?
+  psyo_ld_dealer_name                                              String?
+  lda_ld_licence_id                                                Int?
+  lda_ld_dealer_name                                               String?
+  yrd_psyo_licence_id                                              Int?
+  yrd_psyo_business_name                                           String?
+  create_userid                                                    String
+  create_timestamp                                                 DateTime
+  update_userid                                                    String
+  update_timestamp                                                 DateTime
+  mal_licence_type_lu                                              mal_licence_type_lu           @relation(fields: [licence_type_id], references: [id])
+  mal_plant_code_lu                                                mal_plant_code_lu?            @relation(fields: [plant_code_id], references: [id])
+  mal_registrant_mal_licence_primary_registrant_idTomal_registrant mal_registrant?               @relation("mal_licence_primary_registrant_idTomal_registrant", fields: [primary_registrant_id], references: [id])
+  mal_region_lu                                                    mal_region_lu?                @relation(fields: [region_id], references: [id])
+  mal_regional_district_lu                                         mal_regional_district_lu?     @relation(fields: [regional_district_id], references: [id])
+  mal_species_game_code_lu                                         mal_species_game_code_lu?     @relation(fields: [species_game_code_id], references: [id])
+  mal_status_code_lu                                               mal_status_code_lu            @relation(fields: [status_code_id], references: [id])
+  mal_inventory_fur_farm                                           mal_inventory_fur_farm[]
+  mal_inventory_game_farm                                          mal_inventory_game_farm[]
+  mal_licence_comment                                              mal_licence_comment[]
+  mal_licence_registrant_xref                                      mal_licence_registrant_xref[]
+  mal_registrant_mal_licenceTomal_registrant_licence_id            mal_registrant[]              @relation("mal_licenceTomal_registrant_licence_id")
+  mal_site                                                         mal_site[]
 
   @@index([irma_number], name: "mal_lic_irma_number_idx")
   @@index([licence_type_id], name: "mal_lic_licence_type_id_idx")
@@ -177,14 +178,15 @@ model mal_licence_comment {
 }
 
 model mal_licence_registrant_xref {
-  id               Int         @id @default(autoincrement())
+  id               Int            @id @default(autoincrement())
   licence_id       Int
   registrant_id    Int
   create_userid    String
   create_timestamp DateTime
   update_userid    String
   update_timestamp DateTime
-  mal_licence      mal_licence @relation(fields: [licence_id], references: [id])
+  mal_licence      mal_licence    @relation(fields: [licence_id], references: [id])
+  mal_registrant   mal_registrant @relation(fields: [registrant_id], references: [id])
 
   @@index([licence_id], name: "mal_licregxref_licence_id_idx")
   @@index([registrant_id], name: "mal_licregxref_registrant_id_idx")
@@ -253,25 +255,26 @@ model mal_regional_district_lu {
 }
 
 model mal_registrant {
-  id                     Int          @id @default(autoincrement())
-  licence_id             Int?
-  first_name             String?
-  last_name              String?
-  middle_initials        String?
-  official_title         String?
-  company_name           String?
-  client_name            String?
-  include_on_certificate Boolean?
-  primary_phone          String?
-  cell_number            String?
-  fax_number             String?
-  email_address          String?
-  old_identifier         String?
-  create_userid          String
-  create_timestamp       DateTime
-  update_userid          String
-  update_timestamp       DateTime
-  mal_licence            mal_licence? @relation(fields: [licence_id], references: [id])
+  id                                                            Int                           @id @default(autoincrement())
+  licence_id                                                    Int?
+  first_name                                                    String?
+  last_name                                                     String?
+  middle_initials                                               String?
+  official_title                                                String?
+  company_name                                                  String?
+  client_name                                                   String?
+  primary_phone                                                 String?
+  cell_number                                                   String?
+  fax_number                                                    String?
+  email_address                                                 String?
+  old_identifier                                                String?
+  create_userid                                                 String
+  create_timestamp                                              DateTime
+  update_userid                                                 String
+  update_timestamp                                              DateTime
+  mal_licence_mal_licenceTomal_registrant_licence_id            mal_licence?                  @relation("mal_licenceTomal_registrant_licence_id", fields: [licence_id], references: [id])
+  mal_licence_mal_licence_primary_registrant_idTomal_registrant mal_licence[]                 @relation("mal_licence_primary_registrant_idTomal_registrant")
+  mal_licence_registrant_xref                                   mal_licence_registrant_xref[]
 
   @@index([company_name], name: "mal_rgst_company_name_idx")
   @@index([last_name], name: "mal_rgst_last_name_idx")
@@ -419,7 +422,6 @@ model mal_site {
   fax_number               String?
   address_line_1           String?
   address_line_2           String?
-  address_line_3           String?
   city                     String?
   province                 String?
   postal_code              String?
@@ -430,6 +432,10 @@ model mal_site {
   old_identifier           String?
   tank_calibration_date    DateTime?
   tank_issue_date          DateTime?
+  tank_company             String?
+  tank_serial_number       String?
+  tank_model               String?
+  tank_capacity            String?
   recheck_year             DateTime?
   create_userid            String
   create_timestamp         DateTime

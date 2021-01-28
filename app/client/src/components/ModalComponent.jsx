@@ -4,11 +4,13 @@ import { useSelector, useDispatch } from "react-redux";
 import { Button, Modal } from "react-bootstrap";
 
 import AddressModal, { ADDRESS } from "../modals/AddressModal";
+import PhoneNumberModal, { PHONE } from "../modals/PhoneNumberModal";
 
 import { closeModal, selectModal } from "../app/appSlice";
 
 const MODAL_COMPONENTS = {
-    [ADDRESS]: AddressModal
+    [ADDRESS]: AddressModal,
+    [PHONE]: PhoneNumberModal,
 };
 
 export default function ModalComponent(
