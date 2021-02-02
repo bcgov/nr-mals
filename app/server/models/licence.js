@@ -9,7 +9,7 @@ function convertToLogicalModel(input) {
     licenceType:
       input.mal_licence_type_lu == null
         ? null
-        : input.mal_licence_type_lu.licence_name,
+        : input.mal_licence_type_lu.licence_type,
     licenceTypeId: input.licence_type_id,
     region:
       input.mal_region_lu == null
@@ -51,6 +51,36 @@ function convertToLogicalModel(input) {
       key: index,
     })),
   };
+
+  const hasPrimaryAddress = input.address_line_1 !== null;
+  const hasMailingAddress = input.mail_address_line_1 !== null;
+  output.addresses = [];
+  if (hasPrimaryAddress) {
+    output.addresses.push({
+      key: output.addresses.length,
+      addressLine1: input.address_line_1,
+      addressLine2: input.address_line_2,
+      city: input.city,
+      province: input.province,
+      postalCode: input.postal_code,
+      country: input.country,
+      addressType: "Primary",
+    });
+  }
+  if (hasMailingAddress) {
+    output.addresses.push({
+      key: output.addresses.length,
+      addressLine1: input.mail_address_line_1,
+      addressLine2: input.mail_address_line_2,
+      city: input.mail_city,
+      province: input.mail_province,
+      postalCode: input.mail_postal_code,
+      country: input.mail_country,
+      addressType: "Mailing",
+    });
+  }
+
+  output.phoneNumbers = [];
 
   return output;
 }
@@ -135,6 +165,25 @@ function convertToPhysicalModel(input, update) {
     output.mal_licence_type_lu = {
       connect: { id: input.licenceType },
     };
+  }
+
+  var primary = input.addresses.find((x) => x.addressType === "Primary");
+  var secondary = input.addresses.find((x) => x.addressType === "Secondary");
+  if (primary !== undefined) {
+    output.address_line_1 = primary.addressLine1;
+    output.address_line_2 = primary.addressLine2;
+    output.city = primary.city;
+    output.province = primary.province;
+    output.postal_code = primary.postalCode;
+    output.country = primary.country;
+  }
+  if (secondary !== undefined) {
+    output.mail_address_line_1 = secondary.addressLine1;
+    output.mail_address_line_2 = secondary.addressLine2;
+    output.mail_city = secondary.city;
+    output.mail_province = secondary.province;
+    output.mail_postal_code = secondary.postalCode;
+    output.mail_country = secondary.country;
   }
 
   return output;

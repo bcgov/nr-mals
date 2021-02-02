@@ -10,6 +10,8 @@ export const selectLicenceParameters = (state) =>
   state.search.licences.parameters;
 export const selectLicenceResults = (state) => state.search.licences.results;
 
+export const selectSiteResults = (state) => state.search.sites.results;
+
 export const fetchLicenceResults = createAsyncThunk(
   "search/fetchLicenceResults",
   async (_, thunkApi) => {
@@ -37,10 +39,40 @@ export const fetchLicenceResults = createAsyncThunk(
   }
 );
 
+export const fetchSiteResults = createAsyncThunk(
+  "search/fetchSiteResults",
+  async (id, thunkApi) => {
+    try {
+      const parsedParameters = {
+        licenceId: id,
+      };
+
+      const response = await Api.get(`sites/search`, parsedParameters);
+      return response.data;
+    } catch (error) {
+      if (error instanceof ApiError) {
+        return thunkApi.rejectWithValue(error.serialize());
+      }
+      return thunkApi.rejectWithValue({ code: -1, description: error.message });
+    }
+  }
+);
+
 export const searchSlice = createSlice({
   name: "search",
   initialState: {
     licences: {
+      searchType: SEARCH_TYPE.SIMPLE,
+      parameters: {},
+      results: {
+        data: undefined,
+        page: undefined,
+        count: undefined,
+        error: undefined,
+        status: REQUEST_STATUS.IDLE,
+      },
+    },
+    sites: {
       searchType: SEARCH_TYPE.SIMPLE,
       parameters: {},
       results: {
@@ -76,6 +108,9 @@ export const searchSlice = createSlice({
     setLicenceSearchPage: (state, action) => {
       state.licences.parameters.page = action.payload;
     },
+    setSiteSearchPage: (state, action) => {
+      state.sites.parameters.page = action.payload;
+    },
   },
   extraReducers: {
     [fetchLicenceResults.pending]: (state) => {
@@ -94,6 +129,22 @@ export const searchSlice = createSlice({
       state.licences.results.error = action.payload;
       state.licences.results.status = REQUEST_STATUS.REJECTED;
     },
+    [fetchSiteResults.pending]: (state) => {
+      state.sites.results.error = undefined;
+      state.sites.results.status = REQUEST_STATUS.PENDING;
+    },
+    [fetchSiteResults.fulfilled]: (state, action) => {
+      state.sites.results.data = action.payload.results;
+      state.sites.results.page = action.payload.page;
+      state.sites.results.count = action.payload.count;
+      state.sites.results.error = undefined;
+      state.sites.results.status = REQUEST_STATUS.FULFILLED;
+    },
+    [fetchSiteResults.rejected]: (state, action) => {
+      state.sites.results.data = undefined;
+      state.sites.results.error = action.payload;
+      state.sites.results.status = REQUEST_STATUS.REJECTED;
+    },
   },
 });
 
@@ -105,6 +156,7 @@ export const {
   toggleLicenceSearchType,
   setLicenceParameters,
   setLicenceSearchPage,
+  setSiteSearchPage
 } = actions;
 
 export default reducer;

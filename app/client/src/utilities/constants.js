@@ -53,3 +53,21 @@ export const REGISTRANT_STATUS = {
   CANCELLED: "cancelled",
 };
 
+export const ADDRESS_TYPES = {
+  PRIMARY: "Primary",
+  MAILING: "Mailing",
+};
+
+export const PHONE_NUMBER_TYPES = {
+  PRIMARY: "Primary",
+  SECONDARY: "Secondary",
+  FAX: "Fax",
+};
+
+export const LICENCE_STATUS_TYPES = {
+  ACTIVE: "Active",
+  DRAFT: "Draft",
+  EXPIRED: "Expired",
+  INACTIVE: "Inactive",
+  PENDING: "Pending",
+};

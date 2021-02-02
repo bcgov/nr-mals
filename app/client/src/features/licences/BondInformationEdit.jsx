@@ -56,17 +56,16 @@ export default function BondInformationEdit({
       <Form.Row>
         <Col lg={4}>
           <Form.Group controlId="bondNumber">
-              <Form.Label>Bond Number</Form.Label>
-              <Form.Control
-                type="text"
-                name="bondNumber"
-                defaultValue={initialValues.bondNumber}
-                ref={register}
-              />
-            </Form.Group>
+            <Form.Label>Bond Number</Form.Label>
+            <Form.Control
+              type="text"
+              name="bondNumber"
+              defaultValue={initialValues.bondNumber}
+              ref={register}
+            />
+          </Form.Group>
         </Col>
-        <Col lg={2}>
-        </Col>
+        <Col lg={2}></Col>
         <Col lg={4}>
           <Form.Group controlId="bondValue">
             <Form.Label>Value</Form.Label>
@@ -94,14 +93,14 @@ export default function BondInformationEdit({
       <Form.Row>
         <Col lg={6}>
           <Form.Group controlId="bondCarrierName">
-              <Form.Label>Carrier Name</Form.Label>
-              <Form.Control
-                type="text"
-                name="bondCarrierName"
-                defaultValue={initialValues.bondCarrierName}
-                ref={register}
-              />
-            </Form.Group>
+            <Form.Label>Carrier Name</Form.Label>
+            <Form.Control
+              type="text"
+              name="bondCarrierName"
+              defaultValue={initialValues.bondCarrierName}
+              ref={register}
+            />
+          </Form.Group>
         </Col>
         <Col lg={4}>
           <Form.Group controlId="bondCarrierPhoneNumber">
@@ -110,7 +109,9 @@ export default function BondInformationEdit({
               as={NumberFormat}
               name="bondCarrierPhoneNumber"
               control={control}
-              defaultValue={formatPhoneNumber(initialValues.bondCarrierPhoneNumber)}
+              defaultValue={formatPhoneNumber(
+                initialValues.bondCarrierPhoneNumber
+              )}
               format="(###) ###-####"
               mask="_"
               customInput={Form.Control}
@@ -131,8 +132,7 @@ export default function BondInformationEdit({
             defaultValue={initialValues.bondContinuationExpiryDate}
           />
         </Col>
-        <Col lg={8}>
-        </Col>
+        <Col lg={8}></Col>
       </Form.Row>
     </>
   );

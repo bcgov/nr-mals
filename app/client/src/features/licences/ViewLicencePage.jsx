@@ -1,19 +1,17 @@
 import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { useParams } from "react-router-dom";
-import { Spinner, Alert } from "react-bootstrap";
+import { useParams, Redirect } from "react-router-dom";
+import { Spinner, Alert, Container, Button } from "react-bootstrap";
 
-import { REQUEST_STATUS } from "../../utilities/constants";
+import { REQUEST_STATUS, SITES_PATHNAME } from "../../utilities/constants";
 
 import PageHeading from "../../components/PageHeading";
-
 import RegistrantsViewEdit from "../registrants/RegistrantsViewEdit";
-
 import { fetchLicence, selectCurrentLicence } from "./licencesSlice";
-
+import { selectCreatedSite } from "../sites/sitesSlice";
 import LicenceDetailsViewEdit from "./LicenceDetailsViewEdit";
-
 import LicenceHeader from "./LicenceHeader";
+import LicenceSites from "./LicenceSites";
 
 import Comments from "../comments/Comments";
 
@@ -24,9 +22,15 @@ export default function ViewLicencePage() {
   const { id } = useParams();
   const licence = useSelector(selectCurrentLicence);
 
+  const createdSite = useSelector(selectCreatedSite);
+
   useEffect(() => {
     dispatch(fetchLicence(id));
   }, [dispatch, id]);
+
+  if (createdSite.status === REQUEST_STATUS.FULFILLED) {
+    return <Redirect to={`${SITES_PATHNAME}/${createdSite.data.id}`} />;
+  }
 
   let content;
   if (licence.data) {
@@ -35,6 +39,7 @@ export default function ViewLicencePage() {
         <LicenceHeader licence={licence.data} />
         <RegistrantsViewEdit licence={licence} />
         <LicenceDetailsViewEdit licence={licence} />
+        <LicenceSites licence={licence} />
         <Comments licence={licence.data} />
       </>
     );

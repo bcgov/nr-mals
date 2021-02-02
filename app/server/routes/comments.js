@@ -17,7 +17,7 @@ async function fetchComments(licenceId) {
     },
     orderBy: [
       {
-        create_timestamp: 'asc',
+        create_timestamp: "asc",
       },
     ],
   });
@@ -36,7 +36,6 @@ async function deleteComment(id) {
     },
   });
 }
-
 
 router.get("/:licenceId(\\d+)", async (req, res, next) => {
   const licenceId = parseInt(req.params.licenceId, 10);
@@ -80,4 +79,4 @@ router.post("/", async (req, res, next) => {
     .finally(async () => prisma.$disconnect());
 });
 
-module.exports = { router:router, createComment:createComment };
+module.exports = { router: router, createComment: createComment };

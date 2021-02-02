@@ -14,6 +14,14 @@ import { getLicenceTypeConfiguration } from "./licenceTypeUtility";
 
 export default function LicenceDetailsView({ licence }) {
   const config = getLicenceTypeConfiguration(licence.licenceTypeId);
+
+  const primaryAddress = licence.addresses.find(
+    (x) => x.addressType === "Primary"
+  );
+  const mailingAddress = licence.addresses.find(
+    (x) => x.addressType === "Mailing"
+  );
+
   return (
     <>
       <Row className="mt-3">
@@ -52,6 +60,56 @@ export default function LicenceDetailsView({ licence }) {
         <Col lg={8}>
           <VerticalField label="Licence Status" value={licence.licenceStatus} />
         </Col>
+      </Row>
+      <Row className="mt-3">
+        <Col lg={4}>
+          <Row>
+            <Col>
+              <label className="strong">Address</label>
+            </Col>
+          </Row>
+          {primaryAddress !== undefined ? (
+            <>
+              <Row>
+                <Col>Primary Address:</Col>
+              </Row>
+              <Row>
+                <Col>{primaryAddress.addressLine1}</Col>
+              </Row>
+              <Row>
+                <Col>
+                  {primaryAddress.city + ", " + primaryAddress.province}
+                </Col>
+              </Row>
+              <Row className="mb-2">
+                <Col>
+                  {primaryAddress.postalCode + ", " + primaryAddress.country}
+                </Col>
+              </Row>
+            </>
+          ) : null}
+          {mailingAddress !== undefined ? (
+            <>
+              <Row>
+                <Col>Mailing Address:</Col>
+              </Row>
+              <Row>
+                <Col>{mailingAddress.addressLine1}</Col>
+              </Row>
+              <Row>
+                <Col>
+                  {mailingAddress.city + ", " + mailingAddress.province}
+                </Col>
+              </Row>
+              <Row>
+                <Col>
+                  {mailingAddress.postalCode + ", " + mailingAddress.country}
+                </Col>
+              </Row>
+            </>
+          ) : null}
+        </Col>
+        <Col lg={8}></Col>
       </Row>
       {config.replacePaymentReceivedWithHiveFields ? (
         <Row className="mt-3">

@@ -52,7 +52,7 @@ const SubmissionButtons = ({
     );
   }
 
-  if( align === "right" ) {
+  if (align === "right") {
     return (
       <Form.Row>
         <Col sm={10} />
@@ -122,7 +122,7 @@ SubmissionButtons.defaultProps = {
   draftButtonDisabled: false,
   draftButtonOnClick: Function.prototype,
   align: "default",
-  buttonSize: "md"
+  buttonSize: "md",
 };
 
 export default SubmissionButtons;

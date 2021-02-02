@@ -10,6 +10,7 @@ import {
   LICENSES_PATHNAME,
   LICENCE_MODE,
   REGISTRANT_MODE,
+  LICENCE_STATUS_TYPES
 } from "../../utilities/constants";
 import { parseAsInt, parseAsFloat } from "../../utilities/parsing";
 
@@ -28,7 +29,10 @@ import {
   formatRegistrants,
 } from "../registrants/registrantUtility";
 
-import { fetchLicenceStatuses, selectLicenceStatuses } from "../lookups/licenceStatusesSlice";
+import {
+  fetchLicenceStatuses,
+  selectLicenceStatuses,
+} from "../lookups/licenceStatusesSlice";
 import { fetchRegions } from "../lookups/regionsSlice";
 import {
   createLicence,
@@ -36,7 +40,12 @@ import {
   clearCreatedLicence,
 } from "./licencesSlice";
 
-import { LICENCE_TYPE_ID_APIARY, LICENCE_TYPE_ID_LIVESTOCK_DEALER, LICENCE_TYPE_ID_PUBLIC_SALE_YARD_OPERATOR, LICENCE_TYPE_ID_PURCHASE_LIVE_POULTRY } from "./constants";
+import {
+  LICENCE_TYPE_ID_APIARY,
+  LICENCE_TYPE_ID_LIVESTOCK_DEALER,
+  LICENCE_TYPE_ID_PUBLIC_SALE_YARD_OPERATOR,
+  LICENCE_TYPE_ID_PURCHASE_LIVE_POULTRY,
+} from "./constants";
 import { getLicenceTypeConfiguration } from "./licenceTypeUtility";
 
 import LicenceDetailsEdit from "./LicenceDetailsEdit";
@@ -58,12 +67,14 @@ const initialFormValues = {
   // feePaidAmount: null,
   totalHives: null,
   hivesPerApiary: null,
+  addresses: [],
+  phoneNumbers: [],
 };
 
 let createDraft = false;
 const draftOnClick = () => {
   createDraft = true;
-}
+};
 let licenceStatuses = null;
 
 function submissionController(setError, clearErrors, dispatch) {
@@ -78,10 +89,12 @@ function submissionController(setError, clearErrors, dispatch) {
     }
 
     let draftId = null;
-    if( createDraft ) {
+    if (createDraft) {
       if (licenceStatuses.data) {
-        const draft = licenceStatuses.data.find(x => x.code_description === "Draft");
-        if( draft !== undefined ) {
+        const draft = licenceStatuses.data.find(
+          (x) => x.code_description === LICENCE_STATUS_TYPES.DRAFT
+        );
+        if (draft !== undefined) {
           draftId = draft.id;
         }
       }
@@ -92,25 +105,25 @@ function submissionController(setError, clearErrors, dispatch) {
       feePaidAmount: data.paymentReceived
         ? parseAsFloat(data.feePaidAmount)
         : undefined,
-      bondValue: data.bondValue
-        ? parseAsFloat(data.bondValue)
+      bondValue: data.bondValue ? parseAsFloat(data.bondValue) : undefined,
+      bondCarrierPhoneNumber: data.bondCarrierPhoneNumber
+        ? data.bondCarrierPhoneNumber.replace(/\D/g, "")
         : undefined,
-      bondCarrierPhoneNumber: data.bondCarrierPhoneNumber ? data.bondCarrierPhoneNumber.replace(/\D/g, "") : undefined,
-      licenceStatus: parseAsInt(createDraft && draftId !== null ? draftId : data.licenceStatus),
+      licenceStatus: parseAsInt(
+        createDraft && draftId !== null ? draftId : data.licenceStatus
+      ),
       licenceType: parseAsInt(data.licenceType),
       region: parseAsInt(data.region),
       regionalDistrict: parseAsInt(data.regionalDistrict),
       registrants: formatRegistrants(data.registrants),
     };
 
-    //console.log(payload);
+    //console.log(data);
     dispatch(createLicence(payload));
   };
 
   return { onSubmit };
 }
-
-
 
 export default function CreateLicencePage() {
   const createdLicence = useSelector(selectCreatedLicence);
@@ -153,8 +166,13 @@ export default function CreateLicencePage() {
 
   const config = getLicenceTypeConfiguration(watchLicenceType);
 
-  const requiresBondInformation = [ LICENCE_TYPE_ID_PUBLIC_SALE_YARD_OPERATOR, LICENCE_TYPE_ID_PURCHASE_LIVE_POULTRY, LICENCE_TYPE_ID_LIVESTOCK_DEALER ];
-  const showBondInformation = requiresBondInformation.find(x => x == watchLicenceType) !== undefined;
+  const requiresBondInformation = [
+    LICENCE_TYPE_ID_PUBLIC_SALE_YARD_OPERATOR,
+    LICENCE_TYPE_ID_PURCHASE_LIVE_POULTRY,
+    LICENCE_TYPE_ID_LIVESTOCK_DEALER,
+  ];
+  const showBondInformation =
+    requiresBondInformation.find((x) => x == watchLicenceType) !== undefined;
 
   // set default expiry date differently based on the selected licence type
   useEffect(() => {
@@ -196,10 +214,9 @@ export default function CreateLicencePage() {
   const draftLabel = submitting ? "Submitting..." : "Save Draft";
 
   if (createdLicence.status === REQUEST_STATUS.FULFILLED) {
-    if( createDraft === true ) {
-      return <Redirect to={`${LICENSES_PATHNAME}/search`} />
-    }
-    else {
+    if (createDraft === true) {
+      return <Redirect to={`${LICENSES_PATHNAME}/search`} />;
+    } else {
       return (
         <section>
           <PageHeading>Create a Licence</PageHeading>
@@ -264,7 +281,7 @@ export default function CreateLicencePage() {
             />
           </Container>
         </section>
-        { showBondInformation ? 
+        {showBondInformation ? (
           <section>
             <SectionHeading>Bond Information</SectionHeading>
             <Container className="mt-3 mb-4">
@@ -276,11 +293,17 @@ export default function CreateLicencePage() {
               />
             </Container>
           </section>
-        : null }
+        ) : null}
         <section>
           <SectionHeading>Comments</SectionHeading>
           <Container className="mt-3 mb-4">
-            <Form.Control as="textarea" rows={6} name="commentText" ref={register} className="mb-1"/>
+            <Form.Control
+              as="textarea"
+              rows={6}
+              name="commentText"
+              ref={register}
+              className="mb-1"
+            />
           </Container>
         </section>
         <section>
