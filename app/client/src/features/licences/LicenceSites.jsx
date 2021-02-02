@@ -116,9 +116,16 @@ export default function LicenceSites({ licence }) {
   ) {
     control = (
       <>
-        <Alert variant="success" className="mt-3">
-          <div>There are no sites associated with this licence.</div>
-        </Alert>
+        <Row className="mt-3">
+          <Col lg={6}>
+            <Alert variant="success" className="mt-3">
+              <div>There are no sites associated with this licence.</div>
+            </Alert>
+          </Col>
+        </Row>
+        <Row className="mt-3">
+          <Col lg={2}>{addSiteButton}</Col>
+        </Row>
       </>
     );
   } else if (results.status === REQUEST_STATUS.FULFILLED && results.count > 0) {
@@ -173,9 +180,7 @@ export default function LicenceSites({ licence }) {
     <>
       <SectionHeading>Sites</SectionHeading>
       <Container className="mt-3 mb-4">
-        <Row>
-          {control}
-        </Row>
+        {control}
       </Container>
     </>
   );
