@@ -15,8 +15,12 @@ import { getLicenceTypeConfiguration } from "./licenceTypeUtility";
 export default function LicenceDetailsView({ licence }) {
   const config = getLicenceTypeConfiguration(licence.licenceTypeId);
 
-  const primaryAddress = licence.addresses.find(x => x.addressType === "Primary");
-  const mailingAddress = licence.addresses.find(x => x.addressType === "Mailing");
+  const primaryAddress = licence.addresses.find(
+    (x) => x.addressType === "Primary"
+  );
+  const mailingAddress = licence.addresses.find(
+    (x) => x.addressType === "Mailing"
+  );
 
   return (
     <>
@@ -64,41 +68,48 @@ export default function LicenceDetailsView({ licence }) {
               <label className="strong">Address</label>
             </Col>
           </Row>
-          { primaryAddress !== undefined ?
+          {primaryAddress !== undefined ? (
             <>
-            <Row>
-              <Col>Primary Address:</Col>
-            </Row>
-            <Row>
-              <Col>{primaryAddress.addressLine1}</Col>
-            </Row>
-            <Row>
-              <Col>{primaryAddress.city +", " +primaryAddress.province}</Col>
-            </Row>
-            <Row className="mb-2"> 
-              <Col>{primaryAddress.postalCode +", " +primaryAddress.country}</Col>
-            </Row>
+              <Row>
+                <Col>Primary Address:</Col>
+              </Row>
+              <Row>
+                <Col>{primaryAddress.addressLine1}</Col>
+              </Row>
+              <Row>
+                <Col>
+                  {primaryAddress.city + ", " + primaryAddress.province}
+                </Col>
+              </Row>
+              <Row className="mb-2">
+                <Col>
+                  {primaryAddress.postalCode + ", " + primaryAddress.country}
+                </Col>
+              </Row>
             </>
-            : null }
-          { mailingAddress !== undefined ?
+          ) : null}
+          {mailingAddress !== undefined ? (
             <>
-            <Row>
-              <Col>Mailing Address:</Col>
-            </Row>
-            <Row>
-              <Col>{mailingAddress.addressLine1}</Col>
-            </Row>
-            <Row>
-              <Col>{mailingAddress.city +", " +mailingAddress.province}</Col>
-            </Row>
-            <Row>
-              <Col>{mailingAddress.postalCode +", " +mailingAddress.country}</Col>
-            </Row>
+              <Row>
+                <Col>Mailing Address:</Col>
+              </Row>
+              <Row>
+                <Col>{mailingAddress.addressLine1}</Col>
+              </Row>
+              <Row>
+                <Col>
+                  {mailingAddress.city + ", " + mailingAddress.province}
+                </Col>
+              </Row>
+              <Row>
+                <Col>
+                  {mailingAddress.postalCode + ", " + mailingAddress.country}
+                </Col>
+              </Row>
             </>
-            : null }
+          ) : null}
         </Col>
-        <Col lg={8}>
-        </Col>
+        <Col lg={8}></Col>
       </Row>
       {config.replacePaymentReceivedWithHiveFields ? (
         <Row className="mt-3">

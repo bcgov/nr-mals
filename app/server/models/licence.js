@@ -52,11 +52,11 @@ function convertToLogicalModel(input) {
     })),
   };
 
-  const hasPrimaryAddress = input.address_line_1 !== null
+  const hasPrimaryAddress = input.address_line_1 !== null;
   const hasMailingAddress = input.mail_address_line_1 !== null;
   output.addresses = [];
-  if( hasPrimaryAddress ) {
-    output.addresses.push(  {
+  if (hasPrimaryAddress) {
+    output.addresses.push({
       key: output.addresses.length,
       addressLine1: input.address_line_1,
       addressLine2: input.address_line_2,
@@ -65,10 +65,10 @@ function convertToLogicalModel(input) {
       postalCode: input.postal_code,
       country: input.country,
       addressType: "Primary",
-    } );
+    });
   }
-  if( hasMailingAddress ) {
-    output.addresses.push(  {
+  if (hasMailingAddress) {
+    output.addresses.push({
       key: output.addresses.length,
       addressLine1: input.mail_address_line_1,
       addressLine2: input.mail_address_line_2,
@@ -77,7 +77,7 @@ function convertToLogicalModel(input) {
       postalCode: input.mail_postal_code,
       country: input.mail_country,
       addressType: "Mailing",
-    } );
+    });
   }
 
   output.phoneNumbers = [];
@@ -167,9 +167,9 @@ function convertToPhysicalModel(input, update) {
     };
   }
 
-  var primary = input.addresses.find( x => x.addressType === "Primary" );
-  var secondary = input.addresses.find( x => x.addressType === "Secondary" );
-  if( primary !== undefined ) {
+  var primary = input.addresses.find((x) => x.addressType === "Primary");
+  var secondary = input.addresses.find((x) => x.addressType === "Secondary");
+  if (primary !== undefined) {
     output.address_line_1 = primary.addressLine1;
     output.address_line_2 = primary.addressLine2;
     output.city = primary.city;
@@ -177,7 +177,7 @@ function convertToPhysicalModel(input, update) {
     output.postal_code = primary.postalCode;
     output.country = primary.country;
   }
-  if( secondary !== undefined ) {
+  if (secondary !== undefined) {
     output.mail_address_line_1 = secondary.addressLine1;
     output.mail_address_line_2 = secondary.addressLine2;
     output.mail_city = secondary.city;

@@ -23,11 +23,15 @@ export const fetchTemplateRender = createAsyncThunk(
   "cdog/fetchTemplateRender",
   async (data, thunkApi) => {
     try {
-      const response = await Api.getApiInstance().post('/cdogs/template/render', data, {
-        responseType: 'arraybuffer', // Needed for binaries unless you want pain
-        timeout: 30000 // Override default timeout as this call could take a while
-      });
-      
+      const response = await Api.getApiInstance().post(
+        "/cdogs/template/render",
+        data,
+        {
+          responseType: "arraybuffer", // Needed for binaries unless you want pain
+          timeout: 30000, // Override default timeout as this call could take a while
+        }
+      );
+
       return response;
 
       //const response = await Api.post('/cdogs/template/render', data);
