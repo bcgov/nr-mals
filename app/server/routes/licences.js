@@ -6,6 +6,8 @@ const {
 } = require("../utilities/auditing");
 const licence = require("../models/licence");
 const registrant = require("../models/registrant");
+const comment = require("../models/comment");
+const comments = require("./comments");
 
 const router = express.Router();
 const prisma = new PrismaClient();
@@ -365,6 +367,8 @@ router.post("/", async (req, res, next) => {
       )
     : [];
 
+  const { commentText } = req.body;
+
   await createLicence(licencePayload)
     .then(async (record) => {
       const licenceId = record.id;
@@ -373,6 +377,13 @@ router.post("/", async (req, res, next) => {
         registrant.convertToNewLicenceXrefPhysicalModel(r, licenceId, now)
       );
       await createRegistrants(newRegistrantPayloads);
+
+      if( commentText !== undefined && commentText.length > 0 ) {
+        const commentPayload = comment.convertToPhysicalModel(
+          populateAuditColumnsCreate({licenceId, licenceComment: commentText}, now, now)
+        );
+        await comments.createComment(commentPayload);
+      }
 
       return licenceId;
     })

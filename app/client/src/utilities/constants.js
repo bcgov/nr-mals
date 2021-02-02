@@ -52,3 +52,4 @@ export const REGISTRANT_STATUS = {
   DELETED: "deleted",
   CANCELLED: "cancelled",
 };
+

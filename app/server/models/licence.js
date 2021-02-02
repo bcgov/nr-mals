@@ -9,7 +9,7 @@ function convertToLogicalModel(input) {
     licenceType:
       input.mal_licence_type_lu == null
         ? null
-        : input.mal_licence_type_lu.licence_name,
+        : input.mal_licence_type_lu.licence_type,
     licenceTypeId: input.licence_type_id,
     region:
       input.mal_region_lu == null
@@ -37,6 +37,28 @@ function convertToLogicalModel(input) {
     irmaNumber: input.irma_number,
     totalHives: input.total_hives,
     hivesPerApiary: input.hives_per_apiary,
+    bondCarrierPhoneNumber: input.bond_carrier_phone_number,
+    bondNumber: input.bond_number,
+    bondValue: input.bond_value,
+    bondCarrierName: input.bond_carrier_name,
+    bondContinuationExpiryDate: formatDate(input.bond_continuation_expiry_date),
+
+    address_line_1: null,
+    address_line_2: null,
+    address_line_3: null,
+    city: null,
+    province: null,
+    postal_code: null,
+    country: null,
+    mail_address_line_1: null,
+    mail_address_line_2: null,
+    mail_address_line_3: null,
+    mail_city: null,
+    mail_province: null,
+    mail_postal_code: null,
+    mail_country: null,
+
+
     createdBy: input.create_userid,
     createdOn: input.create_timestamp,
     updatedBy: input.update_userid,
@@ -114,6 +136,11 @@ function convertToPhysicalModel(input, update) {
     irma_number: input.irmaNumber,
     total_hives: parseAsInt(input.totalHives),
     hives_per_apiary: parseAsInt(input.hivesPerApiary),
+    bond_carrier_phone_number: input.bondCarrierPhoneNumber,
+    bond_number: input.bondNumber,
+    bond_value: input.bondValue,
+    bond_carrier_name: input.bondCarrierName,
+    bond_continuation_expiry_date: input.bondContinuationExpiryDate,
     create_userid: input.createdBy,
     create_timestamp: input.createdOn,
     update_userid: input.updatedBy,

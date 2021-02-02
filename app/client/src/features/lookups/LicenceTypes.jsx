@@ -37,7 +37,7 @@ const LicenceTypes = React.forwardRef(
           {allowAny && <option value={null} />}
           {licenceTypes.data.map((type) => (
             <option key={type.id} value={type.id}>
-              {type.licence_name}
+              {type.licence_type}
             </option>
           ))}
         </Form.Control>
