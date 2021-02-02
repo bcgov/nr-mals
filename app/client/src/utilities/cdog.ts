@@ -1,13 +1,14 @@
 import axios, { Method } from "axios";
 import { ApiError } from "./api";
 
-const oauth = require('axios-oauth-client');
-const tokenProvider = require('axios-token-interceptor');
+const oauth = require("axios-oauth-client");
+const tokenProvider = require("axios-token-interceptor");
 
 const axiosToken = axios.create({
-  baseURL: "https://dev.oidc.gov.bc.ca/auth/realms/jbd6rnxw/protocol/openid-connect/",
+  baseURL:
+    "https://dev.oidc.gov.bc.ca/auth/realms/jbd6rnxw/protocol/openid-connect/",
   timeout: 10000,
-  headers: {"Access-Control-Allow-Origin": "*"}
+  headers: { "Access-Control-Allow-Origin": "*" },
 });
 
 const axiosInstance = axios.create({
@@ -27,7 +28,7 @@ const axiosInstance = axios.create({
 //     client_secret: "8b15adbd-2ab7-4e24-9d0f-3efccf738225",
 //     scope: ''
 //   }))
-// ); 
+// );
 
 async function request(method: Method, url: any, params: any, data: any) {
   return axiosInstance({
@@ -54,7 +55,7 @@ async function request(method: Method, url: any, params: any, data: any) {
 
 function token() {
   var token = sessionStorage.getItem("cdogsToken");
-  if( token === null ) {
+  if (token === null) {
     // var data = axios({
     //   method: 'post',
     //   url: 'https://dev.oidc.gov.bc.ca/auth/realms/jbd6rnxw/protocol/openid-connect/token',
@@ -71,21 +72,24 @@ function token() {
     //     client_secret: "8b15adbd-2ab7-4e24-9d0f-3efccf738225",
     //   }
     // }).then( data => console.log(data) );
-    axios.request({
-      url: "/token",
-      method: "post",
-      baseURL: "https://dev.oidc.gov.bc.ca/auth/realms/jbd6rnxw/protocol/openid-connect/",
-      auth: {
-        username: "MALS_SERVICE_CLIENT",
-        password: "8b15adbd-2ab7-4e24-9d0f-3efccf738225"
-      },
-      data: {
-        "grant_type": "client_credentials",
-        "scope": "public"    
-      }
-    }).then(function(res) {
-      console.log(res);  
-    });
+    axios
+      .request({
+        url: "/token",
+        method: "post",
+        baseURL:
+          "https://dev.oidc.gov.bc.ca/auth/realms/jbd6rnxw/protocol/openid-connect/",
+        auth: {
+          username: "MALS_SERVICE_CLIENT",
+          password: "8b15adbd-2ab7-4e24-9d0f-3efccf738225",
+        },
+        data: {
+          grant_type: "client_credentials",
+          scope: "public",
+        },
+      })
+      .then(function (res) {
+        console.log(res);
+      });
   }
 
   return token;
@@ -109,6 +113,6 @@ export default {
 
   async health() {
     token();
-    return null;//request("get", "health", null, null);
+    return null; //request("get", "health", null, null);
   },
 };

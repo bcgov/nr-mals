@@ -16,6 +16,8 @@ import ReportsPage from "./features/reports/ReportsPage";
 import LicenceSearchPage from "./features/search/LicenceSearchPage";
 import LicenceResultsPage from "./features/search/LicenceResultsPage";
 
+import ViewSitePage from "./features/sites/ViewSitePage";
+
 import ModalComponent from "./components/ModalComponent";
 
 import "./App.scss";
@@ -52,11 +54,8 @@ function App() {
             <Route path={`${Constant.SEARCH_REGISTRANTS_PATHNAME}`}>
               <RegistrantsSearch />
             </Route>
-            <Route path={`${Constant.SEARCH_SITES_PATHNAME}`}>
-              <SitesSearch />
-            </Route>
-            <Route path={`${Constant.CREATE_SITES_PATHNAME}`}>
-              <SitesCreate />
+            <Route path={`${Constant.SITES_PATHNAME}/:id`}>
+              <ViewSitePage />
             </Route>
             <Route path={`${Constant.CREATE_CONTACTS_PATHNAME}`}>
               <ContactsCreate />

@@ -1,9 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 import Api, { ApiError } from "../../utilities/api.ts";
-import {
-  REQUEST_STATUS,
-} from "../../utilities/constants";
+import { REQUEST_STATUS } from "../../utilities/constants";
 
 export const createComment = createAsyncThunk(
   "comments/createComment",
@@ -39,7 +37,9 @@ export const deleteComment = createAsyncThunk(
   "comments/deleteComment",
   async (data, thunkApi) => {
     try {
-      const response = await Api.delete(`comments/delete/${data.licenceId}/${data.id}`);
+      const response = await Api.delete(
+        `comments/delete/${data.licenceId}/${data.id}`
+      );
       return response.data;
     } catch (error) {
       if (error instanceof ApiError) {
@@ -53,14 +53,13 @@ export const deleteComment = createAsyncThunk(
 export const commentsSlice = createSlice({
   name: "comments",
   initialState: {
-    comments : {
+    comments: {
       data: undefined,
       error: undefined,
       status: REQUEST_STATUS.IDLE,
     },
   },
-  reducers: {
-  },
+  reducers: {},
   extraReducers: {
     [createComment.pending]: (state) => {
       state.comments.error = undefined;
