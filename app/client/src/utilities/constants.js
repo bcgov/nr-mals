@@ -64,3 +64,10 @@ export const PHONE_NUMBER_TYPES = {
   FAX: "Fax",
 };
 
+export const LICENCE_STATUS_TYPES = {
+  ACTIVE: "Active",
+  DRAFT: "Draft",
+  EXPIRED: "Expired",
+  INACTIVE: "Inactive",
+  PENDING: "Pending",
+};
