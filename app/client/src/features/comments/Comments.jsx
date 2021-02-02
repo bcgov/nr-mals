@@ -31,10 +31,13 @@ export default function Comments({ licence }) {
   const form = useForm({
     reValidateMode: "onBlur",
   });
-  const { register, handleSubmit, setValue } = form;
+  const { register, handleSubmit, setValue, errors, watch } = form;
 
   const { status, error } = comments;
   const submitting = status === REQUEST_STATUS.PENDING;
+
+  const commentText = watch("commentText");
+  const hasComment = commentText && commentText.length > 0;
 
   let errorMessage = null;
   if (status === REQUEST_STATUS.REJECTED) {
@@ -49,11 +52,12 @@ export default function Comments({ licence }) {
       licenceComment: data.commentText,
     };
 
+    setValue("commentText", null);
     dispatch(createComment(payload));
   };
 
   const onCancel = () => {
-    console.log("onCancel");
+    
   };
 
   return (
@@ -64,12 +68,16 @@ export default function Comments({ licence }) {
           as="textarea"
           rows={6}
           name="commentText"
-          ref={register}
+          ref={register({required: true})}
           className="mb-1"
+          isInvalid={errors.commentText}
         />
+        <Form.Control.Feedback type="invalid">
+          Please enter a valid comment.
+        </Form.Control.Feedback>
         <SubmissionButtons
           submitButtonLabel={submissionLabel}
-          submitButtonDisabled={submitting}
+          submitButtonDisabled={submitting||!hasComment}
           cancelButtonVisible
           cancelButtonOnClick={onCancel}
           align="right"
