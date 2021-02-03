@@ -25,7 +25,6 @@ import {
 import { REQUEST_STATUS, LICENCE_STATUS_TYPES, SITES_PATHNAME } from "../../utilities/constants";
 
 function formatResultRow(result) {
-  console.log(result);
   const url = `${SITES_PATHNAME}/${result.id}`;
   return (
     <tr key={result.id}>

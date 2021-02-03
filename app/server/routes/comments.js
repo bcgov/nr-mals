@@ -29,6 +29,18 @@ async function createComment(payload) {
   });
 }
 
+async function updateComment(id, payload) {
+  return prisma.mal_licence_comment.update({
+    data: payload,
+    where: {
+      id: id,
+    },
+    include: {
+      mal_licence: true
+    },
+  });
+}
+
 async function deleteComment(id) {
   return prisma.mal_licence_comment.delete({
     where: {
@@ -59,6 +71,23 @@ router.delete("/delete/:licenceId(\\d+)/:id(\\d+)", async (req, res, next) => {
   await deleteComment(id)
     .then(async () => {
       return res.status(200).send(await fetchComments(licenceId));
+    })
+    .catch(next)
+    .finally(async () => prisma.$disconnect());
+});
+
+router.put("/:commentId(\\d+)", async (req, res, next) => {
+  const commentId = parseInt(req.params.commentId, 10);
+
+  const now = new Date();
+
+  const commentPayload = comment.convertToPhysicalModel(
+    populateAuditColumnsUpdate(req.body, now, now)
+  );
+
+  await updateComment(commentId, commentPayload)
+    .then(async () => {
+      return res.status(200).send(await fetchComments(req.body.licenceId));
     })
     .catch(next)
     .finally(async () => prisma.$disconnect());

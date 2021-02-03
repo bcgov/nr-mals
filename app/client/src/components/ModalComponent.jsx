@@ -5,12 +5,14 @@ import { Button, Modal } from "react-bootstrap";
 
 import AddressModal, { ADDRESS } from "../modals/AddressModal";
 import PhoneNumberModal, { PHONE } from "../modals/PhoneNumberModal";
+import CommentModal, { COMMENT } from "../modals/CommentModal";
 
 import { closeModal, selectModal } from "../app/appSlice";
 
 const MODAL_COMPONENTS = {
   [ADDRESS]: AddressModal,
   [PHONE]: PhoneNumberModal,
+  [COMMENT]: CommentModal,
 };
 
 export default function ModalComponent() {

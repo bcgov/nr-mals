@@ -18,6 +18,21 @@ export const createComment = createAsyncThunk(
   }
 );
 
+export const updateComment = createAsyncThunk(
+  "comments/updateComment",
+  async ({comment, id}, thunkApi) => {
+    try {
+      const response = await Api.put(`comments/${id}`, comment);
+      return response.data;
+    } catch (error) {
+      if (error instanceof ApiError) {
+        return thunkApi.rejectWithValue(error.serialize());
+      }
+      return thunkApi.rejectWithValue({ code: -1, description: error.message });
+    }
+  }
+);
+
 export const fetchComments = createAsyncThunk(
   "comments/fetchComments",
   async (id, thunkApi) => {
@@ -71,6 +86,20 @@ export const commentsSlice = createSlice({
       state.comments.status = REQUEST_STATUS.FULFILLED;
     },
     [createComment.rejected]: (state, action) => {
+      state.comments.data = undefined;
+      state.comments.error = action.payload;
+      state.comments.status = REQUEST_STATUS.REJECTED;
+    },
+    [updateComment.pending]: (state) => {
+      state.comments.error = undefined;
+      state.comments.status = REQUEST_STATUS.PENDING;
+    },
+    [updateComment.fulfilled]: (state, action) => {
+      state.comments.data = action.payload;
+      state.comments.error = undefined;
+      state.comments.status = REQUEST_STATUS.FULFILLED;
+    },
+    [updateComment.rejected]: (state, action) => {
       state.comments.data = undefined;
       state.comments.error = action.payload;
       state.comments.status = REQUEST_STATUS.REJECTED;
