@@ -43,7 +43,7 @@ export default function ViewLicencePage() {
           </Container>
         </section>
 
-        <SiteDetailsViewEdit site={site} />
+        <SiteDetailsViewEdit site={site} licence={licence.data} />
         <Comments licence={licence.data} />
       </>
     );

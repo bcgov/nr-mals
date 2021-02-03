@@ -119,7 +119,7 @@ function convertToPhysicalModel(input, update) {
 
     contact_name: contactName,
     primary_phone: input.primaryPhone,
-    secondary_number: input.secondaryPhone,
+    secondary_phone: input.secondaryPhone,
     //email: input.email,
     legal_description: input.legalDescriptionText,
 

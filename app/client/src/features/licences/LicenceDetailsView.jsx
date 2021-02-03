@@ -120,7 +120,7 @@ export default function LicenceDetailsView({ licence }) {
         <Col lg={8}>
           <Row>
             <Col>
-              <label className="strong">Phone/Fax Numbers:</label>
+              <label className="strong">Phone/Fax Numbers</label>
             </Col>
           </Row>
           {primaryPhone !== undefined ?

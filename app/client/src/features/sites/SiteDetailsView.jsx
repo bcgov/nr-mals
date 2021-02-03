@@ -7,11 +7,15 @@ import {
   formatBoolean,
 } from "../../utilities/formatting.ts";
 
+import {
+  LICENCE_TYPE_ID_GAME_FARM,
+} from "../licences/constants"
+
 import VerticalField from "../../components/VerticalField";
 import SectionHeading from "../../components/SectionHeading";
 import NumberFormat from "react-number-format";
 
-export default function SiteDetailsView({ site }) {
+export default function SiteDetailsView({ site, licenceTypeId }) {
   return (
     <>
       <Row className="mt-3">
@@ -94,6 +98,7 @@ export default function SiteDetailsView({ site }) {
           <VerticalField label="Email" value={site.email} />
         </Col>
       </Row>
+      { licenceTypeId === LICENCE_TYPE_ID_GAME_FARM ?
       <Row className="mt-3">
         <Col>
           <Form.Group controlId="legalDescription">
@@ -109,10 +114,16 @@ export default function SiteDetailsView({ site }) {
           </Form.Group>
         </Col>
       </Row>
+      : null }
     </>
   );
 }
 
 SiteDetailsView.propTypes = {
   site: PropTypes.object.isRequired,
+  licenceTypeId: PropTypes.number,
+};
+
+SiteDetailsView.defaultProps = {
+  licenceTypeId: null,
 };
