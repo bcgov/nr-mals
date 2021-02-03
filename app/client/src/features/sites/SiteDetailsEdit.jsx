@@ -14,7 +14,12 @@ import SectionHeading from "../../components/SectionHeading";
 
 import { parseAsInt } from "../../utilities/parsing";
 
-export default function SiteDetailsView({
+import {
+  LICENCE_TYPE_ID_GAME_FARM,
+} from "../licences/constants"
+
+
+export default function SiteDetailsEdit({
   form,
   initialValues,
   licenceTypeId,
@@ -247,29 +252,34 @@ export default function SiteDetailsView({
           </Form.Group>
         </Col>
       </Row>
+      { licenceTypeId === LICENCE_TYPE_ID_GAME_FARM ?
       <Row className="mt-3">
         <Col>
-          <Form.Control
-            as="textarea"
-            rows={6}
-            name="legalDescriptionText"
-            ref={register}
-            maxLength={2000}
-            className="mb-1"
-          />
+          <Form.Group controlId="legalDescription">
+            <Form.Label>Legal Description</Form.Label>
+            <Form.Control
+              as="textarea"
+              rows={6}
+              name="legalDescriptionText"
+              ref={register}
+              maxLength={4000}
+              className="mb-1"
+            />
+          </Form.Group>
         </Col>
       </Row>
+      : null }
     </>
   );
 }
 
-SiteDetailsView.propTypes = {
+SiteDetailsEdit.propTypes = {
   form: PropTypes.object.isRequired,
   initialValues: PropTypes.object.isRequired,
   licenceTypeId: PropTypes.number,
   mode: PropTypes.string.isRequired,
 };
 
-SiteDetailsView.defaultProps = {
+SiteDetailsEdit.defaultProps = {
   licenceTypeId: undefined,
 };

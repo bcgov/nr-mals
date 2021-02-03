@@ -51,8 +51,7 @@ export default function LicenceDetailsEdit({
 
     return addressList.map((address) => {
       return {
-        ...address,
-        phoneFax: address.phoneFax ? address.phoneFax.replace(/\D/g, "") : null,
+        ...address
       };
     });
   };

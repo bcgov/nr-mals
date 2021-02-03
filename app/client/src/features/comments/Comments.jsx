@@ -7,9 +7,13 @@ import { Container, Form, Col, InputGroup, Button } from "react-bootstrap";
 import { LICENCE_MODE, REQUEST_STATUS } from "../../utilities/constants";
 import { formatDateString } from "../../utilities/formatting";
 
+import { openModal } from "../../app/appSlice";
+import { COMMENT } from "../../modals/CommentModal";
+
 import {
   fetchComments,
   createComment,
+  updateComment,
   deleteComment,
   selectComments,
 } from "../comments/commentsSlice";
@@ -31,10 +35,13 @@ export default function Comments({ licence }) {
   const form = useForm({
     reValidateMode: "onBlur",
   });
-  const { register, handleSubmit, setValue } = form;
+  const { register, handleSubmit, setValue, errors, watch } = form;
 
   const { status, error } = comments;
   const submitting = status === REQUEST_STATUS.PENDING;
+
+  const commentText = watch("commentText");
+  const hasComment = commentText && commentText.length > 0;
 
   let errorMessage = null;
   if (status === REQUEST_STATUS.REJECTED) {
@@ -49,11 +56,32 @@ export default function Comments({ licence }) {
       licenceComment: data.commentText,
     };
 
+    setValue("commentText", null);
     dispatch(createComment(payload));
   };
 
   const onCancel = () => {
-    console.log("onCancel");
+  };
+
+  const editCommentCallback = (data) => {
+    const payload = {
+      licenceId: data.licenceId,
+      commentId: data.commentId,
+      licenceComment: data.commentText,
+    };
+
+    dispatch(updateComment({comment: payload, id: data.commentId}));
+  };
+
+  const editComment = (licenceId, commentId, commentText) => {
+    dispatch(
+      openModal(
+        COMMENT,
+        editCommentCallback,
+        { licenceId, commentId, commentText },
+        "lg"
+      )
+    );
   };
 
   return (
@@ -63,13 +91,18 @@ export default function Comments({ licence }) {
         <Form.Control
           as="textarea"
           rows={6}
+          maxLength={2000}
           name="commentText"
-          ref={register}
+          ref={register({required: true})}
           className="mb-1"
+          isInvalid={errors.commentText}
         />
+        <Form.Control.Feedback type="invalid">
+          Please enter a valid comment.
+        </Form.Control.Feedback>
         <SubmissionButtons
           submitButtonLabel={submissionLabel}
-          submitButtonDisabled={submitting}
+          submitButtonDisabled={submitting||!hasComment}
           cancelButtonVisible
           cancelButtonOnClick={onCancel}
           align="right"
@@ -83,8 +116,25 @@ export default function Comments({ licence }) {
                 <Form.Row key={comment.id} className="mb-5">
                   <Col>
                     <Form.Row className="comment-row">
-                      <Col lg={9} className="comment-user-name">
+                      <Col lg={8} className="comment-user-name">
                         {comment.create_userid}
+                      </Col>
+                      <Col lg={1}>
+                        <Button
+                          type="button"
+                          onClick={() =>
+                              editComment(
+                                licence.id,
+                                comment.id,
+                                comment.licence_comment,
+                              )
+                          }
+                          variant="text"
+                          block
+                          className="comment-delete-btn"
+                        >
+                          Edit
+                        </Button>
                       </Col>
                       <Col lg={1}>
                         <Button
