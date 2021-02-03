@@ -26,6 +26,9 @@ function convertToLogicalModel(input) {
         ? null
         : `${input.mal_regional_district_lu.district_number} ${input.mal_regional_district_lu.district_name}`,
     primaryRegistrantId: input.primary_registrant_id,
+    primaryPhone: input.primary_phone,
+    secondaryPhone: input.secondary_phone, 
+    faxNumber: input.fax_number,
     regionalDistrictId: input.regional_district_id,
     applicationDate: formatDate(input.application_date),
     issuedOnDate: formatDate(input.issue_date),
@@ -82,6 +85,30 @@ function convertToLogicalModel(input) {
   }
 
   output.phoneNumbers = [];
+  const primaryPhone = input.primary_phone;
+  const secondaryPhone = input.secondary_phone;
+  const faxNumber = input.fax_number;
+  if( primaryPhone ) {
+    output.phoneNumbers.push({
+      key: output.phoneNumbers.length,
+      number: primaryPhone,
+      phoneNumberType: "Primary"
+    });
+  }
+  if( secondaryPhone ) {
+    output.phoneNumbers.push({
+      key: output.phoneNumbers.length,
+      number: secondaryPhone,
+      phoneNumberType: "Secondary"
+    });
+  }
+  if( faxNumber ) {
+    output.phoneNumbers.push({
+      key: output.phoneNumbers.length,
+      number: faxNumber,
+      phoneNumberType: "Fax"
+    });
+  }
 
   return output;
 }
@@ -186,6 +213,19 @@ function convertToPhysicalModel(input, update) {
     output.mail_province = secondary.province;
     output.mail_postal_code = secondary.postalCode;
     output.mail_country = secondary.country;
+  }
+
+  var primaryPhone = input.phoneNumbers.find((x) => x.phoneNumberType === "Primary");
+  var secondaryPhone = input.phoneNumbers.find((x) => x.phoneNumberType === "Secondary");
+  var faxNumber = input.phoneNumbers.find((x) => x.phoneNumberType === "Fax");
+  if( primaryPhone !== undefined ) {
+    output.primary_phone = primaryPhone.number;
+  }
+  if( secondaryPhone !== undefined ) {
+    output.secondary_phone = secondaryPhone.number;
+  }
+  if( faxNumber !== undefined ) {
+    output.fax_number = faxNumber.number;
   }
 
   return output;
