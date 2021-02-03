@@ -46,7 +46,7 @@ function convertToLogicalModel(input) {
     firstName: firstName,
     lastName: lastName,
     primaryPhone: input.primary_phone,
-    secondaryPhone: input.cell_number,
+    secondaryPhone: input.secondary_number,
     //email: input.email,
     legalDescriptionText: input.legal_description,
 
@@ -119,7 +119,7 @@ function convertToPhysicalModel(input, update) {
 
     contact_name: contactName,
     primary_phone: input.primaryPhone,
-    cell_number: input.secondaryPhone,
+    secondary_phone: input.secondaryPhone,
     //email: input.email,
     legal_description: input.legalDescriptionText,
 

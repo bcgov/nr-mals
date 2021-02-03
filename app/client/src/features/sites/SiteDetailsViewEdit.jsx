@@ -23,7 +23,7 @@ import {
 import SiteDetailsEdit from "./SiteDetailsEdit";
 import SiteDetailsView from "./SiteDetailsView";
 
-export default function SiteDetailsViewEdit({ site }) {
+export default function SiteDetailsViewEdit({ site, licence }) {
   const { status, error, mode } = site;
 
   const dispatch = useDispatch();
@@ -108,7 +108,7 @@ export default function SiteDetailsViewEdit({ site }) {
           Site Details
         </SectionHeading>
         <Container className="mt-3 mb-4">
-          <SiteDetailsView site={site.data} />
+          <SiteDetailsView site={site.data} licenceTypeId={licence.licenceTypeId} />
         </Container>
       </section>
     );
@@ -156,6 +156,7 @@ export default function SiteDetailsViewEdit({ site }) {
           <SiteDetailsEdit
             form={form}
             initialValues={initialFormValues}
+            licenceTypeId={licence.licenceTypeId}
             mode={LICENCE_MODE.EDIT}
           />
           <SubmissionButtons
@@ -173,4 +174,5 @@ export default function SiteDetailsViewEdit({ site }) {
 
 SiteDetailsViewEdit.propTypes = {
   site: PropTypes.object.isRequired,
+  licence: PropTypes.object.isRequired,
 };
