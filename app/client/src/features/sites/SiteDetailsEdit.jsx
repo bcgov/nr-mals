@@ -22,7 +22,7 @@ import {
 export default function SiteDetailsEdit({
   form,
   initialValues,
-  licenceTypeId,
+  licence,
   mode,
 }) {
   const { watch, setValue, register, errors } = form;
@@ -31,6 +31,31 @@ export default function SiteDetailsEdit({
 
   const watchRegion = watch("region", null);
   const parsedRegion = parseAsInt(watchRegion);
+
+  const licencePrimaryAddress = licence.addresses.find( x => x.addressType === "Primary");
+
+  const populateFromPrimary = () => {
+    console.log(licence);
+    setValue("addressLine1", licencePrimaryAddress.addressLine1);
+    setValue("addressLine2", licencePrimaryAddress.addressLine2);
+    setValue("city", licencePrimaryAddress.city);
+    setValue("province", licencePrimaryAddress.province);
+    setValue("postalCode", licencePrimaryAddress.postalCode);
+    setValue("country", licencePrimaryAddress.country);
+    setValue("region", licence.regionId);
+    setValue("regionalDistrict", licence.regionalDistrictId);
+  };
+
+  const resetAddress = () => {
+    setValue("addressLine1", null);
+    setValue("addressLine2", null);
+    setValue("city", null);
+    setValue("province", null);
+    setValue("postalCode", null);
+    setValue("country", null);
+    setValue("region", null);
+    setValue("regionalDistrict", null);
+  };
 
   return (
     <>
@@ -150,8 +175,12 @@ export default function SiteDetailsEdit({
               type="text"
               name="country"
               defaultValue={initialValues.country}
-              ref={register}
+              ref={register({ required: true })}
+              isInvalid={errors.country}
             />
+            <Form.Control.Feedback type="invalid">
+              Please enter a valid country.
+            </Form.Control.Feedback>
           </Form.Group>
         </Col>
         <Col lg={2}></Col>
@@ -176,6 +205,27 @@ export default function SiteDetailsEdit({
               ref={register}
             />
           </Form.Group>
+        </Col>
+      </Row>
+      <Row>
+        <Col lg={5}>
+          <Button
+            variant="secondary"
+            disabled={licencePrimaryAddress === undefined}
+            onClick={populateFromPrimary}
+          >
+            Populate address from Licence Primary Address
+          </Button>
+        </Col>
+        <Col lg={7}>
+          <span className="float-right">
+            <Button
+              variant="secondary"
+              onClick={resetAddress}
+            >
+              Remove Site Address
+            </Button>
+          </span>
         </Col>
       </Row>
       <SectionHeading>Site Contact Details</SectionHeading>
@@ -252,7 +302,7 @@ export default function SiteDetailsEdit({
           </Form.Group>
         </Col>
       </Row>
-      { licenceTypeId === LICENCE_TYPE_ID_GAME_FARM ?
+      { licence.licenceTypeId === LICENCE_TYPE_ID_GAME_FARM ?
       <Row className="mt-3">
         <Col>
           <Form.Group controlId="legalDescription">
@@ -262,7 +312,7 @@ export default function SiteDetailsEdit({
               rows={6}
               name="legalDescriptionText"
               ref={register}
-              maxLength={4000}
+              maxLength={2000}
               className="mb-1"
             />
           </Form.Group>
@@ -276,10 +326,7 @@ export default function SiteDetailsEdit({
 SiteDetailsEdit.propTypes = {
   form: PropTypes.object.isRequired,
   initialValues: PropTypes.object.isRequired,
-  licenceTypeId: PropTypes.number,
+  licence: PropTypes.object,
   mode: PropTypes.string.isRequired,
 };
 
-SiteDetailsEdit.defaultProps = {
-  licenceTypeId: undefined,
-};

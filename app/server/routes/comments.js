@@ -64,7 +64,7 @@ router.get("/:licenceId(\\d+)", async (req, res, next) => {
     .finally(async () => prisma.$disconnect());
 });
 
-router.delete("/delete/:licenceId(\\d+)/:id(\\d+)", async (req, res, next) => {
+router.put("/delete/:licenceId(\\d+)/:id(\\d+)", async (req, res, next) => {
   const licenceId = parseInt(req.params.licenceId, 10);
   const id = parseInt(req.params.id, 10);
 
