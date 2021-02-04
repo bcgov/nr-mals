@@ -133,6 +133,7 @@ export default function SiteDetailsViewEdit({ site, licence }) {
       regionalDistrict: parseAsInt(data.regionalDistrict),
       originalRegion: site.data.regionId,
       originalRegionalDistrict: site.data.regionalDistrictId,
+      hiveCount: parseAsInt(data.hiveCount),
       primaryPhone: data.primaryPhone
         ? data.primaryPhone.replace(/\D/g, "")
         : undefined,

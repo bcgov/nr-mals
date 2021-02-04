@@ -15,6 +15,7 @@ import SectionHeading from "../../components/SectionHeading";
 import { parseAsInt } from "../../utilities/parsing";
 
 import {
+  LICENCE_TYPE_ID_APIARY,
   LICENCE_TYPE_ID_GAME_FARM,
 } from "../licences/constants"
 
@@ -60,6 +61,21 @@ export default function SiteDetailsEdit({
           />
         </Col>
       </Row>
+      { licence.licenceTypeId === LICENCE_TYPE_ID_APIARY ?
+      <Row className="mt-3">
+        <Col lg={4}>
+          <Form.Group controlId="hiveCount">
+            <Form.Label>Hive Count</Form.Label>
+            <Form.Control
+              type="number"
+              name="hiveCount"
+              defaultValue={initialValues.hiveCount}
+              ref={register}
+            />
+          </Form.Group>
+        </Col>
+      </Row>
+      : null }
       <Row className="mt-3">
         <Col lg={4}>
           <Form.Group controlId="addressLine1">

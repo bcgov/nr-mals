@@ -49,6 +49,7 @@ function convertToLogicalModel(input) {
     secondaryPhone: input.secondary_number,
     //email: input.email,
     legalDescriptionText: input.legal_description,
+    hiveCount: input.hive_count,
 
     createdBy: input.create_userid,
     createdOn: input.create_timestamp,
@@ -122,6 +123,7 @@ function convertToPhysicalModel(input, update) {
     secondary_phone: input.secondaryPhone,
     //email: input.email,
     legal_description: input.legalDescriptionText,
+    hive_count: input.hiveCount,
 
     create_userid: input.createdBy,
     create_timestamp: input.createdOn,

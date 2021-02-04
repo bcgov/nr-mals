@@ -8,6 +8,7 @@ import {
 } from "../../utilities/formatting.ts";
 
 import {
+  LICENCE_TYPE_ID_APIARY,
   LICENCE_TYPE_ID_GAME_FARM,
 } from "../licences/constants"
 
@@ -29,6 +30,13 @@ export default function SiteDetailsView({ site, licenceTypeId }) {
           <VerticalField label="District" value={site.regionalDistrict} />
         </Col>
       </Row>
+      { licenceTypeId === LICENCE_TYPE_ID_APIARY ?
+      <Row className="mt-3">
+        <Col lg={4}>
+          <VerticalField label="Hive Count" value={site.hiveCount} />
+        </Col>
+      </Row>
+      : null }
       <Row className="mt-3">
         <Col lg={4}>
           <VerticalField label="Address (Line 1)" value={site.addressLine1} />
