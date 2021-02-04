@@ -52,7 +52,7 @@ export const deleteComment = createAsyncThunk(
   "comments/deleteComment",
   async (data, thunkApi) => {
     try {
-      const response = await Api.delete(
+      const response = await Api.put(
         `comments/delete/${data.licenceId}/${data.id}`
       );
       return response.data;

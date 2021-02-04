@@ -196,8 +196,8 @@ function convertToPhysicalModel(input, update) {
     };
   }
 
-  var primary = input.addresses.find((x) => x.addressType === "Primary");
-  var secondary = input.addresses.find((x) => x.addressType === "Mailing");
+  var primary = input.addresses && input.addresses.find((x) => x.addressType === "Primary");
+  var secondary = input.addresses && input.addresses.find((x) => x.addressType === "Mailing");
   if (primary !== undefined) {
     output.address_line_1 = primary.addressLine1;
     output.address_line_2 = primary.addressLine2;
@@ -215,9 +215,9 @@ function convertToPhysicalModel(input, update) {
     output.mail_country = secondary.country;
   }
 
-  var primaryPhone = input.phoneNumbers.find((x) => x.phoneNumberType === "Primary");
-  var secondaryPhone = input.phoneNumbers.find((x) => x.phoneNumberType === "Secondary");
-  var faxNumber = input.phoneNumbers.find((x) => x.phoneNumberType === "Fax");
+  var primaryPhone = input.phoneNumbers && input.phoneNumbers.find((x) => x.phoneNumberType === "Primary");
+  var secondaryPhone = input.phoneNumbers && input.phoneNumbers.find((x) => x.phoneNumberType === "Secondary");
+  var faxNumber = input.phoneNumbers && input.phoneNumbers.find((x) => x.phoneNumberType === "Fax");
   if( primaryPhone !== undefined ) {
     output.primary_phone = primaryPhone.number;
   }

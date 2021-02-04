@@ -157,7 +157,7 @@ export default function SiteDetailsViewEdit({ site, licence }) {
           <SiteDetailsEdit
             form={form}
             initialValues={initialFormValues}
-            licenceTypeId={licence.licenceTypeId}
+            licence={licence}
             mode={LICENCE_MODE.EDIT}
           />
           <SubmissionButtons

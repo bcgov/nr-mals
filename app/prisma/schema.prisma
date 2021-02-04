@@ -265,9 +265,9 @@ model mal_registrant {
   middle_initials                                               String?
   official_title                                                String?
   company_name                                                  String?
-  company_name_override                                         Boolean?
+  client_name                                                   String?
   primary_phone                                                 String?
-  secondary_phone                                               String?
+  cell_number                                                   String?
   fax_number                                                    String?
   email_address                                                 String?
   old_identifier                                                String?
@@ -421,7 +421,7 @@ model mal_site {
   hive_count               Int?
   contact_name             String?
   primary_phone            String?
-  secondary_phone          String?
+  cell_number              String?
   fax_number               String?
   address_line_1           String?
   address_line_2           String?

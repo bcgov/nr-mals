@@ -46,7 +46,7 @@ function convertToLogicalModel(input) {
     firstName: firstName,
     lastName: lastName,
     primaryPhone: input.primary_phone,
-    secondaryPhone: input.secondary_number,
+    secondaryPhone: input.cell_number,
     //email: input.email,
     legalDescriptionText: input.legal_description,
     hiveCount: input.hive_count,
@@ -120,7 +120,7 @@ function convertToPhysicalModel(input, update) {
 
     contact_name: contactName,
     primary_phone: input.primaryPhone,
-    secondary_phone: input.secondaryPhone,
+    cell_number: input.secondaryPhone,
     //email: input.email,
     legal_description: input.legalDescriptionText,
     hive_count: input.hiveCount,
