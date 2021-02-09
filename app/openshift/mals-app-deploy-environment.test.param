@@ -13,6 +13,6 @@ TAG_NAME=test
 # MEMORY_LIMIT=4Gi
 # CPU_REQUEST=100m
 # MEMORY_REQUEST=2Gi
-APPLICATION_DOMAIN=mals-app-test.pathfinder.bcgov
+APPLICATION_DOMAIN=mals-app-test.apps.silver.devops.gov.bc.ca
 APP_SECRETS=mals-app-test
 IP_WHITELIST=142.34.44.0/24

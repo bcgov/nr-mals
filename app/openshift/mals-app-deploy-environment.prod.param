@@ -13,6 +13,6 @@ TAG_NAME=prod
 # MEMORY_LIMIT=4Gi
 # CPU_REQUEST=100m
 # MEMORY_REQUEST=2Gi
-APPLICATION_DOMAIN=mals-app-prod.pathfinder.bcgov
+APPLICATION_DOMAIN=mals-app-prod.apps.silver.devops.gov.bc.ca
 APP_SECRETS=mals-app-prod
 IP_WHITELIST=142.34.133.0/24
