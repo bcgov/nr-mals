@@ -22,9 +22,6 @@ ARTIFACT_BUILD = "${APP_NAME}-${ENV_LABEL}"
 
 IMAGESTREAM_NAME = "${APP_NAME}"
 
-PATHFINDER_URL = "pathfinder.gov.bc.ca"
-
-
 // Gets the container hash for the latest image in an image stream
 def getLatestHash(imageStreamName) {
   return sh (
