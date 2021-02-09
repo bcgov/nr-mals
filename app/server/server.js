@@ -49,7 +49,7 @@ app.use(function handleError(error, req, res, next) {
   }
 
   let description = "An unexpected error occurred while handling the request.";
-  if (process.env.ENVIRONMENT_LABEL === "dev" || process.env.ENVIRONMENT_LABEL === "test") {
+  if (process.env.ENVIRONMENT_LABEL === "dev" || process.env.ENVIRONMENT_LABEL === "test" || process.env.ENVIRONMENT_LABEL === "uat") {
     description = error.message;
   }
 

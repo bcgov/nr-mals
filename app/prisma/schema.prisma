@@ -85,6 +85,7 @@ model mal_licence {
   id                            Int                           @id @default(autoincrement())
   licence_number                Int                           @default(autoincrement())
   licence_type_id               Int
+  person_id                     Int?
   region_id                     Int?
   regional_district_id          Int?
   status_code_id                Int
@@ -93,25 +94,8 @@ model mal_licence {
   application_date              DateTime?
   issue_date                    DateTime?
   expiry_date                   DateTime?
-  print_certificate             Boolean?
   fee_collected                 Float?
   fee_collected_ind             Boolean                       @default(false)
-  old_identifier                String?
-  address_line_1                String?
-  address_line_2                String?
-  address_line_3                String?
-  city                          String?
-  province                      String?
-  postal_code                   String?
-  country                       String?
-  mail_address_line_1           String?
-  mail_address_line_2           String?
-  mail_address_line_3           String?
-  mail_city                     String?
-  mail_province                 String?
-  mail_postal_code              String?
-  mail_country                  String?
-  gps_coordinates               String?
   bond_carrier_phone_number     String?
   bond_number                   String?
   bond_value                    Float?
@@ -121,7 +105,7 @@ model mal_licence {
   licence_prn_requested         Boolean?
   renewal_prn_requested         Boolean?
   recheck_prn_requested         Boolean?
-  licence_details               String?
+  details                       String?
   dpl_approved_date             DateTime?
   dpl_received_date             DateTime?
   exam_date                     DateTime?
@@ -138,6 +122,7 @@ model mal_licence {
   lda_ld_dealer_name            String?
   yrd_psyo_licence_id           Int?
   yrd_psyo_business_name        String?
+  old_identifier                String?
   create_userid                 String
   create_timestamp              DateTime
   update_userid                 String
@@ -152,11 +137,10 @@ model mal_licence {
   mal_inventory_game_farm       mal_inventory_game_farm[]
   mal_licence_comment           mal_licence_comment[]
   mal_licence_registrant_xref   mal_licence_registrant_xref[]
-  mal_registrant                mal_registrant[]
-  mal_site                      mal_site[]
 
   @@index([irma_number], name: "mal_lic_irma_number_idx")
   @@index([licence_type_id], name: "mal_lic_licence_type_id_idx")
+  @@index([person_id], name: "mal_lic_person_id_idx")
   @@index([plant_code_id], name: "mal_lic_plant_code_idx")
   @@index([region_id], name: "mal_lic_region_id_idx")
   @@index([regional_district_id], name: "mal_lic_regional_district_id_idx")
@@ -177,14 +161,15 @@ model mal_licence_comment {
 }
 
 model mal_licence_registrant_xref {
-  id               Int         @id @default(autoincrement())
+  id               Int            @id @default(autoincrement())
   licence_id       Int
   registrant_id    Int
   create_userid    String
   create_timestamp DateTime
   update_userid    String
   update_timestamp DateTime
-  mal_licence      mal_licence @relation(fields: [licence_id], references: [id])
+  mal_licence      mal_licence    @relation(fields: [licence_id], references: [id])
+  mal_registrant   mal_registrant @relation(fields: [registrant_id], references: [id])
 
   @@index([licence_id], name: "mal_licregxref_licence_id_idx")
   @@index([registrant_id], name: "mal_licregxref_registrant_id_idx")
@@ -232,7 +217,6 @@ model mal_region_lu {
   update_timestamp         DateTime
   mal_licence              mal_licence[]
   mal_regional_district_lu mal_regional_district_lu[]
-  mal_site                 mal_site[]
 }
 
 model mal_regional_district_lu {
@@ -247,31 +231,24 @@ model mal_regional_district_lu {
   update_timestamp DateTime
   mal_region_lu    mal_region_lu @relation(fields: [region_id], references: [id])
   mal_licence      mal_licence[]
-  mal_site         mal_site[]
 
   @@unique([region_id, district_number], name: "mal_regdist_region_district_uk")
 }
 
 model mal_registrant {
-  id                     Int          @id @default(autoincrement())
-  licence_id             Int?
-  first_name             String?
-  last_name              String?
-  middle_initials        String?
-  official_title         String?
-  company_name           String?
-  client_name            String?
-  include_on_certificate Boolean?
-  primary_phone          String?
-  cell_number            String?
-  fax_number             String?
-  email_address          String?
-  old_identifier         String?
-  create_userid          String
-  create_timestamp       DateTime
-  update_userid          String
-  update_timestamp       DateTime
-  mal_licence            mal_licence? @relation(fields: [licence_id], references: [id])
+  id                          Int                           @id @default(autoincrement())
+  first_name                  String?
+  last_name                   String?
+  middle_initials             String?
+  official_title              String?
+  company_name                String?
+  primary_phone               String?
+  email_address               String?
+  create_userid               String
+  create_timestamp            DateTime
+  update_userid               String
+  update_timestamp            DateTime
+  mal_licence_registrant_xref mal_licence_registrant_xref[]
 
   @@index([company_name], name: "mal_rgst_company_name_idx")
   @@index([last_name], name: "mal_rgst_last_name_idx")
@@ -400,48 +377,6 @@ model mal_status_code_lu {
   update_userid    String
   update_timestamp DateTime
   mal_licence      mal_licence[]
-  mal_site         mal_site[]
-}
-
-model mal_site {
-  id                       Int                       @id @default(autoincrement())
-  licence_id               Int
-  apiary_site_id           Int?
-  region_id                Int?
-  regional_district_id     Int?
-  status_code_id           Int?
-  registration_date        DateTime?
-  deactivation_date        DateTime?
-  hive_count               Int?
-  contact_name             String?
-  primary_phone            String?
-  cell_number              String?
-  fax_number               String?
-  address_line_1           String?
-  address_line_2           String?
-  address_line_3           String?
-  city                     String?
-  province                 String?
-  postal_code              String?
-  gps_coordinates          String?
-  legal_description        String?
-  site_details             String?
-  parcel_identifier        String?
-  old_identifier           String?
-  tank_calibration_date    DateTime?
-  tank_issue_date          DateTime?
-  recheck_year             DateTime?
-  create_userid            String
-  create_timestamp         DateTime
-  update_userid            String
-  update_timestamp         DateTime
-  mal_licence              mal_licence               @relation(fields: [licence_id], references: [id])
-  mal_region_lu            mal_region_lu?            @relation(fields: [region_id], references: [id])
-  mal_regional_district_lu mal_regional_district_lu? @relation(fields: [regional_district_id], references: [id])
-  mal_status_code_lu       mal_status_code_lu?       @relation(fields: [status_code_id], references: [id])
-
-  @@index([contact_name], name: "mal_site_contact_name_idx")
-  @@index([licence_id], name: "mal_site_license_id_idx")
 }
 
 model mal_licence_summary_vw {
