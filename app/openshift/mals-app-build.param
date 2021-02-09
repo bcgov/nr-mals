@@ -4,7 +4,7 @@
 # Template File: templates/mals-app-build.json
 #=========================================================
 NAME=mals-app
-PROJECT_PREFIX=bsoszr
+PROJECT_PREFIX=30245e
 GIT_REPO_URL=https://github.com/bcgov/nr-mals.git
 GIT_REF_DEV=master
 GIT_REF_TEST=test

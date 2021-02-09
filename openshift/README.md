@@ -77,10 +77,10 @@ genDepls.sh -e <environmentName/>
 
 #### Populate the resources for the UAT environment
 
-The UAT environment exists alongside the TEST environment in the bsoszr-test project.  The resources for the TEST environment are populated in the previous step by running `genDepls.sh -e test`, but the UAT resources have to be added using the following commands:
+The UAT environment exists alongside the TEST environment in the 30245e-test project.  The resources for the TEST environment are populated in the previous step by running `genDepls.sh -e test`, but the UAT resources have to be added using the following commands:
 
 ```
-oc project bsoszr-test
+oc project 30245e-test
 oc process -f ../app/openshift/templates/mals-app-deploy-environment.json --param-file=../app/openshift/mals-app-deploy-environment.uat.param | oc apply -f -
 ```
 

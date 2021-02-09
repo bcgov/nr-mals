@@ -1,5 +1,5 @@
 APP_NAME = "mals-app"
-PROJECT_NAMESPACE = "bsoszr"
+PROJECT_NAMESPACE = "30245e"
 ENV_LABEL="prod"
 
 class AppEnvironment {
