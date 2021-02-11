@@ -67,6 +67,21 @@ export const fetchLicence = createAsyncThunk(
   }
 );
 
+export const renewLicence = createAsyncThunk(
+  "licences/renewLicence",
+  async ({data, id}, thunkApi) => {
+    try {
+      const response = await Api.put(`licences/renew/${id}`, data);
+      return response.data;
+    } catch (error) {
+      if (error instanceof ApiError) {
+        return thunkApi.rejectWithValue(error.serialize());
+      }
+      return thunkApi.rejectWithValue({ code: -1, description: error.message });
+    }
+  }
+);
+
 export const licencesSlice = createSlice({
   name: "licences",
   initialState: {
@@ -152,6 +167,20 @@ export const licencesSlice = createSlice({
       state.currentLicence.error = action.payload;
       state.currentLicence.status = REQUEST_STATUS.REJECTED;
     },
+    [renewLicence.pending]: (state) => {
+      state.currentLicence.error = undefined;
+      state.currentLicence.status = REQUEST_STATUS.PENDING;
+    },
+    [renewLicence.fulfilled]: (state, action) => {
+      state.currentLicence.data = action.payload;
+      state.currentLicence.error = undefined;
+      state.currentLicence.status = REQUEST_STATUS.FULFILLED;
+      state.currentLicence.mode = LICENCE_MODE.VIEW;
+    },
+    [renewLicence.rejected]: (state, action) => {
+      state.currentLicence.error = action.payload;
+      state.currentLicence.status = REQUEST_STATUS.REJECTED;
+    },
     [updateLicenceRegistrants.pending]: (state) => {
       state.currentLicence.error = undefined;
       state.currentLicence.status = REQUEST_STATUS.PENDING;
@@ -170,7 +199,7 @@ export const licencesSlice = createSlice({
 });
 
 export const selectCreatedLicence = (state) => state.licences.createdLicence;
-export const selectCurrentLicence = (state) => state.licences.currentLicence;
+export const selectCurrentLicence = (state) => state.licences.currentLicence; 
 
 const { actions, reducer } = licencesSlice;
 

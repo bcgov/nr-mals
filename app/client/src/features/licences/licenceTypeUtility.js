@@ -41,7 +41,7 @@ export const getLicenceTypeConfiguration = (licenceTypeId) => {
         expiryInTwoYears: true,
       };
     case LICENCE_TYPE_ID_VETERINARY_DRUG:
-      return { expiryMonth: 3 };
+      return { expiryMonth: 3, yearsAddedToExpiryDate: 5 };
     case LICENCE_TYPE_ID_DISPENSER:
       return { expiryMonth: 3, yearsAddedToExpiryDate: 4 };
     case LICENCE_TYPE_ID_BULK_TANK_MILK_GRADER:
