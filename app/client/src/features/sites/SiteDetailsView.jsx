@@ -33,7 +33,7 @@ export default function SiteDetailsView({ site, licenceTypeId }) {
       { licenceTypeId === LICENCE_TYPE_ID_APIARY ?
       <Row className="mt-3">
         <Col lg={4}>
-          <VerticalField label="Hive Count" value={site.hiveCount} />
+          <VerticalField label="Number of Hives" value={site.hiveCount} />
         </Col>
       </Row>
       : null }

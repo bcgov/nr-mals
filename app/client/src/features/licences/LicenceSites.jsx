@@ -15,7 +15,7 @@ import {
 
 import SectionHeading from "../../components/SectionHeading";
 
-import { createSite } from "../sites/sitesSlice";
+import { selectCreatedSite, createSite } from "../sites/sitesSlice";
 import { fetchSiteResults, selectSiteResults, setSiteSearchPage } from "../search/searchSlice";
 
 import {
@@ -29,14 +29,14 @@ function formatResultRow(result) {
   return (
     <tr key={result.id}>
       <td className="text-nowrap">
-        <Link to={url}>{result.id}</Link>
+        <Link to={url}>{result.apiarySiteId ? `${result.licenceId}-${result.apiarySiteId}` : result.id}</Link>
       </td>
       <td className="text-nowrap">{result.siteStatus}</td>
       <td className="text-nowrap">{result.lastName}</td>
       <td className="text-nowrap">{result.firstName}</td>
       <td className="text-nowrap">{result.addressLine1}</td>
       <td className="text-nowrap">{result.region}</td>
-      <td className="text-nowrap">{result.district}</td>
+      <td className="text-nowrap">{result.regionalDistrict}</td>
     </tr>
   );
 }
@@ -50,6 +50,7 @@ export default function LicenceSites({ licence }) {
   const dispatch = useDispatch();
   const licenceStatuses = useSelector(selectLicenceStatuses);
   const results = useSelector(selectSiteResults);
+  const createdSite = useSelector(selectCreatedSite);
 
   useEffect(() => {
     dispatch(fetchSiteResults(licence.data.id));
@@ -58,23 +59,10 @@ export default function LicenceSites({ licence }) {
   function addSiteOnClick() {
     const payload = {
       licenceId: licence.data.id,
+      licenceTypeId: licence.data.licenceTypeId,
       siteStatus: licenceStatuses.data.find( x => x.code_description === LICENCE_STATUS_TYPES.ACTIVE).id,
       region: null,
       regionalDistrict: null,
-      addressLine1: null,
-      addressLine2: null,
-      city: null,
-      province: null,
-      postalCode: null,
-      country: null,
-      latitude: null,
-      longitude: null,
-      firstName: null,
-      lastName: null,
-      primaryPhone: null,
-      secondaryPhone: null,
-      email: null,
-      legalDescriptionText: null,
     };
     dispatch(createSite(payload));
   }
@@ -109,6 +97,17 @@ export default function LicenceSites({ licence }) {
         </p>
       </Alert>
     );
+  } else if (createdSite.status === REQUEST_STATUS.REJECTED) {
+  control = (
+    <Alert variant="danger">
+      <Alert.Heading>
+        An error was encountered while creating a site.
+      </Alert.Heading>
+      <p>
+        {createdSite.error.code}: {createdSite.error.description}
+      </p>
+    </Alert>
+  );
   } else if (
     results.status === REQUEST_STATUS.FULFILLED &&
     results.count === 0
@@ -133,7 +132,7 @@ export default function LicenceSites({ licence }) {
         <Table striped size="sm" responsive className="mt-3" hover>
           <thead className="thead-dark">
             <tr>
-              <th>Licence</th>
+              <th>Site ID</th>
               <th className="text-nowrap">Site Status</th>
               <th className="text-nowrap">Last Name</th>
               <th className="text-nowrap">First Name</th>

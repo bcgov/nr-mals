@@ -36,7 +36,6 @@ export default function SiteDetailsEdit({
   const licencePrimaryAddress = licence.addresses.find( x => x.addressType === "Primary");
 
   const populateFromPrimary = () => {
-    console.log(licence);
     setValue("addressLine1", licencePrimaryAddress.addressLine1);
     setValue("addressLine2", licencePrimaryAddress.addressLine2);
     setValue("city", licencePrimaryAddress.city);
@@ -90,7 +89,7 @@ export default function SiteDetailsEdit({
       <Row className="mt-3">
         <Col lg={4}>
           <Form.Group controlId="hiveCount">
-            <Form.Label>Hive Count</Form.Label>
+            <Form.Label>Number of Hives</Form.Label>
             <Form.Control
               type="number"
               name="hiveCount"

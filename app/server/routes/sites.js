@@ -7,6 +7,7 @@ const {
 const site = require("../models/site");
 const comment = require("../models/comment");
 const comments = require("./comments");
+const constants = require("../utilities/constants");
 
 const router = express.Router();
 const prisma = new PrismaClient();
@@ -37,6 +38,11 @@ async function findSites(params, skip, take) {
   const filter = getSearchFilter(params);
   return prisma.mal_site.findMany({
     where: filter,
+    include: {
+      mal_region_lu: true,
+      mal_regional_district_lu: true,
+      mal_status_code_lu: true,
+    },
     skip,
     take,
   });
@@ -70,7 +76,6 @@ async function updateSite(siteId, payload) {
 }
 
 async function createSite(payload) {
-  console.log(payload);
   return prisma.mal_site.create({
     data: payload,
   });
@@ -163,9 +168,23 @@ router.put("/:siteId(\\d+)", async (req, res, next) => {
 
 router.post("/", async (req, res, next) => {
   const now = new Date();
+  const data = req.body;
+
+  // Assign the apiary site id if required
+  if( data.licenceTypeId ===  constants.LICENCE_TYPE_ID_APIARY ) {
+    const sites = await findSites({licenceId:data.licenceId});
+    if( sites === null || sites === undefined || sites.length === 0 ) {
+      data.apiarySiteId = 100;
+    }
+    else {
+      const high = Math.max.apply(Math, sites.map(function(o) { return o.apiary_site_id; }));
+      const next = high+1;
+      data.apiarySiteId = next;
+    }
+  }
 
   const sitePayload = site.convertToPhysicalModel(
-    populateAuditColumnsCreate(req.body, now, now),
+    populateAuditColumnsCreate(data, now, now),
     false
   );
 

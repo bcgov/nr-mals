@@ -11,7 +11,7 @@ import SectionHeading from "../../components/SectionHeading";
 import { fetchSite, selectCurrentSite } from "./sitesSlice";
 import { fetchLicence, selectCurrentLicence } from "../licences/licencesSlice";
 
-import LicenceHeader from "../licences/LicenceHeader";
+import SiteHeader from "./SiteHeader";
 import LicenceDetailsView from "../licences/LicenceDetailsView";
 import SiteDetailsViewEdit from "./SiteDetailsViewEdit";
 
@@ -35,7 +35,7 @@ export default function ViewLicencePage() {
   if (site.data && licence.data) {
     content = (
       <>
-        <LicenceHeader licence={licence.data} />
+        <SiteHeader site={site.data} licence={licence.data} />
         <section>
           <SectionHeading>License Details</SectionHeading>
           <Container className="mt-3 mb-4">
