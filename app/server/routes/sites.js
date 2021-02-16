@@ -47,6 +47,7 @@ async function findSites(params, skip, take) {
       mal_region_lu: true,
       mal_regional_district_lu: true,
       mal_status_code_lu: true,
+      mal_dairy_farm_tank: true,
     },
     skip,
     take,

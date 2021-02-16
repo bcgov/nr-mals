@@ -1,19 +1,23 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { Container, Row } from "react-bootstrap";
-
+import { Link } from "react-router-dom";
 import { formatDateTimeString } from "../../utilities/formatting.ts";
 
 import HorizontalField from "../../components/HorizontalField";
 
+import { LICENSES_PATHNAME } from "../../utilities/constants";
+
 export default function SiteHeader({ site, licence }) {
+  const url = `${LICENSES_PATHNAME}/${licence.id}`;
+
   return (
     <header>
       <Container className="mt-3 mb-4">
         <Row>
           <HorizontalField
             label="Licence Number"
-            value={licence.licenceNumber}
+            value={<Link to={url}>{licence.id}</Link>}
           />
           <div className="w-100 d-xl-none" />
           <HorizontalField label="Created By" value={licence.createdBy} />
