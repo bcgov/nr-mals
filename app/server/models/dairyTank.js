@@ -1,3 +1,5 @@
+const { formatDate } = require("../utilities/formatting");
+
 const {
   populateAuditColumnsCreate,
   populateAuditColumnsUpdate,
@@ -8,8 +10,8 @@ function convertToLogicalModel(input) {
     id: input.id,
     siteId: input.site_id,
     serialNumber: input.serial_number,
-    calibrationDate: input.calibration_date,
-    issueDate: input.issue_date,
+    calibrationDate: formatDate(input.calibration_date),
+    issueDate: formatDate(input.issue_date),
     manufacturer: input.company,
     modelNumber: input.model,
     capacity: input.capacity,

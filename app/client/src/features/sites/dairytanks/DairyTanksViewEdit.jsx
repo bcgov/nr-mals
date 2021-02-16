@@ -31,10 +31,7 @@ function submissionController(setError, clearErrors, dispatch, siteId) {
       return;
     }
 
-    console.log(data);
-    const payload = formatDairyTanks(data.dairyTanks, siteId);
-
-    console.log(payload);
+    const payload = formatDairyTanks(data.dairyTanks, data.dairyTankDates,  siteId);
     dispatch(updateSiteDairyTanks({ dairyTanks: payload, id: siteId }));
   };
 
@@ -48,7 +45,6 @@ export default function DairyTanksViewEdit({ site }) {
     dairyTankMode: mode,
     data: { dairyTanks },
   } = site;
-  console.log(dairyTanks);
 
   const dispatch = useDispatch();
 

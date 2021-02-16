@@ -15,7 +15,6 @@ export default function DairyTanksView({ dairyTanks }) {
   return (
     <>
       {activeDairyTanks.map((dairyTank) => {
-        console.log(dairyTank);
         return (
           <Tab.Pane key={dairyTank.key} eventKey={dairyTank.key}>
             <DairyTankDetailsView dairyTank={dairyTank} />

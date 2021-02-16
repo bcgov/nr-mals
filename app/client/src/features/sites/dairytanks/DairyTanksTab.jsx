@@ -18,7 +18,6 @@ export default function DairyTanksTab({ initialDairyTanks, mode, form }) {
     errors = form.errors;
   }
 
-  console.log(initialDairyTanks);
   const siteId = useParams().id;
   const [dairyTanks, setDairyTanks] = useState([...initialDairyTanks]);
   const [selectedTabKey, setSelectedTabKey] = useState(

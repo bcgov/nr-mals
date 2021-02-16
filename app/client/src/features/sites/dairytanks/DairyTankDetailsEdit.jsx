@@ -5,10 +5,12 @@ import NumberFormat from "react-number-format";
 import { Row, Col, Form } from "react-bootstrap";
 
 import CustomDatePicker from "../../../components/CustomDatePicker";
+import { parseAsDate } from "../../../utilities/parsing";
 
 export default function DairyTankDetailsEdit({ form, dairyTank }) {
-  const { register, errors, setValue, clearErrors } = form;
+  const { register, errors, setValue, getValues,  clearErrors } = form;
   const fieldName = `dairyTanks[${dairyTank.key}]`;
+  const fieldName2 = `dairyTankDates[${dairyTank.key}]`;
   const dairyTankErrors = errors.dairyTanks
     ? errors.dairyTanks[dairyTank.key]
     : undefined;
@@ -45,25 +47,25 @@ export default function DairyTankDetailsEdit({ form, dairyTank }) {
         />
         <Row>
           <Col>
-            <Form.Group controlId={`${fieldName}.calibrationDate`}>
+            <Form.Group controlId={`${fieldName2}.calibrationDate`}>
               <CustomDatePicker
-                id={`${fieldName}.calibrationDate`}
+                id={`${fieldName2}.calibrationDate`}
                 label="Tank Calibration Date"
                 notifyOnChange={handleFieldChange(
-                  `${fieldName}.calibrationDate`
+                  `${fieldName2}.calibrationDate`
                 )}
-                defaultValue={dairyTank.calibrationDate}
+                defaultValue={parseAsDate(dairyTank.calibrationDate)}
                 isInvalid={errors.calibrationDate}
               />
             </Form.Group>
           </Col>
           <Col>
-            <Form.Group controlId={`${fieldName}.issueDate`}>
+            <Form.Group controlId={`${fieldName2}.issueDate`}>
               <CustomDatePicker
-                id={`${fieldName}.issueDate`}
+                id={`${fieldName2}.issueDate`}
                 label="Tank Issue Date"
-                notifyOnChange={handleFieldChange(`${fieldName}.issueDate`)}
-                defaultValue={dairyTank.issueDate}
+                notifyOnChange={handleFieldChange(`${fieldName2}.issueDate`)}
+                defaultValue={parseAsDate(dairyTank.issueDate)}
                 isInvalid={errors.issueDate}
               />
             </Form.Group>
