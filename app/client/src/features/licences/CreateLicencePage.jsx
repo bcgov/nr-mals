@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { Link, Redirect } from "react-router-dom";
+import { Link, Redirect, useHistory } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { Alert, Button, Col, Container, Form } from "react-bootstrap";
 import { startOfToday, add, set } from "date-fns";
@@ -10,7 +10,7 @@ import {
   LICENSES_PATHNAME,
   LICENCE_MODE,
   REGISTRANT_MODE,
-  LICENCE_STATUS_TYPES
+  LICENCE_STATUS_TYPES,
 } from "../../utilities/constants";
 import { parseAsInt, parseAsFloat } from "../../utilities/parsing";
 
@@ -128,6 +128,7 @@ function submissionController(setError, clearErrors, dispatch) {
 export default function CreateLicencePage() {
   const createdLicence = useSelector(selectCreatedLicence);
   licenceStatuses = useSelector(selectLicenceStatuses);
+  const history = useHistory();
 
   const dispatch = useDispatch();
 
@@ -213,6 +214,11 @@ export default function CreateLicencePage() {
   const submissionLabel = submitting ? "Submitting..." : "Create";
   const draftLabel = submitting ? "Submitting..." : "Save Draft";
 
+  const createAnotherLicence = () => {
+    dispatch(clearCreatedLicence());
+    history.push(`${LICENSES_PATHNAME}/search`);
+  };
+
   if (createdLicence.status === REQUEST_STATUS.FULFILLED) {
     if (createDraft === true) {
       return <Redirect to={`${LICENSES_PATHNAME}/search`} />;
@@ -237,7 +243,7 @@ export default function CreateLicencePage() {
               <Col sm={4}>
                 <Button
                   type="button"
-                  onClick={() => dispatch(clearCreatedLicence())}
+                  onClick={createAnotherLicence}
                   variant="primary"
                   block
                 >
