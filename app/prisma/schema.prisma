@@ -278,6 +278,7 @@ model mal_site {
   mal_region_lu            mal_region_lu?            @relation(fields: [region_id], references: [id])
   mal_regional_district_lu mal_regional_district_lu? @relation(fields: [regional_district_id], references: [id])
   mal_status_code_lu       mal_status_code_lu?       @relation(fields: [status_code_id], references: [id])
+  mal_dairy_farm_tank      mal_dairy_farm_tank[]
 
   @@index([contact_name], name: "mal_site_contact_name_idx")
   @@index([licence_id], name: "mal_site_license_id_idx")
@@ -443,6 +444,26 @@ model mal_sale_yard_species_sub_code_lu {
   mal_sale_yard_species_code_lu mal_sale_yard_species_code_lu @relation(fields: [sale_yard_species_code_id], references: [id])
 
   @@unique([sale_yard_species_code_id, code_name], name: "mal_syssc_id_code_uk")
+}
+
+model mal_dairy_farm_tank {
+  id               Int       @id @default(autoincrement())
+  site_id          Int
+  serial_number    String?
+  calibration_date DateTime?
+  issue_date       DateTime?
+  company          String?
+  model            String?
+  capacity         String?
+  recheck_year     DateTime?
+  create_userid    String
+  create_timestamp DateTime
+  update_userid    String
+  update_timestamp DateTime
+  mal_site         mal_site  @relation(fields: [site_id], references: [id])
+
+  @@index([serial_number], name: "mal_dryfrmtnk_serial_number_idx")
+  @@index([site_id], name: "mal_dryfrmtnk_site_id_idx")
 }
 
 model mal_licence_summary_vw {

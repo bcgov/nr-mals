@@ -1,7 +1,11 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 import Api, { ApiError } from "../../utilities/api.ts";
-import { REQUEST_STATUS, LICENCE_MODE } from "../../utilities/constants";
+import {
+  REQUEST_STATUS,
+  LICENCE_MODE,
+  DAIRY_TANK_MODE,
+} from "../../utilities/constants";
 
 export const createSite = createAsyncThunk(
   "sites/createSite",
@@ -23,6 +27,21 @@ export const updateSite = createAsyncThunk(
   async ({ site, id }, thunkApi) => {
     try {
       const response = await Api.put(`sites/${id}`, site);
+      return response.data;
+    } catch (error) {
+      if (error instanceof ApiError) {
+        return thunkApi.rejectWithValue(error.serialize());
+      }
+      return thunkApi.rejectWithValue({ code: -1, description: error.message });
+    }
+  }
+);
+
+export const updateSiteDairyTanks = createAsyncThunk(
+  "licences/updateSiteDairyTanks",
+  async ({ dairyTanks, id }, thunkApi) => {
+    try {
+      const response = await Api.put(`sites/${id}/dairytanks`, dairyTanks);
       return response.data;
     } catch (error) {
       if (error instanceof ApiError) {
@@ -61,6 +80,10 @@ export const sitesSlice = createSlice({
       error: undefined,
       status: REQUEST_STATUS.IDLE,
       mode: LICENCE_MODE.VIEW,
+      dairyTankMode: DAIRY_TANK_MODE.VIEW,
+    },
+    updatedSite: {
+      status: REQUEST_STATUS.IDLE,
     },
   },
   reducers: {
@@ -79,6 +102,12 @@ export const sitesSlice = createSlice({
     },
     setCurrentSiteModeToView: (state) => {
       state.currentSite.mode = LICENCE_MODE.VIEW;
+    },
+    setCurrentSiteDairyTankModeToEdit: (state) => {
+      state.currentSite.dairyTankMode = DAIRY_TANK_MODE.EDIT;
+    },
+    setCurrentSiteDairyTankModeToView: (state) => {
+      state.currentSite.dairyTankMode = DAIRY_TANK_MODE.VIEW;
     },
   },
   extraReducers: {
@@ -105,6 +134,7 @@ export const sitesSlice = createSlice({
       state.currentSite.error = undefined;
       state.currentSite.status = REQUEST_STATUS.FULFILLED;
       state.currentSite.mode = LICENCE_MODE.VIEW;
+      state.currentSite.dairyTankMode = DAIRY_TANK_MODE.VIEW;
     },
     [fetchSite.rejected]: (state, action) => {
       state.currentSite.data = undefined;
@@ -114,14 +144,33 @@ export const sitesSlice = createSlice({
     [updateSite.pending]: (state) => {
       state.currentSite.error = undefined;
       state.currentSite.status = REQUEST_STATUS.PENDING;
+      state.updatedSite.status = REQUEST_STATUS.PENDING;
     },
     [updateSite.fulfilled]: (state, action) => {
       state.currentSite.data = action.payload;
       state.currentSite.error = undefined;
       state.currentSite.status = REQUEST_STATUS.FULFILLED;
       state.currentSite.mode = LICENCE_MODE.VIEW;
+      state.currentSite.dairyTankMode = DAIRY_TANK_MODE.VIEW;
+      state.updatedSite.status = REQUEST_STATUS.FULFILLED;
     },
     [updateSite.rejected]: (state, action) => {
+      state.currentSite.error = action.payload;
+      state.currentSite.status = REQUEST_STATUS.REJECTED;
+      state.updatedSite.status = REQUEST_STATUS.REJECTED;
+    },
+    [updateSiteDairyTanks.pending]: (state) => {
+      state.currentSite.error = undefined;
+      state.currentSite.status = REQUEST_STATUS.PENDING;
+    },
+    [updateSiteDairyTanks.fulfilled]: (state, action) => {
+      state.currentSite.data = action.payload;
+      state.currentSite.error = undefined;
+      state.currentSite.status = REQUEST_STATUS.FULFILLED;
+      state.currentSite.mode = LICENCE_MODE.VIEW;
+      state.currentSite.dairyTankMode = DAIRY_TANK_MODE.VIEW;
+    },
+    [updateSiteDairyTanks.rejected]: (state, action) => {
       state.currentSite.error = action.payload;
       state.currentSite.status = REQUEST_STATUS.REJECTED;
     },
@@ -130,6 +179,7 @@ export const sitesSlice = createSlice({
 
 export const selectCreatedSite = (state) => state.sites.createdSite;
 export const selectCurrentSite = (state) => state.sites.currentSite;
+export const selectUpdatedSite = (state) => state.sites.updatedSite;
 
 const { actions, reducer } = sitesSlice;
 
@@ -138,6 +188,8 @@ export const {
   clearCurrentSite,
   setCurrentSiteModeToEdit,
   setCurrentSiteModeToView,
+  setCurrentSiteDairyTankModeToEdit,
+  setCurrentSiteDairyTankModeToView,
 } = actions;
 
 export default reducer;

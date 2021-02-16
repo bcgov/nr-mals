@@ -15,9 +15,13 @@ import SiteHeader from "./SiteHeader";
 import LicenceDetailsView from "../licences/LicenceDetailsView";
 import SiteDetailsViewEdit from "./SiteDetailsViewEdit";
 
+import DairyTanksTab from "./dairytanks/DairyTanksTab";
+
 import Comments from "../comments/Comments";
 
 import "./ViewSitePage.scss";
+import DairyTanksViewEdit from "./dairytanks/DairyTanksViewEdit";
+import { LICENCE_TYPE_ID_DAIRY_FARM } from "../licences/constants";
 
 export default function ViewLicencePage() {
   const dispatch = useDispatch();
@@ -44,6 +48,9 @@ export default function ViewLicencePage() {
         </section>
 
         <SiteDetailsViewEdit site={site} licence={licence.data} />
+        {licence.data.licenceTypeId === LICENCE_TYPE_ID_DAIRY_FARM ? (
+          <DairyTanksViewEdit site={site} />
+        ) : null}
         <Comments licence={licence.data} />
       </>
     );
