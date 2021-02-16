@@ -6,8 +6,15 @@ import { Button, Container, Form, Row, Col } from "react-bootstrap";
 import { startOfToday, add, set } from "date-fns";
 
 import { LICENCE_MODE, REQUEST_STATUS } from "../../utilities/constants";
-import { LICENCE_TYPE_ID_APIARY, LICENCE_TYPE_ID_VETERINARY_DRUG } from "../licences/constants";
-import { formatNumber, formatDate, formatDateTimeString } from "../../utilities/formatting.ts";
+import {
+  LICENCE_TYPE_ID_APIARY,
+  LICENCE_TYPE_ID_VETERINARY_DRUG,
+} from "../licences/constants";
+import {
+  formatNumber,
+  formatDate,
+  formatDateTimeString,
+} from "../../utilities/formatting.ts";
 import { parseAsInt, parseAsFloat, parseAsDate } from "../../utilities/parsing";
 
 import ErrorMessageRow from "../../components/ErrorMessageRow";
@@ -131,30 +138,43 @@ export default function LicenceDetailsViewEdit({ licence }) {
     }
 
     return { issueDate: today, expiryDate: expiryDate };
-  }
+  };
 
   const onRenew = () => {
     const dates = getRenewLicenceDates();
-    dispatch(openModal(CONFIRMATION, onRenewCallback, 
-      {
-        data: dates,
-        modalContent:
-          <>
-            <Row>
-                <div className="justify-content-center">The Issued On date will be updated to today's date, and the Expiry Date for Licence Number {licence.data.id} will be updated to {formatDate(dates.expiryDate)}</div>
-            </Row>
-            <br />
-            <Row>
-                <div className="justify-content-center">Do you wish to proceed?</div>
-            </Row>
-          </>
-      }, 'md'));
+    dispatch(
+      openModal(
+        CONFIRMATION,
+        onRenewCallback,
+        {
+          data: dates,
+          modalContent: (
+            <>
+              <Row>
+                <div className="justify-content-center">
+                  The Issued On date will be updated to today's date, and the
+                  Expiry Date for Licence Number {licence.data.id} will be
+                  updated to {formatDate(dates.expiryDate)}
+                </div>
+              </Row>
+              <br />
+              <Row>
+                <div className="justify-content-center">
+                  Do you wish to proceed?
+                </div>
+              </Row>
+            </>
+          ),
+        },
+        "md"
+      )
+    );
   };
 
   const onRenewCallback = (data) => {
     const dates = data;
-    dispatch(renewLicence({data: dates, id: licence.data.id}));
-  }
+    dispatch(renewLicence({ data: dates, id: licence.data.id }));
+  };
 
   if (mode === LICENCE_MODE.VIEW) {
     const onEdit = () => {

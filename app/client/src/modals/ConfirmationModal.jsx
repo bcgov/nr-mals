@@ -25,15 +25,11 @@ export default function ConfirmationModal({
   return (
     <Form onSubmit={handleSubmit(onSubmit)} noValidate>
       <Modal.Header closeButton>
-        <Modal.Title>
-        {modalTitle}
-        </Modal.Title>
+        <Modal.Title>{modalTitle}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <Form.Row className="container">
-          <Col>
-            {modalContent}
-          </Col>
+          <Col>{modalContent}</Col>
         </Form.Row>
       </Modal.Body>
       <Modal.Footer>
@@ -54,12 +50,11 @@ ConfirmationModal.propTypes = {
   modalContent: PropTypes.any.isRequired,
   closeModal: PropTypes.func.isRequired,
   submit: PropTypes.func.isRequired,
-  buttonLabels: PropTypes.object
+  buttonLabels: PropTypes.object,
 };
 
 ConfirmationModal.defaultProps = {
   data: null,
   modalTitle: "Confirmation",
-  buttonLabels: {cancel: "Cancel", confirm: "OK"}
+  buttonLabels: { cancel: "Cancel", confirm: "OK" },
 };
-

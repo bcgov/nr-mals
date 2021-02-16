@@ -10,7 +10,7 @@ import {
 import {
   LICENCE_TYPE_ID_APIARY,
   LICENCE_TYPE_ID_GAME_FARM,
-} from "../licences/constants"
+} from "../licences/constants";
 
 import VerticalField from "../../components/VerticalField";
 import SectionHeading from "../../components/SectionHeading";
@@ -30,13 +30,13 @@ export default function SiteDetailsView({ site, licenceTypeId }) {
           <VerticalField label="District" value={site.regionalDistrict} />
         </Col>
       </Row>
-      { licenceTypeId === LICENCE_TYPE_ID_APIARY ?
-      <Row className="mt-3">
-        <Col lg={4}>
-          <VerticalField label="Number of Hives" value={site.hiveCount} />
-        </Col>
-      </Row>
-      : null }
+      {licenceTypeId === LICENCE_TYPE_ID_APIARY ? (
+        <Row className="mt-3">
+          <Col lg={4}>
+            <VerticalField label="Number of Hives" value={site.hiveCount} />
+          </Col>
+        </Row>
+      ) : null}
       <Row className="mt-3">
         <Col lg={4}>
           <VerticalField label="Address (Line 1)" value={site.addressLine1} />
@@ -106,23 +106,23 @@ export default function SiteDetailsView({ site, licenceTypeId }) {
           <VerticalField label="Email" value={site.email} />
         </Col>
       </Row>
-      { licenceTypeId === LICENCE_TYPE_ID_GAME_FARM ?
-      <Row className="mt-3">
-        <Col>
-          <Form.Group controlId="legalDescription">
-            <Form.Label>Legal Description</Form.Label>
-            <Form.Control
-              as="textarea"
-              rows={6}
-              name="legalDescriptionText"
-              readOnly
-              defaultValue={site.legalDescriptionText}
-              className="mb-1"
-            />
-          </Form.Group>
-        </Col>
-      </Row>
-      : null }
+      {licenceTypeId === LICENCE_TYPE_ID_GAME_FARM ? (
+        <Row className="mt-3">
+          <Col>
+            <Form.Group controlId="legalDescription">
+              <Form.Label>Legal Description</Form.Label>
+              <Form.Control
+                as="textarea"
+                rows={6}
+                name="legalDescriptionText"
+                readOnly
+                defaultValue={site.legalDescriptionText}
+                className="mb-1"
+              />
+            </Form.Group>
+          </Col>
+        </Row>
+      ) : null}
     </>
   );
 }

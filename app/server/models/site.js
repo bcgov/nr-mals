@@ -1,5 +1,6 @@
 const { formatDate } = require("../utilities/formatting");
 const { parseAsInt } = require("../utilities/parsing");
+const dairyTank = require("./dairyTank");
 
 function convertToLogicalModel(input) {
   const coordinates = input.gps_coordinates
@@ -40,8 +41,10 @@ function convertToLogicalModel(input) {
     province: input.province,
     postalCode: input.postal_code,
     // country: input.country,
-    latitude: coordinates !== null && coordinates !== undefined ? coordinates[0] : null,
-    longitude: coordinates !== null && coordinates !== undefined ? coordinates[1] : null,
+    latitude:
+      coordinates !== null && coordinates !== undefined ? coordinates[0] : null,
+    longitude:
+      coordinates !== null && coordinates !== undefined ? coordinates[1] : null,
 
     firstName: firstName,
     lastName: lastName,
@@ -51,6 +54,11 @@ function convertToLogicalModel(input) {
     legalDescriptionText: input.legal_description,
     hiveCount: input.hive_count,
     apiarySiteId: input.apiary_site_id,
+
+    dairyTanks: input.mal_dairy_farm_tank.map((xref, index) => ({
+      ...dairyTank.convertToLogicalModel(xref),
+      key: index,
+    })),
 
     createdBy: input.create_userid,
     createdOn: input.create_timestamp,
@@ -80,16 +88,20 @@ function convertToPhysicalModel(input, update) {
   }
 
   let contactName = null;
-  if( input.firstName !== null && input.firstName !== undefined && 
-      input.lastName !== null && input.lastName !== undefined ) {
+  if (
+    input.firstName !== null &&
+    input.firstName !== undefined &&
+    input.lastName !== null &&
+    input.lastName !== undefined
+  ) {
     contactName = `${input.firstName} ${input.lastName}`;
   }
 
   let gpsCoordinates = null;
-  if( input.latitude !== null && input.latitude !== undefined ) {
+  if (input.latitude !== null && input.latitude !== undefined) {
     gpsCoordinates = input.latitude;
   }
-  if( input.longitude !== null && input.longitude !== undefined) {
+  if (input.longitude !== null && input.longitude !== undefined) {
     gpsCoordinates += `,${input.longitude}`;
   }
 

@@ -69,7 +69,7 @@ export const fetchLicence = createAsyncThunk(
 
 export const renewLicence = createAsyncThunk(
   "licences/renewLicence",
-  async ({data, id}, thunkApi) => {
+  async ({ data, id }, thunkApi) => {
     try {
       const response = await Api.put(`licences/renew/${id}`, data);
       return response.data;
@@ -199,7 +199,7 @@ export const licencesSlice = createSlice({
 });
 
 export const selectCreatedLicence = (state) => state.licences.createdLicence;
-export const selectCurrentLicence = (state) => state.licences.currentLicence; 
+export const selectCurrentLicence = (state) => state.licences.currentLicence;
 
 const { actions, reducer } = licencesSlice;
 

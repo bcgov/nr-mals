@@ -1,10 +1,15 @@
 import React, { useEffect } from "react";
 import PropTypes from "prop-types";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { Redirect } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { Container, Form } from "react-bootstrap";
 
-import { LICENCE_MODE, REQUEST_STATUS } from "../../utilities/constants";
+import {
+  LICENCE_MODE,
+  REQUEST_STATUS,
+  LICENSES_PATHNAME,
+} from "../../utilities/constants";
 import { formatNumber } from "../../utilities/formatting.ts";
 import { parseAsInt, parseAsFloat, parseAsDate } from "../../utilities/parsing";
 
@@ -18,6 +23,7 @@ import {
   updateSite,
   setCurrentSiteModeToEdit,
   setCurrentSiteModeToView,
+  selectUpdatedSite,
 } from "./sitesSlice";
 
 import SiteDetailsEdit from "./SiteDetailsEdit";
@@ -25,6 +31,8 @@ import SiteDetailsView from "./SiteDetailsView";
 
 export default function SiteDetailsViewEdit({ site, licence }) {
   const { status, error, mode } = site;
+
+  const updated = useSelector(selectUpdatedSite);
 
   const dispatch = useDispatch();
 
@@ -98,6 +106,10 @@ export default function SiteDetailsViewEdit({ site, licence }) {
     mode,
   ]);
 
+  if (updated && updated.status === REQUEST_STATUS.FULFILLED) {
+    return <Redirect to={`${LICENSES_PATHNAME}/${licence.id}`} />;
+  }
+
   if (mode === LICENCE_MODE.VIEW) {
     const onEdit = () => {
       dispatch(setCurrentSiteModeToEdit());
@@ -108,7 +120,10 @@ export default function SiteDetailsViewEdit({ site, licence }) {
           Site Details
         </SectionHeading>
         <Container className="mt-3 mb-4">
-          <SiteDetailsView site={site.data} licenceTypeId={licence.licenceTypeId} />
+          <SiteDetailsView
+            site={site.data}
+            licenceTypeId={licence.licenceTypeId}
+          />
         </Container>
       </section>
     );
@@ -124,7 +139,6 @@ export default function SiteDetailsViewEdit({ site, licence }) {
   const submissionLabel = submitting ? "Saving..." : "Save";
 
   const onSubmit = async (data) => {
-    console.log(data);
     const payload = {
       ...data,
       licenceId: site.data.licenceId,

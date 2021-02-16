@@ -34,18 +34,16 @@ export default function SiteHeader({ site, licence }) {
           <div className="w-100" />
           <HorizontalField
             label="Site ID"
-            value={site.apiarySiteId ? `${site.licenceId}-${site.apiarySiteId}` : site.id}
+            value={
+              site.apiarySiteId
+                ? `${site.licenceId}-${site.apiarySiteId}`
+                : site.id
+            }
           />
           <div className="w-100 d-xl-none" />
-          <HorizontalField
-            label=""
-            value={null}
-          />
+          <HorizontalField label="" value={null} />
           <div className="w-100 d-xl-none" />
-          <HorizontalField
-            label=""
-            value={null}
-          />
+          <HorizontalField label="" value={null} />
         </Row>
       </Container>
     </header>

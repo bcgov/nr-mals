@@ -16,20 +16,30 @@ import {
 import SectionHeading from "../../components/SectionHeading";
 
 import { selectCreatedSite, createSite } from "../sites/sitesSlice";
-import { fetchSiteResults, selectSiteResults, setSiteSearchPage } from "../search/searchSlice";
+import {
+  fetchSiteResults,
+  selectSiteResults,
+  setSiteSearchPage,
+} from "../search/searchSlice";
+
+import { selectLicenceStatuses } from "../lookups/licenceStatusesSlice";
 
 import {
-  selectLicenceStatuses,
-} from "../lookups/licenceStatusesSlice";
-
-import { REQUEST_STATUS, LICENCE_STATUS_TYPES, SITES_PATHNAME } from "../../utilities/constants";
+  REQUEST_STATUS,
+  LICENCE_STATUS_TYPES,
+  SITES_PATHNAME,
+} from "../../utilities/constants";
 
 function formatResultRow(result) {
   const url = `${SITES_PATHNAME}/${result.id}`;
   return (
     <tr key={result.id}>
       <td className="text-nowrap">
-        <Link to={url}>{result.apiarySiteId ? `${result.licenceId}-${result.apiarySiteId}` : result.id}</Link>
+        <Link to={url}>
+          {result.apiarySiteId
+            ? `${result.licenceId}-${result.apiarySiteId}`
+            : result.id}
+        </Link>
       </td>
       <td className="text-nowrap">{result.siteStatus}</td>
       <td className="text-nowrap">{result.lastName}</td>
@@ -60,22 +70,26 @@ export default function LicenceSites({ licence }) {
     const payload = {
       licenceId: licence.data.id,
       licenceTypeId: licence.data.licenceTypeId,
-      siteStatus: licenceStatuses.data.find( x => x.code_description === LICENCE_STATUS_TYPES.ACTIVE).id,
+      siteStatus: licenceStatuses.data.find(
+        (x) => x.code_description === LICENCE_STATUS_TYPES.ACTIVE
+      ).id,
       region: null,
       regionalDistrict: null,
     };
     dispatch(createSite(payload));
   }
 
-  let addSiteButton = <Button
-    size="md"
-    type="button"
-    variant="primary"
-    onClick={addSiteOnClick}
-    block
-  >
-    Add a Site
-  </Button>
+  let addSiteButton = (
+    <Button
+      size="md"
+      type="button"
+      variant="primary"
+      onClick={addSiteOnClick}
+      block
+    >
+      Add a Site
+    </Button>
+  );
 
   let control = null;
   if (results.status === REQUEST_STATUS.PENDING) {
@@ -98,16 +112,16 @@ export default function LicenceSites({ licence }) {
       </Alert>
     );
   } else if (createdSite.status === REQUEST_STATUS.REJECTED) {
-  control = (
-    <Alert variant="danger">
-      <Alert.Heading>
-        An error was encountered while creating a site.
-      </Alert.Heading>
-      <p>
-        {createdSite.error.code}: {createdSite.error.description}
-      </p>
-    </Alert>
-  );
+    control = (
+      <Alert variant="danger">
+        <Alert.Heading>
+          An error was encountered while creating a site.
+        </Alert.Heading>
+        <p>
+          {createdSite.error.code}: {createdSite.error.description}
+        </p>
+      </Alert>
+    );
   } else if (
     results.status === REQUEST_STATUS.FULFILLED &&
     results.count === 0
@@ -177,9 +191,7 @@ export default function LicenceSites({ licence }) {
   return (
     <>
       <SectionHeading>Sites</SectionHeading>
-      <Container className="mt-3 mb-4">
-        {control}
-      </Container>
+      <Container className="mt-3 mb-4">{control}</Container>
     </>
   );
 }

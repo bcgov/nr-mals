@@ -51,7 +51,7 @@ export default function LicenceDetailsEdit({
 
     return addressList.map((address) => {
       return {
-        ...address
+        ...address,
       };
     });
   };
