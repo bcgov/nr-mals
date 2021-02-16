@@ -84,3 +84,10 @@ export const LICENCE_STATUS_TYPES = {
   INACTIVE: "Inactive",
   PENDING: "Pending",
 };
+
+export const COUNTRIES = {
+  CANADA: "Canada",
+  UNITEDSTATES: "United States",
+};
+
+export const COUNTRIES_MAP = [COUNTRIES.CANADA, COUNTRIES.UNITEDSTATES];
