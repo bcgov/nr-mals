@@ -5,7 +5,7 @@ function convertToLogicalModel(input) {
   const output = {
     id: input.id,
     licenceId: input.licence_id,
-    licenceComment: input.licence_comment
+    licenceComment: input.licence_comment,
   };
 
   return output;
@@ -20,7 +20,7 @@ function convertToPhysicalModel(input) {
     create_userid: input.createdBy,
     create_timestamp: input.createdOn,
     update_userid: input.updatedBy,
-    update_timestamp: input.updatedOn
+    update_timestamp: input.updatedOn,
   };
 
   return output;

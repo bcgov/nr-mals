@@ -378,9 +378,13 @@ router.post("/", async (req, res, next) => {
       );
       await createRegistrants(newRegistrantPayloads);
 
-      if( commentText !== undefined && commentText.length > 0 ) {
+      if (commentText !== undefined && commentText.length > 0) {
         const commentPayload = comment.convertToPhysicalModel(
-          populateAuditColumnsCreate({licenceId, licenceComment: commentText}, now, now)
+          populateAuditColumnsCreate(
+            { licenceId, licenceComment: commentText },
+            now,
+            now
+          )
         );
         await comments.createComment(commentPayload);
       }

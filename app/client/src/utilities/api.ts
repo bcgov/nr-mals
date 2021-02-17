@@ -67,6 +67,5 @@ export default {
 
   getApiInstance() {
     return axiosInstance;
-  }
-
+  },
 };

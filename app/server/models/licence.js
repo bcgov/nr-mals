@@ -25,6 +25,10 @@ function convertToLogicalModel(input) {
       input.mal_regional_district_lu == null
         ? null
         : `${input.mal_regional_district_lu.district_number} ${input.mal_regional_district_lu.district_name}`,
+    primaryRegistrantId: input.primary_registrant_id,
+    primaryPhone: input.primary_phone,
+    secondaryPhone: input.secondary_phone, 
+    faxNumber: input.fax_number,
     regionalDistrictId: input.regional_district_id,
     applicationDate: formatDate(input.application_date),
     issuedOnDate: formatDate(input.issue_date),
@@ -42,23 +46,6 @@ function convertToLogicalModel(input) {
     bondValue: input.bond_value,
     bondCarrierName: input.bond_carrier_name,
     bondContinuationExpiryDate: formatDate(input.bond_continuation_expiry_date),
-
-    address_line_1: null,
-    address_line_2: null,
-    address_line_3: null,
-    city: null,
-    province: null,
-    postal_code: null,
-    country: null,
-    mail_address_line_1: null,
-    mail_address_line_2: null,
-    mail_address_line_3: null,
-    mail_city: null,
-    mail_province: null,
-    mail_postal_code: null,
-    mail_country: null,
-
-
     createdBy: input.create_userid,
     createdOn: input.create_timestamp,
     updatedBy: input.update_userid,
@@ -68,6 +55,60 @@ function convertToLogicalModel(input) {
       key: index,
     })),
   };
+
+  const hasPrimaryAddress = input.address_line_1 !== null;
+  const hasMailingAddress = input.mail_address_line_1 !== null;
+  output.addresses = [];
+  if (hasPrimaryAddress) {
+    output.addresses.push({
+      key: output.addresses.length,
+      addressLine1: input.address_line_1,
+      addressLine2: input.address_line_2,
+      city: input.city,
+      province: input.province,
+      postalCode: input.postal_code,
+      country: input.country,
+      addressType: "Primary",
+    });
+  }
+  if (hasMailingAddress) {
+    output.addresses.push({
+      key: output.addresses.length,
+      addressLine1: input.mail_address_line_1,
+      addressLine2: input.mail_address_line_2,
+      city: input.mail_city,
+      province: input.mail_province,
+      postalCode: input.mail_postal_code,
+      country: input.mail_country,
+      addressType: "Mailing",
+    });
+  }
+
+  output.phoneNumbers = [];
+  const primaryPhone = input.primary_phone;
+  const secondaryPhone = input.secondary_phone;
+  const faxNumber = input.fax_number;
+  if( primaryPhone ) {
+    output.phoneNumbers.push({
+      key: output.phoneNumbers.length,
+      number: primaryPhone,
+      phoneNumberType: "Primary"
+    });
+  }
+  if( secondaryPhone ) {
+    output.phoneNumbers.push({
+      key: output.phoneNumbers.length,
+      number: secondaryPhone,
+      phoneNumberType: "Secondary"
+    });
+  }
+  if( faxNumber ) {
+    output.phoneNumbers.push({
+      key: output.phoneNumbers.length,
+      number: faxNumber,
+      phoneNumberType: "Fax"
+    });
+  }
 
   return output;
 }
@@ -126,6 +167,7 @@ function convertToPhysicalModel(input, update) {
         : {
             connect: { id: input.regionalDistrict },
           },
+    primary_registrant_id: input.primaryRegistrantId,
     issue_date: input.issuedOnDate,
     expiry_date: input.expiryDate,
     fee_collected: input.feePaidAmount,
@@ -152,6 +194,38 @@ function convertToPhysicalModel(input, update) {
     output.mal_licence_type_lu = {
       connect: { id: input.licenceType },
     };
+  }
+
+  var primary = input.addresses && input.addresses.find((x) => x.addressType === "Primary");
+  var secondary = input.addresses && input.addresses.find((x) => x.addressType === "Mailing");
+  if (primary !== undefined) {
+    output.address_line_1 = primary.addressLine1;
+    output.address_line_2 = primary.addressLine2;
+    output.city = primary.city;
+    output.province = primary.province;
+    output.postal_code = primary.postalCode;
+    output.country = primary.country;
+  }
+  if (secondary !== undefined) {
+    output.mail_address_line_1 = secondary.addressLine1;
+    output.mail_address_line_2 = secondary.addressLine2;
+    output.mail_city = secondary.city;
+    output.mail_province = secondary.province;
+    output.mail_postal_code = secondary.postalCode;
+    output.mail_country = secondary.country;
+  }
+
+  var primaryPhone = input.phoneNumbers && input.phoneNumbers.find((x) => x.phoneNumberType === "Primary");
+  var secondaryPhone = input.phoneNumbers && input.phoneNumbers.find((x) => x.phoneNumberType === "Secondary");
+  var faxNumber = input.phoneNumbers && input.phoneNumbers.find((x) => x.phoneNumberType === "Fax");
+  if( primaryPhone !== undefined ) {
+    output.primary_phone = primaryPhone.number;
+  }
+  if( secondaryPhone !== undefined ) {
+    output.secondary_phone = secondaryPhone.number;
+  }
+  if( faxNumber !== undefined ) {
+    output.fax_number = faxNumber.number;
   }
 
   return output;

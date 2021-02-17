@@ -17,7 +17,7 @@ async function fetchComments(licenceId) {
     },
     orderBy: [
       {
-        create_timestamp: 'asc',
+        create_timestamp: "asc",
       },
     ],
   });
@@ -29,6 +29,18 @@ async function createComment(payload) {
   });
 }
 
+async function updateComment(id, payload) {
+  return prisma.mal_licence_comment.update({
+    data: payload,
+    where: {
+      id: id,
+    },
+    include: {
+      mal_licence: true
+    },
+  });
+}
+
 async function deleteComment(id) {
   return prisma.mal_licence_comment.delete({
     where: {
@@ -36,7 +48,6 @@ async function deleteComment(id) {
     },
   });
 }
-
 
 router.get("/:licenceId(\\d+)", async (req, res, next) => {
   const licenceId = parseInt(req.params.licenceId, 10);
@@ -53,13 +64,30 @@ router.get("/:licenceId(\\d+)", async (req, res, next) => {
     .finally(async () => prisma.$disconnect());
 });
 
-router.delete("/delete/:licenceId(\\d+)/:id(\\d+)", async (req, res, next) => {
+router.put("/delete/:licenceId(\\d+)/:id(\\d+)", async (req, res, next) => {
   const licenceId = parseInt(req.params.licenceId, 10);
   const id = parseInt(req.params.id, 10);
 
   await deleteComment(id)
     .then(async () => {
       return res.status(200).send(await fetchComments(licenceId));
+    })
+    .catch(next)
+    .finally(async () => prisma.$disconnect());
+});
+
+router.put("/:commentId(\\d+)", async (req, res, next) => {
+  const commentId = parseInt(req.params.commentId, 10);
+
+  const now = new Date();
+
+  const commentPayload = comment.convertToPhysicalModel(
+    populateAuditColumnsUpdate(req.body, now, now)
+  );
+
+  await updateComment(commentId, commentPayload)
+    .then(async () => {
+      return res.status(200).send(await fetchComments(req.body.licenceId));
     })
     .catch(next)
     .finally(async () => prisma.$disconnect());
@@ -80,4 +108,4 @@ router.post("/", async (req, res, next) => {
     .finally(async () => prisma.$disconnect());
 });
 
-module.exports = { router:router, createComment:createComment };
+module.exports = { router: router, createComment: createComment };
