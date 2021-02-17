@@ -280,6 +280,48 @@ router.get("/search", async (req, res, next) => {
     .finally(async () => prisma.$disconnect());
 });
 
+router.put("/renew/:licenceId(\\d+)", async (req, res, next) => {
+  const licenceId = parseInt(req.params.licenceId, 10);
+  const { issueDate, expiryDate } = req.body;
+
+  await findLicence(licenceId)
+    .then(async (record) => {
+      if (record === null) {
+        return res.status(404).send({
+          code: 404,
+          description: "The requested licence could not be found.",
+        });
+      }
+
+      let update = licence.convertToLogicalModel(record);
+
+      // Update issued and expiry dates
+      update.issuedOnDate = issueDate;
+      update.expiryDate = expiryDate;
+
+      // Reset some connect variables for the update
+      update.licenceType = update.licenceTypeId;
+      update.licenceStatus = update.licenceStatusId;
+      update.regionalDistrict = update.regionalDistrictId;
+      update.region = update.regionId;
+      update.primaryRegistrantId = update.primary_registrant_id;
+
+      const now = new Date();
+      const licencePayload = licence.convertToPhysicalModel(
+        populateAuditColumnsUpdate(update, now),
+        true
+      );
+
+      await updateLicence(licenceId, licencePayload);
+      const updatedRecord = await findLicence(licenceId);
+
+      const payload = licence.convertToLogicalModel(updatedRecord);
+      return res.send(payload);
+    })
+    .catch(next)
+    .finally(async () => prisma.$disconnect());
+});
+
 router.put("/:licenceId(\\d+)", async (req, res, next) => {
   const licenceId = parseInt(req.params.licenceId, 10);
 

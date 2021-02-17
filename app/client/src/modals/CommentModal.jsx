@@ -69,7 +69,7 @@ export default function CommentModal({
               rows={6}
               maxLength={2000}
               name="commentText"
-              ref={register({required: true})}
+              ref={register({ required: true })}
               defaultValue={commentText}
               className="mb-1"
               isInvalid={errors.commentText}

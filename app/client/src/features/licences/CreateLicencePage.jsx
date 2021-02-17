@@ -10,7 +10,7 @@ import {
   LICENSES_PATHNAME,
   LICENCE_MODE,
   REGISTRANT_MODE,
-  LICENCE_STATUS_TYPES
+  LICENCE_STATUS_TYPES,
 } from "../../utilities/constants";
 import { parseAsInt, parseAsFloat } from "../../utilities/parsing";
 
