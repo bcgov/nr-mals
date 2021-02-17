@@ -1,5 +1,6 @@
 const { formatDate } = require("../utilities/formatting");
 const { parseAsInt } = require("../utilities/parsing");
+const dairyTank = require("./dairyTank");
 
 function convertToLogicalModel(input) {
   const coordinates = input.gps_coordinates
@@ -40,15 +41,24 @@ function convertToLogicalModel(input) {
     province: input.province,
     postalCode: input.postal_code,
     // country: input.country,
-    latitude: coordinates !== null ? coordinates[0] : null,
-    longitude: coordinates !== null ? coordinates[1] : null,
+    latitude:
+      coordinates !== null && coordinates !== undefined ? coordinates[0] : null,
+    longitude:
+      coordinates !== null && coordinates !== undefined ? coordinates[1] : null,
 
     firstName: firstName,
     lastName: lastName,
     primaryPhone: input.primary_phone,
-    secondaryPhone: input.cell_number,
-    //email: input.email,
+    secondaryPhone: input.secondary_phone,
+    faxNumber: input.fax_number,
     legalDescriptionText: input.legal_description,
+    hiveCount: input.hive_count,
+    apiarySiteId: input.apiary_site_id,
+
+    dairyTanks: input.mal_dairy_farm_tank.map((xref, index) => ({
+      ...dairyTank.convertToLogicalModel(xref),
+      key: index,
+    })),
 
     createdBy: input.create_userid,
     createdOn: input.create_timestamp,
@@ -78,15 +88,20 @@ function convertToPhysicalModel(input, update) {
   }
 
   let contactName = null;
-  if( input.firstName !== null && input.lastName !== null ) {
+  if (
+    input.firstName !== null &&
+    input.firstName !== undefined &&
+    input.lastName !== null &&
+    input.lastName !== undefined
+  ) {
     contactName = `${input.firstName} ${input.lastName}`;
   }
 
   let gpsCoordinates = null;
-  if( input.latitude !== null ) {
+  if (input.latitude !== null && input.latitude !== undefined) {
     gpsCoordinates = input.latitude;
   }
-  if( input.longitude !== null ) {
+  if (input.longitude !== null && input.longitude !== undefined) {
     gpsCoordinates += `,${input.longitude}`;
   }
 
@@ -119,9 +134,12 @@ function convertToPhysicalModel(input, update) {
 
     contact_name: contactName,
     primary_phone: input.primaryPhone,
-    cell_number: input.secondaryPhone,
+    secondary_phone: input.secondaryPhone,
+    fax_number: input.faxNumber,
     //email: input.email,
     legal_description: input.legalDescriptionText,
+    hive_count: input.hiveCount,
+    apiary_site_id: input.apiarySiteId,
 
     create_userid: input.createdBy,
     create_timestamp: input.createdOn,

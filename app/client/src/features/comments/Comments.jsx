@@ -60,8 +60,7 @@ export default function Comments({ licence }) {
     dispatch(createComment(payload));
   };
 
-  const onCancel = () => {
-  };
+  const onCancel = () => {};
 
   const editCommentCallback = (data) => {
     const payload = {
@@ -70,7 +69,7 @@ export default function Comments({ licence }) {
       licenceComment: data.commentText,
     };
 
-    dispatch(updateComment({comment: payload, id: data.commentId}));
+    dispatch(updateComment({ comment: payload, id: data.commentId }));
   };
 
   const editComment = (licenceId, commentId, commentText) => {
@@ -93,7 +92,7 @@ export default function Comments({ licence }) {
           rows={6}
           maxLength={2000}
           name="commentText"
-          ref={register({required: true})}
+          ref={register({ required: true })}
           className="mb-1"
           isInvalid={errors.commentText}
         />
@@ -102,7 +101,7 @@ export default function Comments({ licence }) {
         </Form.Control.Feedback>
         <SubmissionButtons
           submitButtonLabel={submissionLabel}
-          submitButtonDisabled={submitting||!hasComment}
+          submitButtonDisabled={submitting || !hasComment}
           cancelButtonVisible
           cancelButtonOnClick={onCancel}
           align="right"
@@ -123,11 +122,11 @@ export default function Comments({ licence }) {
                         <Button
                           type="button"
                           onClick={() =>
-                              editComment(
-                                licence.id,
-                                comment.id,
-                                comment.licence_comment,
-                              )
+                            editComment(
+                              licence.id,
+                              comment.id,
+                              comment.licence_comment
+                            )
                           }
                           variant="text"
                           block

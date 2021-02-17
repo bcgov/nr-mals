@@ -20,7 +20,7 @@ export const createComment = createAsyncThunk(
 
 export const updateComment = createAsyncThunk(
   "comments/updateComment",
-  async ({comment, id}, thunkApi) => {
+  async ({ comment, id }, thunkApi) => {
     try {
       const response = await Api.put(`comments/${id}`, comment);
       return response.data;

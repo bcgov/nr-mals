@@ -36,7 +36,7 @@ async function updateComment(id, payload) {
       id: id,
     },
     include: {
-      mal_licence: true
+      mal_licence: true,
     },
   });
 }
