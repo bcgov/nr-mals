@@ -297,7 +297,7 @@ parameters:
     resides.
   displayName: ImageStream Namespace
   name: IMAGE_STREAM_NAMESPACE
-  value: "bsoszr-tools"
+  value: "30245e-tools"
 - name: IMAGE_STREAM_TAG
   description: Patroni ImageTag
   value: patroni:v13-latest
@@ -310,4 +310,4 @@ parameters:
 - name: IMAGE_REGISTRY
   #ocp3#docker-registry.default.svc:5000
   #ocp4#image-registry.openshift-image-registry.svc:5000
-  value: docker-registry.default.svc:5000
+  value: image-registry.openshift-image-registry.svc:5000
