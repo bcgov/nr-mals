@@ -452,10 +452,10 @@ model mal_dairy_farm_tank {
   serial_number    String?
   calibration_date DateTime?
   issue_date       DateTime?
-  company          String?
-  model            String?
-  capacity         String?
-  recheck_year     DateTime?
+  company_name     String?
+  model_number     String?
+  tank_capacity    String?
+  recheck_year     String?
   create_userid    String
   create_timestamp DateTime
   update_userid    String

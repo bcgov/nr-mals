@@ -78,6 +78,7 @@ export default function DairyTankDetailsEdit({ form, dairyTank }) {
                 name={`${fieldName}.recheckYear`}
                 defaultValue={dairyTank.recheckYear}
                 ref={register}
+                maxLength={4}
               />
             </Form.Group>
           </Col>
