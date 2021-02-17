@@ -161,7 +161,6 @@ model mal_licence {
 
   @@index([irma_number], name: "mal_lic_irma_number_idx")
   @@index([licence_type_id], name: "mal_lic_licence_type_id_idx")
-  @@index([person_id], name: "mal_lic_person_id_idx")
   @@index([plant_code_id], name: "mal_lic_plant_code_idx")
   @@index([region_id], name: "mal_lic_region_id_idx")
   @@index([regional_district_id], name: "mal_lic_regional_district_id_idx")
@@ -238,6 +237,7 @@ model mal_region_lu {
   update_timestamp         DateTime
   mal_licence              mal_licence[]
   mal_regional_district_lu mal_regional_district_lu[]
+  mal_site                 mal_site[]
 }
 
 model mal_regional_district_lu {
@@ -252,6 +252,7 @@ model mal_regional_district_lu {
   update_timestamp DateTime
   mal_region_lu    mal_region_lu @relation(fields: [region_id], references: [id])
   mal_licence      mal_licence[]
+  mal_site         mal_site[]
 
   @@unique([region_id, district_number], name: "mal_regdist_region_district_uk")
 }
