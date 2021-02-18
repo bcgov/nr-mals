@@ -367,6 +367,13 @@ router.put("/:licenceId(\\d+)/registrants", async (req, res, next) => {
     (r) => r.status === REGISTRANT_STATUS.EXISTING
   );
 
+  const createRegistrantPayloads = registrantsToCreate.map((r) =>
+    registrant.convertToNewLicenceXrefPhysicalModel(r, licenceId, now)
+  );
+  const updateRegistrantPayloads = registrantsToUpdate.map((r) =>
+    registrant.convertToUpdatePhysicalModel(r, now)
+  );
+
   await findLicence(licenceId)
     .then(async (record) => {
       if (record === null) {
@@ -376,14 +383,55 @@ router.put("/:licenceId(\\d+)/registrants", async (req, res, next) => {
         });
       }
 
-      const createRegistrantPayloads = registrantsToCreate.map((r) =>
-        registrant.convertToNewLicenceXrefPhysicalModel(r, licenceId, now)
-      );
-      const updateRegistrantPayloads = registrantsToUpdate.map((r) =>
-        registrant.convertToUpdatePhysicalModel(r, now)
-      );
-
       await createRegistrants(createRegistrantPayloads);
+ 
+      return licenceId;
+    })
+    .then(async (licenceId) => {
+      // Current primary registrant could be getting deleted which would break the FK
+      // First check the updated list for the oldest entry
+      // If none exist get the oldest from the created list
+
+      const updatedRecord = await findLicence(licenceId);
+      let updatedRecordLogical = licence.convertToLogicalModel(updatedRecord);
+      let recordRegistrants = updatedRecordLogical.registrants;
+      recordRegistrants.sort((a,b) => (a.createTimestamp > b.createTimestamp) ? 1 : ((b.createTimestamp > a.createTimestamp) ? -1 : 0));
+
+      let search = registrantsToUpdate.length > 0 ? registrantsToUpdate : registrantsToCreate;
+
+      for( r = 0; r < recordRegistrants.length; ++r ) {
+        if( search.find( x => x.id === recordRegistrants[r].id ) !== undefined ) {
+          newPrimaryRegistrant = recordRegistrants[r];
+          break;
+        }
+      }
+
+      // Send new primary registrant id if necessary
+      if( newPrimaryRegistrant.id !== updatedRecordLogical.primaryRegistrantId ) {
+        updatedRecordLogical.primaryRegistrantId = newPrimaryRegistrant.id;
+
+        // Update issued and expiry dates
+        updatedRecordLogical.issuedOnDate = new Date(updatedRecordLogical.issuedOnDate);
+        updatedRecordLogical.expiryDate = new Date(updatedRecordLogical.expiryDate);
+
+        // Reset some connect variables for the update
+        updatedRecordLogical.licenceType = updatedRecordLogical.licenceTypeId;
+        updatedRecordLogical.licenceStatus = updatedRecordLogical.licenceStatusId;
+        updatedRecordLogical.regionalDistrict = updatedRecordLogical.regionalDistrictId;
+        updatedRecordLogical.region = updatedRecordLogical.regionId;
+
+        
+        const updatedLicencePayload = licence.convertToPhysicalModel(
+          populateAuditColumnsUpdate(updatedRecordLogical, now, now),
+          true
+        );
+        await updateLicence(licenceId, updatedLicencePayload);
+      }
+
+      return licenceId;
+    })
+    .then(async (licenceId) => {
+      // Complete registrant updates
       await deleteRegistrants(licenceId, registrantsToDelete);
       await updateRegistrants(licenceId, updateRegistrantPayloads);
 
@@ -430,6 +478,33 @@ router.post("/", async (req, res, next) => {
         );
         await comments.createComment(commentPayload);
       }
+
+      return licenceId;
+    })
+    .then(async (licenceId) => {
+      // Update the primary registrant id
+      const updatedRecord = await findLicence(licenceId);
+      const updatedRecordLogical = licence.convertToLogicalModel(updatedRecord);
+      let registrants = updatedRecordLogical.registrants;
+      registrants.sort((a,b) => (a.createTimestamp > b.createTimestamp) ? 1 : ((b.createTimestamp > a.createTimestamp) ? -1 : 0));
+      updatedRecordLogical.primaryRegistrantId = registrants[0].id;
+
+      // Update issued and expiry dates
+      updatedRecordLogical.issuedOnDate = new Date(updatedRecordLogical.issuedOnDate);
+      updatedRecordLogical.expiryDate = new Date(updatedRecordLogical.expiryDate);
+
+      // Reset some connect variables for the update
+      updatedRecordLogical.licenceType = updatedRecordLogical.licenceTypeId;
+      updatedRecordLogical.licenceStatus = updatedRecordLogical.licenceStatusId;
+      updatedRecordLogical.regionalDistrict = updatedRecordLogical.regionalDistrictId;
+      updatedRecordLogical.region = updatedRecordLogical.regionId;
+
+      // Send new primary registrant id
+      const updatedLicencePayload = licence.convertToPhysicalModel(
+        populateAuditColumnsUpdate(updatedRecordLogical, now, now),
+        true
+      );
+      await updateLicence(licenceId, updatedLicencePayload);
 
       return licenceId;
     })

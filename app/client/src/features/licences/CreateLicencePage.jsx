@@ -116,6 +116,7 @@ function submissionController(setError, clearErrors, dispatch) {
       region: parseAsInt(data.region),
       regionalDistrict: parseAsInt(data.regionalDistrict),
       registrants: formatRegistrants(data.registrants),
+      primaryRegistrantId: null,
     };
 
     //console.log(data);

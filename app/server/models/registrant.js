@@ -16,6 +16,7 @@ function convertToLogicalModel(input) {
     label: input.company_name
       ? input.company_name
       : `${input.last_name}, ${input.first_name}`,
+    createdOn: input.create_timestamp,
   };
 
   return output;

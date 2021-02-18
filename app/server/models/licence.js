@@ -151,6 +151,14 @@ function convertToPhysicalModel(input, update) {
     emptyRegionalDistrict = disconnectRelation;
   }
 
+  let emptyPrimaryRegistrant;
+  if (
+    input.primaryRegistrantId !== undefined &&
+    input.primaryRegistrantId !== null
+  ) {
+    emptyPrimaryRegistrant = disconnectRelation;
+  }
+
   const output = {
     mal_region_lu:
       input.region === null
@@ -167,7 +175,12 @@ function convertToPhysicalModel(input, update) {
         : {
             connect: { id: input.regionalDistrict },
           },
-    primary_registrant_id: input.primaryRegistrantId,
+    mal_registrant_mal_licence_primary_registrant_idTomal_registrant: 
+      input.primaryRegistrantId  === null 
+        ? emptyPrimaryRegistrant 
+        : { 
+            connect: { id: input.primaryRegistrantId } 
+          },
     issue_date: input.issuedOnDate,
     expiry_date: input.expiryDate,
     fee_collected: input.feePaidAmount,
