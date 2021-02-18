@@ -20,6 +20,8 @@ import {
   setCurrentLicenceModeToView,
 } from "./licencesSlice";
 
+import { validateIrmaNumber, parseIrmaNumber } from "./irmaNumberUtility";
+
 import LicenceDetailsEdit from "./LicenceDetailsEdit";
 import LicenceDetailsView from "./LicenceDetailsView";
 
@@ -36,7 +38,7 @@ export default function LicenceDetailsViewEdit({ licence }) {
   const form = useForm({
     reValidateMode: "onBlur",
   });
-  const { register, handleSubmit, setValue } = form;
+  const { register, handleSubmit, clearErrors, setError, setValue } = form;
 
   useEffect(() => {
     register("applicationDate");
@@ -123,6 +125,17 @@ export default function LicenceDetailsViewEdit({ licence }) {
   const submissionLabel = submitting ? "Saving..." : "Save";
 
   const onSubmit = async (data) => {
+    clearErrors("irmaNumber");
+
+    let validationResult = validateIrmaNumber(data.irmaNumber);
+    if (validationResult === false) {
+      setError("irmaNumber", {
+        type: "invalid",
+      });
+
+      return;
+    }
+
     const payload = {
       ...data,
       feePaidAmount: data.paymentReceived
@@ -133,6 +146,7 @@ export default function LicenceDetailsViewEdit({ licence }) {
       regionalDistrict: parseAsInt(data.regionalDistrict),
       originalRegion: licence.data.regionId,
       originalRegionalDistrict: licence.data.regionalDistrictId,
+      irmaNumber: parseIrmaNumber(data.irmaNumber),
     };
 
     dispatch(updateLicence({ licence: payload, id: licence.data.id }));

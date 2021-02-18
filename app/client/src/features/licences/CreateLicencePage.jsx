@@ -47,6 +47,7 @@ import {
   LICENCE_TYPE_ID_PURCHASE_LIVE_POULTRY,
 } from "./constants";
 import { getLicenceTypeConfiguration } from "./licenceTypeUtility";
+import { parseIrmaNumber, validateIrmaNumber } from "./irmaNumberUtility";
 
 import LicenceDetailsEdit from "./LicenceDetailsEdit";
 import BondInformationEdit from "./BondInformationEdit";
@@ -79,7 +80,18 @@ let licenceStatuses = null;
 
 function submissionController(setError, clearErrors, dispatch) {
   const onSubmit = async (data) => {
-    const validationResult = validateRegistrants(
+    clearErrors("irmaNumber");
+
+    let validationResult = validateIrmaNumber(data.irmaNumber);
+    if (validationResult === false) {
+      setError("irmaNumber", {
+        type: "invalid",
+      });
+
+      return;
+    }
+
+    validationResult = validateRegistrants(
       data.registrants,
       setError,
       clearErrors
@@ -115,6 +127,7 @@ function submissionController(setError, clearErrors, dispatch) {
       licenceType: parseAsInt(data.licenceType),
       region: parseAsInt(data.region),
       regionalDistrict: parseAsInt(data.regionalDistrict),
+      irmaNumber: parseIrmaNumber(data.irmaNumber),
       registrants: formatRegistrants(data.registrants),
     };
 
