@@ -1,5 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
+import NumberFormat from "react-number-format";
 import { Row, Col } from "react-bootstrap";
 
 import {
@@ -57,7 +58,16 @@ export default function LicenceDetailsView({ licence }) {
       <Row className="mt-3">
         <Col lg={4}>
           {config.replaceExpiryDateWithIrmaNumber ? (
-            <VerticalField label="IRMA Number" value={licence.irmaNumber} />
+            <VerticalField
+              label="IRMA Number"
+              value={
+                <NumberFormat
+                  displayType="text"
+                  format="##-###"
+                  value={licence.irmaNumber}
+                />
+              }
+            />
           ) : (
             <VerticalField
               label="Expiry Date"
