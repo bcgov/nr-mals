@@ -99,9 +99,10 @@ function getSearchFilter(params) {
         },
       });
     }
-    if (params.city) {
-      andArray.push({ city: { contains: params.city, mode: "insensitive" } });
-    }
+    // disable filtering on city until it is added to the view
+    // if (params.city) {
+    //   andArray.push({ city: { contains: params.city, mode: "insensitive" } });
+    // }
     if (params.issuedDateFrom) {
       andArray.push({ issue_date: { gte: params.issuedDateFrom } });
     }
