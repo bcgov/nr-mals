@@ -261,7 +261,6 @@ export default function LicenceSearchPage() {
                       name="city"
                       defaultValue={defaultParameters.city}
                       onChange={(e) => setParameter("city", e.target.value)}
-                      disabled // disable filtering on city until it is added to the view
                     />
                   </Form.Group>
                 </Col>
