@@ -86,7 +86,7 @@ export default function DairyTankDetailsEdit({ form, dairyTank }) {
             <Form.Group controlId={`${fieldName}.serialNumber`}>
               <Form.Label>Serial Number</Form.Label>
               <Form.Control
-                type="number"
+                type="text"
                 name={`${fieldName}.serialNumber`}
                 defaultValue={dairyTank.serialNumber}
                 ref={register}
@@ -115,7 +115,7 @@ export default function DairyTankDetailsEdit({ form, dairyTank }) {
             <Form.Group controlId={`${fieldName}.capacity`}>
               <Form.Label>Capacity</Form.Label>
               <Form.Control
-                type="number"
+                type="text"
                 name={`${fieldName}.capacity`}
                 defaultValue={dairyTank.capacity}
                 ref={register}
