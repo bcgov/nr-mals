@@ -23,7 +23,6 @@ import {
   updateSite,
   setCurrentSiteModeToEdit,
   setCurrentSiteModeToView,
-  selectUpdatedSite,
 } from "./sitesSlice";
 
 import SiteDetailsEdit from "./SiteDetailsEdit";
@@ -31,8 +30,6 @@ import SiteDetailsView from "./SiteDetailsView";
 
 export default function SiteDetailsViewEdit({ site, licence }) {
   const { status, error, mode } = site;
-
-  const updated = useSelector(selectUpdatedSite);
 
   const dispatch = useDispatch();
 
@@ -106,10 +103,6 @@ export default function SiteDetailsViewEdit({ site, licence }) {
     mode,
   ]);
 
-  if (updated && updated.status === REQUEST_STATUS.FULFILLED) {
-    return <Redirect to={`${LICENSES_PATHNAME}/${licence.id}`} />;
-  }
-
   if (mode === LICENCE_MODE.VIEW) {
     const onEdit = () => {
       dispatch(setCurrentSiteModeToEdit());
@@ -148,6 +141,7 @@ export default function SiteDetailsViewEdit({ site, licence }) {
       originalRegion: site.data.regionId,
       originalRegionalDistrict: site.data.regionalDistrictId,
       hiveCount: parseAsInt(data.hiveCount),
+      postalCode: site.data.postalCode.replace(" ", ""),
       primaryPhone: data.primaryPhone
         ? data.primaryPhone.replace(/\D/g, "")
         : undefined,

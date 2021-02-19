@@ -82,9 +82,6 @@ export const sitesSlice = createSlice({
       mode: LICENCE_MODE.VIEW,
       dairyTankMode: DAIRY_TANK_MODE.VIEW,
     },
-    updatedSite: {
-      status: REQUEST_STATUS.IDLE,
-    },
   },
   reducers: {
     clearCreatedSite: (state) => {
@@ -144,7 +141,6 @@ export const sitesSlice = createSlice({
     [updateSite.pending]: (state) => {
       state.currentSite.error = undefined;
       state.currentSite.status = REQUEST_STATUS.PENDING;
-      state.updatedSite.status = REQUEST_STATUS.PENDING;
     },
     [updateSite.fulfilled]: (state, action) => {
       state.currentSite.data = action.payload;
@@ -152,12 +148,10 @@ export const sitesSlice = createSlice({
       state.currentSite.status = REQUEST_STATUS.FULFILLED;
       state.currentSite.mode = LICENCE_MODE.VIEW;
       state.currentSite.dairyTankMode = DAIRY_TANK_MODE.VIEW;
-      state.updatedSite.status = REQUEST_STATUS.FULFILLED;
     },
     [updateSite.rejected]: (state, action) => {
       state.currentSite.error = action.payload;
       state.currentSite.status = REQUEST_STATUS.REJECTED;
-      state.updatedSite.status = REQUEST_STATUS.REJECTED;
     },
     [updateSiteDairyTanks.pending]: (state) => {
       state.currentSite.error = undefined;
@@ -179,7 +173,6 @@ export const sitesSlice = createSlice({
 
 export const selectCreatedSite = (state) => state.sites.createdSite;
 export const selectCurrentSite = (state) => state.sites.currentSite;
-export const selectUpdatedSite = (state) => state.sites.updatedSite;
 
 const { actions, reducer } = sitesSlice;
 
