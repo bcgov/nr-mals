@@ -466,162 +466,31 @@ model mal_dairy_farm_tank {
   @@index([site_id], name: "mal_dryfrmtnk_site_id_idx")
 }
 
-model mal_inventory_fur_farm {
-  id                                Int                               @id @default(autoincrement())
-  licence_id                        Int
-  species_fur_code_id               Int
-  species_fur_inventory_code_id     Int
-  recorded_date                     DateTime
-  recorded_value                    Float
-  old_identifier                    String?
-  create_userid                     String
-  create_timestamp                  DateTime
-  update_userid                     String
-  update_timestamp                  DateTime
-  mal_species_fur_code_lu           mal_species_fur_code_lu           @relation(fields: [species_fur_code_id], references: [id])
-  mal_species_fur_inventory_code_lu mal_species_fur_inventory_code_lu @relation(fields: [species_fur_inventory_code_id], references: [id])
+model mal_city_lu {
+  id               Int             @id @default(autoincrement())
+  province_id      Int
+  city_name        String          @unique
+  city_description String
+  active_flag      Boolean
+  create_userid    String
+  create_timestamp DateTime
+  update_userid    String
+  update_timestamp DateTime
+  mal_province_lu  mal_province_lu @relation(fields: [province_id], references: [id])
 
-  @@unique([licence_id, species_fur_code_id, species_fur_inventory_code_id, recorded_date], name: "inv_invfurfrm_uk")
-  @@index([licence_id], name: "mal_invfurfrm_licence_id_idx")
-  @@index([species_fur_code_id], name: "mal_invfurfrm_species_fur_code_id_idx")
-  @@index([species_fur_inventory_code_id], name: "mal_invfurfrm_species_fur_inventory_code_id_idx")
+  @@unique([province_id, city_name], name: "mcl_province_id_city_name_uk")
 }
 
-model mal_inventory_game_farm {
-  id                                 Int                                @id @default(autoincrement())
-  licence_id                         Int
-  species_game_code_id               Int
-  species_game_inventory_code_id     Int
-  add_reason_code_id                 Int?
-  delete_reason_code_id              Int?
-  recorded_date                      DateTime
-  recorded_value                     Float
-  tag_number                         String?
-  abattoir                           String?
-  buyer_seller                       String?
-  create_userid                      String
-  create_timestamp                   DateTime
-  update_userid                      String
-  update_timestamp                   DateTime
-  mal_species_game_code_lu           mal_species_game_code_lu           @relation(fields: [species_game_code_id], references: [id])
-  mal_species_game_inventory_code_lu mal_species_game_inventory_code_lu @relation(fields: [species_game_inventory_code_id], references: [id])
-
-  @@unique([licence_id, species_game_code_id, species_game_inventory_code_id, recorded_date, tag_number], name: "inv_invgamfrm_uk")
-  @@index([licence_id], name: "mal_invgamfrm_licence_id_idx")
-  @@index([species_game_code_id], name: "mal_invgamfrm_species_game_code_id_idx")
-  @@index([species_game_inventory_code_id], name: "mal_invgamfrm_species_game_inventory_code_id_idx")
-}
-
-model mal_species_dairy_code_lu {
-  id                                  Int                                   @id @default(autoincrement())
-  code_name                           String                                @unique
-  code_description                    String?
-  active_flag                         Boolean
-  create_userid                       String
-  create_timestamp                    DateTime
-  update_userid                       String
-  update_timestamp                    DateTime
-  mal_species_dairy_inventory_code_lu mal_species_dairy_inventory_code_lu[]
-}
-
-model mal_species_dairy_inventory_code_lu {
-  id                        Int                       @id @default(autoincrement())
-  species_dairy_code_id     Int
-  code_name                 String
-  code_description          String?
-  active_flag               Boolean
-  create_userid             String
-  create_timestamp          DateTime
-  update_userid             String
-  update_timestamp          DateTime
-  mal_species_dairy_code_lu mal_species_dairy_code_lu @relation(fields: [species_dairy_code_id], references: [id])
-
-  @@unique([species_dairy_code_id, code_name], name: "mal_spcdryinvcd_id_code_uk")
-}
-
-model mal_species_fur_code_lu {
-  id                                Int                                 @id @default(autoincrement())
-  code_name                         String                              @unique
-  code_description                  String?
-  active_flag                       Boolean
-  create_userid                     String
-  create_timestamp                  DateTime
-  update_userid                     String
-  update_timestamp                  DateTime
-  mal_inventory_fur_farm            mal_inventory_fur_farm[]
-  mal_species_fur_inventory_code_lu mal_species_fur_inventory_code_lu[]
-}
-
-model mal_species_fur_inventory_code_lu {
-  id                      Int                      @id @default(autoincrement())
-  species_fur_code_id     Int
-  code_name               String
-  code_description        String?
-  active_flag             Boolean
-  create_userid           String
-  create_timestamp        DateTime
-  update_userid           String
-  update_timestamp        DateTime
-  mal_species_fur_code_lu mal_species_fur_code_lu  @relation(fields: [species_fur_code_id], references: [id])
-  mal_inventory_fur_farm  mal_inventory_fur_farm[]
-
-  @@unique([species_fur_code_id, code_name], name: "mal_spcfurinvcd_id_code_uk")
-}
-
-model mal_species_game_code_lu {
-  id                                 Int                                  @id @default(autoincrement())
-  code_name                          String                               @unique
-  code_description                   String?
-  active_flag                        Boolean
-  create_userid                      String
-  create_timestamp                   DateTime
-  update_userid                      String
-  update_timestamp                   DateTime
-  mal_inventory_game_farm            mal_inventory_game_farm[]
-  mal_species_game_inventory_code_lu mal_species_game_inventory_code_lu[]
-}
-
-model mal_species_game_inventory_code_lu {
-  id                       Int                       @id @default(autoincrement())
-  species_game_code_id     Int
-  code_name                String
-  code_description         String?
-  active_flag              Boolean
-  create_userid            String
-  create_timestamp         DateTime
-  update_userid            String
-  update_timestamp         DateTime
-  mal_species_game_code_lu mal_species_game_code_lu  @relation(fields: [species_game_code_id], references: [id])
-  mal_inventory_game_farm  mal_inventory_game_farm[]
-
-  @@unique([species_game_code_id, code_name], name: "mal_spcgaminvcd_id_code_uk")
-}
-
-model mal_species_sale_code_lu {
-  id                                 Int                                  @id @default(autoincrement())
-  code_name                          String                               @unique
-  code_description                   String?
-  active_flag                        Boolean
-  create_userid                      String
-  create_timestamp                   DateTime
-  update_userid                      String
-  update_timestamp                   DateTime
-  mal_species_sale_inventory_code_lu mal_species_sale_inventory_code_lu[]
-}
-
-model mal_species_sale_inventory_code_lu {
-  id                       Int                      @id @default(autoincrement())
-  species_sale_code_id     Int
-  code_name                String
-  code_description         String?
-  active_flag              Boolean
-  create_userid            String
-  create_timestamp         DateTime
-  update_userid            String
-  update_timestamp         DateTime
-  mal_species_sale_code_lu mal_species_sale_code_lu @relation(fields: [species_sale_code_id], references: [id])
-
-  @@unique([species_sale_code_id, code_name], name: "mal_spcsalinvcd_id_code_uk")
+model mal_province_lu {
+  id                   Int           @id @default(autoincrement())
+  province_code        String        @unique
+  province_description String
+  active_flag          Boolean
+  create_userid        String
+  create_timestamp     DateTime
+  update_userid        String
+  update_timestamp     DateTime
+  mal_city_lu          mal_city_lu[]
 }
 
 model mal_licence_summary_vw {
