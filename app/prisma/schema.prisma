@@ -466,6 +466,33 @@ model mal_dairy_farm_tank {
   @@index([site_id], name: "mal_dryfrmtnk_site_id_idx")
 }
 
+model mal_city_lu {
+  id               Int             @id @default(autoincrement())
+  province_id      Int
+  city_name        String          @unique
+  city_description String
+  active_flag      Boolean
+  create_userid    String
+  create_timestamp DateTime
+  update_userid    String
+  update_timestamp DateTime
+  mal_province_lu  mal_province_lu @relation(fields: [province_id], references: [id])
+
+  @@unique([province_id, city_name], name: "mcl_province_id_city_name_uk")
+}
+
+model mal_province_lu {
+  id                   Int           @id @default(autoincrement())
+  province_code        String        @unique
+  province_description String
+  active_flag          Boolean
+  create_userid        String
+  create_timestamp     DateTime
+  update_userid        String
+  update_timestamp     DateTime
+  mal_city_lu          mal_city_lu[]
+}
+
 model mal_licence_summary_vw {
   licence_id           Int       @unique
   licence_type_id      Int
@@ -484,4 +511,16 @@ model mal_licence_summary_vw {
   expiry_date          DateTime?
   region_name          String?
   district_name        String?
+  address_line_1       String?
+  address_line_2       String?
+  city                 String?
+  province             String?
+  postal_code          String?
+  country              String?
+  mail_address_line_1  String?
+  mail_address_line_2  String?
+  mail_city            String?
+  mail_province        String?
+  mail_country         String?
+  print_certificate    Boolean
 }

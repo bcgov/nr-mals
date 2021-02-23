@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { useSelector, useDispatch } from "react-redux";
+import NumberFormat from "react-number-format";
+import { Controller } from "react-hook-form";
 import { Button, Form, Col, InputGroup } from "react-bootstrap";
 
 import { LICENCE_MODE } from "../../utilities/constants";
@@ -18,6 +20,7 @@ import Regions from "../lookups/Regions";
 import RegionalDistricts from "../lookups/RegionalDistricts";
 
 import { getLicenceTypeConfiguration } from "./licenceTypeUtility";
+import { formatIrmaNumber } from "./irmaNumberUtility";
 
 import { ADDRESS, AddressModal } from "../../modals/AddressModal";
 import { PHONE, PhoneNumberModal } from "../../modals/PhoneNumberModal";
@@ -32,7 +35,7 @@ export default function LicenceDetailsEdit({
   licenceTypeId,
   mode,
 }) {
-  const { watch, setValue, register, errors } = form;
+  const { watch, setValue, register, errors, control } = form;
   const dispatch = useDispatch();
   const regions = useSelector(selectRegions);
 
@@ -262,12 +265,19 @@ export default function LicenceDetailsEdit({
           {config.replaceExpiryDateWithIrmaNumber ? (
             <Form.Group controlId="irmaNumber">
               <Form.Label>IRMA Number</Form.Label>
-              <Form.Control
-                type="text"
+              <Controller
+                as={NumberFormat}
                 name="irmaNumber"
-                defaultValue={initialValues.irmaNumber}
-                ref={register}
+                control={control}
+                defaultValue={formatIrmaNumber(initialValues.irmaNumber)}
+                format="##-###"
+                mask="_"
+                customInput={Form.Control}
+                isInvalid={errors.irmaNumber}
               />
+              <Form.Control.Feedback type="invalid">
+                Please enter a valid IRMA number.
+              </Form.Control.Feedback>
             </Form.Group>
           ) : (
             <CustomDatePicker

@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { Link, Redirect } from "react-router-dom";
+import { Link, Redirect, useHistory } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { Alert, Button, Col, Container, Form } from "react-bootstrap";
 import { startOfToday, add, set } from "date-fns";
@@ -47,6 +47,7 @@ import {
   LICENCE_TYPE_ID_PURCHASE_LIVE_POULTRY,
 } from "./constants";
 import { getLicenceTypeConfiguration } from "./licenceTypeUtility";
+import { parseIrmaNumber, validateIrmaNumber } from "./irmaNumberUtility";
 
 import LicenceDetailsEdit from "./LicenceDetailsEdit";
 import BondInformationEdit from "./BondInformationEdit";
@@ -79,7 +80,18 @@ let licenceStatuses = null;
 
 function submissionController(setError, clearErrors, dispatch) {
   const onSubmit = async (data) => {
-    const validationResult = validateRegistrants(
+    clearErrors("irmaNumber");
+
+    let validationResult = validateIrmaNumber(data.irmaNumber);
+    if (validationResult === false) {
+      setError("irmaNumber", {
+        type: "invalid",
+      });
+
+      return;
+    }
+
+    validationResult = validateRegistrants(
       data.registrants,
       setError,
       clearErrors
@@ -115,6 +127,7 @@ function submissionController(setError, clearErrors, dispatch) {
       licenceType: parseAsInt(data.licenceType),
       region: parseAsInt(data.region),
       regionalDistrict: parseAsInt(data.regionalDistrict),
+      irmaNumber: parseIrmaNumber(data.irmaNumber),
       registrants: formatRegistrants(data.registrants),
       primaryRegistrantId: null,
     };
@@ -129,6 +142,7 @@ function submissionController(setError, clearErrors, dispatch) {
 export default function CreateLicencePage() {
   const createdLicence = useSelector(selectCreatedLicence);
   licenceStatuses = useSelector(selectLicenceStatuses);
+  const history = useHistory();
 
   const dispatch = useDispatch();
 
@@ -214,6 +228,11 @@ export default function CreateLicencePage() {
   const submissionLabel = submitting ? "Submitting..." : "Create";
   const draftLabel = submitting ? "Submitting..." : "Save Draft";
 
+  const createAnotherLicence = () => {
+    dispatch(clearCreatedLicence());
+    history.push(`${LICENSES_PATHNAME}/search`);
+  };
+
   if (createdLicence.status === REQUEST_STATUS.FULFILLED) {
     if (createDraft === true) {
       return <Redirect to={`${LICENSES_PATHNAME}/search`} />;
@@ -238,7 +257,7 @@ export default function CreateLicencePage() {
               <Col sm={4}>
                 <Button
                   type="button"
-                  onClick={() => dispatch(clearCreatedLicence())}
+                  onClick={createAnotherLicence}
                   variant="primary"
                   block
                 >

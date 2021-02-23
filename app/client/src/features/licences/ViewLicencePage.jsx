@@ -7,7 +7,11 @@ import { REQUEST_STATUS, SITES_PATHNAME } from "../../utilities/constants";
 
 import PageHeading from "../../components/PageHeading";
 import RegistrantsViewEdit from "../registrants/RegistrantsViewEdit";
-import { fetchLicence, selectCurrentLicence } from "./licencesSlice";
+import {
+  fetchLicence,
+  clearCurrentLicence,
+  selectCurrentLicence,
+} from "./licencesSlice";
 import { selectCreatedSite } from "../sites/sitesSlice";
 import LicenceDetailsViewEdit from "./LicenceDetailsViewEdit";
 import LicenceHeader from "./LicenceHeader";
@@ -25,6 +29,7 @@ export default function ViewLicencePage() {
   const createdSite = useSelector(selectCreatedSite);
 
   useEffect(() => {
+    dispatch(clearCurrentLicence());
     dispatch(fetchLicence(id));
   }, [dispatch, id]);
 

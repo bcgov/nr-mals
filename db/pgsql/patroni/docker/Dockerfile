@@ -1,4 +1,4 @@
-FROM postgres:11
+FROM postgres:12
 MAINTAINER Alexander Kukushkin <alexander.kukushkin@zalando.de>
 ENV PATRONI_VERSION=2.0.1
 ENV LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
