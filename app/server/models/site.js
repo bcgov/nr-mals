@@ -55,15 +55,48 @@ function convertToLogicalModel(input) {
     hiveCount: input.hive_count,
     apiarySiteId: input.apiary_site_id,
 
-    dairyTanks: input.mal_dairy_farm_tank ? input.mal_dairy_farm_tank.map((xref, index) => ({
-      ...dairyTank.convertToLogicalModel(xref),
-      key: index,
-    })) : null,
+    dairyTanks: input.mal_dairy_farm_tank
+      ? input.mal_dairy_farm_tank.map((xref, index) => ({
+          ...dairyTank.convertToLogicalModel(xref),
+          key: index,
+        }))
+      : null,
 
     createdBy: input.create_userid,
     createdOn: input.create_timestamp,
     updatedBy: input.update_userid,
     updatedOn: input.update_timestamp,
+  };
+
+  return output;
+}
+
+function convertSearchResultToLogicalModel(input) {
+  const output = {
+    siteId: input.site_id_pk,
+    siteStatus: input.site_status,
+    siteStatusId: input.site_status_id_fk,
+    licenceNumber: input.licence_number,
+    licenceIrmaNumber: input.licence_irma_number,
+    licenceType: input.licence_type,
+    licenceTypeId: input.licence_type_id_fk,
+    licenceStatus: input.licence_status,
+    licenceStatusId: input.licence_status_id_fk,
+    apiarySiteId: input.apiary_site_id,
+    apiarySiteIdDisplay: input.apiary_site_id_display,
+    siteContactName: input.site_contact_name,
+    registrantFirstName: input.registrant_first_name,
+    registrantLastName: input.registrant_last_name,
+    registrantFirstLast: input.registrant_first_last,
+    registrantLastFirst: input.registrant_last_first,
+    registrantCompanyName: input.registrant_company_name,
+    registrantPrimaryghone: input.registrant_primary_phone,
+    registrantEmailAddress: input.registrant_email_address,
+    licenceCity: input.licence_city,
+    licenceRegionId: input.licence_region_number,
+    licenceRegion: input.licence_region_name,
+    licenceDistrictId: input.licence_regional_district_number,
+    licenceDistrict: input.licence_regional_district_name,
   };
 
   return output;
@@ -152,5 +185,6 @@ function convertToPhysicalModel(input, update) {
 
 module.exports = {
   convertToPhysicalModel,
+  convertSearchResultToLogicalModel,
   convertToLogicalModel,
 };

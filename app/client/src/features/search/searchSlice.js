@@ -10,6 +10,8 @@ export const selectLicenceParameters = (state) =>
   state.search.licences.parameters;
 export const selectLicenceResults = (state) => state.search.licences.results;
 
+export const selectSiteSearchType = (state) => state.search.sites.searchType;
+export const selectSiteParameters = (state) => state.search.sites.parameters;
 export const selectSiteResults = (state) => state.search.sites.results;
 
 export const fetchLicenceResults = createAsyncThunk(
@@ -41,10 +43,13 @@ export const fetchLicenceResults = createAsyncThunk(
 
 export const fetchSiteResults = createAsyncThunk(
   "search/fetchSiteResults",
-  async (id, thunkApi) => {
+  async (_, thunkApi) => {
     try {
+      const parameters = selectSiteParameters(thunkApi.getState());
+      console.log(parameters);
+
       const parsedParameters = {
-        licenceId: id,
+        ...parameters,
       };
 
       const response = await Api.get(`sites/search`, parsedParameters);
@@ -85,6 +90,7 @@ export const searchSlice = createSlice({
     },
   },
   reducers: {
+    // Licences
     clearLicenceParameters: (state) => {
       state.licences.parameters = {};
       state.licences.searchType = SEARCH_TYPE.SIMPLE;
@@ -107,6 +113,28 @@ export const searchSlice = createSlice({
     },
     setLicenceSearchPage: (state, action) => {
       state.licences.parameters.page = action.payload;
+    },
+
+    // Sites
+    clearSiteParameters: (state) => {
+      state.sites.parameters = {};
+      state.sites.searchType = SEARCH_TYPE.SIMPLE;
+    },
+    clearSiteResults: (state) => {
+      state.sites.results.data = undefined;
+      state.sites.results.error = undefined;
+      state.sites.results.status = REQUEST_STATUS.IDLE;
+    },
+    toggleSiteSearchType: (state) => {
+      const currentSearchType = state.sites.searchType;
+      state.sites.searchType =
+        currentSearchType === SEARCH_TYPE.SIMPLE
+          ? SEARCH_TYPE.ADVANCED
+          : SEARCH_TYPE.SIMPLE;
+    },
+    setSiteParameters: (state, action) => {
+      state.sites.parameters = action.payload;
+      state.sites.results.status = REQUEST_STATUS.IDLE;
     },
     setSiteSearchPage: (state, action) => {
       state.sites.parameters.page = action.payload;
@@ -156,6 +184,11 @@ export const {
   toggleLicenceSearchType,
   setLicenceParameters,
   setLicenceSearchPage,
+
+  clearSiteParameters,
+  clearSiteResults,
+  toggleSiteSearchType,
+  setSiteParameters,
   setSiteSearchPage,
 } = actions;
 

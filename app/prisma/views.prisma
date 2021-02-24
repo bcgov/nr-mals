@@ -30,3 +30,30 @@ model mal_licence_summary_vw {
   mail_country         String?
   print_certificate    Boolean
 }
+
+model mal_site_detail_vw {
+  site_id_pk                        Int       @unique
+  site_status                       String
+  site_status_id_fk                 Int
+  licence_number                    Int 
+  licence_irma_number               String?
+  licence_type                      String
+  licence_type_id_fk                Int
+  licence_status                    String
+  licence_status_id_fk              Int
+  apiary_site_id                    Int?
+  apiary_site_id_display            String?
+  site_contact_name                 String?
+  registrant_first_name             String?
+  registrant_last_name              String?
+  registrant_first_last             String?
+  registrant_last_first             String?
+  registrant_company_name           String?
+  registrant_primary_phone          String?
+  registrant_email_address          String?
+  licence_city                      String?
+  licence_region_number             String?
+  licence_region_name               String?
+  licence_regional_district_number  String?
+  licence_regional_district_name    String?
+}

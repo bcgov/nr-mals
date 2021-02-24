@@ -21,33 +21,112 @@ const DAIRY_TANK_STATUS = {
 
 function getSearchFilter(params) {
   let filter = {};
-  const andArray = [];
-  if (!Number.isNaN(params.licenceId)) {
-    andArray.push({ licence_id: parseInt(params.licenceId) });
+  if (params.keyword) {
+    const orArray = [
+      {
+        registrant_last_name: { contains: params.keyword, mode: "insensitive" },
+      },
+      {
+        apiary_site_id_display: {
+          contains: params.keyword,
+          mode: "insensitive",
+        },
+      },
+    ];
+
+    const keywordInt = parseInt(params.keyword, 10);
+    if (!Number.isNaN(keywordInt)) {
+      orArray.push({ licence_number: keywordInt });
+    }
+
+    filter = {
+      OR: orArray,
+    };
+  } else {
+    const andArray = [];
+    const licenceTypeId = parseInt(params.licenceType, 10);
+    const licenceNumber = parseInt(params.licenceNumber, 10);
+
+    if (!Number.isNaN(licenceTypeId)) {
+      andArray.push({ licence_type_id_fk: licenceTypeId });
+    }
+
+    if (params.registrantName) {
+      andArray.push({
+        registrant_last_name: {
+          contains: params.registrantName,
+          mode: "insensitive",
+        },
+      });
+    }
+
+    if (!Number.isNaN(licenceNumber)) {
+      andArray.push({ licence_number: licenceNumber });
+    }
+
+    if (params.siteID) {
+      andArray.push({
+        apiary_site_id: {
+          contains: params.siteID,
+          mode: "insensitive",
+        },
+      });
+    }
+
+    if (params.registrantEmail) {
+      andArray.push({
+        registrant_email_address: {
+          contains: params.registrantEmail,
+          mode: "insensitive",
+        },
+      });
+    }
+
+    if (params.contactName) {
+      andArray.push({
+        site_contact_name: {
+          contains: params.contactName,
+          mode: "insensitive",
+        },
+      });
+    }
+
+    filter = {
+      AND: andArray,
+    };
   }
-  filter = {
-    AND: andArray,
-  };
 
   return filter;
 }
 
 async function countSites(params) {
   const filter = getSearchFilter(params);
-  return prisma.mal_site.count({
+  return prisma.mal_site_detail_vw.count({
     where: filter,
   });
 }
 
-async function findSites(params, skip, take) {
+async function searchSites(params, skip, take) {
   const filter = getSearchFilter(params);
-  return prisma.mal_site.findMany({
+  console.log(filter);
+  return prisma.mal_site_detail_vw.findMany({
     where: filter,
+    skip,
+    take,
+  });
+}
+
+async function findSitesByLicenceId(licenceId) {
+  return prisma.mal_site.findMany({
+    where: {
+      licence_id: licenceId,
+    },
     include: {
       mal_region_lu: true,
       mal_regional_district_lu: true,
       mal_status_code_lu: true,
       mal_dairy_farm_tank: true,
+      mal_licence: true,
     },
     skip,
     take,
@@ -135,17 +214,17 @@ router.get("/search", async (req, res, next) => {
 
   const params = req.query;
 
-  await findSites(params, skip, size)
+  await searchSites(params, skip, size)
     .then(async (records) => {
       if (records === null) {
         return res.status(404).send({
           code: 404,
-          description: "The requested licence could not be found.",
+          description: "The requested site could not be found.",
         });
       }
 
       const results = records.map((record) =>
-        site.convertToLogicalModel(record)
+        site.convertSearchResultToLogicalModel(record)
       );
 
       const count = await countSites(params);
@@ -264,7 +343,7 @@ router.post("/", async (req, res, next) => {
 
   // Assign the apiary site id if required
   if (data.licenceTypeId === constants.LICENCE_TYPE_ID_APIARY) {
-    const sites = await findSites({ licenceId: data.licenceId });
+    const sites = await findSitesByLicenceId(data.licenceId);
     if (sites === null || sites === undefined || sites.length === 0) {
       data.apiarySiteId = 100;
     } else {
