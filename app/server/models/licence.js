@@ -175,11 +175,11 @@ function convertToPhysicalModel(input, update) {
         : {
             connect: { id: input.regionalDistrict },
           },
-    mal_registrant_mal_licence_primary_registrant_idTomal_registrant: 
-      input.primaryRegistrantId  === null 
-        ? emptyPrimaryRegistrant 
-        : { 
-            connect: { id: input.primaryRegistrantId } 
+    mal_registrant_mal_licence_primary_registrant_idTomal_registrant:
+      input.primaryRegistrantId === null
+        ? emptyPrimaryRegistrant
+        : {
+            connect: { id: input.primaryRegistrantId },
           },
     issue_date: input.issuedOnDate,
     expiry_date: input.expiryDate,

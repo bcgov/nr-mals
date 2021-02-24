@@ -85,7 +85,9 @@ export default function LicenceDetailsViewEdit({ licence }) {
     bondNumber: licence.data.bondNumber,
     bondValue: licence.data.bondValue,
     bondCarrierName: licence.data.bondCarrierName,
-    bondContinuationExpiryDate: parseAsDate(licence.data.bondContinuationExpiryDate),
+    bondContinuationExpiryDate: parseAsDate(
+      licence.data.bondContinuationExpiryDate
+    ),
   };
 
   useEffect(() => {
@@ -136,7 +138,8 @@ export default function LicenceDetailsViewEdit({ licence }) {
   ];
 
   const showBondInformation =
-    REQUIRES_BOND_INFORMATION.find((x) => x == licence.data.licenceTypeId) !== undefined;
+    REQUIRES_BOND_INFORMATION.find((x) => x == licence.data.licenceTypeId) !==
+    undefined;
 
   const config = getLicenceTypeConfiguration(licence.data.licenceTypeId);
 

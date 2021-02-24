@@ -12,17 +12,12 @@ import VerticalField from "../../components/VerticalField";
 
 import { getLicenceTypeConfiguration } from "./licenceTypeUtility";
 
-export default function BondInformationView({
-  licence
-}) {
+export default function BondInformationView({ licence }) {
   return (
     <>
       <Row className="mt-3">
         <Col lg={4}>
-          <VerticalField
-            label="Bond Number"
-            value={licence.bondNumber}
-          />
+          <VerticalField label="Bond Number" value={licence.bondNumber} />
         </Col>
         <Col lg={2}></Col>
         <Col lg={4}>
@@ -32,19 +27,22 @@ export default function BondInformationView({
       </Row>
       <Row className="mt-3">
         <Col lg={6}>
-          <VerticalField
-            label="Carrier Name"
-            value={licence.bondCarrierName}
-          />
+          <VerticalField label="Carrier Name" value={licence.bondCarrierName} />
         </Col>
         <Col lg={4}>
-          <VerticalField label="Carrier Phone Number" value={formatPhoneNumber(licence.bondCarrierPhoneNumber)} />
+          <VerticalField
+            label="Carrier Phone Number"
+            value={formatPhoneNumber(licence.bondCarrierPhoneNumber)}
+          />
         </Col>
         <Col lg={2}></Col>
       </Row>
       <Row className="mt-3">
         <Col lg={4}>
-          <VerticalField label="Continuation Expiry Date" value={formatDateString(licence.bondContinuationExpiryDate)} />
+          <VerticalField
+            label="Continuation Expiry Date"
+            value={formatDateString(licence.bondContinuationExpiryDate)}
+          />
         </Col>
         <Col />
       </Row>
