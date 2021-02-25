@@ -113,6 +113,7 @@ model mal_licence {
   @@index([irma_number], name: "mal_lic_irma_number_idx")
   @@index([licence_type_id], name: "mal_lic_licence_type_id_idx")
   @@index([plant_code_id], name: "mal_lic_plant_code_idx")
+  @@index([print_certificate], name: "mal_lic_print_certificate_idx")
   @@index([region_id], name: "mal_lic_region_id_idx")
   @@index([regional_district_id], name: "mal_lic_regional_district_id_idx")
   @@index([status_code_id], name: "mal_lic_status_code_id_idx")
@@ -539,6 +540,7 @@ model mal_site_detail_vw {
   apiary_site_id                    Int?
   apiary_site_id_display            String?
   site_contact_name                 String?
+  site_address_line_1               String?
   registrant_first_name             String?
   registrant_last_name              String?
   registrant_first_last             String?

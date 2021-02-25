@@ -108,7 +108,6 @@ async function countSites(params) {
 
 async function searchSites(params, skip, take) {
   const filter = getSearchFilter(params);
-  console.log(filter);
   return prisma.mal_site_detail_vw.findMany({
     where: filter,
     skip,

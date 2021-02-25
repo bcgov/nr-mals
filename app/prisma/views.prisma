@@ -44,6 +44,7 @@ model mal_site_detail_vw {
   apiary_site_id                    Int?
   apiary_site_id_display            String?
   site_contact_name                 String?
+  site_address_line_1               String?
   registrant_first_name             String?
   registrant_last_name              String?
   registrant_first_last             String?

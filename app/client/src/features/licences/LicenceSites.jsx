@@ -46,7 +46,7 @@ function formatResultRow(result) {
       <td className="text-nowrap">{result.siteStatus}</td>
       <td className="text-nowrap">{result.registrantLastName}</td>
       <td className="text-nowrap">{result.registrantFirstName}</td>
-      <td className="text-nowrap">{result.addressLine1}</td>
+      <td className="text-nowrap">{result.siteAddressLine1}</td>
       <td className="text-nowrap">{result.licenceRegion}</td>
       <td className="text-nowrap">{result.licenceDistrict}</td>
     </tr>

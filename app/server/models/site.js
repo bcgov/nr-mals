@@ -85,6 +85,7 @@ function convertSearchResultToLogicalModel(input) {
     apiarySiteId: input.apiary_site_id,
     apiarySiteIdDisplay: input.apiary_site_id_display,
     siteContactName: input.site_contact_name,
+    siteAddressLine1: input.site_address_line_1,
     registrantFirstName: input.registrant_first_name,
     registrantLastName: input.registrant_last_name,
     registrantFirstLast: input.registrant_first_last,
