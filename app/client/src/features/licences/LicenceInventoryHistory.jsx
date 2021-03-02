@@ -163,7 +163,7 @@ export default function LicenceInventoryHistory({ licence }) {
   };
 
   let control = null;
-  if (results.status === REQUEST_STATUS.PENDING) {
+  if (results.status === REQUEST_STATUS.PENDING || getSpeciesData().status == REQUEST_STATUS.PENDING) {
     control = (
       <div>
         <Spinner animation="border" role="status">
@@ -171,7 +171,7 @@ export default function LicenceInventoryHistory({ licence }) {
         </Spinner>
       </div>
     );
-  } else if (results.status === REQUEST_STATUS.REJECTED) {
+  } else if (results.status === REQUEST_STATUS.REJECTED || getSpeciesData().status == REQUEST_STATUS.REJECTED) {
     control = (
       <Alert variant="danger">
         <Alert.Heading>
@@ -184,6 +184,7 @@ export default function LicenceInventoryHistory({ licence }) {
     );
   } else if (
     results.status === REQUEST_STATUS.FULFILLED &&
+    getSpeciesData().status === REQUEST_STATUS.FULFILLED &&
     results.count === 0
   ) {
     control = (
@@ -197,7 +198,7 @@ export default function LicenceInventoryHistory({ licence }) {
         </Row>
       </>
     );
-  } else if (results.status === REQUEST_STATUS.FULFILLED && results.count > 0) {
+  } else if (results.status === REQUEST_STATUS.FULFILLED && getSpeciesData().status === REQUEST_STATUS.FULFILLED && results.count > 0) {
     control = (
       <>
         <Table striped size="sm" responsive className="mt-3" hover>
