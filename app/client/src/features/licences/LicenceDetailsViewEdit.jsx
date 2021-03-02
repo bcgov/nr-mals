@@ -150,9 +150,7 @@ export default function LicenceDetailsViewEdit({ licence }) {
       expiryDate = add(today, { years: 2 });
     } else if (config.expiryMonth) {
       expiryDate = set(today, { date: 31, month: config.expiryMonth - 1 }); // months are indexed at 0
-      if (expiryDate < today) {
-        expiryDate = add(expiryDate, { years: 1 });
-      }
+      expiryDate = add(expiryDate, { years: 1 });
       if (config.yearsAddedToExpiryDate) {
         expiryDate = add(expiryDate, { years: config.yearsAddedToExpiryDate });
       }
@@ -267,6 +265,7 @@ export default function LicenceDetailsViewEdit({ licence }) {
       regionalDistrict: parseAsInt(data.regionalDistrict),
       originalRegion: licence.data.regionId,
       originalRegionalDistrict: licence.data.regionalDistrictId,
+      primaryRegistrantId: licence.data.primaryRegistrantId,
       irmaNumber: parseIrmaNumber(data.irmaNumber),
     };
 
