@@ -7,7 +7,9 @@ const {
 const licence = require("../models/licence");
 const registrant = require("../models/registrant");
 const comment = require("../models/comment");
+const inventory = require("../models/inventory");
 const comments = require("./comments");
+const constants = require("../utilities/constants");
 
 const router = express.Router();
 const prisma = new PrismaClient();
@@ -33,6 +35,8 @@ async function findLicence(licenceId) {
           mal_registrant: true,
         },
       },
+      mal_game_farm_inventory: true,
+      mal_fur_farm_inventory: true,
     },
   });
 }
@@ -129,6 +133,22 @@ function getSearchFilter(params) {
   return filter;
 }
 
+function getInventoryHistorySearchFilter(params) {
+  let filter = {};
+  const andArray = [];
+
+  const licenceId = parseInt(params.licenceId, 10);
+  if (!Number.isNaN(licenceId)) {
+    andArray.push({ licence_id: licenceId });
+  }
+
+  filter = {
+    AND: andArray,
+  };
+
+  return filter;
+}
+
 async function countLicences(params) {
   const filter = getSearchFilter(params);
   return prisma.mal_licence_summary_vw.count({
@@ -143,6 +163,46 @@ async function findLicences(params, skip, take) {
     skip,
     take,
   });
+}
+
+async function countInventoryHistory(params) {
+  const filter = getInventoryHistorySearchFilter(params);
+  switch (parseInt(params.licenceTypeId)) {
+    case constants.LICENCE_TYPE_ID_GAME_FARM: {
+      return prisma.mal_game_farm_inventory.count({
+        where: filter,
+      });
+    }
+    case constants.LICENCE_TYPE_ID_FUR_FARM: {
+      return prisma.mal_fur_farm_inventory.count({
+        where: filter,
+      });
+    }
+    default:
+      return null;
+  }
+}
+
+async function findInventoryHistory(params, skip, take) {
+  const filter = getInventoryHistorySearchFilter(params);
+  switch (parseInt(params.licenceTypeId)) {
+    case constants.LICENCE_TYPE_ID_GAME_FARM: {
+      return prisma.mal_game_farm_inventory.findMany({
+        where: filter,
+        skip,
+        take,
+      });
+    }
+    case constants.LICENCE_TYPE_ID_FUR_FARM: {
+      return prisma.mal_fur_farm_inventory.findMany({
+        where: filter,
+        skip,
+        take,
+      });
+    }
+    default:
+      return null;
+  }
 }
 
 async function updateLicence(licenceId, payload) {
@@ -221,6 +281,48 @@ async function updateRegistrants(licenceId, payloads) {
   );
 }
 
+async function createInventory(licenceTypeId, payloads) {
+  return Promise.all(
+    payloads.map(async (payload) => {
+      switch (licenceTypeId) {
+        case constants.LICENCE_TYPE_ID_GAME_FARM: {
+          const result = await prisma.mal_game_farm_inventory.create({
+            data: payload,
+          });
+          return result;
+        }
+        case constants.LICENCE_TYPE_ID_FUR_FARM: {
+          const result = await prisma.mal_fur_farm_inventory.create({
+            data: payload,
+          });
+          return result;
+        }
+        default:
+          return null;
+      }
+    })
+  );
+}
+
+async function updateInventory(licenceTypeId, payloads) {
+  return Promise.all(
+    payloads.map(async (payload) => {
+      switch (licenceTypeId) {
+        case constants.LICENCE_TYPE_ID_GAME_FARM: {
+          const result = await prisma.mal_game_farm_inventory.update(payload);
+          return result;
+        }
+        case constants.LICENCE_TYPE_ID_FURFARM: {
+          const result = await prisma.mal_fur_farm_inventory.update(payload);
+          return result;
+        }
+        default:
+          return null;
+      }
+    })
+  );
+}
+
 router.get("/:licenceId(\\d+)", async (req, res, next) => {
   const licenceId = parseInt(req.params.licenceId, 10);
 
@@ -267,6 +369,46 @@ router.get("/search", async (req, res, next) => {
       );
 
       const count = await countLicences(params);
+
+      const payload = {
+        results,
+        page,
+        count,
+      };
+
+      return res.send(payload);
+    })
+    .catch(next)
+    .finally(async () => prisma.$disconnect());
+});
+
+router.get("/inventoryhistory", async (req, res, next) => {
+  let { page } = req.query;
+  if (page) {
+    page = parseInt(page, 10);
+  } else {
+    page = 1;
+  }
+
+  const size = 20;
+  const skip = (page - 1) * size;
+
+  const params = req.query;
+
+  await findInventoryHistory(params, skip, size)
+    .then(async (records) => {
+      if (records === null) {
+        return res.status(404).send({
+          code: 404,
+          description: "The requested licence could not be found.",
+        });
+      }
+
+      const results = records.map((record) =>
+        inventory.convertToLogicalModel(record)
+      );
+
+      const count = await countInventoryHistory(params);
 
       const payload = {
         results,
@@ -460,6 +602,44 @@ router.put("/:licenceId(\\d+)/registrants", async (req, res, next) => {
     })
     .catch(next)
     .finally(async () => prisma.$disconnect());
+});
+
+router.put("/:licenceId(\\d+)/inventory", async (req, res, next) => {
+  const licenceId = parseInt(req.params.licenceId, 10);
+  const now = new Date();
+
+  let record = await findLicence(licenceId);
+  record = licence.convertToLogicalModel(record);
+
+  const inventoryData = req.body.inventory.map((r) => ({
+    ...r,
+    id: parseInt(r.id, 10),
+    licenceId: licenceId,
+  }));
+  const totalValue = req.body.totalValue;
+
+  const inventoryToCreate = inventoryData.filter((r) => r.id === -1);
+  const inventoryToUpdate = inventoryData.filter((r) => r.id > 0);
+
+  const createInventoryPayload = inventoryToCreate.map((r) =>
+    inventory.convertToPhysicalModel(
+      populateAuditColumnsCreate(r, now),
+      false,
+      record.licenceTypeId
+    )
+  );
+
+  const updateInventoryPayload = inventoryToUpdate.map((r) =>
+    inventory.convertToUpdatePhysicalModel(r, now, record.licenceTypeId)
+  );
+
+  await createInventory(record.licenceTypeId, createInventoryPayload);
+  await updateInventory(record.licenceTypeId, updateInventoryPayload);
+
+  const updatedRecord = await findLicence(licenceId);
+
+  const payload = licence.convertToLogicalModel(updatedRecord);
+  return res.send(payload);
 });
 
 router.post("/", async (req, res, next) => {

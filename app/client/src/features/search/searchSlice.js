@@ -14,6 +14,13 @@ export const selectSiteSearchType = (state) => state.search.sites.searchType;
 export const selectSiteParameters = (state) => state.search.sites.parameters;
 export const selectSiteResults = (state) => state.search.sites.results;
 
+export const selectInventoryHistorySearchType = (state) =>
+  state.search.inventoryHistory.searchType;
+export const selectInventoryHistoryParameters = (state) =>
+  state.search.inventoryHistory.parameters;
+export const selectInventoryHistoryResults = (state) =>
+  state.search.inventoryHistory.results;
+
 export const fetchLicenceResults = createAsyncThunk(
   "search/fetchLicenceResults",
   async (_, thunkApi) => {
@@ -46,13 +53,36 @@ export const fetchSiteResults = createAsyncThunk(
   async (_, thunkApi) => {
     try {
       const parameters = selectSiteParameters(thunkApi.getState());
-      console.log(parameters);
 
       const parsedParameters = {
         ...parameters,
       };
 
       const response = await Api.get(`sites/search`, parsedParameters);
+      return response.data;
+    } catch (error) {
+      if (error instanceof ApiError) {
+        return thunkApi.rejectWithValue(error.serialize());
+      }
+      return thunkApi.rejectWithValue({ code: -1, description: error.message });
+    }
+  }
+);
+
+export const fetchInventoryHistoryResults = createAsyncThunk(
+  "search/fetchInventoryHistory",
+  async (_, thunkApi) => {
+    try {
+      const parameters = selectInventoryHistoryParameters(thunkApi.getState());
+
+      const parsedParameters = {
+        ...parameters,
+      };
+
+      const response = await Api.get(
+        `licences/inventoryhistory`,
+        parsedParameters
+      );
       return response.data;
     } catch (error) {
       if (error instanceof ApiError) {
@@ -78,6 +108,17 @@ export const searchSlice = createSlice({
       },
     },
     sites: {
+      searchType: SEARCH_TYPE.SIMPLE,
+      parameters: {},
+      results: {
+        data: undefined,
+        page: undefined,
+        count: undefined,
+        error: undefined,
+        status: REQUEST_STATUS.IDLE,
+      },
+    },
+    inventoryHistory: {
       searchType: SEARCH_TYPE.SIMPLE,
       parameters: {},
       results: {
@@ -139,8 +180,34 @@ export const searchSlice = createSlice({
     setSiteSearchPage: (state, action) => {
       state.sites.parameters.page = action.payload;
     },
+
+    // Inventory History
+    clearInventoryHistoryParameters: (state) => {
+      state.inventoryHistory.parameters = {};
+      state.inventoryHistory.searchType = SEARCH_TYPE.SIMPLE;
+    },
+    clearInventoryHistoryResults: (state) => {
+      state.inventoryHistory.results.data = undefined;
+      state.inventoryHistory.results.error = undefined;
+      state.inventoryHistory.results.status = REQUEST_STATUS.IDLE;
+    },
+    toggleInventoryHistorySearchType: (state) => {
+      const currentSearchType = state.inventoryHistory.searchType;
+      state.inventoryHistory.searchType =
+        currentSearchType === SEARCH_TYPE.SIMPLE
+          ? SEARCH_TYPE.ADVANCED
+          : SEARCH_TYPE.SIMPLE;
+    },
+    setInventoryHistoryParameters: (state, action) => {
+      state.inventoryHistory.parameters = action.payload;
+      state.inventoryHistory.results.status = REQUEST_STATUS.IDLE;
+    },
+    setInventoryHistorySearchPage: (state, action) => {
+      state.inventoryHistory.parameters.page = action.payload;
+    },
   },
   extraReducers: {
+    // Licences
     [fetchLicenceResults.pending]: (state) => {
       state.licences.results.error = undefined;
       state.licences.results.status = REQUEST_STATUS.PENDING;
@@ -157,6 +224,8 @@ export const searchSlice = createSlice({
       state.licences.results.error = action.payload;
       state.licences.results.status = REQUEST_STATUS.REJECTED;
     },
+
+    // Sites
     [fetchSiteResults.pending]: (state) => {
       state.sites.results.error = undefined;
       state.sites.results.status = REQUEST_STATUS.PENDING;
@@ -172,6 +241,24 @@ export const searchSlice = createSlice({
       state.sites.results.data = undefined;
       state.sites.results.error = action.payload;
       state.sites.results.status = REQUEST_STATUS.REJECTED;
+    },
+
+    // Inventory History
+    [fetchInventoryHistoryResults.pending]: (state) => {
+      state.inventoryHistory.results.error = undefined;
+      state.inventoryHistory.results.status = REQUEST_STATUS.PENDING;
+    },
+    [fetchInventoryHistoryResults.fulfilled]: (state, action) => {
+      state.inventoryHistory.results.data = action.payload.results;
+      state.inventoryHistory.results.page = action.payload.page;
+      state.inventoryHistory.results.count = action.payload.count;
+      state.inventoryHistory.results.error = undefined;
+      state.inventoryHistory.results.status = REQUEST_STATUS.FULFILLED;
+    },
+    [fetchInventoryHistoryResults.rejected]: (state, action) => {
+      state.inventoryHistory.results.data = undefined;
+      state.inventoryHistory.results.error = action.payload;
+      state.inventoryHistory.results.status = REQUEST_STATUS.REJECTED;
     },
   },
 });
@@ -190,6 +277,12 @@ export const {
   toggleSiteSearchType,
   setSiteParameters,
   setSiteSearchPage,
+
+  clearInventoryHistoryParameters,
+  clearInventoryHistoryResults,
+  toggleInventoryHistorySearchType,
+  setInventoryHistoryParameters,
+  setInventoryHistorySearchPage,
 } = actions;
 
 export default reducer;
