@@ -221,6 +221,8 @@ async function updateLicence(licenceId, payload) {
           mal_registrant: true,
         },
       },
+      mal_game_farm_inventory: true,
+      mal_fur_farm_inventory: true,
     },
   });
 }
@@ -446,7 +448,6 @@ router.put("/renew/:licenceId(\\d+)", async (req, res, next) => {
       update.licenceStatus = update.licenceStatusId;
       update.regionalDistrict = update.regionalDistrictId;
       update.region = update.regionId;
-      update.primaryRegistrantId = update.primary_registrant_id;
 
       const now = new Date();
       const licencePayload = licence.convertToPhysicalModel(
