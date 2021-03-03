@@ -132,7 +132,6 @@ function submissionController(setError, clearErrors, dispatch) {
       primaryRegistrantId: null,
     };
 
-    //console.log(data);
     dispatch(createLicence(payload));
   };
 

@@ -40,7 +40,7 @@ function convertToLogicalModel(input) {
     city: input.city,
     province: input.province,
     postalCode: input.postal_code,
-    // country: input.country,
+    country: input.country,
     latitude:
       coordinates !== null && coordinates !== undefined ? coordinates[0] : null,
     longitude:
@@ -163,7 +163,7 @@ function convertToPhysicalModel(input, update) {
     city: input.city,
     province: input.province,
     postal_code: input.postalCode,
-    //country: input.country,
+    country: input.country,
     gps_coordinates: gpsCoordinates,
 
     contact_name: contactName,

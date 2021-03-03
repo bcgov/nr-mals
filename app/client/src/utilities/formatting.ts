@@ -42,6 +42,9 @@ export const formatDateTimeString = (dateString: string) => {
 };
 
 export const formatMoney = (money: number) => {
+  if (money === null) {
+    return null;
+  }
   return `$${money.toFixed(2)}`;
 };
 
