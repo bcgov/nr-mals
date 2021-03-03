@@ -111,7 +111,7 @@ export default function LicenceInventory({ licence }) {
       id: -1,
       speciesCodeId: getSpeciesData().data.species[0].id,
       speciesSubCodeId: getSpeciesData().data.subSpecies[0].id,
-      date: formatDate(new Date()),
+      date: formatDate(new Date(new Date().getFullYear()-1, 11, 31)),
       value: null,
     };
 
