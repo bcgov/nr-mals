@@ -191,6 +191,11 @@ async function findInventoryHistory(params, skip, take) {
         where: filter,
         skip,
         take,
+        orderBy: [
+          {
+            recorded_date: "desc",
+          },
+        ],
       });
     }
     case constants.LICENCE_TYPE_ID_FUR_FARM: {
@@ -198,6 +203,11 @@ async function findInventoryHistory(params, skip, take) {
         where: filter,
         skip,
         take,
+        orderBy: [
+          {
+            recorded_date: "desc",
+          },
+        ],
       });
     }
     default:
@@ -306,23 +316,25 @@ async function createInventory(licenceTypeId, payloads) {
   );
 }
 
-async function updateInventory(licenceTypeId, payloads) {
-  return Promise.all(
-    payloads.map(async (payload) => {
-      switch (licenceTypeId) {
-        case constants.LICENCE_TYPE_ID_GAME_FARM: {
-          const result = await prisma.mal_game_farm_inventory.update(payload);
-          return result;
-        }
-        case constants.LICENCE_TYPE_ID_FURFARM: {
-          const result = await prisma.mal_fur_farm_inventory.update(payload);
-          return result;
-        }
-        default:
-          return null;
-      }
-    })
-  );
+async function deleteInventory(licenceTypeId, id) {
+  switch (licenceTypeId) {
+    case constants.LICENCE_TYPE_ID_GAME_FARM: {
+      return await prisma.mal_game_farm_inventory.delete({
+        where: {
+          id: id,
+        },
+      });
+    }
+    case constants.LICENCE_TYPE_ID_FURFARM: {
+      return await prisma.mal_fur_farm_inventory.delete({
+        where: {
+          id: id,
+        },
+      });
+    }
+    default:
+      return null;
+  }
 }
 
 router.get("/:licenceId(\\d+)", async (req, res, next) => {
@@ -442,6 +454,11 @@ router.put("/renew/:licenceId(\\d+)", async (req, res, next) => {
       // Update issued and expiry dates
       update.issuedOnDate = issueDate;
       update.expiryDate = expiryDate;
+      if (update.bondContinuationExpiryDate !== null) {
+        update.bondContinuationExpiryDate = new Date(
+          update.bondContinuationExpiryDate
+        );
+      }
 
       // Reset some connect variables for the update
       update.licenceType = update.licenceTypeId;
@@ -573,6 +590,11 @@ router.put("/:licenceId(\\d+)/registrants", async (req, res, next) => {
         updatedRecordLogical.expiryDate = new Date(
           updatedRecordLogical.expiryDate
         );
+        if (updatedRecordLogical.bondContinuationExpiryDate !== null) {
+          updatedRecordLogical.bondContinuationExpiryDate = new Date(
+            updatedRecordLogical.bondContinuationExpiryDate
+          );
+        }
 
         // Reset some connect variables for the update
         updatedRecordLogical.licenceType = updatedRecordLogical.licenceTypeId;
@@ -620,7 +642,6 @@ router.put("/:licenceId(\\d+)/inventory", async (req, res, next) => {
   const totalValue = req.body.totalValue;
 
   const inventoryToCreate = inventoryData.filter((r) => r.id === -1);
-  const inventoryToUpdate = inventoryData.filter((r) => r.id > 0);
 
   const createInventoryPayload = inventoryToCreate.map((r) =>
     inventory.convertToPhysicalModel(
@@ -630,18 +651,31 @@ router.put("/:licenceId(\\d+)/inventory", async (req, res, next) => {
     )
   );
 
-  const updateInventoryPayload = inventoryToUpdate.map((r) =>
-    inventory.convertToUpdatePhysicalModel(r, now, record.licenceTypeId)
-  );
-
   await createInventory(record.licenceTypeId, createInventoryPayload);
-  await updateInventory(record.licenceTypeId, updateInventoryPayload);
 
   const updatedRecord = await findLicence(licenceId);
 
   const payload = licence.convertToLogicalModel(updatedRecord);
   return res.send(payload);
 });
+
+router.put(
+  "/:licenceId(\\d+)/inventory/delete/:inventoryId(\\d+)",
+  async (req, res, next) => {
+    const licenceId = parseInt(req.params.licenceId, 10);
+    const inventoryId = parseInt(req.params.inventoryId, 10);
+
+    let record = await findLicence(licenceId);
+    record = licence.convertToLogicalModel(record);
+
+    await deleteInventory(record.licenceTypeId, inventoryId);
+
+    const updatedRecord = await findLicence(licenceId);
+
+    const payload = licence.convertToLogicalModel(updatedRecord);
+    return res.send(payload);
+  }
+);
 
 router.post("/", async (req, res, next) => {
   const now = new Date();
@@ -694,13 +728,18 @@ router.post("/", async (req, res, next) => {
       );
       updatedRecordLogical.primaryRegistrantId = registrants[0].id;
 
-      // Update issued and expiry dates
+      // Convert dates from string to date objects
       updatedRecordLogical.issuedOnDate = new Date(
         updatedRecordLogical.issuedOnDate
       );
       updatedRecordLogical.expiryDate = new Date(
         updatedRecordLogical.expiryDate
       );
+      if (updatedRecordLogical.bondContinuationExpiryDate !== null) {
+        updatedRecordLogical.bondContinuationExpiryDate = new Date(
+          updatedRecordLogical.bondContinuationExpiryDate
+        );
+      }
 
       // Reset some connect variables for the update
       updatedRecordLogical.licenceType = updatedRecordLogical.licenceTypeId;

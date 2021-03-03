@@ -11,6 +11,7 @@ const SubSpecies = React.forwardRef((props, ref) => {
     isInvalid,
     onChange,
     defaultValue,
+    value,
     name,
   } = props;
 
@@ -22,11 +23,6 @@ const SubSpecies = React.forwardRef((props, ref) => {
     </div>
   );
 
-  console.log(speciesId);
-  console.log(subspecies);
-  console.log(
-    subspecies.data.subSpecies.filter((x) => x.speciesCodeId == speciesId)
-  );
   if (subspecies.status === REQUEST_STATUS.FULFILLED) {
     control = (
       <Form.Control
@@ -35,7 +31,7 @@ const SubSpecies = React.forwardRef((props, ref) => {
         ref={ref}
         isInvalid={isInvalid}
         onChange={onChange}
-        defaultValue={defaultValue}
+        value={value}
         custom
       >
         {subspecies.data.subSpecies
@@ -65,14 +61,13 @@ SubSpecies.propTypes = {
   subspecies: PropTypes.object.isRequired,
   isInvalid: PropTypes.object,
   onChange: PropTypes.func,
-  defaultValue: PropTypes.number,
+  value: PropTypes.number.isRequired,
   name: PropTypes.string.isRequired,
   speciesId: PropTypes.number.isRequired,
 };
 SubSpecies.defaultProps = {
   isInvalid: undefined,
   onChange: undefined,
-  defaultValue: null,
 };
 
 export default SubSpecies;
