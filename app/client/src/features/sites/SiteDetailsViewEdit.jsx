@@ -141,7 +141,9 @@ export default function SiteDetailsViewEdit({ site, licence }) {
       originalRegion: site.data.regionId,
       originalRegionalDistrict: site.data.regionalDistrictId,
       hiveCount: parseAsInt(data.hiveCount),
-      postalCode: site.data.postalCode.replace(" ", ""),
+      postalCode: data.postalCode
+        ? data.postalCode.replace(" ", "")
+        : undefined,
       primaryPhone: data.primaryPhone
         ? data.primaryPhone.replace(/\D/g, "")
         : undefined,
