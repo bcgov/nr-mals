@@ -16,7 +16,7 @@ import {
 } from "react-bootstrap";
 
 import CustomDatePicker from "../../components/CustomDatePicker";
-import { parseAsDate } from "../../utilities/parsing";
+import { parseAsDate, parseAsInt, parseAsFloat } from "../../utilities/parsing";
 
 import SectionHeading from "../../components/SectionHeading";
 import {
@@ -115,14 +115,31 @@ export default function LicenceInventory({ licence }) {
       value: null,
     };
 
-    // Required to set the initial form row date value
+    // Set default values to override anything that may have been deleted
+    setValue(`inventory[${inventory.length}].speciesCodeId`, obj.speciesCodeId);
     setValue(`inventoryDates[${inventory.length}].date`, parseAsDate(obj.date));
+    setValue(
+      `inventory[${inventory.length}].speciesSubCodeId`,
+      obj.speciesSubCodeId
+    );
+    setValue(`inventory[${inventory.length}].value`, obj.value);
 
     setInventory([...inventory, obj]);
   }
 
   function resetInventoryOnClick() {
     setInventory(initialInventory);
+  }
+
+  function deleteRow(index) {
+    // Shift all the form values
+    for (var i = index; i < inventory.length - 1; ++i) {
+      setValue(`inventory[${i}]`, inventory[i + 1]);
+    }
+
+    let clone = [...inventory];
+    clone.splice(index, 1);
+    setInventory([...clone]);
   }
 
   const onSubmit = (data) => {
@@ -135,7 +152,7 @@ export default function LicenceInventory({ licence }) {
       return {
         ...inv,
         ...(data.inventoryDates[index] ?? { date: inventory[index].date }),
-        value: parseFloat(inv.value),
+        value: parseAsFloat(inv.value),
       };
     });
 
@@ -146,7 +163,11 @@ export default function LicenceInventory({ licence }) {
 
     dispatch(
       updateLicenceInventory({ inventory: payload, id: licence.data.id })
-    );
+    )
+      .then(() => {
+        resetInventoryOnClick();
+      })
+      .catch((err) => {});
   };
 
   const handleSpeciesChange = (index, value) => {
@@ -157,26 +178,41 @@ export default function LicenceInventory({ licence }) {
     setInventory([...clone]);
   };
 
-  const handleSubSpeciesChange = (index, value) => {
+  const handleSubSpeciesChange = (field, index, value) => {
     let clone = [...inventory];
     let item = { ...inventory[index] };
     item.speciesSubCodeId = parseInt(value);
     clone[index] = item;
     setInventory([...clone]);
+
+    setValue(field, value);
   };
 
-  const handleFieldChange = (field) => {
+  const handleValueChange = (index, value) => {
+    let clone = [...inventory];
+    let item = { ...inventory[index] };
+    item.value = parseAsInt(value);
+    clone[index] = item;
+    setInventory([...clone]);
+  };
+
+  const handleFieldChange = (field, index) => {
     return (value) => {
+      let clone = [...inventory];
+      let item = { ...inventory[index] };
+      item.date = formatDate(value);
+      clone[index] = item;
+      setInventory([...clone]);
+
       setValue(field, value);
     };
   };
 
   const calculateInventoryTotal = () => {
+    //Total = Most Recent Year Value for MALE + Most Recent Year Value for FEMALE
     let total = 0;
 
     if (getSpeciesData().status == REQUEST_STATUS.FULFILLED) {
-      //Total = Most Recent Year Value for MALE + Most Recent Year Value for FEMALE
-
       const recentYear = Math.max.apply(
         Math,
         inventory.map(function (o, index) {
@@ -186,6 +222,9 @@ export default function LicenceInventory({ licence }) {
 
       inventory.map((x, index) => {
         const year = getValues(`inventoryDates[${index}].date`).getFullYear();
+        let value = getValues(`inventory[${index}].value`);
+        let parsed = parseAsInt(value);
+
         if (year === recentYear) {
           const MALE_ID = getSpeciesData().data.subSpecies.find(
             (sp) =>
@@ -202,10 +241,7 @@ export default function LicenceInventory({ licence }) {
             x.speciesSubCodeId === MALE_ID ||
             x.speciesSubCodeId === FEMALE_ID
           ) {
-            let value = getValues(`inventory[${index}].value`);
-            let parsed = parseInt(value);
-            value = isNaN(parsed) ? 0 : parsed;
-            total += value;
+            total += parsed;
           }
         }
       });
@@ -227,6 +263,7 @@ export default function LicenceInventory({ licence }) {
             <Col className="font-weight-bold">Date</Col>
             <Col className="font-weight-bold">Code</Col>
             <Col className="font-weight-bold">Value</Col>
+            <Col></Col>
           </Row>
           {inventory.map((x, index) => {
             return (
@@ -252,7 +289,8 @@ export default function LicenceInventory({ licence }) {
                     <CustomDatePicker
                       id={`inventoryDates[${index}].date`}
                       notifyOnChange={handleFieldChange(
-                        `inventoryDates[${index}].date`
+                        `inventoryDates[${index}].date`,
+                        index
                       )}
                       defaultValue={parseAsDate(x.date)}
                     />
@@ -263,10 +301,14 @@ export default function LicenceInventory({ licence }) {
                     subspecies={getSpeciesData()}
                     speciesId={x.speciesCodeId}
                     name={`inventory[${index}].speciesSubCodeId`}
-                    defaultValue={x.speciesSubCodeId}
+                    value={x.speciesSubCodeId}
                     ref={register}
                     onChange={(e) =>
-                      handleSubSpeciesChange(index, e.target.value)
+                      handleSubSpeciesChange(
+                        `inventory[${index}].speciesSubCodeId`,
+                        index,
+                        e.target.value
+                      )
                     }
                   />
                 </Col>
@@ -277,14 +319,48 @@ export default function LicenceInventory({ licence }) {
                       name={`inventory[${index}].value`}
                       defaultValue={x.value}
                       ref={register}
+                      onChange={(e) => handleValueChange(index, e.target.value)}
                       onBlur={calculateInventoryTotal}
                     />
                   </Form.Group>
                 </Col>
+                <Col>
+                  <Button variant="link" onClick={() => deleteRow(index)}>
+                    Delete
+                  </Button>
+                </Col>
               </Row>
             );
           })}
-          <Row className="mb-3">
+          {inventory.length > 0 ? (
+            <Row className="mb-3">
+              <Col></Col>
+              <Col></Col>
+              <Col>
+                <span className="float-right font-weight-bold">Total</span>
+              </Col>
+              <Col>
+                <input
+                  type="hidden"
+                  id="inventoryTotalValue"
+                  name="inventoryTotalValue"
+                  value={0}
+                  ref={register}
+                />
+                <Form.Group controlId="inventoryTotalValueDisplay">
+                  <Form.Control
+                    type="number"
+                    name="inventoryTotalValueDisplay"
+                    defaultValue={null}
+                    ref={register}
+                    disabled
+                  />
+                </Form.Group>
+              </Col>
+              <Col></Col>
+            </Row>
+          ) : null}
+          <Row>
             <Col lg={2}>
               <Button
                 size="md"
@@ -297,30 +373,7 @@ export default function LicenceInventory({ licence }) {
                 Add Inventory
               </Button>
             </Col>
-            <Col lg={7}>
-              <span className="float-right font-weight-bold">Total</span>
-            </Col>
-            <Col lg={3}>
-              <input
-                type="hidden"
-                id="inventoryTotalValue"
-                name="inventoryTotalValue"
-                value={0}
-                ref={register}
-              />
-              <Form.Group controlId="inventoryTotalValueDisplay">
-                <Form.Control
-                  type="number"
-                  name="inventoryTotalValueDisplay"
-                  defaultValue={null}
-                  ref={register}
-                  disabled
-                />
-              </Form.Group>
-            </Col>
-          </Row>
-          <Row>
-            <Col lg={8} />
+            <Col lg={6} />
             <Col lg={2}>
               <Button
                 size="md"
@@ -338,7 +391,7 @@ export default function LicenceInventory({ licence }) {
                 size="md"
                 type="submit"
                 variant="primary"
-                disabled={submitting}
+                disabled={submitting || inventory.length === 0}
                 block
               >
                 {submissionLabel}

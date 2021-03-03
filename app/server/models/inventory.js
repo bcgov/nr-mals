@@ -26,7 +26,7 @@ function convertToLogicalModel(input) {
     speciesCodeId: speciesCodeId,
     speciesSubCodeId: speciesSubCodeId,
     date: formatDate(input.recorded_date),
-    value: input.recorded_value,
+    value: input.recorded_value === 0 ? null : input.recorded_value,
   };
 
   return output;
@@ -38,7 +38,7 @@ function convertToPhysicalModel(input, update, licenceTypeId) {
       connect: { id: input.licenceId },
     },
     recorded_date: input.date,
-    recorded_value: input.value,
+    recorded_value: input.value === null ? 0 : input.value,
     create_userid: input.createdBy,
     create_timestamp: input.createdOn,
     update_userid: input.updatedBy,
