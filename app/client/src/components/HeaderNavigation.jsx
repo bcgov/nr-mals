@@ -49,7 +49,7 @@ function HeaderNavigation() {
               </HeaderDropdown>
               <HeaderDropdown
                 id="sites-and-contacts-dropdown"
-                title="Sites and Contacts"
+                title="Sites"
                 pathPrefix={[
                   Constant.SITES_PATHNAME,
                   Constant.CONTACTS_PATHNAME,
@@ -57,12 +57,6 @@ function HeaderNavigation() {
               >
                 <DropdownNavLink to={Constant.SEARCH_SITES_PATHNAME}>
                   Search Sites
-                </DropdownNavLink>
-                <DropdownNavLink to={Constant.CREATE_SITES_PATHNAME}>
-                  Create Site
-                </DropdownNavLink>
-                <DropdownNavLink to={Constant.CREATE_CONTACTS_PATHNAME}>
-                  Create Contact
                 </DropdownNavLink>
               </HeaderDropdown>
               <HeaderDropdown

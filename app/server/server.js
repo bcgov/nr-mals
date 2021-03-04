@@ -14,6 +14,8 @@ const regionsRouter = require("./routes/regions");
 const statusRouter = require("./routes/status");
 const cdogsRouter = require("./routes/cdogs");
 const commentsRouter = require("./routes/comments");
+const gameFarmRouter = require("./routes/gameFarm");
+const furFarmRouter = require("./routes/furFarm");
 
 const app = express();
 
@@ -31,6 +33,8 @@ app.use("/api/regions", regionsRouter);
 app.use("/api/status", statusRouter);
 app.use("/api/cdogs", cdogsRouter);
 app.use("/api/comments", commentsRouter.router);
+app.use("/api/game-farm", gameFarmRouter);
+app.use("/api/fur-farm", furFarmRouter);
 app.use("/api/*", (req, res) => {
   res.status(404).send({
     code: 404,
@@ -51,7 +55,11 @@ app.use(function handleError(error, req, res, next) {
   }
 
   let description = "An unexpected error occurred while handling the request.";
-  if (process.env.ENVIRONMENT_LABEL === "dev" || process.env.ENVIRONMENT_LABEL === "test" || process.env.ENVIRONMENT_LABEL === "uat") {
+  if (
+    process.env.ENVIRONMENT_LABEL === "dev" ||
+    process.env.ENVIRONMENT_LABEL === "test" ||
+    process.env.ENVIRONMENT_LABEL === "uat"
+  ) {
     description = error.message;
   }
 

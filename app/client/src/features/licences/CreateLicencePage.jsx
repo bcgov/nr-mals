@@ -129,9 +129,9 @@ function submissionController(setError, clearErrors, dispatch) {
       regionalDistrict: parseAsInt(data.regionalDistrict),
       irmaNumber: parseIrmaNumber(data.irmaNumber),
       registrants: formatRegistrants(data.registrants),
+      primaryRegistrantId: null,
     };
 
-    //console.log(data);
     dispatch(createLicence(payload));
   };
 
@@ -180,13 +180,13 @@ export default function CreateLicencePage() {
 
   const config = getLicenceTypeConfiguration(watchLicenceType);
 
-  const requiresBondInformation = [
+  const REQUIRES_BOND_INFORMATION = [
     LICENCE_TYPE_ID_PUBLIC_SALE_YARD_OPERATOR,
     LICENCE_TYPE_ID_PURCHASE_LIVE_POULTRY,
     LICENCE_TYPE_ID_LIVESTOCK_DEALER,
   ];
   const showBondInformation =
-    requiresBondInformation.find((x) => x == watchLicenceType) !== undefined;
+    REQUIRES_BOND_INFORMATION.find((x) => x == watchLicenceType) !== undefined;
 
   // set default expiry date differently based on the selected licence type
   useEffect(() => {

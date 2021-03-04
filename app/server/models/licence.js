@@ -1,6 +1,8 @@
 const { formatDate } = require("../utilities/formatting");
 const { parseAsInt } = require("../utilities/parsing");
 const registrant = require("./registrant");
+const inventory = require("./inventory");
+const constants = require("../utilities/constants");
 
 function convertToLogicalModel(input) {
   const output = {
@@ -55,6 +57,21 @@ function convertToLogicalModel(input) {
       key: index,
     })),
   };
+
+  switch (input.licence_type_id) {
+    case constants.LICENCE_TYPE_ID_GAME_FARM:
+      output.inventory = input.mal_game_farm_inventory.map((x) => ({
+        ...inventory.convertToLogicalModel(x),
+      }));
+      break;
+    case constants.LICENCE_TYPE_ID_FUR_FARM:
+      output.inventory = input.mal_fur_farm_inventory.map((x) => ({
+        ...inventory.convertToLogicalModel(x),
+      }));
+      break;
+    default:
+      break;
+  }
 
   const hasPrimaryAddress = input.address_line_1 !== null;
   const hasMailingAddress = input.mail_address_line_1 !== null;
@@ -151,6 +168,14 @@ function convertToPhysicalModel(input, update) {
     emptyRegionalDistrict = disconnectRelation;
   }
 
+  let emptyPrimaryRegistrant;
+  if (
+    input.primaryRegistrantId !== undefined &&
+    input.primaryRegistrantId !== null
+  ) {
+    emptyPrimaryRegistrant = disconnectRelation;
+  }
+
   const output = {
     mal_region_lu:
       input.region === null
@@ -167,14 +192,19 @@ function convertToPhysicalModel(input, update) {
         : {
             connect: { id: input.regionalDistrict },
           },
-    primary_registrant_id: input.primaryRegistrantId,
+    mal_registrant_mal_licence_primary_registrant_idTomal_registrant:
+      input.primaryRegistrantId === null
+        ? emptyPrimaryRegistrant
+        : {
+            connect: { id: input.primaryRegistrantId },
+          },
     issue_date: input.issuedOnDate,
     expiry_date: input.expiryDate,
     fee_collected: input.feePaidAmount,
     fee_collected_ind: input.paymentReceived || false,
     action_required: input.actionRequired,
-    licence_prn_requested: input.printLicence,
-    renewal_prn_requested: input.renewalNotice,
+    //licence_prn_requested: input.printLicence,
+    //renewal_prn_requested: input.renewalNotice,
     irma_number: input.irmaNumber,
     total_hives: parseAsInt(input.totalHives),
     hives_per_apiary: parseAsInt(input.hivesPerApiary),

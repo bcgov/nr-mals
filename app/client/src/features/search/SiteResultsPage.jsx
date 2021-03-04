@@ -1,6 +1,5 @@
 import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import {
   Alert,
@@ -13,42 +12,50 @@ import {
   ButtonGroup,
 } from "react-bootstrap";
 
-import SectionHeading from "../../components/SectionHeading";
-
-import { selectCreatedSite, createSite } from "../sites/sitesSlice";
 import {
-  clearSiteParameters,
-  setSiteParameters,
+  REQUEST_STATUS,
+  CREATE_LICENSES_PATHNAME,
+  SITES_PATHNAME,
+} from "../../utilities/constants";
+
+import {
+  formatDateString,
+  formatListShorten,
+} from "../../utilities/formatting.ts";
+
+import LinkButton from "../../components/LinkButton";
+import PageHeading from "../../components/PageHeading";
+
+import {
   fetchSiteResults,
   selectSiteResults,
   setSiteSearchPage,
-} from "../search/searchSlice";
-
-import { selectLicenceStatuses } from "../lookups/licenceStatusesSlice";
-
-import {
-  REQUEST_STATUS,
-  LICENCE_STATUS_TYPES,
-  SITES_PATHNAME,
-} from "../../utilities/constants";
+} from "./searchSlice";
 
 function formatResultRow(result) {
   const url = `${SITES_PATHNAME}/${result.siteId}`;
   return (
-    <tr key={result.id}>
+    <tr key={result.siteId}>
       <td className="text-nowrap">
         <Link to={url}>
           {result.apiarySiteIdDisplay
-            ? `${result.apiarySiteIdDisplay}`
+            ? result.apiarySiteIdDisplay
             : result.siteId}
         </Link>
       </td>
-      <td className="text-nowrap">{result.siteStatus}</td>
-      <td className="text-nowrap">{result.registrantLastName}</td>
-      <td className="text-nowrap">{result.registrantFirstName}</td>
-      <td className="text-nowrap">{result.siteAddressLine1}</td>
+      <td className="text-nowrap">
+        {formatListShorten(result.registrantLastName)}
+      </td>
+      <td className="text-nowrap">
+        {formatListShorten(result.registrantCompanyName)}
+      </td>
+      <td className="text-nowrap">{result.licenceNumber}</td>
+      <td className="text-nowrap">{result.licenceCity}</td>
       <td className="text-nowrap">{result.licenceRegion}</td>
       <td className="text-nowrap">{result.licenceDistrict}</td>
+      <td className="text-nowrap">
+        {formatDateString(result.nextInspectionDate)}
+      </td>
     </tr>
   );
 }
@@ -58,44 +65,17 @@ function navigateToSearchPage(dispatch, page) {
   dispatch(fetchSiteResults());
 }
 
-export default function LicenceSites({ licence }) {
-  const dispatch = useDispatch();
-  const licenceStatuses = useSelector(selectLicenceStatuses);
+export default function SiteResultsPage() {
   const results = useSelector(selectSiteResults);
-  const createdSite = useSelector(selectCreatedSite);
+
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(clearSiteParameters());
-    dispatch(setSiteParameters({ licenceNumber: licence.data.licenceNumber }));
     dispatch(fetchSiteResults());
   }, [dispatch]);
 
-  function addSiteOnClick() {
-    const payload = {
-      licenceId: licence.data.id,
-      licenceTypeId: licence.data.licenceTypeId,
-      siteStatus: licenceStatuses.data.find(
-        (x) => x.code_description === LICENCE_STATUS_TYPES.ACTIVE
-      ).id,
-      region: null,
-      regionalDistrict: null,
-    };
-    dispatch(createSite(payload));
-  }
-
-  let addSiteButton = (
-    <Button
-      size="md"
-      type="button"
-      variant="primary"
-      onClick={addSiteOnClick}
-      block
-    >
-      Add a Site
-    </Button>
-  );
-
   let control = null;
+
   if (results.status === REQUEST_STATUS.PENDING) {
     control = (
       <div>
@@ -115,33 +95,19 @@ export default function LicenceSites({ licence }) {
         </p>
       </Alert>
     );
-  } else if (createdSite.status === REQUEST_STATUS.REJECTED) {
-    control = (
-      <Alert variant="danger">
-        <Alert.Heading>
-          An error was encountered while creating a site.
-        </Alert.Heading>
-        <p>
-          {createdSite.error.code}: {createdSite.error.description}
-        </p>
-      </Alert>
-    );
   } else if (
     results.status === REQUEST_STATUS.FULFILLED &&
     results.count === 0
   ) {
     control = (
       <>
-        <Row className="mt-3">
-          <Col lg={6}>
-            <Alert variant="success" className="mt-3">
-              <div>There are no sites associated with this licence.</div>
-            </Alert>
-          </Col>
-        </Row>
-        <Row className="mt-3">
-          <Col lg={2}>{addSiteButton}</Col>
-        </Row>
+        <Alert variant="success" className="mt-3">
+          <div>Sorry, there were no results matching your search terms.</div>
+          <div>
+            Search Tips: check your spelling and try again, or try a different
+            search term.
+          </div>
+        </Alert>
       </>
     );
   } else if (results.status === REQUEST_STATUS.FULFILLED && results.count > 0) {
@@ -150,19 +116,19 @@ export default function LicenceSites({ licence }) {
         <Table striped size="sm" responsive className="mt-3" hover>
           <thead className="thead-dark">
             <tr>
-              <th>Site ID</th>
-              <th className="text-nowrap">Site Status</th>
-              <th className="text-nowrap">Last Name</th>
-              <th className="text-nowrap">First Name</th>
-              <th className="text-nowrap">Address</th>
+              <th className="text-nowrap">Site ID</th>
+              <th className="text-nowrap">Registrant Name</th>
+              <th className="text-nowrap">Company Name</th>
+              <th className="text-nowrap">Licence Number</th>
+              <th className="text-nowrap">City</th>
               <th>Region</th>
               <th>District</th>
+              <th className="text-nowrap">Next Inspection Date</th>
             </tr>
           </thead>
           <tbody>{results.data.map((result) => formatResultRow(result))}</tbody>
         </Table>
         <Row className="mt-3">
-          <Col md="3">{addSiteButton}</Col>
           <Col className="d-flex justify-content-center">
             Showing {results.data.length} of {results.count} entries
           </Col>
@@ -193,13 +159,9 @@ export default function LicenceSites({ licence }) {
   }
 
   return (
-    <>
-      <SectionHeading>Sites</SectionHeading>
-      <Container className="mt-3 mb-4">{control}</Container>
-    </>
+    <section>
+      <PageHeading>Site Search Results</PageHeading>
+      <Container>{control}</Container>
+    </section>
   );
 }
-
-LicenceSites.propTypes = {
-  licence: PropTypes.object.isRequired,
-};

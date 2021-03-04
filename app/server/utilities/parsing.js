@@ -6,4 +6,12 @@ const parseAsInt = (string) => {
   return number;
 };
 
-module.exports = { parseAsInt };
+const parseAsFloat = (string) => {
+  const number = parseFloat(string);
+  if (Number.isNaN(number)) {
+    return null;
+  }
+  return number;
+};
+
+module.exports = { parseAsInt, parseAsFloat };

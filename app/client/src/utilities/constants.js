@@ -9,6 +9,7 @@ export const SEARCH_REGISTRANTS_PATHNAME = "/registrants/search";
 export const SITES_PATHNAME = "/sites";
 export const SEARCH_SITES_PATHNAME = "/sites/search";
 export const CREATE_SITES_PATHNAME = "/sites/create";
+export const SITE_RESULTS_PATHNAME = "/sites/results";
 export const CONTACTS_PATHNAME = "/contacts";
 export const CREATE_CONTACTS_PATHNAME = "/contacts/create";
 export const INSPECTIONS_PATHNAME = "/inspections";
@@ -91,3 +92,11 @@ export const COUNTRIES = {
 };
 
 export const COUNTRIES_MAP = [COUNTRIES.CANADA, COUNTRIES.UNITEDSTATES];
+
+export const GAME_FARM_SPECIES_SUBCODES = {
+  MALE: "MALE",
+  FEMALE: "FEMALE",
+  SLAUGHTERED: "SLAUGHTERED",
+  CALVES: "CALVES",
+  TAG: "TAG",
+};

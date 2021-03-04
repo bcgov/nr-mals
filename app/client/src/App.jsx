@@ -16,6 +16,9 @@ import ReportsPage from "./features/reports/ReportsPage";
 import LicenceSearchPage from "./features/search/LicenceSearchPage";
 import LicenceResultsPage from "./features/search/LicenceResultsPage";
 
+import SiteSearchPage from "./features/search/SiteSearchPage";
+import SiteResultsPage from "./features/search/SiteResultsPage";
+
 import ViewSitePage from "./features/sites/ViewSitePage";
 
 import ModalComponent from "./components/ModalComponent";
@@ -53,6 +56,12 @@ function App() {
             </Route>
             <Route path={`${Constant.SEARCH_REGISTRANTS_PATHNAME}`}>
               <RegistrantsSearch />
+            </Route>
+            <Route path={`${Constant.SEARCH_SITES_PATHNAME}`}>
+              <SiteSearchPage />
+            </Route>
+            <Route path={`${Constant.SITE_RESULTS_PATHNAME}`}>
+              <SiteResultsPage />
             </Route>
             <Route path={`${Constant.SITES_PATHNAME}/:id`}>
               <ViewSitePage />
