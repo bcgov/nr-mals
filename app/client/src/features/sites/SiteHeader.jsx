@@ -17,7 +17,7 @@ export default function SiteHeader({ site, licence }) {
         <Row>
           <HorizontalField
             label="Licence Number"
-            value={<Link to={url}>{licence.id}</Link>}
+            value={<Link to={url}>{licence.licenceNumber}</Link>}
           />
           <div className="w-100 d-xl-none" />
           <HorizontalField label="Created By" value={licence.createdBy} />
@@ -40,7 +40,7 @@ export default function SiteHeader({ site, licence }) {
             label="Site ID"
             value={
               site.apiarySiteId
-                ? `${site.licenceId}-${site.apiarySiteId}`
+                ? `${licence.licenceNumber}-${site.apiarySiteId}`
                 : site.id
             }
           />

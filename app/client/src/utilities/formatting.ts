@@ -42,6 +42,9 @@ export const formatDateTimeString = (dateString: string) => {
 };
 
 export const formatMoney = (money: number) => {
+  if (money === null) {
+    return null;
+  }
   return `$${money.toFixed(2)}`;
 };
 
@@ -91,4 +94,11 @@ export const formatListShorten = (
         element !== null && element !== undefined && element.length > 0
     )
     .join(outputSeparator);
+};
+
+export const pluralize = (count: number, singular: string, plural?: string) => {
+  if (count === 1) {
+    return singular;
+  }
+  return plural || singular + "s";
 };

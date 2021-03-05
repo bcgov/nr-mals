@@ -7,9 +7,9 @@
 	
 -- The superuser-password and app-db-owner-password are stored in the OpenShift secret for each environment.
 
-		bsoszr-dev  = patroni-dev 
-		bsoszr-test = patroni-test and patroni-uat 
-		bsoszr-prod = patroni-prod 
+		30245e-dev  = patroni-dev 
+		30245e-test = patroni-test and patroni-uat 
+		30245e-prod = patroni-prod 
 	
 -- CMD Shell 1
 

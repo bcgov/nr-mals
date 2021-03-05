@@ -7,8 +7,9 @@ import { startOfToday, add, set } from "date-fns";
 
 import { LICENCE_MODE, REQUEST_STATUS } from "../../utilities/constants";
 import {
-  LICENCE_TYPE_ID_APIARY,
-  LICENCE_TYPE_ID_VETERINARY_DRUG,
+  LICENCE_TYPE_ID_LIVESTOCK_DEALER,
+  LICENCE_TYPE_ID_PUBLIC_SALE_YARD_OPERATOR,
+  LICENCE_TYPE_ID_PURCHASE_LIVE_POULTRY,
 } from "../licences/constants";
 import {
   formatNumber,
@@ -35,6 +36,9 @@ import { validateIrmaNumber, parseIrmaNumber } from "./irmaNumberUtility";
 
 import LicenceDetailsEdit from "./LicenceDetailsEdit";
 import LicenceDetailsView from "./LicenceDetailsView";
+import BondInformationEdit from "./BondInformationEdit";
+import BondInformationView from "./BondInformationView";
+
 import { openModal } from "../../app/appSlice";
 
 import { CONFIRMATION } from "../../modals/ConfirmationModal";
@@ -77,6 +81,13 @@ export default function LicenceDetailsViewEdit({ licence }) {
     hivesPerApiary: licence.data.hivesPerApiary,
     addresses: licence.data.addresses,
     phoneNumbers: licence.data.phoneNumbers,
+    bondCarrierPhoneNumber: licence.data.bondCarrierPhoneNumber,
+    bondNumber: licence.data.bondNumber,
+    bondValue: licence.data.bondValue,
+    bondCarrierName: licence.data.bondCarrierName,
+    bondContinuationExpiryDate: parseAsDate(
+      licence.data.bondContinuationExpiryDate
+    ),
   };
 
   useEffect(() => {
@@ -120,6 +131,16 @@ export default function LicenceDetailsViewEdit({ licence }) {
     errorMessage = `${error.code}: ${error.description}`;
   }
 
+  const REQUIRES_BOND_INFORMATION = [
+    LICENCE_TYPE_ID_PUBLIC_SALE_YARD_OPERATOR,
+    LICENCE_TYPE_ID_PURCHASE_LIVE_POULTRY,
+    LICENCE_TYPE_ID_LIVESTOCK_DEALER,
+  ];
+
+  const showBondInformation =
+    REQUIRES_BOND_INFORMATION.find((x) => x == licence.data.licenceTypeId) !==
+    undefined;
+
   const config = getLicenceTypeConfiguration(licence.data.licenceTypeId);
 
   const getRenewLicenceDates = () => {
@@ -129,9 +150,7 @@ export default function LicenceDetailsViewEdit({ licence }) {
       expiryDate = add(today, { years: 2 });
     } else if (config.expiryMonth) {
       expiryDate = set(today, { date: 31, month: config.expiryMonth - 1 }); // months are indexed at 0
-      if (expiryDate < today) {
-        expiryDate = add(expiryDate, { years: 1 });
-      }
+      expiryDate = add(expiryDate, { years: 1 });
       if (config.yearsAddedToExpiryDate) {
         expiryDate = add(expiryDate, { years: config.yearsAddedToExpiryDate });
       }
@@ -189,6 +208,16 @@ export default function LicenceDetailsViewEdit({ licence }) {
         </SectionHeading>
         <Container className="mt-3 mb-4">
           <LicenceDetailsView licence={licence.data} />
+        </Container>
+        {showBondInformation ? (
+          <>
+            <SectionHeading>Bond Information</SectionHeading>
+            <Container className="mt-3 mb-4">
+              <BondInformationView licence={licence.data} />
+            </Container>
+          </>
+        ) : null}
+        <Container className="mt-3 mb-4">
           <Form.Row className="mt-3 mb-3">
             <Col sm={2}>
               <Button
@@ -227,11 +256,16 @@ export default function LicenceDetailsViewEdit({ licence }) {
       feePaidAmount: data.paymentReceived
         ? parseAsFloat(data.feePaidAmount)
         : null,
+      bondValue: data.bondValue ? parseAsFloat(data.bondValue) : undefined,
+      bondCarrierPhoneNumber: data.bondCarrierPhoneNumber
+        ? data.bondCarrierPhoneNumber.replace(/\D/g, "")
+        : undefined,
       licenceStatus: parseAsInt(data.licenceStatus),
       region: parseAsInt(data.region),
       regionalDistrict: parseAsInt(data.regionalDistrict),
       originalRegion: licence.data.regionId,
       originalRegionalDistrict: licence.data.regionalDistrictId,
+      primaryRegistrantId: licence.data.primaryRegistrantId,
       irmaNumber: parseIrmaNumber(data.irmaNumber),
     };
 
@@ -253,6 +287,21 @@ export default function LicenceDetailsViewEdit({ licence }) {
             licenceTypeId={licence.data.licenceTypeId}
             mode={LICENCE_MODE.EDIT}
           />
+        </Container>
+        {showBondInformation ? (
+          <section>
+            <SectionHeading>Bond Information</SectionHeading>
+            <Container className="mt-3 mb-4">
+              <BondInformationEdit
+                form={form}
+                initialValues={initialFormValues}
+                licenceTypeId={licence.data.licenceTypeId}
+                mode={LICENCE_MODE.EDIT}
+              />
+            </Container>
+          </section>
+        ) : null}
+        <Container className="mt-3 mb-4">
           <SubmissionButtons
             submitButtonLabel={submissionLabel}
             submitButtonDisabled={submitting}

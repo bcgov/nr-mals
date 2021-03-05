@@ -1,6 +1,8 @@
 const { formatDate } = require("../utilities/formatting");
 const { parseAsInt } = require("../utilities/parsing");
 const registrant = require("./registrant");
+const inventory = require("./inventory");
+const constants = require("../utilities/constants");
 
 function convertToLogicalModel(input) {
   const output = {
@@ -36,8 +38,8 @@ function convertToLogicalModel(input) {
     feePaidAmount: input.fee_collected,
     paymentReceived: input.fee_collected_ind,
     actionRequired: input.action_required,
-    printLicence: input.licence_prn_requested,
-    renewalNotice: input.renewal_prn_requested,
+    printLicence: input.print_certificate,
+    renewalNotice: input.print_renewal,
     irmaNumber: input.irma_number,
     totalHives: input.total_hives,
     hivesPerApiary: input.hives_per_apiary,
@@ -55,6 +57,21 @@ function convertToLogicalModel(input) {
       key: index,
     })),
   };
+
+  switch (input.licence_type_id) {
+    case constants.LICENCE_TYPE_ID_GAME_FARM:
+      output.inventory = input.mal_game_farm_inventory.map((x) => ({
+        ...inventory.convertToLogicalModel(x),
+      }));
+      break;
+    case constants.LICENCE_TYPE_ID_FUR_FARM:
+      output.inventory = input.mal_fur_farm_inventory.map((x) => ({
+        ...inventory.convertToLogicalModel(x),
+      }));
+      break;
+    default:
+      break;
+  }
 
   const hasPrimaryAddress = input.address_line_1 !== null;
   const hasMailingAddress = input.mail_address_line_1 !== null;
@@ -133,6 +150,23 @@ function convertSearchResultToLogicalModel(input) {
   return output;
 }
 
+function convertCertificateToLogicalModel(input) {
+  const output = {
+    licenceId: input.licence_id,
+    licenceType: input.licence_type,
+    licenceStatus: input.licence_status,
+    region: input.region_name,
+    regionalDistrict: input.district_name,
+    licenceNumber: input.licence_number,
+    lastNames: input.last_name,
+    companyNames: input.company_name,
+    issuedOnDate: input.issue_date,
+    expiryDate: input.expiry_date,
+  };
+
+  return output;
+}
+
 function convertToPhysicalModel(input, update) {
   const disconnectRelation = {
     disconnect: true,
@@ -151,6 +185,14 @@ function convertToPhysicalModel(input, update) {
     emptyRegionalDistrict = disconnectRelation;
   }
 
+  let emptyPrimaryRegistrant;
+  if (
+    input.primaryRegistrantId !== undefined &&
+    input.primaryRegistrantId !== null
+  ) {
+    emptyPrimaryRegistrant = disconnectRelation;
+  }
+
   const output = {
     mal_region_lu:
       input.region === null
@@ -167,14 +209,19 @@ function convertToPhysicalModel(input, update) {
         : {
             connect: { id: input.regionalDistrict },
           },
-    primary_registrant_id: input.primaryRegistrantId,
+    mal_registrant_mal_licence_primary_registrant_idTomal_registrant:
+      input.primaryRegistrantId === null
+        ? emptyPrimaryRegistrant
+        : {
+            connect: { id: input.primaryRegistrantId },
+          },
     issue_date: input.issuedOnDate,
     expiry_date: input.expiryDate,
     fee_collected: input.feePaidAmount,
     fee_collected_ind: input.paymentReceived || false,
     action_required: input.actionRequired,
-    licence_prn_requested: input.printLicence,
-    renewal_prn_requested: input.renewalNotice,
+    print_certificate: input.printLicence,
+    print_renewal: input.renewalNotice,
     irma_number: input.irmaNumber,
     total_hives: parseAsInt(input.totalHives),
     hives_per_apiary: parseAsInt(input.hivesPerApiary),
@@ -243,4 +290,5 @@ module.exports = {
   convertToPhysicalModel,
   convertToLogicalModel,
   convertSearchResultToLogicalModel,
+  convertCertificateToLogicalModel,
 };
