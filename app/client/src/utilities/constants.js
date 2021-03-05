@@ -15,7 +15,12 @@ export const CREATE_CONTACTS_PATHNAME = "/contacts/create";
 export const INSPECTIONS_PATHNAME = "/inspections";
 export const SEARCH_INSPECTIONS_PATHNAME = "/inspections/search";
 export const CREATE_INSPECTIONS_PATHNAME = "/inspections/create";
-export const REPORTS_PATHNAME = "/reports";
+export const DOCUMENT_GENERATION_PATHNAME = "/documents";
+export const NOTICES_PATHNAME = "/documents/notices";
+export const REPORTS_PATHNAME = "/documents/reports";
+export const SELECT_CERTIFICATES_PATHNAME = "/documents/certificates";
+export const DOWNLOAD_CERTIFICATES_PATHNAME =
+  "/documents/certificates/download";
 export const ADMIN_PATHNAME = "/admin";
 export const USERS_AND_ROLES_ADMIN_PATHNAME = "/admin/users-and-roles";
 export const LICENSE_TYPES_ADMIN_PATHNAME = "/admin/license-types";

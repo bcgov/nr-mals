@@ -150,6 +150,23 @@ function convertSearchResultToLogicalModel(input) {
   return output;
 }
 
+function convertCertificateToLogicalModel(input) {
+  const output = {
+    licenceId: input.licence_id,
+    licenceType: input.licence_type,
+    licenceStatus: input.licence_status,
+    region: input.region_name,
+    regionalDistrict: input.district_name,
+    licenceNumber: input.licence_number,
+    lastNames: input.last_name,
+    companyNames: input.company_name,
+    issuedOnDate: input.issue_date,
+    expiryDate: input.expiry_date,
+  };
+
+  return output;
+}
+
 function convertToPhysicalModel(input, update) {
   const disconnectRelation = {
     disconnect: true,
@@ -273,4 +290,5 @@ module.exports = {
   convertToPhysicalModel,
   convertToLogicalModel,
   convertSearchResultToLogicalModel,
+  convertCertificateToLogicalModel,
 };

@@ -11,7 +11,8 @@ import HeaderNavigation from "./components/HeaderNavigation";
 import CreateLicencePage from "./features/licences/CreateLicencePage";
 import ViewLicencePage from "./features/licences/ViewLicencePage";
 
-import ReportsPage from "./features/reports/ReportsPage";
+import SelectCertificatesPage from "./features/documents/SelectCertificatesPage";
+import DownloadCertificatesPage from "./features/documents/DownloadCertificatesPage";
 
 import LicenceSearchPage from "./features/search/LicenceSearchPage";
 import LicenceResultsPage from "./features/search/LicenceResultsPage";
@@ -75,8 +76,17 @@ function App() {
             <Route path={`${Constant.CREATE_INSPECTIONS_PATHNAME}`}>
               <InspectionsCreate />
             </Route>
+            <Route path={`${Constant.NOTICES_PATHNAME}`}>
+              <Notices />
+            </Route>
             <Route path={`${Constant.REPORTS_PATHNAME}`}>
-              <ReportsPage />
+              <Reports />
+            </Route>
+            <Route path={`${Constant.DOWNLOAD_CERTIFICATES_PATHNAME}`}>
+              <DownloadCertificatesPage />
+            </Route>
+            <Route path={`${Constant.SELECT_CERTIFICATES_PATHNAME}`}>
+              <SelectCertificatesPage />
             </Route>
             <Route path={`${Constant.USERS_AND_ROLES_ADMIN_PATHNAME}`}>
               <UsersAndRoles />
@@ -145,6 +155,14 @@ function Inspections() {
 
 function DairyTestResults() {
   return <h2>Dairy Test Results</h2>;
+}
+
+function Notices() {
+  return <h2>Notices</h2>;
+}
+
+function Reports() {
+  return <h2>Reports</h2>;
 }
 
 export default App;

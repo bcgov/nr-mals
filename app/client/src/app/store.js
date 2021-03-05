@@ -5,19 +5,19 @@ import licencesReducer from "../features/licences/licencesSlice";
 import sitesReducer from "../features/sites/sitesSlice";
 import lookupsReducer from "../features/lookups/lookupsReducer";
 import statusReducer from "../features/status/statusSlice";
-import cdogsReducer from "../features/reports/cdogsSlice";
 import searchReducer from "../features/search/searchSlice";
 import commentsReducer from "../features/comments/commentsSlice";
+import certificatesReducer from "../features/documents/certificatesSlice";
 
 const reducer = {
   app: appReducer,
-  licences: licencesReducer,
-  sites: sitesReducer,
-  lookups: lookupsReducer,
-  status: statusReducer,
-  cdogs: cdogsReducer,
-  search: searchReducer,
+  certificates: certificatesReducer,
   comments: commentsReducer,
+  licences: licencesReducer,
+  lookups: lookupsReducer,
+  search: searchReducer,
+  sites: sitesReducer,
+  status: statusReducer,
 };
 
 const middleware = [
