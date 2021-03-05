@@ -1,5 +1,6 @@
 /* eslint-disable */
 import React, { useEffect } from "react";
+import { useSelector } from "react-redux";
 import PropTypes from "prop-types";
 import { Button, Modal, Form, Col } from "react-bootstrap";
 import { useForm, Controller } from "react-hook-form";
@@ -8,6 +9,11 @@ import NumberFormat from "react-number-format";
 import { formatPhoneNumber } from "../utilities/formatting";
 import { parseAsInt } from "../utilities/parsing";
 import CustomCheckBox from "../components/CustomCheckBox";
+
+import Cities from "../features/lookups/Cities";
+
+import { selectCities } from "../features/lookups/citiesSlice";
+
 
 import {
   ADDRESS_TYPES,
@@ -24,6 +30,8 @@ export default function AddressModal({
   closeModal,
   submit,
 }) {
+  const cities = useSelector(selectCities);
+
   const onSubmit = (data) => {
     submit({
       key: parseAsInt(data.addressKey),
@@ -64,6 +72,7 @@ export default function AddressModal({
   );
 
   const selectedCountry = watch("country", COUNTRIES.CANADA);
+  const selectedProvince = watch("province", address.province ?? "BC");
 
   return (
     <Form onSubmit={handleSubmit(onSubmit)} noValidate>
@@ -129,19 +138,30 @@ export default function AddressModal({
         <Form.Row>
           <Col lg={4}>
             <Form.Group controlId="city">
-              <Form.Label>City</Form.Label>
-              <Form.Control
-                type="text"
-                name="city"
-                defaultValue={address.city ?? null}
-                ref={register({
-                  required: true,
-                })}
+            {selectedProvince !== "BC" ? (
+              <>
+                <Form.Label>City</Form.Label>
+                <Form.Control
+                  type="text"
+                  name="city"
+                  defaultValue={address.city ?? null}
+                  ref={register({
+                    required: true,
+                  })}
+                  isInvalid={errors.city}
+                />
+                <Form.Control.Feedback type="invalid">
+                  Please enter a city.
+                </Form.Control.Feedback>
+              </> 
+            ) : (
+              <Cities
+                cities={cities}
+                ref={register({ required: true })}
+                defaultValue={address.city ?? "BC"}
                 isInvalid={errors.city}
               />
-              <Form.Control.Feedback type="invalid">
-                Please enter a city.
-              </Form.Control.Feedback>
+            )}
             </Form.Group>
           </Col>
           <Col lg={2}>
@@ -210,7 +230,7 @@ export default function AddressModal({
                 defaultValue={address.country ?? COUNTRIES.CANADA}
               >
                 {COUNTRIES_MAP.map((x) => {
-                  return <option value={x}>{x}</option>;
+                  return <option key={x} value={x}>{x}</option>;
                 })}
               </Form.Control>
             </Form.Group>

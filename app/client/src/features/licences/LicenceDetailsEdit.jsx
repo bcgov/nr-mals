@@ -97,6 +97,7 @@ export default function LicenceDetailsEdit({
     const primaryAddress = addresses.find(
       (x) => x.addressType === ADDRESS_TYPES.PRIMARY
     );
+
     dispatch(
       openModal(
         ADDRESS,
@@ -122,6 +123,7 @@ export default function LicenceDetailsEdit({
     const primaryAddress = addresses.find(
       (x) => x.addressType === ADDRESS_TYPES.PRIMARY
     );
+
     dispatch(
       openModal(
         ADDRESS,
