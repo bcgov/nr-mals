@@ -54,7 +54,7 @@ export default function LicenceDetailsEdit({
 
     return addressList.map((address) => {
       return {
-        ...address
+        ...address,
       };
     });
   };
@@ -370,7 +370,7 @@ export default function LicenceDetailsEdit({
         </Col>
       </Form.Row>
       {config.replacePaymentReceivedWithHiveFields ? (
-        <Form.Row>
+        <Form.Row className="mt-3">
           <Col lg={4}>
             <Form.Group controlId="totalHives">
               <Form.Label>Total Hives</Form.Label>

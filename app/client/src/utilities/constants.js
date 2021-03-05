@@ -46,7 +46,20 @@ export const REGISTRANT_MODE = {
   EDIT: "edit",
 };
 
+export const DAIRY_TANK_MODE = {
+  CREATE: "create",
+  VIEW: "view",
+  EDIT: "edit",
+};
+
 export const REGISTRANT_STATUS = {
+  NEW: "new",
+  EXISTING: "existing",
+  DELETED: "deleted",
+  CANCELLED: "cancelled",
+};
+
+export const DAIRY_TANK_STATUS = {
   NEW: "new",
   EXISTING: "existing",
   DELETED: "deleted",
@@ -71,3 +84,10 @@ export const LICENCE_STATUS_TYPES = {
   INACTIVE: "Inactive",
   PENDING: "Pending",
 };
+
+export const COUNTRIES = {
+  CANADA: "Canada",
+  UNITEDSTATES: "United States",
+};
+
+export const COUNTRIES_MAP = [COUNTRIES.CANADA, COUNTRIES.UNITEDSTATES];

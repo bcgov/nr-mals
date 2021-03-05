@@ -156,7 +156,7 @@ export const {
   toggleLicenceSearchType,
   setLicenceParameters,
   setLicenceSearchPage,
-  setSiteSearchPage
+  setSiteSearchPage,
 } = actions;
 
 export default reducer;

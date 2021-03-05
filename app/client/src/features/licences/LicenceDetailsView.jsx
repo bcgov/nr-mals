@@ -133,24 +133,24 @@ export default function LicenceDetailsView({ licence }) {
               <label className="strong">Phone/Fax Numbers</label>
             </Col>
           </Row>
-          {primaryPhone !== undefined ?
+          {primaryPhone !== undefined ? (
             <Row>
               <Col lg={3}>Primary Number:</Col>
               <Col>{primaryPhone.number}</Col>
-            </Row> 
-            : null } 
-          {secondaryPhone !== undefined ?
+            </Row>
+          ) : null}
+          {secondaryPhone !== undefined ? (
             <Row>
               <Col lg={3}>Secondary Number:</Col>
               <Col>{secondaryPhone.number}</Col>
-            </Row> 
-            : null } 
-          {faxNumber !== undefined ?
+            </Row>
+          ) : null}
+          {faxNumber !== undefined ? (
             <Row>
               <Col lg={3}>Fax Number:</Col>
               <Col>{faxNumber.number}</Col>
-            </Row> 
-            : null } 
+            </Row>
+          ) : null}
         </Col>
       </Row>
       {config.replacePaymentReceivedWithHiveFields ? (

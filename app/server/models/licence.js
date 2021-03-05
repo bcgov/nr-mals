@@ -27,7 +27,7 @@ function convertToLogicalModel(input) {
         : `${input.mal_regional_district_lu.district_number} ${input.mal_regional_district_lu.district_name}`,
     primaryRegistrantId: input.primary_registrant_id,
     primaryPhone: input.primary_phone,
-    secondaryPhone: input.secondary_phone, 
+    secondaryPhone: input.secondary_phone,
     faxNumber: input.fax_number,
     regionalDistrictId: input.regional_district_id,
     applicationDate: formatDate(input.application_date),
@@ -88,25 +88,25 @@ function convertToLogicalModel(input) {
   const primaryPhone = input.primary_phone;
   const secondaryPhone = input.secondary_phone;
   const faxNumber = input.fax_number;
-  if( primaryPhone ) {
+  if (primaryPhone) {
     output.phoneNumbers.push({
       key: output.phoneNumbers.length,
       number: primaryPhone,
-      phoneNumberType: "Primary"
+      phoneNumberType: "Primary",
     });
   }
-  if( secondaryPhone ) {
+  if (secondaryPhone) {
     output.phoneNumbers.push({
       key: output.phoneNumbers.length,
       number: secondaryPhone,
-      phoneNumberType: "Secondary"
+      phoneNumberType: "Secondary",
     });
   }
-  if( faxNumber ) {
+  if (faxNumber) {
     output.phoneNumbers.push({
       key: output.phoneNumbers.length,
       number: faxNumber,
-      phoneNumberType: "Fax"
+      phoneNumberType: "Fax",
     });
   }
 
@@ -196,8 +196,10 @@ function convertToPhysicalModel(input, update) {
     };
   }
 
-  var primary = input.addresses && input.addresses.find((x) => x.addressType === "Primary");
-  var secondary = input.addresses && input.addresses.find((x) => x.addressType === "Mailing");
+  var primary =
+    input.addresses && input.addresses.find((x) => x.addressType === "Primary");
+  var secondary =
+    input.addresses && input.addresses.find((x) => x.addressType === "Mailing");
   if (primary !== undefined) {
     output.address_line_1 = primary.addressLine1;
     output.address_line_2 = primary.addressLine2;
@@ -215,16 +217,22 @@ function convertToPhysicalModel(input, update) {
     output.mail_country = secondary.country;
   }
 
-  var primaryPhone = input.phoneNumbers && input.phoneNumbers.find((x) => x.phoneNumberType === "Primary");
-  var secondaryPhone = input.phoneNumbers && input.phoneNumbers.find((x) => x.phoneNumberType === "Secondary");
-  var faxNumber = input.phoneNumbers && input.phoneNumbers.find((x) => x.phoneNumberType === "Fax");
-  if( primaryPhone !== undefined ) {
+  var primaryPhone =
+    input.phoneNumbers &&
+    input.phoneNumbers.find((x) => x.phoneNumberType === "Primary");
+  var secondaryPhone =
+    input.phoneNumbers &&
+    input.phoneNumbers.find((x) => x.phoneNumberType === "Secondary");
+  var faxNumber =
+    input.phoneNumbers &&
+    input.phoneNumbers.find((x) => x.phoneNumberType === "Fax");
+  if (primaryPhone !== undefined) {
     output.primary_phone = primaryPhone.number;
   }
-  if( secondaryPhone !== undefined ) {
+  if (secondaryPhone !== undefined) {
     output.secondary_phone = secondaryPhone.number;
   }
-  if( faxNumber !== undefined ) {
+  if (faxNumber !== undefined) {
     output.fax_number = faxNumber.number;
   }
 

@@ -1,11 +1,20 @@
 import React, { useEffect } from "react";
 import PropTypes from "prop-types";
-import { useDispatch } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { useForm } from "react-hook-form";
-import { Container, Form } from "react-bootstrap";
+import { Button, Container, Form, Row, Col } from "react-bootstrap";
+import { startOfToday, add, set } from "date-fns";
 
 import { LICENCE_MODE, REQUEST_STATUS } from "../../utilities/constants";
-import { formatNumber } from "../../utilities/formatting.ts";
+import {
+  LICENCE_TYPE_ID_APIARY,
+  LICENCE_TYPE_ID_VETERINARY_DRUG,
+} from "../licences/constants";
+import {
+  formatNumber,
+  formatDate,
+  formatDateTimeString,
+} from "../../utilities/formatting.ts";
 import { parseAsInt, parseAsFloat, parseAsDate } from "../../utilities/parsing";
 
 import ErrorMessageRow from "../../components/ErrorMessageRow";
@@ -18,12 +27,17 @@ import {
   updateLicence,
   setCurrentLicenceModeToEdit,
   setCurrentLicenceModeToView,
+  renewLicence,
 } from "./licencesSlice";
+import { getLicenceTypeConfiguration } from "./licenceTypeUtility";
 
 import { validateIrmaNumber, parseIrmaNumber } from "./irmaNumberUtility";
 
 import LicenceDetailsEdit from "./LicenceDetailsEdit";
 import LicenceDetailsView from "./LicenceDetailsView";
+import { openModal } from "../../app/appSlice";
+
+import { CONFIRMATION } from "../../modals/ConfirmationModal";
 
 export default function LicenceDetailsViewEdit({ licence }) {
   const { status, error, mode } = licence;
@@ -99,6 +113,71 @@ export default function LicenceDetailsViewEdit({ licence }) {
     mode,
   ]);
 
+  const submitting = status === REQUEST_STATUS.PENDING;
+
+  let errorMessage = null;
+  if (status === REQUEST_STATUS.REJECTED) {
+    errorMessage = `${error.code}: ${error.description}`;
+  }
+
+  const config = getLicenceTypeConfiguration(licence.data.licenceTypeId);
+
+  const getRenewLicenceDates = () => {
+    const today = startOfToday();
+    let expiryDate = null;
+    if (config.expiryInTwoYears) {
+      expiryDate = add(today, { years: 2 });
+    } else if (config.expiryMonth) {
+      expiryDate = set(today, { date: 31, month: config.expiryMonth - 1 }); // months are indexed at 0
+      if (expiryDate < today) {
+        expiryDate = add(expiryDate, { years: 1 });
+      }
+      if (config.yearsAddedToExpiryDate) {
+        expiryDate = add(expiryDate, { years: config.yearsAddedToExpiryDate });
+      }
+    } else if (config.replaceExpiryDateWithIrmaNumber) {
+      expiryDate = undefined;
+    }
+
+    return { issueDate: today, expiryDate: expiryDate };
+  };
+
+  const onRenew = () => {
+    const dates = getRenewLicenceDates();
+    dispatch(
+      openModal(
+        CONFIRMATION,
+        onRenewCallback,
+        {
+          data: dates,
+          modalContent: (
+            <>
+              <Row>
+                <div className="justify-content-center">
+                  The Issued On date will be updated to today's date, and the
+                  Expiry Date for Licence Number {licence.data.id} will be
+                  updated to {formatDate(dates.expiryDate)}
+                </div>
+              </Row>
+              <br />
+              <Row>
+                <div className="justify-content-center">
+                  Do you wish to proceed?
+                </div>
+              </Row>
+            </>
+          ),
+        },
+        "md"
+      )
+    );
+  };
+
+  const onRenewCallback = (data) => {
+    const dates = data;
+    dispatch(renewLicence({ data: dates, id: licence.data.id }));
+  };
+
   if (mode === LICENCE_MODE.VIEW) {
     const onEdit = () => {
       dispatch(setCurrentLicenceModeToEdit());
@@ -110,16 +189,23 @@ export default function LicenceDetailsViewEdit({ licence }) {
         </SectionHeading>
         <Container className="mt-3 mb-4">
           <LicenceDetailsView licence={licence.data} />
+          <Form.Row className="mt-3 mb-3">
+            <Col sm={2}>
+              <Button
+                type="button"
+                onClick={onRenew}
+                disabled={submitting}
+                variant="secondary"
+                block
+              >
+                Renew Licence
+              </Button>
+            </Col>
+          </Form.Row>
+          <ErrorMessageRow errorMessage={errorMessage} />
         </Container>
       </section>
     );
-  }
-
-  const submitting = status === REQUEST_STATUS.PENDING;
-
-  let errorMessage = null;
-  if (status === REQUEST_STATUS.REJECTED) {
-    errorMessage = `${error.code}: ${error.description}`;
   }
 
   const submissionLabel = submitting ? "Saving..." : "Save";

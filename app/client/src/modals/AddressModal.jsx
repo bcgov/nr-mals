@@ -8,7 +8,11 @@ import { formatPhoneNumber } from "../utilities/formatting";
 import { parseAsInt } from "../utilities/parsing";
 import CustomCheckBox from "../components/CustomCheckBox";
 
-import { ADDRESS_TYPES } from "../utilities/constants";
+import {
+  ADDRESS_TYPES,
+  COUNTRIES,
+  COUNTRIES_MAP,
+} from "../utilities/constants";
 
 export const ADDRESS = "ADDRESS_MODAL";
 
@@ -29,7 +33,7 @@ export default function AddressModal({
       city: data.city,
       country: data.country,
       phoneFax: data.phoneFax,
-      postalCode: data.postalCode,
+      postalCode: data.postalCode.replace(" ", ""),
       printToCertificate: data.printToCertificate,
       province: data.province,
     });
@@ -47,7 +51,7 @@ export default function AddressModal({
   const form = useForm({
     reValidateMode: "onBlur",
   });
-  const { register, handleSubmit, setValue, errors } = form;
+  const { register, handleSubmit, setValue, errors, watch } = form;
 
   const addressTypes = [
     { value: ADDRESS_TYPES.PRIMARY, description: "Primary Address" },
@@ -57,6 +61,8 @@ export default function AddressModal({
   const addressOptions = addressTypes.filter(
     (x) => !existingTypes.includes(x.value) || x.value === address.addressType
   );
+
+  const selectedCountry = watch("country", COUNTRIES.CANADA);
 
   return (
     <Form onSubmit={handleSubmit(onSubmit)} noValidate>
@@ -139,37 +145,57 @@ export default function AddressModal({
           </Col>
           <Col lg={2}>
             <Form.Group controlId="province">
-              <Form.Label>Province</Form.Label>
-              <Form.Control
-                as="select"
-                name="province"
-                ref={register}
-                defaultValue={address.province ?? "BC"}
-              >
-                <option value="AB">AB</option>
-                <option value="BC">BC</option>
-                <option value="MB">MB</option>
-                <option value="NB">NB</option>
-                <option value="NL">NL</option>
-                <option value="NT">NT</option>
-                <option value="NS">NS</option>
-                <option value="NU">NU</option>
-                <option value="ON">ON</option>
-                <option value="PE">PE</option>
-                <option value="QC">QC</option>
-                <option value="SK">SK</option>
-                <option value="YT">YT</option>
-              </Form.Control>
+              {selectedCountry === COUNTRIES.CANADA ? (
+                <>
+                  <Form.Label>Province</Form.Label>
+                  <Form.Control
+                    as="select"
+                    name="province"
+                    ref={register}
+                    defaultValue={address.province ?? "BC"}
+                  >
+                    <option value="AB">AB</option>
+                    <option value="BC">BC</option>
+                    <option value="MB">MB</option>
+                    <option value="NB">NB</option>
+                    <option value="NL">NL</option>
+                    <option value="NT">NT</option>
+                    <option value="NS">NS</option>
+                    <option value="NU">NU</option>
+                    <option value="ON">ON</option>
+                    <option value="PE">PE</option>
+                    <option value="QC">QC</option>
+                    <option value="SK">SK</option>
+                    <option value="YT">YT</option>
+                  </Form.Control>
+                </>
+              ) : (
+                <>
+                  <Form.Label>State</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="province"
+                    defaultValue={address.province ?? null}
+                    ref={register}
+                    maxLength={4}
+                  />
+                </>
+              )}
             </Form.Group>
           </Col>
           <Col lg={2}>
             <Form.Group controlId="postalCode">
-              <Form.Label>Postal Code</Form.Label>
+              <Form.Label>
+                {selectedCountry === COUNTRIES.CANADA
+                  ? "Postal Code"
+                  : "Zip Code"}
+              </Form.Label>
               <Form.Control
                 type="text"
                 name="postalCode"
                 defaultValue={address.postalCode ?? null}
                 ref={register}
+                maxLength={7}
               />
             </Form.Group>
           </Col>
@@ -177,11 +203,15 @@ export default function AddressModal({
             <Form.Group controlId="country">
               <Form.Label>Country</Form.Label>
               <Form.Control
-                type="text"
+                as="select"
                 name="country"
-                defaultValue={address.country ?? null}
                 ref={register}
-              />
+                defaultValue={address.country ?? COUNTRIES.CANADA}
+              >
+                {COUNTRIES_MAP.map((x) => {
+                  return <option value={x}>{x}</option>;
+                })}
+              </Form.Control>
             </Form.Group>
           </Col>
         </Form.Row>

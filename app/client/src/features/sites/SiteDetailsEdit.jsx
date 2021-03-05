@@ -15,9 +15,9 @@ import SectionHeading from "../../components/SectionHeading";
 import { parseAsInt } from "../../utilities/parsing";
 
 import {
+  LICENCE_TYPE_ID_APIARY,
   LICENCE_TYPE_ID_GAME_FARM,
-} from "../licences/constants"
-
+} from "../licences/constants";
 
 export default function SiteDetailsEdit({
   form,
@@ -32,10 +32,11 @@ export default function SiteDetailsEdit({
   const watchRegion = watch("region", null);
   const parsedRegion = parseAsInt(watchRegion);
 
-  const licencePrimaryAddress = licence.addresses.find( x => x.addressType === "Primary");
+  const licencePrimaryAddress = licence.addresses.find(
+    (x) => x.addressType === "Primary"
+  );
 
   const populateFromPrimary = () => {
-    console.log(licence);
     setValue("addressLine1", licencePrimaryAddress.addressLine1);
     setValue("addressLine2", licencePrimaryAddress.addressLine2);
     setValue("city", licencePrimaryAddress.city);
@@ -85,6 +86,21 @@ export default function SiteDetailsEdit({
           />
         </Col>
       </Row>
+      {licence.licenceTypeId === LICENCE_TYPE_ID_APIARY ? (
+        <Row className="mt-3">
+          <Col lg={4}>
+            <Form.Group controlId="hiveCount">
+              <Form.Label>Number of Hives</Form.Label>
+              <Form.Control
+                type="number"
+                name="hiveCount"
+                defaultValue={initialValues.hiveCount}
+                ref={register}
+              />
+            </Form.Group>
+          </Col>
+        </Row>
+      ) : null}
       <Row className="mt-3">
         <Col lg={4}>
           <Form.Group controlId="addressLine1">
@@ -219,10 +235,7 @@ export default function SiteDetailsEdit({
         </Col>
         <Col lg={7}>
           <span className="float-right">
-            <Button
-              variant="secondary"
-              onClick={resetAddress}
-            >
+            <Button variant="secondary" onClick={resetAddress}>
               Remove Site Address
             </Button>
           </span>
@@ -302,23 +315,23 @@ export default function SiteDetailsEdit({
           </Form.Group>
         </Col>
       </Row>
-      { licence.licenceTypeId === LICENCE_TYPE_ID_GAME_FARM ?
-      <Row className="mt-3">
-        <Col>
-          <Form.Group controlId="legalDescription">
-            <Form.Label>Legal Description</Form.Label>
-            <Form.Control
-              as="textarea"
-              rows={6}
-              name="legalDescriptionText"
-              ref={register}
-              maxLength={2000}
-              className="mb-1"
-            />
-          </Form.Group>
-        </Col>
-      </Row>
-      : null }
+      {licence.licenceTypeId === LICENCE_TYPE_ID_GAME_FARM ? (
+        <Row className="mt-3">
+          <Col>
+            <Form.Group controlId="legalDescription">
+              <Form.Label>Legal Description</Form.Label>
+              <Form.Control
+                as="textarea"
+                rows={6}
+                name="legalDescriptionText"
+                ref={register}
+                maxLength={2000}
+                className="mb-1"
+              />
+            </Form.Group>
+          </Col>
+        </Row>
+      ) : null}
     </>
   );
 }
@@ -329,4 +342,3 @@ SiteDetailsEdit.propTypes = {
   licence: PropTypes.object,
   mode: PropTypes.string.isRequired,
 };
-

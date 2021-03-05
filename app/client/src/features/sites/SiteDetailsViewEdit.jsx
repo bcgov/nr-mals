@@ -1,10 +1,15 @@
 import React, { useEffect } from "react";
 import PropTypes from "prop-types";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { Redirect } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { Container, Form } from "react-bootstrap";
 
-import { LICENCE_MODE, REQUEST_STATUS } from "../../utilities/constants";
+import {
+  LICENCE_MODE,
+  REQUEST_STATUS,
+  LICENSES_PATHNAME,
+} from "../../utilities/constants";
 import { formatNumber } from "../../utilities/formatting.ts";
 import { parseAsInt, parseAsFloat, parseAsDate } from "../../utilities/parsing";
 
@@ -108,7 +113,10 @@ export default function SiteDetailsViewEdit({ site, licence }) {
           Site Details
         </SectionHeading>
         <Container className="mt-3 mb-4">
-          <SiteDetailsView site={site.data} licenceTypeId={licence.licenceTypeId} />
+          <SiteDetailsView
+            site={site.data}
+            licenceTypeId={licence.licenceTypeId}
+          />
         </Container>
       </section>
     );
@@ -124,7 +132,6 @@ export default function SiteDetailsViewEdit({ site, licence }) {
   const submissionLabel = submitting ? "Saving..." : "Save";
 
   const onSubmit = async (data) => {
-    console.log(data);
     const payload = {
       ...data,
       licenceId: site.data.licenceId,
@@ -133,6 +140,8 @@ export default function SiteDetailsViewEdit({ site, licence }) {
       regionalDistrict: parseAsInt(data.regionalDistrict),
       originalRegion: site.data.regionId,
       originalRegionalDistrict: site.data.regionalDistrictId,
+      hiveCount: parseAsInt(data.hiveCount),
+      postalCode: site.data.postalCode ? site.data.postalCode.replace(" ", "") : undefined,
       primaryPhone: data.primaryPhone
         ? data.primaryPhone.replace(/\D/g, "")
         : undefined,
