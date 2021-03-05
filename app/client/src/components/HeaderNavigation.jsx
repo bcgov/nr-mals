@@ -71,9 +71,21 @@ function HeaderNavigation() {
                   Create Inspection
                 </DropdownNavLink>
               </HeaderDropdown>
-              <NavLink className="nav-link" to={Constant.REPORTS_PATHNAME}>
-                Reports
-              </NavLink>
+              <HeaderDropdown
+                id="document-generation-dropdown"
+                title="Document Generation"
+                pathPrefix={Constant.DOCUMENT_GENERATION_PATHNAME}
+              >
+                <DropdownNavLink to={Constant.NOTICES_PATHNAME}>
+                  Notices
+                </DropdownNavLink>
+                <DropdownNavLink to={Constant.REPORTS_PATHNAME}>
+                  Reports
+                </DropdownNavLink>
+                <DropdownNavLink to={Constant.SELECT_CERTIFICATES_PATHNAME}>
+                  Certificates
+                </DropdownNavLink>
+              </HeaderDropdown>
               <HeaderDropdown
                 id="admin-dropdown"
                 title="System Admin"

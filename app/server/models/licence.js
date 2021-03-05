@@ -38,8 +38,8 @@ function convertToLogicalModel(input) {
     feePaidAmount: input.fee_collected,
     paymentReceived: input.fee_collected_ind,
     actionRequired: input.action_required,
-    printLicence: input.licence_prn_requested,
-    renewalNotice: input.renewal_prn_requested,
+    printLicence: input.print_certificate,
+    renewalNotice: input.print_renewal,
     irmaNumber: input.irma_number,
     totalHives: input.total_hives,
     hivesPerApiary: input.hives_per_apiary,
@@ -150,6 +150,23 @@ function convertSearchResultToLogicalModel(input) {
   return output;
 }
 
+function convertCertificateToLogicalModel(input) {
+  const output = {
+    licenceId: input.licence_id,
+    licenceType: input.licence_type,
+    licenceStatus: input.licence_status,
+    region: input.region_name,
+    regionalDistrict: input.district_name,
+    licenceNumber: input.licence_number,
+    lastNames: input.last_name,
+    companyNames: input.company_name,
+    issuedOnDate: input.issue_date,
+    expiryDate: input.expiry_date,
+  };
+
+  return output;
+}
+
 function convertToPhysicalModel(input, update) {
   const disconnectRelation = {
     disconnect: true,
@@ -203,8 +220,8 @@ function convertToPhysicalModel(input, update) {
     fee_collected: input.feePaidAmount,
     fee_collected_ind: input.paymentReceived || false,
     action_required: input.actionRequired,
-    //licence_prn_requested: input.printLicence,
-    //renewal_prn_requested: input.renewalNotice,
+    print_certificate: input.printLicence,
+    print_renewal: input.renewalNotice,
     irma_number: input.irmaNumber,
     total_hives: parseAsInt(input.totalHives),
     hives_per_apiary: parseAsInt(input.hivesPerApiary),
@@ -273,4 +290,5 @@ module.exports = {
   convertToPhysicalModel,
   convertToLogicalModel,
   convertSearchResultToLogicalModel,
+  convertCertificateToLogicalModel,
 };
