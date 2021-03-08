@@ -14,7 +14,6 @@ import Cities from "../features/lookups/Cities";
 
 import { selectCities } from "../features/lookups/citiesSlice";
 
-
 import {
   ADDRESS_TYPES,
   COUNTRIES,
@@ -138,30 +137,30 @@ export default function AddressModal({
         <Form.Row>
           <Col lg={4}>
             <Form.Group controlId="city">
-            {selectedProvince !== "BC" ? (
-              <>
-                <Form.Label>City</Form.Label>
-                <Form.Control
-                  type="text"
-                  name="city"
-                  defaultValue={address.city ?? null}
-                  ref={register({
-                    required: true,
-                  })}
+              {selectedProvince !== "BC" ? (
+                <>
+                  <Form.Label>City</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="city"
+                    defaultValue={address.city ?? null}
+                    ref={register({
+                      required: true,
+                    })}
+                    isInvalid={errors.city}
+                  />
+                  <Form.Control.Feedback type="invalid">
+                    Please enter a city.
+                  </Form.Control.Feedback>
+                </>
+              ) : (
+                <Cities
+                  cities={cities}
+                  ref={register({ required: true })}
+                  defaultValue={address.city ?? "BC"}
                   isInvalid={errors.city}
                 />
-                <Form.Control.Feedback type="invalid">
-                  Please enter a city.
-                </Form.Control.Feedback>
-              </> 
-            ) : (
-              <Cities
-                cities={cities}
-                ref={register({ required: true })}
-                defaultValue={address.city ?? "BC"}
-                isInvalid={errors.city}
-              />
-            )}
+              )}
             </Form.Group>
           </Col>
           <Col lg={2}>
@@ -230,7 +229,11 @@ export default function AddressModal({
                 defaultValue={address.country ?? COUNTRIES.CANADA}
               >
                 {COUNTRIES_MAP.map((x) => {
-                  return <option key={x} value={x}>{x}</option>;
+                  return (
+                    <option key={x} value={x}>
+                      {x}
+                    </option>
+                  );
                 })}
               </Form.Control>
             </Form.Group>
