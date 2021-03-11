@@ -25,9 +25,6 @@
       "spec": {
         "triggers": [
           {
-            "type": "ImageChange"
-          },
-          {
             "type": "ConfigChange"
           }
         ],
@@ -62,7 +59,7 @@
         "output": {
           "to": {
             "kind": "ImageStreamTag",
-            "name": "${NAME}:${OUTPUT_IMAGE_TAG}-dev"
+            "name": "${NAME}:dev"
           }
         },
         "resources": {
@@ -126,7 +123,7 @@
         "output": {
           "to": {
             "kind": "ImageStreamTag",
-            "name": "${NAME}:${OUTPUT_IMAGE_TAG}-test"
+            "name": "${NAME}:test"
           }
         },
         "resources": {
@@ -190,7 +187,7 @@
         "output": {
           "to": {
             "kind": "ImageStreamTag",
-            "name": "${NAME}:${OUTPUT_IMAGE_TAG}-uat"
+            "name": "${NAME}:uat"
           }
         },
         "resources": {
@@ -254,7 +251,7 @@
         "output": {
           "to": {
             "kind": "ImageStreamTag",
-            "name": "${NAME}:${OUTPUT_IMAGE_TAG}-prod"
+            "name": "${NAME}:prod"
           }
         },
         "resources": {
@@ -345,13 +342,6 @@
       "name": "SOURCE_IMAGE_TAG",
       "displayName": "Source Image Tag",
       "description": "The tag of the source image.",
-      "required": true,
-      "value": "latest"
-    },
-    {
-      "name": "OUTPUT_IMAGE_TAG",
-      "displayName": "Output Image Tag",
-      "description": "The tag given to the built image.",
       "required": true,
       "value": "latest"
     },
