@@ -7,34 +7,6 @@
   },
   "objects": [
     {
-      "apiVersion": "security.devops.gov.bc.ca/v1alpha1",
-      "kind": "NetworkSecurityPolicy",
-      "metadata": {
-        "finalizers": ["finalizer.security.devops.gov.bc.ca"],
-        "name": "egress-internet-${PROJECT_PREFIX}-tools",
-        "namespace": "${PROJECT_PREFIX}-tools"
-      },
-      "spec": {
-        "description": "${PROJECT_PREFIX}-tools to talk to the internet\n",
-        "destination": [["ext:network=any"]],
-        "source": [["$namespace=${PROJECT_PREFIX}-tools"]]
-      }
-    },
-    {
-      "apiVersion": "security.devops.gov.bc.ca/v1alpha1",
-      "kind": "NetworkSecurityPolicy",
-      "metadata": {
-        "finalizers": ["finalizer.security.devops.gov.bc.ca"],
-        "name": "int-cluster-k8s-api-permit-${PROJECT_PREFIX}-tools",
-        "namespace": "${PROJECT_PREFIX}-tools"
-      },
-      "spec": {
-        "description": "allow ${PROJECT_PREFIX}-tools pods to talk to the k8s api\n",
-        "destination": [["int:network=internal-cluster-api-endpoint"]],
-        "source": [["- $namespace=${PROJECT_PREFIX}-tools"]]
-      }
-    },
-    {
       "kind": "ImageStream",
       "apiVersion": "v1",
       "metadata": {
