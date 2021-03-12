@@ -25,6 +25,8 @@ import SubmissionButtons from "../../components/SubmissionButtons";
 
 import { fetchRegions } from "../lookups/regionsSlice";
 import { fetchLicenceStatuses } from "../lookups/licenceStatusesSlice";
+import { fetchCities } from "../lookups/citiesSlice";
+
 import {
   updateLicence,
   setCurrentLicenceModeToEdit,
@@ -52,6 +54,7 @@ export default function LicenceDetailsViewEdit({ licence }) {
   useEffect(() => {
     dispatch(fetchRegions());
     dispatch(fetchLicenceStatuses());
+    dispatch(fetchCities());
   }, [dispatch]);
 
   const form = useForm({

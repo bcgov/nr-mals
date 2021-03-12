@@ -240,6 +240,58 @@ router.get("/search", async (req, res, next) => {
     .finally(async () => prisma.$disconnect());
 });
 
+router.post("/search/export", async (req, res, next) => {
+  const params = req.body;
+
+  await searchSites(params)
+    .then(async (records) => {
+      if (records === null) {
+        return res.status(404).send({
+          code: 404,
+          description: "The requested site could not be found.",
+        });
+      }
+
+      const results = records.map((record) =>
+        site.convertSearchResultToLogicalModel(record)
+      );
+
+      const formatValue = (value) => {
+        if (value) {
+          value = value.toString().replace(',', ' '); // replace any commas with a space
+          return value;
+        }
+        return "";
+      };
+
+      const columnHeaders =
+        "Site ID,Registrant Name,Company Name,Licence Number,City,Region,District,Next Inspection Date\n";
+      const values = results
+        .map((x) => {
+          return `${
+            x.apiarySiteIdDisplay ? x.apiarySiteIdDisplay : x.siteId
+          },${formatValue(x.registrantLastName)},${formatValue(
+            x.registrantCompanyName
+          )},${formatValue(x.licenceNumber)},${formatValue(
+            x.licenceCity
+          )},${formatValue(x.licenceRegion)},${formatValue(
+            x.licenceDistrict
+          )},${formatValue(x.nextInspectionDate)}`;
+        })
+        .join("\n");
+      const payload = columnHeaders.concat(values);
+
+      res
+        .set({
+          "content-disposition": `attachment; filename=SiteResultsExport.csv`,
+          "content-type": "text/csv",
+        })
+        .send(payload);
+    })
+    .catch(next)
+    .finally(async () => prisma.$disconnect());
+});
+
 router.get("/:siteId(\\d+)", async (req, res, next) => {
   const siteId = parseInt(req.params.siteId, 10);
 

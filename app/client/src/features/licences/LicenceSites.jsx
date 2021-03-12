@@ -36,7 +36,7 @@ import {
 function formatResultRow(result) {
   const url = `${SITES_PATHNAME}/${result.siteId}`;
   return (
-    <tr key={result.id}>
+    <tr key={result.siteId}>
       <td className="text-nowrap">
         <Link to={url}>
           {result.apiarySiteIdDisplay
