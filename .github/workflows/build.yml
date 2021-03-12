@@ -1,4 +1,4 @@
-name: Test & Build
+name: Test & Deploy
 on:
   push:
     paths:
@@ -20,33 +20,34 @@ jobs:
         # run: npm run lint -- --quiet -f codeframe
       # - name: Prettier
         # run: npm run format -- --check
-  build:
-    runs-on: ubuntu-latest
-    needs: [test]
-    steps:
-      - uses: actions/checkout@v1
-      - uses: actions/setup-node@v1
-        with:
-          node-version: "12"
-      - name: Cache node modules
-        uses: actions/cache@v1
-        with:
-          path: node_modules
-          key: ${{ runner.OS }}-build-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.OS }}-build-${{ env.cache-name }}-
-            ${{ runner.OS }}-build-
-            ${{ runner.OS }}-
-      - name: npm install and build
-        run: |
-          npm ci
-          npm run build-client --if-present
-        env:
-          CI: "true"
+  # build:
+    # runs-on: ubuntu-latest
+    # needs: [test]
+    # steps:
+      # - uses: actions/checkout@v1
+      # - uses: actions/setup-node@v1
+        # with:
+          # node-version: "12"
+      # - name: Cache node modules
+        # uses: actions/cache@v1
+        # with:
+          # path: node_modules
+          # key: ${{ runner.OS }}-build-${{ hashFiles('**/package-lock.json') }}
+          # restore-keys: |
+            # ${{ runner.OS }}-build-${{ env.cache-name }}-
+            # ${{ runner.OS }}-build-
+            # ${{ runner.OS }}-
+      # - name: npm install and build
+        # run: |
+          # npm ci
+          # npm run build-client --if-present
+        # env:
+          # CI: "true"
   s2i-build:
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
-    needs: [test, build]
+    needs: [test]
+    # needs: [test, build]
     steps:
       - name: S2I Build
         uses: redhat-developer/openshift-actions@v1.1
