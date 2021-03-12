@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useForm } from "react-hook-form";
@@ -26,7 +27,7 @@ import {
 import {
   selectCurrentLicence,
   deleteLicenceInventoryHistory,
-} from "../licences/licencesSlice";
+} from "./licencesSlice";
 import {
   clearInventoryHistoryParameters,
   setInventoryHistoryParameters,
@@ -50,7 +51,7 @@ import { CONFIRMATION } from "../../modals/ConfirmationModal";
 import {
   LICENCE_TYPE_ID_GAME_FARM,
   LICENCE_TYPE_ID_FUR_FARM,
-} from "../licences/constants";
+} from "./constants";
 
 function navigateToSearchPage(dispatch, page) {
   dispatch(setInventoryHistorySearchPage(page));
@@ -139,7 +140,7 @@ export default function LicenceInventoryHistory({ licence }) {
         CONFIRMATION,
         onDeleteCallback,
         {
-          data: data,
+          data,
           modalContent: (
             <>
               <Row>
@@ -177,7 +178,7 @@ export default function LicenceInventoryHistory({ licence }) {
   const onDeleteCallback = (data) => {
     console.log(data);
     dispatch(
-      deleteLicenceInventoryHistory({ data: data, licenceId: licence.data.id })
+      deleteLicenceInventoryHistory({ data, licenceId: licence.data.id })
     );
   };
 
@@ -185,7 +186,7 @@ export default function LicenceInventoryHistory({ licence }) {
     let total = 0;
 
     if (getSpeciesData().status == REQUEST_STATUS.FULFILLED) {
-      //Total = Most Recent Year Value for MALE + Most Recent Year Value for FEMALE
+      // Total = Most Recent Year Value for MALE + Most Recent Year Value for FEMALE
 
       const recentYear = Math.max.apply(
         Math,
@@ -212,8 +213,8 @@ export default function LicenceInventoryHistory({ licence }) {
             x.speciesSubCodeId === MALE_ID ||
             x.speciesSubCodeId === FEMALE_ID
           ) {
-            let value = x.value;
-            let parsed = parseInt(value);
+            let { value } = x;
+            const parsed = parseInt(value);
             value = isNaN(parsed) ? 0 : parsed;
             total += value;
           }
@@ -280,24 +281,24 @@ export default function LicenceInventoryHistory({ licence }) {
               <th className="text-nowrap">Date</th>
               <th className="text-nowrap">Code</th>
               <th className="text-nowrap">Value</th>
-              <th></th>
+              <th />
             </tr>
           </thead>
           <tbody>{results.data.map((result) => formatResultRow(result))}</tbody>
         </Table>
         <Row>
-          <Col></Col>
-          <Col></Col>
+          <Col />
+          <Col />
           <Col>
             <span className="float-right font-weight-bold">Total</span>
           </Col>
           <Col>
             <span>{calculateInventoryTotal()}</span>
           </Col>
-          <Col></Col>
+          <Col />
         </Row>
         <Row className="mt-3">
-          <Col md="3"></Col>
+          <Col md="3" />
           <Col className="d-flex justify-content-center">
             Showing {results.data.length} of {results.count} entries
           </Col>

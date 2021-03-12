@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
@@ -20,9 +21,8 @@ import {
   LICENSES_PATHNAME,
   DOWNLOAD_CERTIFICATES_PATHNAME,
 } from "../../utilities/constants";
-import { pluralize } from "../../utilities/formatting.ts";
-
 import {
+  pluralize,
   formatDateString,
   formatListShorten,
 } from "../../utilities/formatting.ts";
@@ -100,7 +100,7 @@ export default function SelectCertificatesPage() {
   };
 
   const toggleAllLicences = (e) => {
-    let licences = getValues().licences;
+    let { licences } = getValues();
     const selectedLicences = getSelectedLicences(licences);
     if (selectedLicences.length == licences.length) {
       licences = licences.map((licence) => ({ ...licence, selected: false }));
@@ -112,7 +112,7 @@ export default function SelectCertificatesPage() {
   };
 
   const updateToggleAllChecked = () => {
-    let licences = getValues().licences;
+    const { licences } = getValues();
     const selectedLicences = getSelectedLicences(licences);
     setToggleAllChecked(selectedLicences.length === licences.length);
   };
@@ -206,10 +206,10 @@ export default function SelectCertificatesPage() {
                     <Form.Check
                       name={`licences[${index}].selected`}
                       ref={register()}
-                      defaultChecked={true}
-                      defaultValue={true}
+                      defaultChecked
+                      defaultValue
                       onChange={() => updateToggleAllChecked()}
-                    ></Form.Check>
+                    />
                     <input
                       hidden
                       name={`licences[${index}].id`}

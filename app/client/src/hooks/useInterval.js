@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { useEffect, useRef } from "react";
 
 // borrowed from https://overreacted.io/making-setinterval-declarative-with-react-hooks/ under the terms of the MIT Licence:
@@ -38,7 +39,7 @@ export default function useInterval(callback, delay) {
       savedCallback.current();
     }
     if (delay !== null) {
-      let id = setInterval(tick, delay);
+      const id = setInterval(tick, delay);
       return () => clearInterval(id);
     }
   }, [delay]);

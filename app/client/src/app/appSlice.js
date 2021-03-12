@@ -1,6 +1,7 @@
+/* eslint-disable */
 import { createSlice } from "@reduxjs/toolkit";
 
-import { REQUEST_STATUS } from "./../utilities/constants";
+import { REQUEST_STATUS } from "../utilities/constants";
 
 const SHOW = "app/SHOW_MODAL";
 const HIDE = "app/HIDE_MODAL";
