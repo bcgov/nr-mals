@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Link, Redirect, useHistory } from "react-router-dom";
@@ -235,39 +236,38 @@ export default function CreateLicencePage() {
   if (createdLicence.status === REQUEST_STATUS.FULFILLED) {
     if (createDraft === true) {
       return <Redirect to={`${LICENSES_PATHNAME}/search`} />;
-    } else {
-      return (
-        <section>
-          <PageHeading>Create a Licence</PageHeading>
-          <Alert variant="success">The licence has been created.</Alert>
-          <Form>
-            <Form.Row>
-              <Col sm={4}>
-                <Link
-                  to={`${LICENSES_PATHNAME}/${createdLicence.data.id}`}
-                  component={LinkButton}
-                  variant="primary"
-                  block
-                >
-                  View Licence
-                </Link>
-              </Col>
-              <Col sm={4} />
-              <Col sm={4}>
-                <Button
-                  type="button"
-                  onClick={createAnotherLicence}
-                  variant="primary"
-                  block
-                >
-                  Create Another Licence
-                </Button>
-              </Col>
-            </Form.Row>
-          </Form>
-        </section>
-      );
     }
+    return (
+      <section>
+        <PageHeading>Create a Licence</PageHeading>
+        <Alert variant="success">The licence has been created.</Alert>
+        <Form>
+          <Form.Row>
+            <Col sm={4}>
+              <Link
+                to={`${LICENSES_PATHNAME}/${createdLicence.data.id}`}
+                component={LinkButton}
+                variant="primary"
+                block
+              >
+                View Licence
+              </Link>
+            </Col>
+            <Col sm={4} />
+            <Col sm={4}>
+              <Button
+                type="button"
+                onClick={createAnotherLicence}
+                variant="primary"
+                block
+              >
+                Create Another Licence
+              </Button>
+            </Col>
+          </Form.Row>
+        </Form>
+      </section>
+    );
   }
 
   return (

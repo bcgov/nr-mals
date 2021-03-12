@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { useSelector, useDispatch } from "react-redux";
@@ -130,7 +131,7 @@ export default function SiteDetailsEdit({
             />
           </Form.Group>
         </Col>
-        <Col lg={4}></Col>
+        <Col lg={4} />
         <Col lg={4}>
           <Form.Group controlId="city">
             <Form.Label>City</Form.Label>
@@ -199,7 +200,7 @@ export default function SiteDetailsEdit({
             </Form.Control.Feedback>
           </Form.Group>
         </Col>
-        <Col lg={2}></Col>
+        <Col lg={2} />
         <Col lg={2}>
           <Form.Group controlId="latitude">
             <Form.Label>Latitude</Form.Label>

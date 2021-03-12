@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import PropTypes from "prop-types";
@@ -83,7 +84,7 @@ export default function LicenceSites({ licence }) {
     dispatch(createSite(payload));
   }
 
-  let addSiteButton = (
+  const addSiteButton = (
     <Button
       size="md"
       type="button"

@@ -1,6 +1,6 @@
 import { configureStore, getDefaultMiddleware } from "@reduxjs/toolkit";
 
-import appReducer from "../app/appSlice";
+import appReducer from "./appSlice";
 import licencesReducer from "../features/licences/licencesSlice";
 import sitesReducer from "../features/sites/sitesSlice";
 import lookupsReducer from "../features/lookups/lookupsReducer";

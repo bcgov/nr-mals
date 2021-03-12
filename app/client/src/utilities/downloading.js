@@ -10,7 +10,7 @@ export function createDownload(blob, filename = undefined) {
 }
 
 export function getDispositionFilename(disposition) {
-  let filename = undefined;
+  let filename;
   if (disposition) {
     filename = disposition.substring(disposition.indexOf("filename=") + 9);
   }

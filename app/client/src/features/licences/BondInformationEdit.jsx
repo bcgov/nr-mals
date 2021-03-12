@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useEffect } from "react";
 import PropTypes from "prop-types";
 import { useSelector } from "react-redux";
@@ -65,7 +66,7 @@ export default function BondInformationEdit({
             />
           </Form.Group>
         </Col>
-        <Col lg={2}></Col>
+        <Col lg={2} />
         <Col lg={4}>
           <Form.Group controlId="bondValue">
             <Form.Label>Value</Form.Label>
@@ -132,7 +133,7 @@ export default function BondInformationEdit({
             defaultValue={initialValues.bondContinuationExpiryDate}
           />
         </Col>
-        <Col lg={8}></Col>
+        <Col lg={8} />
       </Form.Row>
     </>
   );

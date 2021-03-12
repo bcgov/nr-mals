@@ -1,6 +1,8 @@
+/* eslint-disable */
 import React from "react";
 import PropTypes from "prop-types";
 import { Form, Row, Col, InputGroup } from "react-bootstrap";
+import NumberFormat from "react-number-format";
 import {
   formatDateString,
   formatMoney,
@@ -14,7 +16,6 @@ import {
 
 import VerticalField from "../../components/VerticalField";
 import SectionHeading from "../../components/SectionHeading";
-import NumberFormat from "react-number-format";
 
 export default function SiteDetailsView({ site, licenceTypeId }) {
   return (

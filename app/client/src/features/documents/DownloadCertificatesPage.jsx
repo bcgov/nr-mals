@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Container, Button, ProgressBar } from "react-bootstrap";
@@ -56,7 +57,7 @@ async function download(jobId) {
 export default function DownloadCertificatesPage() {
   const job = useSelector(selectCertificateJob);
   const jobDetails = job.details;
-  const pendingDocuments = job.pendingDocuments;
+  const { pendingDocuments } = job;
 
   const dispatch = useDispatch();
 
@@ -119,21 +120,20 @@ export default function DownloadCertificatesPage() {
         </Container>
       </section>
     );
-  } else {
-    content = (
-      <>
-        <ProgressBar now={percentage} label={progressLabel} />
-        <Button
-          variant="primary"
-          type="submit"
-          className="mt-3 mb-4"
-          onClick={() => download(job.id)}
-        >
-          Download
-        </Button>
-      </>
-    );
   }
+  content = (
+    <>
+      <ProgressBar now={percentage} label={progressLabel} />
+      <Button
+        variant="primary"
+        type="submit"
+        className="mt-3 mb-4"
+        onClick={() => download(job.id)}
+      >
+        Download
+      </Button>
+    </>
+  );
 
   return (
     <section>

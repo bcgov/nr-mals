@@ -1,7 +1,8 @@
+/* eslint-disable */
 import { DAIRY_TANK_STATUS } from "../../../utilities/constants";
 
 export const validateDairyTanks = (dairyTanks, setError, clearErrors) => {
-  let errorCount = 0;
+  const errorCount = 0;
 
   return errorCount === 0;
 };
@@ -15,7 +16,7 @@ export const formatDairyTanks = (dairyTanks, dairyTankDates, siteId) => {
     return {
       ...dairyTank,
       ...dairyTankDates[index],
-      siteId: siteId,
+      siteId,
     };
   });
 };
