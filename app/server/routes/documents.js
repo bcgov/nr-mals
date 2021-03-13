@@ -46,8 +46,12 @@ cdogs.interceptors.request.use(
 );
 
 async function getQueuedCertificates() {
+  const activeStatus = prisma.mal_status_code_lu.findFirst({
+    where: { code_name: "ACT" },
+  });
+
   return prisma.mal_licence_summary_vw.findMany({
-    where: { print_certificate: true, status_code_id: 60001 },
+    where: { print_certificate: true, status_code_id: activeStatus.id },
   });
 }
 
