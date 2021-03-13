@@ -24,7 +24,7 @@ const certificateTemplateDir = path.join(
 );
 
 const cdogs = axios.create({
-  baseURL: "https://cdogs-dev.apps.silver.devops.gov.bc.ca/api/v2/",
+  baseURL: process.env.ENVIRONMENT_LABEL.CDOGS_URL,
   timeout: 10000,
 });
 
@@ -35,19 +35,22 @@ cdogs.interceptors.request.use(
   oauth.interceptor(
     tokenProvider,
     oauth.client(axios.create(), {
-      url:
-        "https://dev.oidc.gov.bc.ca/auth/realms/jbd6rnxw/protocol/openid-connect/token",
+      url: process.env.ENVIRONMENT_LABEL.CDOGS_OAUTH_URL,
       grant_type: "client_credentials",
       client_id: "MALS_SERVICE_CLIENT",
-      client_secret: "8b15adbd-2ab7-4e24-9d0f-3efccf738225",
+      client_secret: process.env.ENVIRONMENT_LABEL.CDOGS_SECRET,
       scope: "",
     })
   )
 );
 
 async function getQueuedCertificates() {
+  const activeStatus = prisma.mal_status_code_lu.findFirst({
+    where: { code_name: "ACT" },
+  });
+
   return prisma.mal_licence_summary_vw.findMany({
-    where: { print_certificate: true, status_code_id: 60001 },
+    where: { print_certificate: true, status_code_id: activeStatus.id },
   });
 }
 
