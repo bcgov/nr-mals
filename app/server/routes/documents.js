@@ -24,7 +24,7 @@ const certificateTemplateDir = path.join(
 );
 
 const cdogs = axios.create({
-  baseURL: process.env.ENVIRONMENT_LABEL.CDOGS_URL,
+  baseURL: process.env.CDOGS_URL,
   timeout: 10000,
 });
 
@@ -35,17 +35,17 @@ cdogs.interceptors.request.use(
   oauth.interceptor(
     tokenProvider,
     oauth.client(axios.create(), {
-      url: process.env.ENVIRONMENT_LABEL.CDOGS_OAUTH_URL,
+      url: process.env.CDOGS_OAUTH_URL,
       grant_type: "client_credentials",
       client_id: "MALS_SERVICE_CLIENT",
-      client_secret: process.env.ENVIRONMENT_LABEL.CDOGS_SECRET,
+      client_secret: process.env.CDOGS_SECRET,
       scope: "",
     })
   )
 );
 
 async function getQueuedCertificates() {
-  const activeStatus = prisma.mal_status_code_lu.findFirst({
+  const activeStatus = await prisma.mal_status_code_lu.findFirst({
     where: { code_name: "ACT" },
   });
 
