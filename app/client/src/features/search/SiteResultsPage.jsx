@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
@@ -26,10 +27,18 @@ import {
 import LinkButton from "../../components/LinkButton";
 import PageHeading from "../../components/PageHeading";
 
+import Api from "../../utilities/api.ts";
+
+import {
+  createDownload,
+  getDispositionFilename,
+} from "../../utilities/downloading";
+
 import {
   fetchSiteResults,
   selectSiteResults,
   setSiteSearchPage,
+  selectSiteParameters,
 } from "./searchSlice";
 
 function formatResultRow(result) {
@@ -65,8 +74,41 @@ function navigateToSearchPage(dispatch, page) {
   dispatch(fetchSiteResults());
 }
 
+async function downloadSearchExport(parameters) {
+  try {
+    console.log(parameters);
+
+    // perform API call
+    const response = await Api.getApiInstance().post(
+      `sites/search/export`,
+      parameters
+    );
+
+    // create file to download
+    const filename = getDispositionFilename(
+      response.headers["content-disposition"]
+    );
+
+    const blob = new Blob([response.data], {
+      type: "attachment",
+    });
+
+    // generate temporary download link
+    createDownload(blob, filename);
+  } catch (e) {
+    console.error(e);
+    if (e.response) {
+      const data = new TextDecoder().decode(e.response.data);
+      const parsed = JSON.parse(data);
+      console.warn("Site Export Response:", parsed);
+    }
+  }
+}
+
 export default function SiteResultsPage() {
   const results = useSelector(selectSiteResults);
+
+  const parameters = useSelector(selectSiteParameters);
 
   const dispatch = useDispatch();
 
@@ -129,6 +171,14 @@ export default function SiteResultsPage() {
           <tbody>{results.data.map((result) => formatResultRow(result))}</tbody>
         </Table>
         <Row className="mt-3">
+          <Col md="auto">
+            <Button
+              disabled={results.count === 0}
+              onClick={() => downloadSearchExport(parameters)}
+            >
+              Export
+            </Button>
+          </Col>
           <Col className="d-flex justify-content-center">
             Showing {results.data.length} of {results.count} entries
           </Col>

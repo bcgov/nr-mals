@@ -33,9 +33,7 @@
             "type": "ImageChange",
             "imageChangeParams": {
               "automatic": true,
-              "containerNames": [
-                "${NAME}"
-              ],
+              "containerNames": ["${NAME}"],
               "from": {
                 "kind": "ImageStreamTag",
                 "namespace": "${IMAGE_NAMESPACE}",
@@ -241,7 +239,7 @@
       "displayName": "Image Namespace",
       "description": "The namespace of the OpenShift project containing the imagestream for the application.",
       "required": true,
-      "value": "bsoszr-tools"
+      "value": "30245e-tools"
     },
     {
       "name": "TAG_NAME",
@@ -277,8 +275,8 @@
     {
       "name": "APPLICATION_DOMAIN",
       "displayName": "Application Domain",
-      "description": "The exposed hostname that will route to the service, e.g., myappname.pathfinder.bcgov, if left blank a value will be defaulted.",
-      "value": "mals-app-dev.pathfinder.bcgov"
+      "description": "The exposed hostname that will route to the service, e.g., myappname.apps.silver.devops.gov.bc.ca, if left blank a value will be defaulted.",
+      "value": "mals-app-dev.apps.silver.devops.gov.bc.ca"
     },
     {
       "name": "APP_SECRETS",

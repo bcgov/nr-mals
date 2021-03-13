@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useEffect } from "react";
 import PropTypes from "prop-types";
 import { Button, Modal, Form, Col } from "react-bootstrap";
@@ -20,7 +21,7 @@ export default function CommentModal({
   submit,
 }) {
   const onSubmit = (data) => {
-    let valid = true;
+    const valid = true;
 
     if (!valid) {
       return;

@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useEffect } from "react";
 import PropTypes from "prop-types";
 import { useSelector, useDispatch } from "react-redux";
@@ -10,7 +11,7 @@ import {
   LICENCE_TYPE_ID_LIVESTOCK_DEALER,
   LICENCE_TYPE_ID_PUBLIC_SALE_YARD_OPERATOR,
   LICENCE_TYPE_ID_PURCHASE_LIVE_POULTRY,
-} from "../licences/constants";
+} from "./constants";
 import {
   formatNumber,
   formatDate,
@@ -24,6 +25,8 @@ import SubmissionButtons from "../../components/SubmissionButtons";
 
 import { fetchRegions } from "../lookups/regionsSlice";
 import { fetchLicenceStatuses } from "../lookups/licenceStatusesSlice";
+import { fetchCities } from "../lookups/citiesSlice";
+
 import {
   updateLicence,
   setCurrentLicenceModeToEdit,
@@ -51,6 +54,7 @@ export default function LicenceDetailsViewEdit({ licence }) {
   useEffect(() => {
     dispatch(fetchRegions());
     dispatch(fetchLicenceStatuses());
+    dispatch(fetchCities());
   }, [dispatch]);
 
   const form = useForm({
@@ -158,7 +162,7 @@ export default function LicenceDetailsViewEdit({ licence }) {
       expiryDate = undefined;
     }
 
-    return { issueDate: today, expiryDate: expiryDate };
+    return { issueDate: today, expiryDate };
   };
 
   const onRenew = () => {
@@ -242,7 +246,7 @@ export default function LicenceDetailsViewEdit({ licence }) {
   const onSubmit = async (data) => {
     clearErrors("irmaNumber");
 
-    let validationResult = validateIrmaNumber(data.irmaNumber);
+    const validationResult = validateIrmaNumber(data.irmaNumber);
     if (validationResult === false) {
       setError("irmaNumber", {
         type: "invalid",

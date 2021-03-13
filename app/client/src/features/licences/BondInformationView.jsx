@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React from "react";
 import PropTypes from "prop-types";
 import { Row, Col } from "react-bootstrap";
@@ -19,11 +20,11 @@ export default function BondInformationView({ licence }) {
         <Col lg={4}>
           <VerticalField label="Bond Number" value={licence.bondNumber} />
         </Col>
-        <Col lg={2}></Col>
+        <Col lg={2} />
         <Col lg={4}>
           <VerticalField label="Value" value={formatMoney(licence.bondValue)} />
         </Col>
-        <Col lg={2}></Col>
+        <Col lg={2} />
       </Row>
       <Row className="mt-3">
         <Col lg={6}>
@@ -35,7 +36,7 @@ export default function BondInformationView({ licence }) {
             value={formatPhoneNumber(licence.bondCarrierPhoneNumber)}
           />
         </Col>
-        <Col lg={2}></Col>
+        <Col lg={2} />
       </Row>
       <Row className="mt-3">
         <Col lg={4}>

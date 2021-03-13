@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { useSelector, useDispatch } from "react-redux";
@@ -5,7 +6,11 @@ import NumberFormat from "react-number-format";
 import { Controller } from "react-hook-form";
 import { Button, Form, Col, InputGroup } from "react-bootstrap";
 
-import { LICENCE_MODE } from "../../utilities/constants";
+import {
+  LICENCE_MODE,
+  ADDRESS_TYPES,
+  PHONE_NUMBER_TYPES,
+} from "../../utilities/constants";
 import { parseAsInt } from "../../utilities/parsing";
 import { formatDate, formatPhoneNumber } from "../../utilities/formatting.ts";
 
@@ -26,8 +31,6 @@ import { ADDRESS, AddressModal } from "../../modals/AddressModal";
 import { PHONE, PhoneNumberModal } from "../../modals/PhoneNumberModal";
 
 import { openModal } from "../../app/appSlice";
-
-import { ADDRESS_TYPES, PHONE_NUMBER_TYPES } from "../../utilities/constants";
 
 export default function LicenceDetailsEdit({
   form,
@@ -79,7 +82,7 @@ export default function LicenceDetailsEdit({
   };
 
   const editAddressCallback = (data) => {
-    let update = addresses;
+    const update = addresses;
     update[data.key] = data;
     const formatted = formatAddresses(update);
     setValue("addresses", formatted);
@@ -94,6 +97,7 @@ export default function LicenceDetailsEdit({
     const primaryAddress = addresses.find(
       (x) => x.addressType === ADDRESS_TYPES.PRIMARY
     );
+
     dispatch(
       openModal(
         ADDRESS,
@@ -119,6 +123,7 @@ export default function LicenceDetailsEdit({
     const primaryAddress = addresses.find(
       (x) => x.addressType === ADDRESS_TYPES.PRIMARY
     );
+
     dispatch(
       openModal(
         ADDRESS,
@@ -136,7 +141,7 @@ export default function LicenceDetailsEdit({
   };
 
   const editPhoneCallback = (data) => {
-    let update = phoneNumbers;
+    const update = phoneNumbers;
     update[data.key] = data;
     const formatted = formatPhoneNumbers(update);
     setValue("phoneNumbers", formatted);

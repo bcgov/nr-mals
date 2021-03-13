@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React from "react";
 import PropTypes from "prop-types";
 import NumberFormat from "react-number-format";
@@ -96,12 +97,12 @@ export default function LicenceDetailsView({ licence }) {
               </Row>
               <Row>
                 <Col>
-                  {primaryAddress.city + ", " + primaryAddress.province}
+                  {`${primaryAddress.city}, ${primaryAddress.province}`}
                 </Col>
               </Row>
               <Row className="mb-2">
                 <Col>
-                  {primaryAddress.postalCode + ", " + primaryAddress.country}
+                  {`${primaryAddress.postalCode}, ${primaryAddress.country}`}
                 </Col>
               </Row>
             </>
@@ -116,12 +117,12 @@ export default function LicenceDetailsView({ licence }) {
               </Row>
               <Row>
                 <Col>
-                  {mailingAddress.city + ", " + mailingAddress.province}
+                  {`${mailingAddress.city}, ${mailingAddress.province}`}
                 </Col>
               </Row>
               <Row>
                 <Col>
-                  {mailingAddress.postalCode + ", " + mailingAddress.country}
+                  {`${mailingAddress.postalCode}, ${mailingAddress.country}`}
                 </Col>
               </Row>
             </>

@@ -5,6 +5,7 @@ import licenceStatusesReducer from "./licenceStatusesSlice";
 import regionsReducer from "./regionsSlice";
 import gameFarmReducer from "./gameFarmSlice";
 import furFarmReducer from "./furFarmSlice";
+import citiesReducer from "./citiesSlice";
 
 export default combineReducers({
   licenceTypes: licenceTypesReducer,
@@ -12,4 +13,5 @@ export default combineReducers({
   regions: regionsReducer,
   gameFarm: gameFarmReducer,
   furFarm: furFarmReducer,
+  cities: citiesReducer,
 });

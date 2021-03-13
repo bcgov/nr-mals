@@ -16,6 +16,7 @@ const commentsRouter = require("./routes/comments");
 const gameFarmRouter = require("./routes/gameFarm");
 const furFarmRouter = require("./routes/furFarm");
 const documentsRouter = require("./routes/documents");
+const citiesRouter = require("./routes/cities");
 
 const app = express();
 
@@ -35,6 +36,7 @@ app.use("/api/comments", commentsRouter.router);
 app.use("/api/game-farm", gameFarmRouter);
 app.use("/api/fur-farm", furFarmRouter);
 app.use("/api/documents", documentsRouter);
+app.use("/api/cities", citiesRouter);
 app.use("/api/*", (req, res) => {
   res.status(404).send({
     code: 404,

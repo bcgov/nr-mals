@@ -7,46 +7,6 @@
   },
   "objects": [
     {
-      "apiVersion": "secops.pathfinder.gov.bc.ca/v1alpha1",
-      "kind": "NetworkSecurityPolicy",
-      "metadata": {
-        "finalizers": [
-          "finalizer.secops.pathfinder.gov.bc.ca"
-        ],
-        "name": "egress-internet-${PROJECT_PREFIX}-tools",
-        "namespace": "${PROJECT_PREFIX}-tools"
-      },
-      "spec": {
-        "description": "${PROJECT_PREFIX}-tools to talk to the internet\n",
-        "destination": [
-          [ "ext:network=any" ]
-        ],
-        "source": [
-          [ "$namespace=${PROJECT_PREFIX}-tools" ]
-        ]
-      }
-    },
-    {
-      "apiVersion": "secops.pathfinder.gov.bc.ca/v1alpha1",
-      "kind": "NetworkSecurityPolicy",
-      "metadata": {
-        "finalizers": [
-          "finalizer.secops.pathfinder.gov.bc.ca"
-        ],
-        "name": "int-cluster-k8s-api-permit-${PROJECT_PREFIX}-tools",
-        "namespace": "${PROJECT_PREFIX}-tools"
-      },
-      "spec": {
-        "description": "allow ${PROJECT_PREFIX}-tools pods to talk to the k8s api\n",
-        "destination": [
-          [ "int:network=internal-cluster-api-endpoint" ]
-        ],
-        "source": [
-          [ "- $namespace=${PROJECT_PREFIX}-tools" ]
-        ]
-      }
-    },
-    {
       "kind": "ImageStream",
       "apiVersion": "v1",
       "metadata": {
@@ -64,9 +24,6 @@
       },
       "spec": {
         "triggers": [
-          {
-            "type": "ImageChange"
-          },
           {
             "type": "ConfigChange"
           }
@@ -102,7 +59,7 @@
         "output": {
           "to": {
             "kind": "ImageStreamTag",
-            "name": "${NAME}:${OUTPUT_IMAGE_TAG}-dev"
+            "name": "${NAME}:dev"
           }
         },
         "resources": {
@@ -166,7 +123,7 @@
         "output": {
           "to": {
             "kind": "ImageStreamTag",
-            "name": "${NAME}:${OUTPUT_IMAGE_TAG}-test"
+            "name": "${NAME}:test"
           }
         },
         "resources": {
@@ -230,7 +187,7 @@
         "output": {
           "to": {
             "kind": "ImageStreamTag",
-            "name": "${NAME}:${OUTPUT_IMAGE_TAG}-uat"
+            "name": "${NAME}:uat"
           }
         },
         "resources": {
@@ -294,7 +251,7 @@
         "output": {
           "to": {
             "kind": "ImageStreamTag",
-            "name": "${NAME}:${OUTPUT_IMAGE_TAG}-prod"
+            "name": "${NAME}:prod"
           }
         },
         "resources": {
@@ -323,7 +280,7 @@
       "displayName": "Name",
       "description": "The project prefix",
       "required": true,
-      "value": "bsoszr"
+      "value": "30245e"
     },
     {
       "name": "GIT_REPO_URL",
@@ -385,13 +342,6 @@
       "name": "SOURCE_IMAGE_TAG",
       "displayName": "Source Image Tag",
       "description": "The tag of the source image.",
-      "required": true,
-      "value": "latest"
-    },
-    {
-      "name": "OUTPUT_IMAGE_TAG",
-      "displayName": "Output Image Tag",
-      "description": "The tag given to the built image.",
       "required": true,
       "value": "latest"
     },

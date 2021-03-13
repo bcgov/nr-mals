@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import PropTypes from "prop-types";
@@ -35,7 +36,7 @@ import {
 function formatResultRow(result) {
   const url = `${SITES_PATHNAME}/${result.siteId}`;
   return (
-    <tr key={result.id}>
+    <tr key={result.siteId}>
       <td className="text-nowrap">
         <Link to={url}>
           {result.apiarySiteIdDisplay
@@ -83,7 +84,7 @@ export default function LicenceSites({ licence }) {
     dispatch(createSite(payload));
   }
 
-  let addSiteButton = (
+  const addSiteButton = (
     <Button
       size="md"
       type="button"
