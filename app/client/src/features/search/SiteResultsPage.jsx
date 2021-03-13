@@ -80,8 +80,8 @@ async function downloadSearchExport(parameters) {
 
     // perform API call
     const response = await Api.getApiInstance().post(
-     `sites/search/export`,
-     parameters
+      `sites/search/export`,
+      parameters
     );
 
     // create file to download
