@@ -258,7 +258,7 @@ router.post("/search/export", async (req, res, next) => {
 
       const formatValue = (value) => {
         if (value) {
-          value = value.toString().replace(',', ' '); // replace any commas with a space
+          value = value.toString().replace(",", " "); // replace any commas with a space
           return value;
         }
         return "";
