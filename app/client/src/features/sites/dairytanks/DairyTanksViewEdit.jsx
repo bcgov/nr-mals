@@ -31,7 +31,11 @@ function submissionController(setError, clearErrors, dispatch, siteId) {
       return;
     }
 
-    const payload = formatDairyTanks(data.dairyTanks, data.dairyTankDates,  siteId);
+    const payload = formatDairyTanks(
+      data.dairyTanks,
+      data.dairyTankDates,
+      siteId
+    );
     dispatch(updateSiteDairyTanks({ dairyTanks: payload, id: siteId }));
   };
 
