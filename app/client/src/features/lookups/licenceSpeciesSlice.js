@@ -3,12 +3,12 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import Api, { ApiError } from "../../utilities/api.ts";
 import { REQUEST_STATUS } from "../../utilities/constants";
 
-export const fetchFurFarmSpecies = createAsyncThunk(
-  "gameFarm/fetchFurFarmSpecies",
+export const fetchLicenceSpecies = createAsyncThunk(
+  "gameFarm/fetchLicenceSpecies",
   async (_, thunkApi) => {
     try {
-      const speciesPromise = Api.get("fur-farm/species");
-      const subSpeciesPromise = Api.get("fur-farm/subspecies");
+      const speciesPromise = Api.get("licence-species/species");
+      const subSpeciesPromise = Api.get("licence-species/subspecies");
 
       return await Promise.all([speciesPromise, subSpeciesPromise]).then(
         ([species, subSpecies]) => {
@@ -27,24 +27,24 @@ export const fetchFurFarmSpecies = createAsyncThunk(
   }
 );
 
-export const furFarmSlice = createSlice({
-  name: "furFarm",
+export const licenceSpeciesSlice = createSlice({
+  name: "licenceSpecies",
   initialState: {
     data: undefined,
     error: undefined,
     status: REQUEST_STATUS.IDLE,
   },
   extraReducers: {
-    [fetchFurFarmSpecies.pending]: (state) => {
+    [fetchLicenceSpecies.pending]: (state) => {
       state.error = undefined;
       state.status = REQUEST_STATUS.PENDING;
     },
-    [fetchFurFarmSpecies.fulfilled]: (state, action) => {
+    [fetchLicenceSpecies.fulfilled]: (state, action) => {
       state.data = action.payload;
       state.error = undefined;
       state.status = REQUEST_STATUS.FULFILLED;
     },
-    [fetchFurFarmSpecies.rejected]: (state, action) => {
+    [fetchLicenceSpecies.rejected]: (state, action) => {
       state.data = undefined;
       state.error = action.payload;
       state.status = REQUEST_STATUS.REJECTED;
@@ -52,6 +52,6 @@ export const furFarmSlice = createSlice({
   },
 });
 
-export const selectFurFarmSpecies = (state) => state.lookups.furFarm;
+export const selectLicenceSpecies = (state) => state.lookups.licenceSpecies;
 
-export default furFarmSlice.reducer;
+export default licenceSpeciesSlice.reducer;

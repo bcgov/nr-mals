@@ -418,9 +418,14 @@ router.get("/inventoryhistory", async (req, res, next) => {
         });
       }
 
-      const results = records.map((record) =>
-        inventory.convertToLogicalModel(record)
-      );
+      const licence = await findLicence(parseInt(params.licenceId, 10));
+
+      const results = records.map((record) => {
+        return {
+          ...inventory.convertToLogicalModel(record),
+          speciesCodeId: licence.species_code_id,
+        };
+      });
 
       const count = await countInventoryHistory(params);
 

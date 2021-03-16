@@ -62,7 +62,7 @@ export const generateCertificates = createAsyncThunk(
     try {
       const response = await Api.post(
         "documents/certificates/generate",
-        documentIds
+        documentIds.slice(0, 10)
       );
       return response.data;
     } catch (error) {

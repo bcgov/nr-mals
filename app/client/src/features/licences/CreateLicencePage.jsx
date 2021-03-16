@@ -41,6 +41,8 @@ import {
   clearCreatedLicence,
 } from "./licencesSlice";
 
+import { fetchLicenceSpecies } from "../lookups/licenceSpeciesSlice";
+
 import {
   LICENCE_TYPE_ID_APIARY,
   LICENCE_TYPE_ID_LIVESTOCK_DEALER,
@@ -149,6 +151,7 @@ export default function CreateLicencePage() {
   useEffect(() => {
     dispatch(fetchRegions());
     dispatch(fetchLicenceStatuses());
+    dispatch(fetchLicenceSpecies());
   }, [dispatch]);
 
   const form = useForm({

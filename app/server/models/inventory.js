@@ -9,22 +9,10 @@ const {
 const constants = require("../utilities/constants");
 
 function convertToLogicalModel(input) {
-  let speciesCodeId = null;
-  let speciesSubCodeId = null;
-  if (input.game_farm_species_code_id !== undefined) {
-    speciesCodeId = input.game_farm_species_code_id;
-    speciesSubCodeId = input.game_farm_species_sub_code_id;
-  }
-  if (input.fur_farm_species_code_id !== undefined) {
-    speciesCodeId = input.fur_farm_species_code_id;
-    speciesSubCodeId = input.fur_farm_species_sub_code_id;
-  }
-
   const output = {
     id: input.id,
     licenceId: input.licence_id,
-    speciesCodeId: speciesCodeId,
-    speciesSubCodeId: speciesSubCodeId,
+    speciesSubCodeId: input.species_sub_code_id,
     date: formatDate(input.recorded_date),
     value: input.recorded_value === 0 ? null : input.recorded_value,
   };
@@ -37,6 +25,9 @@ function convertToPhysicalModel(input, update, licenceTypeId) {
     mal_licence: {
       connect: { id: input.licenceId },
     },
+    mal_licence_species_sub_code_lu: {
+      connect: { id: parseAsInt(input.speciesSubCodeId) },
+    },
     recorded_date: input.date,
     recorded_value: input.value === null ? 0 : input.value,
     create_userid: input.createdBy,
@@ -44,28 +35,6 @@ function convertToPhysicalModel(input, update, licenceTypeId) {
     update_userid: input.updatedBy,
     update_timestamp: input.updatedOn,
   };
-
-  switch (licenceTypeId) {
-    case constants.LICENCE_TYPE_ID_GAME_FARM:
-      output.mal_game_farm_species_code_lu = {
-        connect: { id: parseAsInt(input.speciesCodeId) },
-      };
-      output.mal_game_farm_species_sub_code_lu = {
-        connect: { id: parseAsInt(input.speciesSubCodeId) },
-      };
-      break;
-    case constants.LICENCE_TYPE_ID_FUR_FARM:
-      output.mal_fur_farm_species_code_lu = {
-        connect: { id: parseAsInt(input.speciesCodeId) },
-      };
-      output.mal_fur_farm_species_sub_code_lu = {
-        connect: { id: parseAsInt(input.speciesSubCodeId) },
-      };
-      break;
-    default:
-      break;
-  }
-
   return output;
 }
 

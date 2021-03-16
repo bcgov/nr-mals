@@ -6,9 +6,10 @@ const prisma = new PrismaClient();
 const router = express.Router();
 
 async function fetchSpecies() {
-  const records = await prisma.mal_fur_farm_species_code_lu.findMany();
+  const records = await prisma.mal_licence_species_code_lu.findMany();
   return collection.map(records, (r) => ({
     id: r.id,
+    licenceTypeId: r.licence_type_id,
     codeName: r.code_name,
     codeDescription: r.code_description,
     active: r.active_flag,
@@ -16,10 +17,10 @@ async function fetchSpecies() {
 }
 
 async function fetchSubSpecies() {
-  const records = await prisma.mal_fur_farm_species_sub_code_lu.findMany();
+  const records = await prisma.mal_licence_species_sub_code_lu.findMany();
   return collection.map(records, (r) => ({
     id: r.id,
-    speciesCodeId: r.fur_farm_species_code_id,
+    speciesCodeId: r.species_code_id,
     codeName: r.code_name,
     codeDescription: r.code_description,
     active: r.active_flag,

@@ -90,7 +90,6 @@ function convertSearchResultToLogicalModel(input) {
     registrantLastName: input.registrant_last_name,
     registrantFirstLast: input.registrant_first_last,
     registrantLastFirst: input.registrant_last_first,
-    registrantCompanyName: input.registrant_company_name,
     registrantPrimaryghone: input.registrant_primary_phone,
     registrantEmailAddress: input.registrant_email_address,
     licenceCity: input.licence_city,

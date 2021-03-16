@@ -13,8 +13,7 @@ const regionalDistrictsRouter = require("./routes/regionalDistricts");
 const regionsRouter = require("./routes/regions");
 const statusRouter = require("./routes/status");
 const commentsRouter = require("./routes/comments");
-const gameFarmRouter = require("./routes/gameFarm");
-const furFarmRouter = require("./routes/furFarm");
+const licenceSpeciesRouter = require("./routes/licenceSpecies");
 const documentsRouter = require("./routes/documents");
 const citiesRouter = require("./routes/cities");
 
@@ -33,8 +32,7 @@ app.use("/api/regional-districts", regionalDistrictsRouter);
 app.use("/api/regions", regionsRouter);
 app.use("/api/status", statusRouter);
 app.use("/api/comments", commentsRouter.router);
-app.use("/api/game-farm", gameFarmRouter);
-app.use("/api/fur-farm", furFarmRouter);
+app.use("/api/licence-species", licenceSpeciesRouter);
 app.use("/api/documents", documentsRouter);
 app.use("/api/cities", citiesRouter);
 app.use("/api/*", (req, res) => {
