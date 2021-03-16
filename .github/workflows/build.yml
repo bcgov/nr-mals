@@ -1,0 +1,66 @@
+name: Test & Deploy
+on:
+  push:
+    paths:
+      - "app/**/*"
+defaults:
+  run:
+    working-directory: ./app
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - uses: actions/setup-node@master
+        with:
+          node-version: "12"
+      - name: Install dependencies
+        run: npm ci
+      # - name: LINTing
+        # run: npm run lint
+      - name: Prettier
+        run: npm run format:check
+  s2i-build-dev:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    needs: [test]
+    steps:
+      - name: S2I Build
+        uses: redhat-developer/openshift-actions@v1.1
+        with:
+          version: "latest"
+          openshift_server_url: ${{ secrets.OpenShiftServerURL}}
+          parameters: '{"apitoken": "${{ secrets.OpenShiftToken }}", "acceptUntrustedCerts": "true"}'
+          cmd: |
+            'version'
+            'start-build mals-app-dev --follow -n 30245e-tools'
+  s2i-build-test:
+    environment: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/test'
+    runs-on: ubuntu-latest
+    needs: [test]
+    steps:
+      - name: S2I Build
+        uses: redhat-developer/openshift-actions@v1.1
+        with:
+          version: "latest"
+          openshift_server_url: ${{ secrets.OpenShiftServerURL}}
+          parameters: '{"apitoken": "${{ secrets.OpenShiftToken }}", "acceptUntrustedCerts": "true"}'
+          cmd: |
+            'version'
+            'start-build mals-app-test --follow -n 30245e-tools'
+  s2i-build-uat:
+    environment: uat
+    if: github.event_name == 'push' && github.ref == 'refs/heads/uat'
+    runs-on: ubuntu-latest
+    needs: [test]
+    steps:
+      - name: S2I Build
+        uses: redhat-developer/openshift-actions@v1.1
+        with:
+          version: "latest"
+          openshift_server_url: ${{ secrets.OpenShiftServerURL}}
+          parameters: '{"apitoken": "${{ secrets.OpenShiftToken }}", "acceptUntrustedCerts": "true"}'
+          cmd: |
+            'version'
+            'start-build mals-app-uat --follow -n 30245e-tools'
