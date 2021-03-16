@@ -49,7 +49,6 @@ model mal_site_detail_vw {
   registrant_last_name              String?
   registrant_first_last             String?
   registrant_last_first             String?
-  registrant_company_name           String?
   registrant_primary_phone          String?
   registrant_email_address          String?
   licence_city                      String?

@@ -21,21 +21,15 @@ import { parseAsDate, parseAsInt, parseAsFloat } from "../../utilities/parsing";
 
 import SectionHeading from "../../components/SectionHeading";
 import {
-  fetchGameFarmSpecies,
-  selectGameFarmSpecies,
-} from "../lookups/gameFarmSlice";
-import {
-  fetchFurFarmSpecies,
-  selectFurFarmSpecies,
-} from "../lookups/furFarmSlice";
+  fetchLicenceSpecies,
+  selectLicenceSpecies,
+} from "../lookups/licenceSpeciesSlice";
+
 import { selectCurrentLicence, updateLicenceInventory } from "./licencesSlice";
 import Species from "../lookups/Species";
 import SubSpecies from "../lookups/SubSpecies";
 
-import {
-  REQUEST_STATUS,
-  GAME_FARM_SPECIES_SUBCODES,
-} from "../../utilities/constants";
+import { REQUEST_STATUS, SPECIES_SUBCODES } from "../../utilities/constants";
 import { formatDate, formatDateString } from "../../utilities/formatting";
 
 import {
@@ -47,8 +41,7 @@ export default function LicenceInventory({ licence }) {
   const dispatch = useDispatch();
   const currentLicence = useSelector(selectCurrentLicence);
 
-  const gameFarmSpecies = useSelector(selectGameFarmSpecies);
-  const furFarmSpecies = useSelector(selectFurFarmSpecies);
+  const licenceSpecies = useSelector(selectLicenceSpecies);
 
   const [initialInventory, setInitialInventory] = useState([]);
   const [inventory, setInventory] = useState([]);
@@ -74,10 +67,10 @@ export default function LicenceInventory({ licence }) {
   useEffect(() => {
     switch (licence.data.licenceTypeId) {
       case LICENCE_TYPE_ID_GAME_FARM:
-        dispatch(fetchGameFarmSpecies());
+        dispatch(fetchLicenceSpecies());
         break;
       case LICENCE_TYPE_ID_FUR_FARM:
-        dispatch(fetchFurFarmSpecies());
+        dispatch(fetchLicenceSpecies());
         break;
       default:
         break;
@@ -96,19 +89,24 @@ export default function LicenceInventory({ licence }) {
   function getSpeciesData() {
     switch (licence.data.licenceTypeId) {
       case LICENCE_TYPE_ID_GAME_FARM:
-        return gameFarmSpecies;
+        return licenceSpecies;
       case LICENCE_TYPE_ID_FUR_FARM:
-        return furFarmSpecies;
+        return licenceSpecies;
       default:
         return null;
     }
   }
 
   function addInventoryOnClick() {
+    const speciesData = getSpeciesData();
     const obj = {
       id: -1,
-      speciesCodeId: getSpeciesData().data.species[0].id,
-      speciesSubCodeId: getSpeciesData().data.subSpecies[0].id,
+      speciesCodeId: licence.data.speciesCodeId,
+      speciesSubCodeId: speciesData.data.subSpecies.find(
+        (x) =>
+          x.speciesCodeId === licence.data.speciesCodeId &&
+          x.codeName === SPECIES_SUBCODES.MALE
+      ).id,
       date: formatDate(new Date(new Date().getFullYear() - 1, 11, 31)),
       value: null,
     };
@@ -226,12 +224,12 @@ export default function LicenceInventory({ licence }) {
         if (year === recentYear) {
           const MALE_ID = getSpeciesData().data.subSpecies.find(
             (sp) =>
-              sp.codeName === GAME_FARM_SPECIES_SUBCODES.MALE &&
+              sp.codeName === SPECIES_SUBCODES.MALE &&
               sp.speciesCodeId == x.speciesCodeId
           )?.id;
           const FEMALE_ID = getSpeciesData().data.subSpecies.find(
             (sp) =>
-              sp.codeName === GAME_FARM_SPECIES_SUBCODES.FEMALE &&
+              sp.codeName === SPECIES_SUBCODES.FEMALE &&
               sp.speciesCodeId == x.speciesCodeId
           )?.id;
 
@@ -279,7 +277,7 @@ export default function LicenceInventory({ licence }) {
                     name={`inventory[${index}].speciesCodeId`}
                     defaultValue={x.speciesCodeId}
                     ref={register}
-                    onChange={(e) => handleSpeciesChange(index, e.target.value)}
+                    readOnly={true}
                   />
                 </Col>
                 <Col>

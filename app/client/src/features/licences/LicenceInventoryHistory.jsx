@@ -17,13 +17,9 @@ import {
 
 import SectionHeading from "../../components/SectionHeading";
 import {
-  fetchGameFarmSpecies,
-  selectGameFarmSpecies,
-} from "../lookups/gameFarmSlice";
-import {
-  fetchFurFarmSpecies,
-  selectFurFarmSpecies,
-} from "../lookups/furFarmSlice";
+  fetchLicenceSpecies,
+  selectLicenceSpecies,
+} from "../lookups/licenceSpeciesSlice";
 import {
   selectCurrentLicence,
   deleteLicenceInventoryHistory,
@@ -39,10 +35,7 @@ import {
 import VerticalField from "../../components/VerticalField";
 import { formatDateString } from "../../utilities/formatting";
 
-import {
-  REQUEST_STATUS,
-  GAME_FARM_SPECIES_SUBCODES,
-} from "../../utilities/constants";
+import { REQUEST_STATUS, SPECIES_SUBCODES } from "../../utilities/constants";
 import { parseAsDate } from "../../utilities/parsing";
 
 import { openModal } from "../../app/appSlice";
@@ -63,23 +56,23 @@ export default function LicenceInventoryHistory({ licence }) {
   const currentLicence = useSelector(selectCurrentLicence);
   const results = useSelector(selectInventoryHistoryResults);
 
-  const gameFarmSpecies = useSelector(selectGameFarmSpecies);
-  const furFarmSpecies = useSelector(selectFurFarmSpecies);
+  const licenceSpecies = useSelector(selectLicenceSpecies);
 
   function formatResultRow(result, showDelete = true) {
+    const speciesData = getSpeciesData();
+
     return (
       <tr key={result.id}>
         <td className="text-nowrap">
           {
-            getSpeciesData().data.species.find(
-              (sp) => sp.id == result.speciesCodeId
-            ).codeDescription
+            speciesData.data.species.find((sp) => sp.id == result.speciesCodeId)
+              .codeDescription
           }
         </td>
         <td className="text-nowrap">{formatDateString(result.date)}</td>
         <td className="text-nowrap">
           {
-            getSpeciesData().data.subSpecies.find(
+            speciesData.data.subSpecies.find(
               (sp) => sp.id == result.speciesSubCodeId
             ).codeName
           }
@@ -99,10 +92,10 @@ export default function LicenceInventoryHistory({ licence }) {
   useEffect(() => {
     switch (licence.data.licenceTypeId) {
       case LICENCE_TYPE_ID_GAME_FARM:
-        dispatch(fetchGameFarmSpecies());
+        dispatch(fetchLicenceSpecies());
         break;
       case LICENCE_TYPE_ID_FUR_FARM:
-        dispatch(fetchFurFarmSpecies());
+        dispatch(fetchLicenceSpecies());
         break;
       default:
         break;
@@ -125,9 +118,9 @@ export default function LicenceInventoryHistory({ licence }) {
   function getSpeciesData() {
     switch (licence.data.licenceTypeId) {
       case LICENCE_TYPE_ID_GAME_FARM:
-        return gameFarmSpecies;
+        return licenceSpecies;
       case LICENCE_TYPE_ID_FUR_FARM:
-        return furFarmSpecies;
+        return licenceSpecies;
       default:
         return null;
     }
@@ -200,12 +193,12 @@ export default function LicenceInventoryHistory({ licence }) {
         if (year === recentYear) {
           const MALE_ID = getSpeciesData().data.subSpecies.find(
             (sp) =>
-              sp.codeName === GAME_FARM_SPECIES_SUBCODES.MALE &&
+              sp.codeName === SPECIES_SUBCODES.MALE &&
               sp.speciesCodeId == x.speciesCodeId
           )?.id;
           const FEMALE_ID = getSpeciesData().data.subSpecies.find(
             (sp) =>
-              sp.codeName === GAME_FARM_SPECIES_SUBCODES.FEMALE &&
+              sp.codeName === SPECIES_SUBCODES.FEMALE &&
               sp.speciesCodeId == x.speciesCodeId
           )?.id;
 
