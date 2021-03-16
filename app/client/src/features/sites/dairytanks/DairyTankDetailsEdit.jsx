@@ -8,7 +8,7 @@ import CustomDatePicker from "../../../components/CustomDatePicker";
 import { parseAsDate } from "../../../utilities/parsing";
 
 export default function DairyTankDetailsEdit({ form, dairyTank }) {
-  const { register, errors, setValue, getValues,  clearErrors } = form;
+  const { register, errors, setValue, getValues, clearErrors } = form;
   const fieldName = `dairyTanks[${dairyTank.key}]`;
   const fieldName2 = `dairyTankDates[${dairyTank.key}]`;
   const dairyTankErrors = errors.dairyTanks

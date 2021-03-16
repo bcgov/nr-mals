@@ -55,10 +55,12 @@ function convertToLogicalModel(input) {
     hiveCount: input.hive_count,
     apiarySiteId: input.apiary_site_id,
 
-    dairyTanks: input.mal_dairy_farm_tank ? input.mal_dairy_farm_tank.map((xref, index) => ({
-      ...dairyTank.convertToLogicalModel(xref),
-      key: index,
-    })) : null,
+    dairyTanks: input.mal_dairy_farm_tank
+      ? input.mal_dairy_farm_tank.map((xref, index) => ({
+          ...dairyTank.convertToLogicalModel(xref),
+          key: index,
+        }))
+      : null,
 
     createdBy: input.create_userid,
     createdOn: input.create_timestamp,

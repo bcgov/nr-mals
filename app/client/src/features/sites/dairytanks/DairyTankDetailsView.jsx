@@ -16,7 +16,10 @@ export default function DairyTankDetailsView({ dairyTank }) {
           />
         </Col>
         <Col lg={3}>
-          <VerticalField label="Tank Issue Date" value={formatDateString(dairyTank.issueDate)} />
+          <VerticalField
+            label="Tank Issue Date"
+            value={formatDateString(dairyTank.issueDate)}
+          />
         </Col>
         <Col lg={3}>
           <VerticalField label="Recheck Year" value={dairyTank.recheckYear} />
