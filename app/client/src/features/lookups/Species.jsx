@@ -5,7 +5,7 @@ import { Form, Alert, Spinner } from "react-bootstrap";
 import { REQUEST_STATUS } from "../../utilities/constants";
 
 const Species = React.forwardRef((props, ref) => {
-  const { species, isInvalid, onChange, defaultValue, name } = props;
+  const { species, isInvalid, onChange, defaultValue, name, readOnly } = props;
 
   let control = (
     <div>
@@ -25,6 +25,7 @@ const Species = React.forwardRef((props, ref) => {
         onChange={onChange}
         defaultValue={defaultValue}
         custom
+        disabled={readOnly}
       >
         {species.data.species.map((specie) => (
           <option key={specie.id} value={specie.id}>
@@ -53,11 +54,13 @@ Species.propTypes = {
   onChange: PropTypes.func,
   defaultValue: PropTypes.number,
   name: PropTypes.string.isRequired,
+  readOnly: PropTypes.bool,
 };
 Species.defaultProps = {
   isInvalid: undefined,
   onChange: undefined,
   defaultValue: null,
+  readOnly: false,
 };
 
 export default Species;

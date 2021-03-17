@@ -48,6 +48,7 @@ function convertToLogicalModel(input) {
     bondValue: input.bond_value,
     bondCarrierName: input.bond_carrier_name,
     bondContinuationExpiryDate: formatDate(input.bond_continuation_expiry_date),
+    speciesCodeId: input.species_code_id,
     createdBy: input.create_userid,
     createdOn: input.create_timestamp,
     updatedBy: input.update_userid,
@@ -62,11 +63,13 @@ function convertToLogicalModel(input) {
     case constants.LICENCE_TYPE_ID_GAME_FARM:
       output.inventory = input.mal_game_farm_inventory.map((x) => ({
         ...inventory.convertToLogicalModel(x),
+        speciesCodeId: input.species_code_id,
       }));
       break;
     case constants.LICENCE_TYPE_ID_FUR_FARM:
       output.inventory = input.mal_fur_farm_inventory.map((x) => ({
         ...inventory.convertToLogicalModel(x),
+        speciesCodeId: input.species_code_id,
       }));
       break;
     default:
@@ -193,6 +196,16 @@ function convertToPhysicalModel(input, update) {
     emptyPrimaryRegistrant = disconnectRelation;
   }
 
+  let speciesCode = undefined;
+  if (
+    input.licenceType === constants.LICENCE_TYPE_ID_GAME_FARM ||
+    input.licenceType === constants.LICENCE_TYPE_ID_FUR_FARM
+  ) {
+    speciesCode = {
+      connect: { id: parseAsInt(input.speciesCodeId) },
+    };
+  }
+
   const output = {
     mal_region_lu:
       input.region === null
@@ -215,6 +228,7 @@ function convertToPhysicalModel(input, update) {
         : {
             connect: { id: input.primaryRegistrantId },
           },
+    mal_licence_species_code_lu: speciesCode,
     issue_date: input.issuedOnDate,
     expiry_date: input.expiryDate,
     fee_collected: input.feePaidAmount,

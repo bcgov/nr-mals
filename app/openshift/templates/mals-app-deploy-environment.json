@@ -81,6 +81,33 @@
                         "name": "${APP_SECRETS}"
                       }
                     }
+                  },
+                  {
+                    "name": "CDOGS_URL",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "key": "CDOGS_URL",
+                        "name": "${APP_SECRETS}"
+                      }
+                    }
+                  },
+                  {
+                    "name": "CDOGS_OAUTH_URL",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "key": "CDOGS_OAUTH_URL",
+                        "name": "${APP_SECRETS}"
+                      }
+                    }
+                  },
+                  {
+                    "name": "CDOGS_SECRET",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "key": "CDOGS_SECRET",
+                        "name": "${APP_SECRETS}"
+                      }
+                    }
                   }
                 ],
                 "resources": {
