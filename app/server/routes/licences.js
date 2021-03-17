@@ -325,7 +325,7 @@ async function deleteInventory(licenceTypeId, id) {
         },
       });
     }
-    case constants.LICENCE_TYPE_ID_FURFARM: {
+    case constants.LICENCE_TYPE_ID_FUR_FARM: {
       return await prisma.mal_fur_farm_inventory.delete({
         where: {
           id: id,
