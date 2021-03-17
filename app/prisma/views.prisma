@@ -33,6 +33,7 @@ model mal_licence_summary_vw {
 
 model mal_site_detail_vw {
   site_id_pk                        Int       @unique
+  licence_id                        Int
   site_status                       String
   site_status_id_fk                 Int
   licence_number                    Int 

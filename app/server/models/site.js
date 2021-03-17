@@ -74,6 +74,7 @@ function convertToLogicalModel(input) {
 function convertSearchResultToLogicalModel(input) {
   const output = {
     siteId: input.site_id_pk,
+    licenceId: input.licence_id,
     siteStatus: input.site_status,
     siteStatusId: input.site_status_id_fk,
     licenceNumber: input.licence_number,
