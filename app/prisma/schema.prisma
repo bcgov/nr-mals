@@ -494,60 +494,6 @@ model mal_licence_species_sub_code_lu {
   @@unique([species_code_id, code_name], name: "mal_lssc_id_code_uk")
 }
 
-model mal_fur_farm_species_code_lu {
-  id                               Int                                @id @default(autoincrement())
-  code_name                        String                             @unique @db.VarChar(50)
-  code_description                 String?                            @db.VarChar(120)
-  active_flag                      Boolean
-  create_userid                    String                             @db.VarChar(63)
-  create_timestamp                 DateTime                           @db.Timestamp(6)
-  update_userid                    String                             @db.VarChar(63)
-  update_timestamp                 DateTime                           @db.Timestamp(6)
-  mal_fur_farm_species_sub_code_lu mal_fur_farm_species_sub_code_lu[]
-}
-
-model mal_fur_farm_species_sub_code_lu {
-  id                           Int                          @id @default(autoincrement())
-  fur_farm_species_code_id     Int
-  code_name                    String                       @db.VarChar(50)
-  code_description             String?                      @db.VarChar(120)
-  active_flag                  Boolean
-  create_userid                String                       @db.VarChar(63)
-  create_timestamp             DateTime                     @db.Timestamp(6)
-  update_userid                String                       @db.VarChar(63)
-  update_timestamp             DateTime                     @db.Timestamp(6)
-  mal_fur_farm_species_code_lu mal_fur_farm_species_code_lu @relation(fields: [fur_farm_species_code_id], references: [id])
-
-  @@unique([fur_farm_species_code_id, code_name], name: "mal_ffssc_id_code_uk")
-}
-
-model mal_game_farm_species_code_lu {
-  id                                Int                                 @id @default(autoincrement())
-  code_name                         String                              @unique @db.VarChar(50)
-  code_description                  String?                             @db.VarChar(120)
-  active_flag                       Boolean
-  create_userid                     String                              @db.VarChar(63)
-  create_timestamp                  DateTime                            @db.Timestamp(6)
-  update_userid                     String                              @db.VarChar(63)
-  update_timestamp                  DateTime                            @db.Timestamp(6)
-  mal_game_farm_species_sub_code_lu mal_game_farm_species_sub_code_lu[]
-}
-
-model mal_game_farm_species_sub_code_lu {
-  id                            Int                           @id @default(autoincrement())
-  game_farm_species_code_id     Int
-  code_name                     String                        @db.VarChar(50)
-  code_description              String?                       @db.VarChar(120)
-  active_flag                   Boolean
-  create_userid                 String                        @db.VarChar(63)
-  create_timestamp              DateTime                      @db.Timestamp(6)
-  update_userid                 String                        @db.VarChar(63)
-  update_timestamp              DateTime                      @db.Timestamp(6)
-  mal_game_farm_species_code_lu mal_game_farm_species_code_lu @relation(fields: [game_farm_species_code_id], references: [id])
-
-  @@unique([game_farm_species_code_id, code_name], name: "mal_gfssc_id_code_uk")
-}
-
 model mal_licence_summary_vw {
   licence_id           Int       @unique
   licence_type_id      Int
@@ -584,13 +530,13 @@ model mal_site_detail_vw {
   site_id_pk                        Int       @unique
   licence_id                        Int
   site_status                       String
-  site_status_id_fk                 Int
+  site_status_id                    Int
   licence_number                    Int 
   licence_irma_number               String?
   licence_type                      String
-  licence_type_id_fk                Int
+  licence_type_id                   Int
   licence_status                    String
-  licence_status_id_fk              Int
+  licence_status_id                 Int
   apiary_site_id                    Int?
   apiary_site_id_display            String?
   site_contact_name                 String?
