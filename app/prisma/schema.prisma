@@ -320,6 +320,7 @@ model mal_fur_farm_inventory {
   mal_licence                     mal_licence                     @relation(fields: [licence_id], references: [id])
   mal_licence_species_sub_code_lu mal_licence_species_sub_code_lu @relation(fields: [species_sub_code_id], references: [id])
 
+  @@unique([licence_id, species_sub_code_id, recorded_date], name: "inv_furfrminv_uk")
   @@index([licence_id], name: "mal_furfrminv_licence_id_idx")
   @@index([species_sub_code_id], name: "mal_furfrminv_species_sub_code_id_idx")
 }
@@ -344,6 +345,7 @@ model mal_game_farm_inventory {
   mal_licence                     mal_licence                     @relation(fields: [licence_id], references: [id])
   mal_licence_species_sub_code_lu mal_licence_species_sub_code_lu @relation(fields: [species_sub_code_id], references: [id])
 
+  @@unique([licence_id, species_sub_code_id, recorded_date, tag_number], name: "inv_gamfrminv_uk")
   @@index([licence_id], name: "mal_gamfrminv_licence_id_idx")
   @@index([species_sub_code_id], name: "mal_gamfrminv_species_species_sub_code_id_idx")
 }
@@ -410,36 +412,38 @@ model mal_city_lu {
 }
 
 model mal_print_job {
-  id                     Int       @id @default(autoincrement())
-  print_job_number       Int       @default(autoincrement())
-  job_status             String?   @db.VarChar(30)
-  print_category         String    @db.VarChar(100)
-  execution_start_time   DateTime  @db.Timestamp(6)
-  json_end_time          DateTime? @db.Timestamp(6)
-  document_end_time      DateTime? @db.Timestamp(6)
+  id                     Int                    @id @default(autoincrement())
+  print_job_number       Int                    @default(autoincrement())
+  job_status             String?                @db.VarChar(30)
+  print_category         String                 @db.VarChar(100)
+  execution_start_time   DateTime               @db.Timestamp(6)
+  json_end_time          DateTime?              @db.Timestamp(6)
+  document_end_time      DateTime?              @db.Timestamp(6)
   certificate_json_count Int?
   envelope_json_count    Int?
   card_json_count        Int?
   renewal_json_count     Int?
   report_json_count      Int?
-  create_userid          String    @db.VarChar(63)
-  create_timestamp       DateTime  @db.Timestamp(6)
-  update_userid          String    @db.VarChar(63)
-  update_timestamp       DateTime  @db.Timestamp(6)
+  create_userid          String                 @db.VarChar(63)
+  create_timestamp       DateTime               @db.Timestamp(6)
+  update_userid          String                 @db.VarChar(63)
+  update_timestamp       DateTime               @db.Timestamp(6)
+  mal_print_job_output   mal_print_job_output[]
 }
 
 model mal_print_job_output {
-  id               Int      @id @default(autoincrement())
+  id               Int           @id @default(autoincrement())
   print_job_id     Int
-  licence_type     String?  @db.VarChar(100)
-  licence_number   String?  @db.VarChar(30)
-  document_type    String   @db.VarChar(30)
-  document_json    Json?    @db.Json
+  licence_type     String?       @db.VarChar(100)
+  licence_number   String?       @db.VarChar(30)
+  document_type    String        @db.VarChar(30)
+  document_json    Json?         @db.Json
   document_binary  Bytes?
-  create_userid    String   @db.VarChar(63)
-  create_timestamp DateTime @db.Timestamp(6)
-  update_userid    String   @db.VarChar(63)
-  update_timestamp DateTime @db.Timestamp(6)
+  create_userid    String        @db.VarChar(63)
+  create_timestamp DateTime      @db.Timestamp(6)
+  update_userid    String        @db.VarChar(63)
+  update_timestamp DateTime      @db.Timestamp(6)
+  mal_print_job    mal_print_job @relation(fields: [print_job_id], references: [id])
 }
 
 model mal_licence_parent_child_xref {
@@ -490,6 +494,60 @@ model mal_licence_species_sub_code_lu {
   @@unique([species_code_id, code_name], name: "mal_lssc_id_code_uk")
 }
 
+model mal_fur_farm_species_code_lu {
+  id                               Int                                @id @default(autoincrement())
+  code_name                        String                             @unique @db.VarChar(50)
+  code_description                 String?                            @db.VarChar(120)
+  active_flag                      Boolean
+  create_userid                    String                             @db.VarChar(63)
+  create_timestamp                 DateTime                           @db.Timestamp(6)
+  update_userid                    String                             @db.VarChar(63)
+  update_timestamp                 DateTime                           @db.Timestamp(6)
+  mal_fur_farm_species_sub_code_lu mal_fur_farm_species_sub_code_lu[]
+}
+
+model mal_fur_farm_species_sub_code_lu {
+  id                           Int                          @id @default(autoincrement())
+  fur_farm_species_code_id     Int
+  code_name                    String                       @db.VarChar(50)
+  code_description             String?                      @db.VarChar(120)
+  active_flag                  Boolean
+  create_userid                String                       @db.VarChar(63)
+  create_timestamp             DateTime                     @db.Timestamp(6)
+  update_userid                String                       @db.VarChar(63)
+  update_timestamp             DateTime                     @db.Timestamp(6)
+  mal_fur_farm_species_code_lu mal_fur_farm_species_code_lu @relation(fields: [fur_farm_species_code_id], references: [id])
+
+  @@unique([fur_farm_species_code_id, code_name], name: "mal_ffssc_id_code_uk")
+}
+
+model mal_game_farm_species_code_lu {
+  id                                Int                                 @id @default(autoincrement())
+  code_name                         String                              @unique @db.VarChar(50)
+  code_description                  String?                             @db.VarChar(120)
+  active_flag                       Boolean
+  create_userid                     String                              @db.VarChar(63)
+  create_timestamp                  DateTime                            @db.Timestamp(6)
+  update_userid                     String                              @db.VarChar(63)
+  update_timestamp                  DateTime                            @db.Timestamp(6)
+  mal_game_farm_species_sub_code_lu mal_game_farm_species_sub_code_lu[]
+}
+
+model mal_game_farm_species_sub_code_lu {
+  id                            Int                           @id @default(autoincrement())
+  game_farm_species_code_id     Int
+  code_name                     String                        @db.VarChar(50)
+  code_description              String?                       @db.VarChar(120)
+  active_flag                   Boolean
+  create_userid                 String                        @db.VarChar(63)
+  create_timestamp              DateTime                      @db.Timestamp(6)
+  update_userid                 String                        @db.VarChar(63)
+  update_timestamp              DateTime                      @db.Timestamp(6)
+  mal_game_farm_species_code_lu mal_game_farm_species_code_lu @relation(fields: [game_farm_species_code_id], references: [id])
+
+  @@unique([game_farm_species_code_id, code_name], name: "mal_gfssc_id_code_uk")
+}
+
 model mal_licence_summary_vw {
   licence_id           Int       @unique
   licence_type_id      Int
@@ -524,6 +582,7 @@ model mal_licence_summary_vw {
 
 model mal_site_detail_vw {
   site_id_pk                        Int       @unique
+  licence_id                        Int
   site_status                       String
   site_status_id_fk                 Int
   licence_number                    Int 

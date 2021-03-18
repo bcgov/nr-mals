@@ -17,6 +17,7 @@ import {
   REQUEST_STATUS,
   CREATE_LICENSES_PATHNAME,
   SITES_PATHNAME,
+  LICENSES_PATHNAME,
 } from "../../utilities/constants";
 
 import {
@@ -42,7 +43,9 @@ import {
 } from "./searchSlice";
 
 function formatResultRow(result) {
+  console.log(result);
   const url = `${SITES_PATHNAME}/${result.siteId}`;
+  const licenceUrl = `${LICENSES_PATHNAME}/${result.licenceId}`;
   return (
     <tr key={result.siteId}>
       <td className="text-nowrap">
@@ -58,7 +61,9 @@ function formatResultRow(result) {
       <td className="text-nowrap">
         {formatListShorten(result.registrantCompanyName)}
       </td>
-      <td className="text-nowrap">{result.licenceNumber}</td>
+      <td className="text-nowrap">
+        <Link to={licenceUrl}>{result.licenceNumber}</Link>
+      </td>
       <td className="text-nowrap">{result.licenceCity}</td>
       <td className="text-nowrap">{result.licenceRegion}</td>
       <td className="text-nowrap">{result.licenceDistrict}</td>
