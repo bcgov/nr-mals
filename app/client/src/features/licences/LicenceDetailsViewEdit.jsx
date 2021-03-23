@@ -22,6 +22,7 @@ import { parseAsInt, parseAsFloat, parseAsDate } from "../../utilities/parsing";
 import ErrorMessageRow from "../../components/ErrorMessageRow";
 import SectionHeading from "../../components/SectionHeading";
 import SubmissionButtons from "../../components/SubmissionButtons";
+import CustomCheckBox from "../../components/CustomCheckBox";
 
 import { fetchRegions } from "../lookups/regionsSlice";
 import { fetchLicenceStatuses } from "../lookups/licenceStatusesSlice";
@@ -60,7 +61,14 @@ export default function LicenceDetailsViewEdit({ licence }) {
   const form = useForm({
     reValidateMode: "onBlur",
   });
-  const { register, handleSubmit, clearErrors, setError, setValue } = form;
+  const {
+    register,
+    handleSubmit,
+    clearErrors,
+    setError,
+    setValue,
+    getValues,
+  } = form;
 
   useEffect(() => {
     register("applicationDate");
@@ -201,6 +209,53 @@ export default function LicenceDetailsViewEdit({ licence }) {
     dispatch(renewLicence({ data: dates, id: licence.data.id }));
   };
 
+  const onLicenceDetailsCheckboxeChange = () => {
+    // Let the Edit form handle in that mode
+    if (mode !== LICENCE_MODE.VIEW) {
+      return;
+    }
+
+    const actionRequired = getValues("actionRequired");
+    const printLicence = getValues("printLicence");
+    const renewalNotice = getValues("renewalNotice");
+    console.log(actionRequired + " " + printLicence + " " + renewalNotice);
+  };
+
+  // const licenceDetailsCheckboxes = (
+  //   <Form.Row>
+  //     <Col lg={4}>
+  //       <Form.Group controlId="actionRequired">
+  //         <CustomCheckBox
+  //           id="actionRequired"
+  //           label="Action Required"
+  //           ref={register}
+  //           onChange={onLicenceDetailsCheckboxeChange}
+  //         />
+  //       </Form.Group>
+  //     </Col>
+  //     <Col lg={4}>
+  //       <Form.Group controlId="printLicence">
+  //         <CustomCheckBox
+  //           id="printLicence"
+  //           label="Print Licence"
+  //           ref={register}
+  //           onChange={onLicenceDetailsCheckboxeChange}
+  //         />
+  //       </Form.Group>
+  //     </Col>
+  //     <Col lg={4}>
+  //       <Form.Group controlId="renewalNotice">
+  //         <CustomCheckBox
+  //           id="renewalNotice"
+  //           label="Renewal Notice"
+  //           ref={register}
+  //           onChange={onLicenceDetailsCheckboxeChange}
+  //         />
+  //       </Form.Group>
+  //     </Col>
+  //   </Form.Row>
+  // );
+
   if (mode === LICENCE_MODE.VIEW) {
     const onEdit = () => {
       dispatch(setCurrentLicenceModeToEdit());
@@ -212,6 +267,7 @@ export default function LicenceDetailsViewEdit({ licence }) {
         </SectionHeading>
         <Container className="mt-3 mb-4">
           <LicenceDetailsView licence={licence.data} />
+          {/* {licenceDetailsCheckboxes} */}
         </Container>
         {showBondInformation ? (
           <>
@@ -291,6 +347,7 @@ export default function LicenceDetailsViewEdit({ licence }) {
             licenceTypeId={licence.data.licenceTypeId}
             mode={LICENCE_MODE.EDIT}
           />
+          {/* {licenceDetailsCheckboxes} */}
         </Container>
         {showBondInformation ? (
           <section>
