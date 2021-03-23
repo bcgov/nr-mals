@@ -11,7 +11,6 @@ const SubSpecies = React.forwardRef((props, ref) => {
     speciesId,
     isInvalid,
     onChange,
-    defaultValue,
     value,
     name,
   } = props;
@@ -36,7 +35,7 @@ const SubSpecies = React.forwardRef((props, ref) => {
         custom
       >
         {subspecies.data.subSpecies
-          .filter((x) => x.speciesCodeId == speciesId)
+          .filter((x) => x.speciesCodeId === speciesId)
           .map((specie) => (
             <option key={specie.id} value={specie.id}>
               {specie.codeName}

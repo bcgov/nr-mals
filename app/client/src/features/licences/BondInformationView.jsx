@@ -6,6 +6,7 @@ import { Row, Col } from "react-bootstrap";
 import {
   formatDateString,
   formatMoney,
+  formatMoneyString,
   formatPhoneNumber,
 } from "../../utilities/formatting.ts";
 
@@ -22,7 +23,10 @@ export default function BondInformationView({ licence }) {
         </Col>
         <Col lg={2} />
         <Col lg={4}>
-          <VerticalField label="Value" value={formatMoney(licence.bondValue)} />
+          <VerticalField
+            label="Value"
+            value={formatMoneyString(licence.bondValue)}
+          />
         </Col>
         <Col lg={2} />
       </Row>

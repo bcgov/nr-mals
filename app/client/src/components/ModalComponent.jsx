@@ -8,6 +8,7 @@ import ConfirmationModal, { CONFIRMATION } from "../modals/ConfirmationModal";
 import AddressModal, { ADDRESS } from "../modals/AddressModal";
 import PhoneNumberModal, { PHONE } from "../modals/PhoneNumberModal";
 import CommentModal, { COMMENT } from "../modals/CommentModal";
+import LicenceSearchModal, { LICENCE_SEARCH } from "../modals/LicenceSearchModal";
 
 import { closeModal, selectModal } from "../app/appSlice";
 
@@ -16,6 +17,7 @@ const MODAL_COMPONENTS = {
   [ADDRESS]: AddressModal,
   [PHONE]: PhoneNumberModal,
   [COMMENT]: CommentModal,
+  [LICENCE_SEARCH]: LicenceSearchModal,
 };
 
 export default function ModalComponent() {
@@ -26,10 +28,11 @@ export default function ModalComponent() {
   };
 
   const submit = (data) => {
+    dispatch(closeModal());
+    
     if (callback) {
       callback(data);
     }
-    dispatch(closeModal());
   };
 
   const ref = createRef();

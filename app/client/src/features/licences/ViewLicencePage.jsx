@@ -19,9 +19,16 @@ import LicenceHeader from "./LicenceHeader";
 import LicenceSites from "./LicenceSites";
 import LicenceInventory from "./LicenceInventory";
 import LicenceInventoryHistory from "./LicenceInventoryHistory";
+import AssociatedLicences from "./AssociatedLicences";
 import {
   LICENCE_TYPE_ID_GAME_FARM,
   LICENCE_TYPE_ID_FUR_FARM,
+  LICENCE_TYPE_ID_LIVESTOCK_DEALER,
+  LICENCE_TYPE_ID_LIVESTOCK_DEALER_AGENT,
+  LICENCE_TYPE_ID_PUBLIC_SALE_YARD_OPERATOR,
+  LICENCE_TYPE_ID_DISPENSER,
+  LICENCE_TYPE_ID_VETERINARY_DRUG,
+  LICENCE_TYPE_ID_MEDICATED_FEED,
 } from "./constants";
 
 import Comments from "../comments/Comments";
@@ -44,6 +51,20 @@ export default function ViewLicencePage() {
     return <Redirect to={`${SITES_PATHNAME}/${createdSite.data.id}`} />;
   }
 
+  const associatedLicenceTypes = [
+    LICENCE_TYPE_ID_LIVESTOCK_DEALER,
+    LICENCE_TYPE_ID_LIVESTOCK_DEALER_AGENT,
+    LICENCE_TYPE_ID_PUBLIC_SALE_YARD_OPERATOR,
+    LICENCE_TYPE_ID_DISPENSER,
+    LICENCE_TYPE_ID_VETERINARY_DRUG,
+    LICENCE_TYPE_ID_MEDICATED_FEED,
+  ];
+
+  const showAssociatedLicence =
+    licence.data &&
+    associatedLicenceTypes.find((x) => x === licence.data.licenceTypeId) !==
+      undefined;
+
   let content;
   if (licence.data) {
     content = (
@@ -57,6 +78,11 @@ export default function ViewLicencePage() {
           <>
             <LicenceInventory licence={licence} />
             <LicenceInventoryHistory licence={licence} />
+          </>
+        ) : null}
+        {showAssociatedLicence ? (
+          <>
+            <AssociatedLicences licence={licence} />
           </>
         ) : null}
         <Comments licence={licence.data} />

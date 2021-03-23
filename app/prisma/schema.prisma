@@ -143,21 +143,23 @@ model mal_licence_registrant_xref {
 }
 
 model mal_licence_type_lu {
-  id                          Int                           @id @default(autoincrement())
-  licence_type                String                        @unique @db.VarChar(50)
-  standard_fee                Decimal                       @db.Decimal(10, 2)
-  licence_term                Int
-  standard_issue_date         DateTime?                     @db.Timestamp(6)
-  standard_expiry_date        DateTime?                     @db.Timestamp(6)
-  renewal_notice              Int?                          @db.SmallInt
-  legislation                 String                        @db.VarChar(2000)
-  regulation                  String?                       @db.VarChar(2000)
-  create_userid               String                        @db.VarChar(63)
-  create_timestamp            DateTime                      @db.Timestamp(6)
-  update_userid               String                        @db.VarChar(63)
-  update_timestamp            DateTime                      @db.Timestamp(6)
-  mal_licence                 mal_licence[]
-  mal_licence_species_code_lu mal_licence_species_code_lu[]
+  id                                                                                                                Int                                  @id @default(autoincrement())
+  licence_type                                                                                                      String                               @unique @db.VarChar(50)
+  standard_fee                                                                                                      Decimal                              @db.Decimal(10, 2)
+  licence_term                                                                                                      Int
+  standard_issue_date                                                                                               DateTime?                            @db.Timestamp(6)
+  standard_expiry_date                                                                                              DateTime?                            @db.Timestamp(6)
+  renewal_notice                                                                                                    Int?                                 @db.SmallInt
+  legislation                                                                                                       String                               @db.VarChar(2000)
+  regulation                                                                                                        String?                              @db.VarChar(2000)
+  create_userid                                                                                                     String                               @db.VarChar(63)
+  create_timestamp                                                                                                  DateTime                             @db.Timestamp(6)
+  update_userid                                                                                                     String                               @db.VarChar(63)
+  update_timestamp                                                                                                  DateTime                             @db.Timestamp(6)
+  mal_licence                                                                                                       mal_licence[]
+  mal_licence_species_code_lu                                                                                       mal_licence_species_code_lu[]
+  mal_licence_type_parent_child_xref_mal_licence_type_luTomal_licence_type_parent_child_xref_child_licence_type_id  mal_licence_type_parent_child_xref[] @relation("mal_licence_type_luTomal_licence_type_parent_child_xref_child_licence_type_id")
+  mal_licence_type_parent_child_xref_mal_licence_type_luTomal_licence_type_parent_child_xref_parent_licence_type_id mal_licence_type_parent_child_xref[] @relation("mal_licence_type_luTomal_licence_type_parent_child_xref_parent_licence_type_id")
 
   @@unique([licence_type, standard_issue_date], name: "mal_lictyp_licence_name_uk")
 }
@@ -350,33 +352,6 @@ model mal_game_farm_inventory {
   @@index([species_sub_code_id], name: "mal_gamfrminv_species_species_sub_code_id_idx")
 }
 
-model mal_sale_yard_species_code_lu {
-  id                                Int                                 @id @default(autoincrement())
-  code_name                         String                              @unique @db.VarChar(50)
-  code_description                  String?                             @db.VarChar(120)
-  active_flag                       Boolean
-  create_userid                     String                              @db.VarChar(63)
-  create_timestamp                  DateTime                            @db.Timestamp(6)
-  update_userid                     String                              @db.VarChar(63)
-  update_timestamp                  DateTime                            @db.Timestamp(6)
-  mal_sale_yard_species_sub_code_lu mal_sale_yard_species_sub_code_lu[]
-}
-
-model mal_sale_yard_species_sub_code_lu {
-  id                            Int                           @id @default(autoincrement())
-  species_code_id               Int
-  code_name                     String                        @db.VarChar(50)
-  code_description              String?                       @db.VarChar(120)
-  active_flag                   Boolean
-  create_userid                 String                        @db.VarChar(63)
-  create_timestamp              DateTime                      @db.Timestamp(6)
-  update_userid                 String                        @db.VarChar(63)
-  update_timestamp              DateTime                      @db.Timestamp(6)
-  mal_sale_yard_species_code_lu mal_sale_yard_species_code_lu @relation(fields: [species_code_id], references: [id])
-
-  @@unique([species_code_id, code_name], name: "mal_syssc_id_code_uk")
-}
-
 model mal_dairy_farm_tank {
   id               Int       @id @default(autoincrement())
   site_id          Int
@@ -492,6 +467,21 @@ model mal_licence_species_sub_code_lu {
   mal_game_farm_inventory     mal_game_farm_inventory[]
 
   @@unique([species_code_id, code_name], name: "mal_lssc_id_code_uk")
+}
+
+model mal_licence_type_parent_child_xref {
+  id                                                                                                 Int                 @id @default(autoincrement())
+  parent_licence_type_id                                                                             Int
+  child_licence_type_id                                                                              Int
+  active_flag                                                                                        Boolean
+  create_userid                                                                                      String              @db.VarChar(63)
+  create_timestamp                                                                                   DateTime            @db.Timestamp(6)
+  update_userid                                                                                      String              @db.VarChar(63)
+  update_timestamp                                                                                   DateTime            @db.Timestamp(6)
+  mal_licence_type_lu_mal_licence_type_luTomal_licence_type_parent_child_xref_child_licence_type_id  mal_licence_type_lu @relation("mal_licence_type_luTomal_licence_type_parent_child_xref_child_licence_type_id", fields: [child_licence_type_id], references: [id])
+  mal_licence_type_lu_mal_licence_type_luTomal_licence_type_parent_child_xref_parent_licence_type_id mal_licence_type_lu @relation("mal_licence_type_luTomal_licence_type_parent_child_xref_parent_licence_type_id", fields: [parent_licence_type_id], references: [id])
+
+  @@unique([parent_licence_type_id, child_licence_type_id], name: "mal_lictypprntchld_uk")
 }
 
 model mal_licence_summary_vw {

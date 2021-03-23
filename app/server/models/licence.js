@@ -57,6 +57,10 @@ function convertToLogicalModel(input) {
       ...registrant.convertToLogicalModel(xref.mal_registrant),
       key: index,
     })),
+    associatedLicences: input.mal_licence_parent_child_xref_mal_licenceTomal_licence_parent_child_xref_parent_licence_id.map((xref, index) => ({
+      ...convertAssociatdLicenceToLogicalModel(xref.mal_licence_mal_licenceTomal_licence_parent_child_xref_child_licence_id),
+      key: index,
+    })),
   };
 
   switch (input.licence_type_id) {
@@ -165,6 +169,31 @@ function convertCertificateToLogicalModel(input) {
     companyNames: input.company_name,
     issuedOnDate: input.issue_date,
     expiryDate: input.expiry_date,
+  };
+
+  return output;
+}
+
+function convertAssociatdLicenceToLogicalModel(input) {
+  const output = {
+    id: input.id,
+    licenceNumber: input.licence_number,
+    licenceType:
+      input.mal_licence_type_lu == null
+        ? null
+        : input.mal_licence_type_lu.licence_type,
+    licenceTypeId: input.licence_type_id,
+    licenceStatus:
+      input.mal_status_code_lu == null
+        ? null
+        : input.mal_status_code_lu.code_description,
+    licenceStatusId: input.status_code_id,
+    issuedOnDate: formatDate(input.issue_date),
+    primaryRegistrantId: input.primary_registrant_id,
+    registrants: input.mal_licence_registrant_xref.map((xref, index) => ({
+      ...registrant.convertToLogicalModel(xref.mal_registrant),
+      key: index,
+    })),
   };
 
   return output;
@@ -300,9 +329,28 @@ function convertToPhysicalModel(input, update) {
   return output;
 }
 
+function convertToAssociatedLicencePhysicalModel(input, update) {
+  const output = {
+    mal_licence_mal_licenceTomal_licence_parent_child_xref_parent_licence_id: {
+      connect: { id: input.parentLicenceId },
+    },
+    mal_licence_mal_licenceTomal_licence_parent_child_xref_child_licence_id: {
+      connect: { id: input.childLicenceId },
+    },
+    create_userid: input.createdBy,
+    create_timestamp: input.createdOn,
+    update_userid: input.updatedBy,
+    update_timestamp: input.updatedOn,
+  };
+
+  return output;
+}
+
 module.exports = {
   convertToPhysicalModel,
   convertToLogicalModel,
   convertSearchResultToLogicalModel,
   convertCertificateToLogicalModel,
+  convertAssociatdLicenceToLogicalModel,
+  convertToAssociatedLicencePhysicalModel,
 };

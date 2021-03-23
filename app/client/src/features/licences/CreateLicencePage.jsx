@@ -190,7 +190,7 @@ export default function CreateLicencePage() {
     LICENCE_TYPE_ID_LIVESTOCK_DEALER,
   ];
   const showBondInformation =
-    REQUIRES_BOND_INFORMATION.find((x) => x == watchLicenceType) !== undefined;
+    REQUIRES_BOND_INFORMATION.find((x) => x === watchLicenceType) !== undefined;
 
   // set default expiry date differently based on the selected licence type
   useEffect(() => {
