@@ -305,6 +305,21 @@ async function updateLicence(licenceId, payload) {
       },
       mal_game_farm_inventory: true,
       mal_fur_farm_inventory: true,
+      mal_licence_parent_child_xref_mal_licenceTomal_licence_parent_child_xref_parent_licence_id: {
+        select: {
+          mal_licence_mal_licenceTomal_licence_parent_child_xref_child_licence_id: {
+            include: {
+              mal_licence_type_lu: true,
+              mal_status_code_lu: true,
+              mal_licence_registrant_xref: {
+                select: {
+                  mal_registrant: true,
+                },
+              },
+            },
+          },
+        },
+      },
     },
   });
 }

@@ -363,7 +363,7 @@ export default function LicenceInventory({ licence }) {
                 type="button"
                 variant="secondary"
                 onClick={addInventoryOnClick}
-                disabled={submitting}
+                disabled={submitting || licence.data.speciesCodeId === null}
                 block
               >
                 Add Inventory

@@ -264,6 +264,7 @@ export default function LicenceDetailsViewEdit({ licence }) {
       bondCarrierPhoneNumber: data.bondCarrierPhoneNumber
         ? data.bondCarrierPhoneNumber.replace(/\D/g, "")
         : undefined,
+      licenceType: parseAsInt(licence.data.licenceTypeId),
       licenceStatus: parseAsInt(data.licenceStatus),
       region: parseAsInt(data.region),
       regionalDistrict: parseAsInt(data.regionalDistrict),
@@ -288,6 +289,7 @@ export default function LicenceDetailsViewEdit({ licence }) {
           <LicenceDetailsEdit
             form={form}
             initialValues={initialFormValues}
+            licence={licence.data}
             licenceTypeId={licence.data.licenceTypeId}
             mode={LICENCE_MODE.EDIT}
           />

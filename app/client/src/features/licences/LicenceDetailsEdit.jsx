@@ -45,6 +45,7 @@ import { selectLicenceSpecies } from "../lookups/licenceSpeciesSlice";
 export default function LicenceDetailsEdit({
   form,
   initialValues,
+  licence,
   licenceTypeId,
   mode,
 }) {
@@ -198,7 +199,7 @@ export default function LicenceDetailsEdit({
   const watchRegion = watch("region", null);
   const parsedRegion = parseAsInt(watchRegion);
 
-  const watchLicenceType = parseAsInt(watch("licenceType"));
+  const watchLicenceType = parseAsInt(watch("licenceType", licenceTypeId));
 
   const config = getLicenceTypeConfiguration(licenceTypeId);
 
@@ -248,10 +249,11 @@ export default function LicenceDetailsEdit({
 
   let speciesDropdown = null;
   if (
-    mode === LICENCE_MODE.CREATE &&
     licenceSpecies.status === REQUEST_STATUS.FULFILLED &&
     (watchLicenceType === LICENCE_TYPE_ID_GAME_FARM ||
-      watchLicenceType === LICENCE_TYPE_ID_FUR_FARM)
+      watchLicenceType === LICENCE_TYPE_ID_FUR_FARM) &&
+    (mode === LICENCE_MODE.CREATE ||
+      (mode === LICENCE_MODE.EDIT && licence.speciesCodeId === null))
   ) {
     let filteredSpecies = licenceSpecies.data.species.filter(
       (x) => x.licenceTypeId === watchLicenceType
@@ -371,7 +373,7 @@ export default function LicenceDetailsEdit({
               >
                 {addresses.map((x) => (
                   <option key={x.key} value={x.key}>
-                    {x.addressType} ({x.addressLine1})
+                    {x.addressType} ({x.addressLine1}, {x.city})
                   </option>
                 ))}
               </Form.Control>
@@ -520,10 +522,12 @@ export default function LicenceDetailsEdit({
 LicenceDetailsEdit.propTypes = {
   form: PropTypes.object.isRequired,
   initialValues: PropTypes.object.isRequired,
+  licence: PropTypes.object,
   licenceTypeId: PropTypes.number,
   mode: PropTypes.string.isRequired,
 };
 
 LicenceDetailsEdit.defaultProps = {
+  licence: undefined,
   licenceTypeId: undefined,
 };
