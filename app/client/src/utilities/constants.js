@@ -98,6 +98,10 @@ export const COUNTRIES = {
 
 export const COUNTRIES_MAP = [COUNTRIES.CANADA, COUNTRIES.UNITEDSTATES];
 
+export const PROVINCES = {
+  BC: "BC",
+};
+
 export const SPECIES_SUBCODES = {
   MALE: "MALE",
   FEMALE: "FEMALE",
