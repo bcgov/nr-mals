@@ -44,8 +44,6 @@ import {
 import { fetchLicenceSpecies } from "../lookups/licenceSpeciesSlice";
 import { fetchCities } from "../lookups/citiesSlice";
 
-import { fetchCities } from "../lookups/citiesSlice";
-
 import {
   LICENCE_TYPE_ID_APIARY,
   LICENCE_TYPE_ID_LIVESTOCK_DEALER,
