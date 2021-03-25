@@ -57,10 +57,14 @@ function convertToLogicalModel(input) {
       ...registrant.convertToLogicalModel(xref.mal_registrant),
       key: index,
     })),
-    associatedLicences: input.mal_licence_parent_child_xref_mal_licenceTomal_licence_parent_child_xref_parent_licence_id.map((xref, index) => ({
-      ...convertAssociatdLicenceToLogicalModel(xref.mal_licence_mal_licenceTomal_licence_parent_child_xref_child_licence_id),
-      key: index,
-    })),
+    associatedLicences: input.mal_licence_parent_child_xref_mal_licenceTomal_licence_parent_child_xref_parent_licence_id.map(
+      (xref, index) => ({
+        ...convertAssociatdLicenceToLogicalModel(
+          xref.mal_licence_mal_licenceTomal_licence_parent_child_xref_child_licence_id
+        ),
+        key: index,
+      })
+    ),
   };
 
   switch (input.licence_type_id) {

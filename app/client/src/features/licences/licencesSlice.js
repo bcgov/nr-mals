@@ -103,7 +103,10 @@ export const deleteAssociatedLicences = createAsyncThunk(
   "licences/deleteAssociatedLicences",
   async ({ data, licenceId }, thunkApi) => {
     try {
-      const response = await Api.put(`licences/${licenceId}/associated/delete`, data);
+      const response = await Api.put(
+        `licences/${licenceId}/associated/delete`,
+        data
+      );
       return response.data;
     } catch (error) {
       if (error instanceof ApiError) {

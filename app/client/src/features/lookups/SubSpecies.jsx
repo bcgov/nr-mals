@@ -6,14 +6,7 @@ import { Form, Alert, Spinner } from "react-bootstrap";
 import { REQUEST_STATUS } from "../../utilities/constants";
 
 const SubSpecies = React.forwardRef((props, ref) => {
-  const {
-    subspecies,
-    speciesId,
-    isInvalid,
-    onChange,
-    value,
-    name,
-  } = props;
+  const { subspecies, speciesId, isInvalid, onChange, value, name } = props;
 
   let control = (
     <div>

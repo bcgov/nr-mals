@@ -8,7 +8,9 @@ import ConfirmationModal, { CONFIRMATION } from "../modals/ConfirmationModal";
 import AddressModal, { ADDRESS } from "../modals/AddressModal";
 import PhoneNumberModal, { PHONE } from "../modals/PhoneNumberModal";
 import CommentModal, { COMMENT } from "../modals/CommentModal";
-import LicenceSearchModal, { LICENCE_SEARCH } from "../modals/LicenceSearchModal";
+import LicenceSearchModal, {
+  LICENCE_SEARCH,
+} from "../modals/LicenceSearchModal";
 
 import { closeModal, selectModal } from "../app/appSlice";
 
@@ -29,7 +31,7 @@ export default function ModalComponent() {
 
   const submit = (data) => {
     dispatch(closeModal());
-    
+
     if (callback) {
       callback(data);
     }
