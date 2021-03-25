@@ -802,6 +802,35 @@ router.put("/renew/:licenceId(\\d+)", async (req, res, next) => {
     .finally(async () => prisma.$disconnect());
 });
 
+router.put("/checkboxes/:licenceId(\\d+)", async (req, res, next) => {
+  const licenceId = parseInt(req.params.licenceId, 10);
+
+  const now = new Date();
+
+  await findLicence(licenceId)
+    .then(async (record) => {
+      if (record === null) {
+        return res.status(404).send({
+          code: 404,
+          description: "The requested licence could not be found.",
+        });
+      }
+
+      await prisma.mal_licence.update({
+        where: { id: licenceId },
+        data: {
+          action_required: req.body.actionRequired,
+          print_certificate: req.body.printLicence,
+          print_renewal: req.body.renewalNotice,
+        },
+      });
+
+      return res.send(true);
+    })
+    .catch(next)
+    .finally(async () => prisma.$disconnect());
+});
+
 router.put("/:licenceId(\\d+)", async (req, res, next) => {
   const licenceId = parseInt(req.params.licenceId, 10);
 

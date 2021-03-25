@@ -184,7 +184,7 @@ export default function LicenceDetailsView({ licence }) {
           )}
         </Row>
       )}
-      <Row className="mt-3">
+      {/* <Row className="mt-3">
         <Col lg={4}>
           <VerticalField
             label="Action Required"
@@ -203,7 +203,7 @@ export default function LicenceDetailsView({ licence }) {
             value={formatBoolean(licence.renewalNotice)}
           />
         </Col>
-      </Row>
+      </Row> */}
     </>
   );
 }

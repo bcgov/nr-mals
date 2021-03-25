@@ -42,6 +42,7 @@ import {
 } from "./licencesSlice";
 
 import { fetchLicenceSpecies } from "../lookups/licenceSpeciesSlice";
+import { fetchCities } from "../lookups/citiesSlice";
 
 import { fetchCities } from "../lookups/citiesSlice";
 
