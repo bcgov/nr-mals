@@ -484,7 +484,7 @@ export default function LicenceDetailsEdit({
           </Col>
         </Form.Row>
       )}
-      <Form.Row>
+      {/* <Form.Row>
         <Col lg={4}>
           <Form.Group controlId="actionRequired">
             <CustomCheckBox
@@ -512,7 +512,7 @@ export default function LicenceDetailsEdit({
             />
           </Form.Group>
         </Col>
-      </Form.Row>
+      </Form.Row> */}
     </>
   );
 }
