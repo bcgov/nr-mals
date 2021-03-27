@@ -1,4 +1,3 @@
-/* eslint-disable */
 import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Container, Button, ProgressBar } from "react-bootstrap";
@@ -16,9 +15,7 @@ import PageHeading from "../../components/PageHeading";
 import {
   selectCertificateJob,
   fetchCertificateJob,
-  selectPendingDocuments,
   generateCertificates,
-  generateCertificate,
 } from "./certificatesSlice";
 
 async function download(jobId) {
@@ -45,11 +42,10 @@ async function download(jobId) {
     // generate temporary download link
     createDownload(blob, filename);
   } catch (e) {
-    console.error(e);
     if (e.response) {
       const data = new TextDecoder().decode(e.response.data);
       const parsed = JSON.parse(data);
-      console.warn("CDOGS Response:", parsed);
+      console.warn("CDOGS Response:", parsed); // eslint-disable-line no-console
     }
   }
 }
@@ -95,7 +91,7 @@ export default function DownloadCertificatesPage() {
         )
       );
     }
-  }, [job.id]);
+  }, [job.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   let content = null;
 

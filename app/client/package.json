@@ -71,6 +71,8 @@
       "import/no-named-as-default": "off",
       "react/forbid-prop-types": "off",
       "react/prefer-stateless-function": "off",
+      "react/no-array-index-key": "off",
+      "react-hooks/exhaustive-deps": "off",
       "no-param-reassign": [
         "error",
         {

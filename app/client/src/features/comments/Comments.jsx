@@ -1,12 +1,11 @@
-/* eslint-disable */
 import React, { useEffect } from "react";
 import PropTypes from "prop-types";
 import { useDispatch, useSelector } from "react-redux";
 import { useForm } from "react-hook-form";
-import { Container, Form, Col, InputGroup, Button } from "react-bootstrap";
+import { Container, Form, Col, Button } from "react-bootstrap";
 
-import { LICENCE_MODE, REQUEST_STATUS } from "../../utilities/constants";
-import { formatDateString } from "../../utilities/formatting";
+import { REQUEST_STATUS } from "../../utilities/constants";
+import { formatDateString } from "../../utilities/formatting.ts";
 
 import { openModal } from "../../app/appSlice";
 import { COMMENT } from "../../modals/CommentModal";
@@ -31,7 +30,7 @@ export default function Comments({ licence }) {
 
   useEffect(() => {
     dispatch(fetchComments(licence.id));
-  }, [dispatch]);
+  }, [dispatch]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const form = useForm({
     reValidateMode: "onBlur",
@@ -41,8 +40,8 @@ export default function Comments({ licence }) {
   const { status, error } = comments;
   const submitting = status === REQUEST_STATUS.PENDING;
 
-  const commentText = watch("commentText");
-  const hasComment = commentText && commentText.length > 0;
+  const commentTextWatch = watch("commentText");
+  const hasComment = commentTextWatch && commentTextWatch.length > 0;
 
   let errorMessage = null;
   if (status === REQUEST_STATUS.REJECTED) {

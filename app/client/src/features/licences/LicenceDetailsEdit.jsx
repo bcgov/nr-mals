@@ -1,4 +1,3 @@
-/* eslint-disable */
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { useSelector, useDispatch } from "react-redux";
@@ -9,7 +8,6 @@ import { Button, Form, Col, InputGroup } from "react-bootstrap";
 import {
   LICENCE_MODE,
   ADDRESS_TYPES,
-  PHONE_NUMBER_TYPES,
   REQUEST_STATUS,
 } from "../../utilities/constants";
 import { parseAsInt } from "../../utilities/parsing";
@@ -28,8 +26,8 @@ import RegionalDistricts from "../lookups/RegionalDistricts";
 import { getLicenceTypeConfiguration } from "./licenceTypeUtility";
 import { formatIrmaNumber } from "./irmaNumberUtility";
 
-import { ADDRESS, AddressModal } from "../../modals/AddressModal";
-import { PHONE, PhoneNumberModal } from "../../modals/PhoneNumberModal";
+import { ADDRESS } from "../../modals/AddressModal";
+import { PHONE } from "../../modals/PhoneNumberModal";
 
 import { openModal } from "../../app/appSlice";
 
@@ -255,7 +253,7 @@ export default function LicenceDetailsEdit({
     (mode === LICENCE_MODE.CREATE ||
       (mode === LICENCE_MODE.EDIT && licence.speciesCodeId === null))
   ) {
-    let filteredSpecies = licenceSpecies.data.species.filter(
+    const filteredSpecies = licenceSpecies.data.species.filter(
       (x) => x.licenceTypeId === watchLicenceType
     );
 
@@ -269,7 +267,7 @@ export default function LicenceDetailsEdit({
           <Form.Label>Species Type</Form.Label>
           <Species
             species={filter}
-            name={`speciesCodeId`}
+            name="speciesCodeId"
             defaultValue={licenceSpecies.data.species[0].id}
             ref={register({
               required: true,

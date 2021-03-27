@@ -1,7 +1,6 @@
-/* eslint-disable */
 import React, { useEffect } from "react";
 import PropTypes from "prop-types";
-import { useSelector, useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
 import { useForm } from "react-hook-form";
 import { Button, Container, Form, Row, Col } from "react-bootstrap";
 import { startOfToday, add, set } from "date-fns";
@@ -12,11 +11,7 @@ import {
   LICENCE_TYPE_ID_PUBLIC_SALE_YARD_OPERATOR,
   LICENCE_TYPE_ID_PURCHASE_LIVE_POULTRY,
 } from "./constants";
-import {
-  formatNumber,
-  formatDate,
-  formatDateTimeString,
-} from "../../utilities/formatting.ts";
+import { formatNumber, formatDate } from "../../utilities/formatting.ts";
 import { parseAsInt, parseAsFloat, parseAsDate } from "../../utilities/parsing";
 
 import ErrorMessageRow from "../../components/ErrorMessageRow";
@@ -151,7 +146,7 @@ export default function LicenceDetailsViewEdit({ licence }) {
   ];
 
   const showBondInformation =
-    REQUIRES_BOND_INFORMATION.find((x) => x == licence.data.licenceTypeId) !==
+    REQUIRES_BOND_INFORMATION.find((x) => x === licence.data.licenceTypeId) !==
     undefined;
 
   const config = getLicenceTypeConfiguration(licence.data.licenceTypeId);
@@ -174,6 +169,11 @@ export default function LicenceDetailsViewEdit({ licence }) {
     return { issueDate: today, expiryDate };
   };
 
+  const onRenewCallback = (data) => {
+    const dates = data;
+    dispatch(renewLicence({ data: dates, id: licence.data.id }));
+  };
+
   const onRenew = () => {
     const dates = getRenewLicenceDates();
     dispatch(
@@ -186,8 +186,8 @@ export default function LicenceDetailsViewEdit({ licence }) {
             <>
               <Row>
                 <div className="justify-content-center">
-                  The Issued On date will be updated to today's date, and the
-                  Expiry Date for Licence Number {licence.data.id} will be
+                  The Issued On date will be updated to today&apos;s date, and
+                  the Expiry Date for Licence Number {licence.data.id} will be
                   updated to {formatDate(dates.expiryDate)}
                 </div>
               </Row>
@@ -203,11 +203,6 @@ export default function LicenceDetailsViewEdit({ licence }) {
         "md"
       )
     );
-  };
-
-  const onRenewCallback = (data) => {
-    const dates = data;
-    dispatch(renewLicence({ data: dates, id: licence.data.id }));
   };
 
   const onLicenceDetailsCheckboxChange = () => {

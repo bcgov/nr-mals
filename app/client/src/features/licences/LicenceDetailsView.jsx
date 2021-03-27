@@ -1,4 +1,4 @@
-/* eslint-disable */
+/* eslint-disable jsx-a11y/label-has-associated-control */
 import React from "react";
 import PropTypes from "prop-types";
 import NumberFormat from "react-number-format";
@@ -84,7 +84,7 @@ export default function LicenceDetailsView({ licence }) {
         <Col lg={4}>
           <Row>
             <Col>
-              <label className="strong">Address</label>
+              <label className="strong">Address</label>{" "}
             </Col>
           </Row>
           {primaryAddress !== undefined ? (

@@ -1,7 +1,5 @@
-/* eslint-disable */
 import React from "react";
 import { useSelector } from "react-redux";
-import { NavLink } from "react-router-dom";
 import { Container, Nav, Navbar } from "react-bootstrap";
 
 import * as Constant from "../utilities/constants";

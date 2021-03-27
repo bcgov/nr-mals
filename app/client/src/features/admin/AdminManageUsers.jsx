@@ -1,18 +1,7 @@
-/* eslint-disable */
+/* eslint-disable no-use-before-define */
 import React, { useEffect } from "react";
-import PropTypes from "prop-types";
 import { useDispatch, useSelector } from "react-redux";
-import { useForm } from "react-hook-form";
-import {
-  Alert,
-  Container,
-  Spinner,
-  Table,
-  Row,
-  Col,
-  Button,
-  ButtonGroup,
-} from "react-bootstrap";
+import { Spinner, Table, Row, Col, Button } from "react-bootstrap";
 
 import SectionHeading from "../../components/SectionHeading";
 import ErrorMessageRow from "../../components/ErrorMessageRow";
@@ -33,12 +22,7 @@ import { openModal } from "../../app/appSlice";
 import { CONFIRMATION } from "../../modals/ConfirmationModal";
 import { USER } from "../../modals/UserModal";
 
-import { displayPersonName } from "../../utilities/formatting";
-
-function navigateToSearchPage(dispatch, page) {
-  //dispatch(setLicenceSearchPage(page));
-  //dispatch(fetchLicenceResults());
-}
+import { displayPersonName } from "../../utilities/formatting.ts";
 
 export default function AdminManageUsers() {
   const users = useSelector(selectUsers);
@@ -49,6 +33,18 @@ export default function AdminManageUsers() {
     dispatch(fetchUsers());
     dispatch(fetchRoles());
   }, [dispatch]);
+
+  const addUserCallback = (data) => {
+    dispatch(createUser({ user: data }));
+  };
+
+  const editUserCallback = (data) => {
+    dispatch(updateUser({ user: data }));
+  };
+
+  const onDeleteUserCallback = (data) => {
+    dispatch(deleteUser({ user: data }));
+  };
 
   function formatResultRow(result, showOptions = true) {
     return (
@@ -79,13 +75,9 @@ export default function AdminManageUsers() {
     );
   }
 
-  function addUserOnClick() {
+  function onAddUser() {
     dispatch(openModal(USER, addUserCallback, { roles: roles.data }, "md"));
   }
-
-  const addUserCallback = (data) => {
-    dispatch(createUser({ user: data }));
-  };
 
   function onEditUser(result) {
     dispatch(
@@ -97,10 +89,6 @@ export default function AdminManageUsers() {
       )
     );
   }
-
-  const editUserCallback = (data) => {
-    dispatch(updateUser({ user: data }));
-  };
 
   const onDeleteUser = (result) => {
     const data = { ...result };
@@ -144,18 +132,8 @@ export default function AdminManageUsers() {
     );
   };
 
-  const onDeleteUserCallback = (data) => {
-    dispatch(deleteUser({ user: data }));
-  };
-
   const createUserButton = (
-    <Button
-      size="md"
-      type="button"
-      variant="primary"
-      onClick={addUserOnClick}
-      block
-    >
+    <Button size="md" type="button" variant="primary" onClick={onAddUser} block>
       Add a new user
     </Button>
   );
@@ -170,7 +148,6 @@ export default function AdminManageUsers() {
     rolesErrorMessage = `${roles.error.code}: ${roles.error.description}`;
   }
 
-  console.log(users);
   return (
     <>
       <SectionHeading>Manage Users</SectionHeading>
@@ -182,8 +159,8 @@ export default function AdminManageUsers() {
             <th className="text-nowrap">Username (IDIR ID)</th>
             <th className="text-nowrap">Role</th>
             <th className="text-nowrap">Status</th>
-            <th className="text-nowrap"></th>
-            <th className="text-nowrap"></th>
+            <th className="text-nowrap" />
+            <th className="text-nowrap" />
           </tr>
         </thead>
         {users.status === REQUEST_STATUS.FULFILLED &&

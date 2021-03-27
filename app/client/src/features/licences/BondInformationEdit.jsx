@@ -1,56 +1,21 @@
-/* eslint-disable */
-import React, { useEffect } from "react";
+import React from "react";
 import PropTypes from "prop-types";
-import { useSelector } from "react-redux";
 import { Form, Col, InputGroup } from "react-bootstrap";
 import NumberFormat from "react-number-format";
 import { Controller } from "react-hook-form";
 
-import { LICENCE_MODE } from "../../utilities/constants";
-import { parseAsInt } from "../../utilities/parsing";
-import { formatDate, formatPhoneNumber } from "../../utilities/formatting.ts";
+import { formatPhoneNumber } from "../../utilities/formatting.ts";
 
-import CustomCheckBox from "../../components/CustomCheckBox";
 import CustomDatePicker from "../../components/CustomDatePicker";
-import VerticalField from "../../components/VerticalField";
 
-import LicenceStatuses from "../lookups/LicenceStatuses";
-import Regions from "../lookups/Regions";
-import RegionalDistricts from "../lookups/RegionalDistricts";
-
-import { getLicenceTypeConfiguration } from "./licenceTypeUtility";
-
-export default function BondInformationEdit({
-  form,
-  initialValues,
-  licenceTypeId,
-  mode,
-}) {
-  const { watch, control, setValue, register, errors } = form;
+export default function BondInformationEdit({ form, initialValues }) {
+  const { control, setValue, register, errors } = form;
 
   const handleFieldChange = (field) => {
     return (value) => {
       setValue(field, value);
     };
   };
-  const config = getLicenceTypeConfiguration(licenceTypeId);
-
-  let applicationDate = (
-    <VerticalField
-      label="Application Date"
-      value={formatDate(initialValues.applicationDate)}
-    />
-  );
-  if (mode === LICENCE_MODE.CREATE) {
-    applicationDate = (
-      <CustomDatePicker
-        id="applicationDate"
-        label="Application Date"
-        notifyOnChange={handleFieldChange("applicationDate")}
-        defaultValue={initialValues.applicationDate}
-      />
-    );
-  }
 
   return (
     <>
@@ -142,10 +107,4 @@ export default function BondInformationEdit({
 BondInformationEdit.propTypes = {
   form: PropTypes.object.isRequired,
   initialValues: PropTypes.object.isRequired,
-  licenceTypeId: PropTypes.number,
-  mode: PropTypes.string.isRequired,
-};
-
-BondInformationEdit.defaultProps = {
-  licenceTypeId: undefined,
 };

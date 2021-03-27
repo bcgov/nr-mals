@@ -1,7 +1,5 @@
-/* eslint-disable */
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { useForm } from "react-hook-form";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import {
@@ -21,7 +19,7 @@ import {
   selectCurrentLicence,
   updateAssociatedLicences,
   deleteAssociatedLicences,
-} from "../licences/licencesSlice";
+} from "./licencesSlice";
 
 import {
   clearAssociatedLicencesParameters,
@@ -33,10 +31,8 @@ import {
 
 import { REQUEST_STATUS, LICENSES_PATHNAME } from "../../utilities/constants";
 
-import {
-  formatDateString,
-  formatListShorten,
-} from "../../utilities/formatting.ts";
+import { formatDateString } from "../../utilities/formatting.ts";
+import { parseAsInt } from "../../utilities/parsing";
 
 import { openModal } from "../../app/appSlice";
 import { CONFIRMATION } from "../../modals/ConfirmationModal";
@@ -51,40 +47,15 @@ export default function AssociatedLicences({ licence }) {
   const dispatch = useDispatch();
   const currentLicence = useSelector(selectCurrentLicence);
   const results = useSelector(selectAssociatedLicencesResults);
-  console.log(results);
 
   const submitting = currentLicence.status === REQUEST_STATUS.PENDING;
-
-  const submissionLabel = submitting ? "Saving..." : "Save";
-
-  function formatResultRow(result) {
-    const url = `${LICENSES_PATHNAME}/${result.id}`;
-    return (
-      <tr key={result.id}>
-        <td className="text-nowrap">
-          <Link to={url}>{result.licenceNumber}</Link>
-        </td>
-        <td className="text-nowrap">{result.licenceType}</td>
-        <td className="text-nowrap">{formatDateString(result.issuedOnDate)}</td>
-        <td className="text-nowrap">{result.registrants[0].label}</td>
-        <td>
-          <Button
-            variant="link"
-            onClick={() => unassociatedLicenceOnClick(result)}
-          >
-            Remove
-          </Button>
-        </td>
-      </tr>
-    );
-  }
 
   useEffect(() => {
     dispatch(clearAssociatedLicencesParameters());
     dispatch(
       setAssociatedLicencesParameters({
         licenceId: licence.data.id,
-        licenceTypeId: parseInt(licence.data.licenceTypeId),
+        licenceTypeId: parseAsInt(licence.data.licenceTypeId),
       })
     );
     dispatch(fetchAssociatedLicencesResults());
@@ -94,20 +65,24 @@ export default function AssociatedLicences({ licence }) {
     dispatch(fetchAssociatedLicencesResults());
   }, [currentLicence]);
 
-  function associatedLicenceOnClick() {
+  const onConfirmAssociateCallback = (data) => {
+    const updatedData = [...data];
+    // Add the inverse data so both associations get created
+    for (let i = 0; i < data.length; i += 1) {
+      updatedData.push({
+        parentLicenceId: data[i].childLicenceId,
+        childLicenceId: data[i].parentLicenceId,
+      });
+    }
     dispatch(
-      openModal(
-        LICENCE_SEARCH,
-        onAssociateCallback,
-        { licenceTypeId: licence.data.licenceTypeId },
-        "lg"
-      )
+      updateAssociatedLicences({
+        data: updatedData,
+        licenceId: licence.data.id,
+      })
     );
-  }
+  };
 
   const onAssociateCallback = (data) => {
-    console.log("onAssociateCallback");
-    console.log(data);
     const confirmData = data.map((x) => {
       return {
         parentLicenceId: licence.data.id,
@@ -116,7 +91,6 @@ export default function AssociatedLicences({ licence }) {
         childLicenceType: x.licenceType,
       };
     });
-    console.log(confirmData);
 
     dispatch(
       openModal(
@@ -168,29 +142,23 @@ export default function AssociatedLicences({ licence }) {
     );
   };
 
-  const onConfirmAssociateCallback = (data) => {
-    let updatedData = [...data];
-    // Add the inverse data so both associations get created
-    for (let i = 0; i < data.length; ++i) {
-      updatedData.push({
-        parentLicenceId: data[i].childLicenceId,
-        childLicenceId: data[i].parentLicenceId,
-      });
-    }
+  function associatedLicenceOnClick() {
     dispatch(
-      updateAssociatedLicences({
-        data: updatedData,
-        licenceId: licence.data.id,
-      })
+      openModal(
+        LICENCE_SEARCH,
+        onAssociateCallback,
+        { licenceTypeId: licence.data.licenceTypeId },
+        "lg"
+      )
     );
-  };
+  }
 
   const onDeleteCallback = (data) => {
     const deleteData = {
       parentLicenceId: licence.data.id,
       childLicenceId: data.id,
     };
-    console.log(deleteData);
+
     dispatch(
       deleteAssociatedLicences({ data: deleteData, licenceId: licence.data.id })
     );
@@ -242,6 +210,28 @@ export default function AssociatedLicences({ licence }) {
         },
         "lg"
       )
+    );
+  }
+
+  function formatResultRow(result) {
+    const url = `${LICENSES_PATHNAME}/${result.id}`;
+    return (
+      <tr key={result.id}>
+        <td className="text-nowrap">
+          <Link to={url}>{result.licenceNumber}</Link>
+        </td>
+        <td className="text-nowrap">{result.licenceType}</td>
+        <td className="text-nowrap">{formatDateString(result.issuedOnDate)}</td>
+        <td className="text-nowrap">{result.registrants[0].label}</td>
+        <td>
+          <Button
+            variant="link"
+            onClick={() => unassociatedLicenceOnClick(result)}
+          >
+            Remove
+          </Button>
+        </td>
+      </tr>
     );
   }
 
@@ -308,7 +298,7 @@ export default function AssociatedLicences({ licence }) {
               <th className="text-nowrap">Licence Type</th>
               <th className="text-nowrap">Issued On</th>
               <th className="text-nowrap">Registrant</th>
-              <th></th>
+              <th />
             </tr>
           </thead>
           <tbody>{results.data.map((result) => formatResultRow(result))}</tbody>

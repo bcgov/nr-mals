@@ -1,9 +1,6 @@
-/* eslint-disable */
-import React, { useEffect } from "react";
-import PropTypes from "prop-types";
-import { useDispatch, useSelector } from "react-redux";
+import React from "react";
 import { useForm } from "react-hook-form";
-import { Container, Form, Col, InputGroup, Button } from "react-bootstrap";
+import { Container, Form } from "react-bootstrap";
 
 import PageHeading from "../../components/PageHeading";
 
@@ -40,7 +37,7 @@ export default function AdminConfig() {
           defaultValue={null}
           style={{ width: 300 }}
         >
-          <option value={null}></option>
+          <option value={null} />
           <option value={ADMIN_CONFIG_OPTIONS.MANAGE_USERS}>
             Manage Users
           </option>

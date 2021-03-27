@@ -1,18 +1,14 @@
-/* eslint-disable */
 import React from "react";
 import PropTypes from "prop-types";
 import { Row, Col } from "react-bootstrap";
 
 import {
   formatDateString,
-  formatMoney,
   formatMoneyString,
   formatPhoneNumber,
 } from "../../utilities/formatting.ts";
 
 import VerticalField from "../../components/VerticalField";
-
-import { getLicenceTypeConfiguration } from "./licenceTypeUtility";
 
 export default function BondInformationView({ licence }) {
   return (

@@ -1,8 +1,7 @@
-/* eslint-disable */
 import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useParams, Redirect } from "react-router-dom";
-import { Spinner, Alert, Container, Button } from "react-bootstrap";
+import { Spinner, Alert } from "react-bootstrap";
 
 import { REQUEST_STATUS, SITES_PATHNAME } from "../../utilities/constants";
 
