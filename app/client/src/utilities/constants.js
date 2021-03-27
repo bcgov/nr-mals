@@ -22,6 +22,7 @@ export const SELECT_CERTIFICATES_PATHNAME = "/documents/certificates";
 export const DOWNLOAD_CERTIFICATES_PATHNAME =
   "/documents/certificates/download";
 export const ADMIN_PATHNAME = "/admin";
+export const ADMIN_CONFIG_PATHNAME = "/admin/config";
 export const USERS_AND_ROLES_ADMIN_PATHNAME = "/admin/users-and-roles";
 export const LICENSE_TYPES_ADMIN_PATHNAME = "/admin/license-types";
 export const SITES_ADMIN_PATHNAME = "/admin/sites";
@@ -108,4 +109,15 @@ export const SPECIES_SUBCODES = {
   SLAUGHTERED: "SLAUGHTERED",
   CALVES: "CALVES",
   TAG: "TAG",
+};
+
+export const ADMIN_CONFIG_OPTIONS = {
+  MANAGE_USERS: "ManageUsers",
+};
+
+export const SYSTEM_ROLES = {
+  SYSTEM_ADMIN: 1,
+  INSPECTOR: 2,
+  USER: 3,
+  READ_ONLY: 4,
 };

@@ -23,6 +23,8 @@ import SiteResultsPage from "./features/search/SiteResultsPage";
 
 import ViewSitePage from "./features/sites/ViewSitePage";
 
+import AdminConfig from "./features/admin/AdminConfig";
+
 import ModalComponent from "./components/ModalComponent";
 
 import "./App.scss";
@@ -89,20 +91,8 @@ function App() {
             <Route path={`${Constant.SELECT_CERTIFICATES_PATHNAME}`}>
               <SelectCertificatesPage />
             </Route>
-            <Route path={`${Constant.USERS_AND_ROLES_ADMIN_PATHNAME}`}>
-              <UsersAndRoles />
-            </Route>
-            <Route path={`${Constant.LICENSE_TYPES_ADMIN_PATHNAME}`}>
-              <LicenseTypes />
-            </Route>
-            <Route path={`${Constant.SITES_ADMIN_PATHNAME}`}>
-              <Sites />
-            </Route>
-            <Route path={`${Constant.INSPECTIONS_ADMIN_PATHNAME}`}>
-              <Inspections />
-            </Route>
-            <Route path={`${Constant.DAIRY_TEST_RESULTS_ADMIN_PATHNAME}`}>
-              <DairyTestResults />
+            <Route path={`${Constant.ADMIN_CONFIG_PATHNAME}`}>
+              <AdminConfig />
             </Route>
             <Route path="/">
               <Redirect to={`${Constant.SEARCH_LICENSES_PATHNAME}`} />
@@ -118,14 +108,6 @@ function RegistrantsSearch() {
   return <h2>Search Registrants</h2>;
 }
 
-function SitesSearch() {
-  return <h2>Search Sites</h2>;
-}
-
-function SitesCreate() {
-  return <h2>Create Site</h2>;
-}
-
 function ContactsCreate() {
   return <h2>Create Contact</h2>;
 }
@@ -136,26 +118,6 @@ function InspectionsSearch() {
 
 function InspectionsCreate() {
   return <h2>Create Inspection</h2>;
-}
-
-function UsersAndRoles() {
-  return <h2>Users and Roles</h2>;
-}
-
-function LicenseTypes() {
-  return <h2>License Types</h2>;
-}
-
-function Sites() {
-  return <h2>Sites</h2>;
-}
-
-function Inspections() {
-  return <h2>Inspections</h2>;
-}
-
-function DairyTestResults() {
-  return <h2>Dairy Test Results</h2>;
 }
 
 function Notices() {

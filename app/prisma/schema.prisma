@@ -97,6 +97,7 @@ model mal_licence {
   mal_regional_district_lu                                                                   mal_regional_district_lu?       @relation(fields: [regional_district_id], references: [id])
   mal_licence_species_code_lu                                                                mal_licence_species_code_lu?    @relation(fields: [species_code_id], references: [id])
   mal_status_code_lu                                                                         mal_status_code_lu              @relation(fields: [status_code_id], references: [id])
+  mal_dairy_farm_test_result                                                                 mal_dairy_farm_test_result[]
   mal_fur_farm_inventory                                                                     mal_fur_farm_inventory[]
   mal_game_farm_inventory                                                                    mal_game_farm_inventory[]
   mal_licence_comment                                                                        mal_licence_comment[]
@@ -291,6 +292,7 @@ model mal_dairy_farm_species_code_lu {
   update_userid                      String                               @db.VarChar(63)
   update_timestamp                   DateTime                             @db.Timestamp(6)
   mal_dairy_farm_species_sub_code_lu mal_dairy_farm_species_sub_code_lu[]
+  mal_dairy_farm_test_result         mal_dairy_farm_test_result[]
 }
 
 model mal_dairy_farm_species_sub_code_lu {
@@ -304,6 +306,7 @@ model mal_dairy_farm_species_sub_code_lu {
   update_userid                  String                         @db.VarChar(63)
   update_timestamp               DateTime                       @db.Timestamp(6)
   mal_dairy_farm_species_code_lu mal_dairy_farm_species_code_lu @relation(fields: [species_code_id], references: [id])
+  mal_dairy_farm_test_result     mal_dairy_farm_test_result[]
 
   @@unique([species_code_id, code_name], name: "mal_dfssc_id_code_uk")
 }
@@ -482,6 +485,119 @@ model mal_licence_type_parent_child_xref {
   mal_licence_type_lu_mal_licence_type_luTomal_licence_type_parent_child_xref_parent_licence_type_id mal_licence_type_lu @relation("mal_licence_type_luTomal_licence_type_parent_child_xref_parent_licence_type_id", fields: [parent_licence_type_id], references: [id])
 
   @@unique([parent_licence_type_id, child_licence_type_id], name: "mal_lictypprntchld_uk")
+}
+
+model mal_application_role {
+  id                   Int                    @id @default(autoincrement())
+  role_name            String                 @unique @db.VarChar(50)
+  role_description     String                 @db.VarChar(120)
+  active_flag          Boolean
+  create_userid        String                 @db.VarChar(63)
+  create_timestamp     DateTime               @db.Timestamp(6)
+  update_userid        String                 @db.VarChar(63)
+  update_timestamp     DateTime               @db.Timestamp(6)
+  mal_application_user mal_application_user[]
+}
+
+model mal_application_user {
+  id                   Int                   @id @default(autoincrement())
+  application_role_id  Int?
+  user_name            String                @unique @db.VarChar(50)
+  surname              String                @db.VarChar(50)
+  given_name_1         String                @db.VarChar(50)
+  given_name_2         String?               @db.VarChar(50)
+  given_name_3         String?               @db.VarChar(50)
+  active_flag          Boolean
+  create_userid        String                @db.VarChar(63)
+  create_timestamp     DateTime              @db.Timestamp(6)
+  update_userid        String                @db.VarChar(63)
+  update_timestamp     DateTime              @db.Timestamp(6)
+  mal_application_role mal_application_role? @relation(fields: [application_role_id], references: [id])
+}
+
+model mal_dairy_farm_test_infraction_lu {
+  id                              Int      @id @default(autoincrement())
+  species_code                    String   @db.VarChar(50)
+  species_sub_code                String   @db.VarChar(50)
+  upper_limit                     Decimal  @db.Decimal(10, 2)
+  previous_infractions_date_range String   @db.VarChar(30)
+  previous_infractions_count      Int
+  levy_percentage                 Int?
+  correspondence_code             String   @db.VarChar(50)
+  correspondence__description     String   @db.VarChar(120)
+  active_flag                     Boolean
+  create_userid                   String   @db.VarChar(30)
+  create_timestamp                DateTime @db.Timestamp(6)
+  update_userid                   String   @db.VarChar(30)
+  update_timestamp                DateTime @db.Timestamp(6)
+}
+
+model mal_dairy_farm_test_job {
+  id                             Int                              @id @default(autoincrement())
+  job_status                     String?                          @db.VarChar(30)
+  execution_start_time           DateTime                         @db.Timestamp(6)
+  execution_end_time             DateTime?                        @db.Timestamp(6)
+  source_data_row_count          Int?
+  target_table_insert_count      Int?
+  target_table_error_count       Int?
+  create_userid                  String                           @db.VarChar(63)
+  create_timestamp               DateTime                         @db.Timestamp(6)
+  update_userid                  String                           @db.VarChar(63)
+  update_timestamp               DateTime                         @db.Timestamp(6)
+  mal_dairy_farm_test_job_detail mal_dairy_farm_test_job_detail[]
+}
+
+model mal_dairy_farm_test_job_detail {
+  id                      Int                     @id @default(autoincrement())
+  print_job_id            Int
+  irma_number             String?                 @db.VarChar(5)
+  plant_code              String?                 @db.VarChar(2)
+  test_month              Int?
+  test_year               Int?
+  spc1_day                Int?
+  spc1_value              Decimal?                @db.Decimal(8, 2)
+  scc_day                 Int?
+  scc_value               Decimal?                @db.Decimal(8, 2)
+  cry_day                 Int?
+  cry_value               Decimal?                @db.Decimal(8, 2)
+  ffa_day                 Int?
+  ffa_value               Decimal?                @db.Decimal(8, 2)
+  ih_day                  Int?
+  ih_value                Decimal?                @db.Decimal(8, 2)
+  create_userid           String                  @db.VarChar(63)
+  create_timestamp        DateTime                @db.Timestamp(6)
+  update_userid           String                  @db.VarChar(63)
+  update_timestamp        DateTime                @db.Timestamp(6)
+  mal_dairy_farm_test_job mal_dairy_farm_test_job @relation(fields: [print_job_id], references: [id])
+}
+
+model mal_dairy_farm_test_result {
+  id                                 Int                                @id @default(autoincrement())
+  licence_id                         Int
+  test_infraction_id                 Int
+  species_code_id                    Int
+  species_sub_code_id                Int
+  irma_number                        String                             @db.VarChar(10)
+  recorded_date                      DateTime                           @db.Timestamp(6)
+  recorded_value                     Decimal                            @db.Decimal(11, 3)
+  threshold_limit                    Int
+  previous_range                     String                             @db.VarChar(30)
+  infraction_flag                    Boolean
+  levy_code                          Int?
+  levy_percentage                    Int?
+  action_code_id                     Int?
+  create_userid                      String                             @db.VarChar(30)
+  create_timestamp                   DateTime                           @db.Timestamp(6)
+  update_userid                      String                             @db.VarChar(30)
+  update_timestamp                   DateTime                           @db.Timestamp(6)
+  mal_licence                        mal_licence                        @relation(fields: [licence_id], references: [id])
+  mal_dairy_farm_species_code_lu     mal_dairy_farm_species_code_lu     @relation(fields: [species_code_id], references: [id])
+  mal_dairy_farm_species_sub_code_lu mal_dairy_farm_species_sub_code_lu @relation(fields: [species_sub_code_id], references: [id])
+
+  @@index([licence_id], name: "mal_dryfrmtstrslt_licence_id_idx")
+  @@index([species_code_id], name: "mal_dryfrmtstrslt_species_code_id_idx")
+  @@index([species_sub_code_id], name: "mal_dryfrmtstrslt_species_sub_code_id_idx")
+  @@index([test_infraction_id], name: "mal_dryfrmtstrslt_test_infraction_id_idx")
 }
 
 model mal_licence_summary_vw {

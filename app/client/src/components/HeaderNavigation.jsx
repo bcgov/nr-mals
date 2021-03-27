@@ -89,25 +89,11 @@ function HeaderNavigation() {
               </HeaderDropdown>
               <HeaderDropdown
                 id="admin-dropdown"
-                title="System Admin"
+                title="Administration"
                 pathPrefix={Constant.ADMIN_PATHNAME}
               >
-                <DropdownNavLink to={Constant.USERS_AND_ROLES_ADMIN_PATHNAME}>
-                  Users and Roles
-                </DropdownNavLink>
-                <DropdownNavLink to={Constant.LICENSE_TYPES_ADMIN_PATHNAME}>
-                  License Types
-                </DropdownNavLink>
-                <DropdownNavLink to={Constant.SITES_ADMIN_PATHNAME}>
-                  Sites
-                </DropdownNavLink>
-                <DropdownNavLink to={Constant.INSPECTIONS_ADMIN_PATHNAME}>
-                  Inspections
-                </DropdownNavLink>
-                <DropdownNavLink
-                  to={Constant.DAIRY_TEST_RESULTS_ADMIN_PATHNAME}
-                >
-                  Dairy Test Results
+                <DropdownNavLink to={Constant.ADMIN_CONFIG_PATHNAME}>
+                  Configuration
                 </DropdownNavLink>
               </HeaderDropdown>
             </Nav>
