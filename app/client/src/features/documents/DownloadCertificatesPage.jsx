@@ -1,3 +1,5 @@
+/* eslint-disable */
+
 import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Container, Button, ProgressBar } from "react-bootstrap";
@@ -15,7 +17,8 @@ import PageHeading from "../../components/PageHeading";
 import {
   selectCertificateJob,
   fetchCertificateJob,
-  generateCertificates,
+  generateCertificate,
+  completeCertificateJob,
 } from "./certificatesSlice";
 
 async function download(jobId) {
@@ -57,41 +60,21 @@ export default function DownloadCertificatesPage() {
 
   const dispatch = useDispatch();
 
-  const jobExists = job.id !== undefined;
   const jobInProgress =
     jobDetails?.completedDocumentCount === undefined ||
     jobDetails?.completedDocumentCount < jobDetails?.totalDocumentCount;
 
-  useInterval(
-    () => {
-      dispatch(fetchCertificateJob());
-    },
-    jobExists && jobInProgress ? 2000 : null
-  );
-
-  useInterval(
-    () => {
-      dispatch(fetchCertificateJob());
-      if (pendingDocuments?.length > 0) {
-        dispatch(
-          generateCertificates(
-            pendingDocuments.map((document) => document.documentId)
-          )
-        );
-      }
-    },
-    pendingDocuments?.length > 0 ? 10000 : null
-  );
-
   useEffect(() => {
-    if (job.id && pendingDocuments?.length > 0) {
-      dispatch(
-        generateCertificates(
-          pendingDocuments.map((document) => document.documentId)
-        )
-      );
+    if (job.id) {
+      dispatch(fetchCertificateJob());
+
+      if (pendingDocuments?.length > 0) {
+        dispatch(generateCertificate(pendingDocuments[0].documentId));
+      } else {
+        dispatch(completeCertificateJob(job.id));
+      }
     }
-  }, [job.id]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [pendingDocuments]); // eslint-disable-line react-hooks/exhaustive-deps
 
   let content = null;
 
