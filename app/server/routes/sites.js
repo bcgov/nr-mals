@@ -127,8 +127,6 @@ async function findSitesByLicenceId(licenceId) {
       mal_dairy_farm_tank: true,
       mal_licence: true,
     },
-    skip,
-    take,
   });
 }
 

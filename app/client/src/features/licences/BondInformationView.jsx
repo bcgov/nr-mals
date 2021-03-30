@@ -1,17 +1,14 @@
-/* eslint-disable */
 import React from "react";
 import PropTypes from "prop-types";
 import { Row, Col } from "react-bootstrap";
 
 import {
   formatDateString,
-  formatMoney,
+  formatMoneyString,
   formatPhoneNumber,
 } from "../../utilities/formatting.ts";
 
 import VerticalField from "../../components/VerticalField";
-
-import { getLicenceTypeConfiguration } from "./licenceTypeUtility";
 
 export default function BondInformationView({ licence }) {
   return (
@@ -22,7 +19,10 @@ export default function BondInformationView({ licence }) {
         </Col>
         <Col lg={2} />
         <Col lg={4}>
-          <VerticalField label="Value" value={formatMoney(licence.bondValue)} />
+          <VerticalField
+            label="Value"
+            value={formatMoneyString(licence.bondValue)}
+          />
         </Col>
         <Col lg={2} />
       </Row>

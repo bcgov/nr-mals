@@ -1,4 +1,3 @@
-/* eslint-disable */
 import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Link, Redirect, useHistory } from "react-router-dom";
@@ -42,6 +41,7 @@ import {
 } from "./licencesSlice";
 
 import { fetchLicenceSpecies } from "../lookups/licenceSpeciesSlice";
+import { fetchCities } from "../lookups/citiesSlice";
 
 import {
   LICENCE_TYPE_ID_APIARY,
@@ -152,6 +152,7 @@ export default function CreateLicencePage() {
     dispatch(fetchRegions());
     dispatch(fetchLicenceStatuses());
     dispatch(fetchLicenceSpecies());
+    dispatch(fetchCities());
   }, [dispatch]);
 
   const form = useForm({
@@ -190,7 +191,7 @@ export default function CreateLicencePage() {
     LICENCE_TYPE_ID_LIVESTOCK_DEALER,
   ];
   const showBondInformation =
-    REQUIRES_BOND_INFORMATION.find((x) => x == watchLicenceType) !== undefined;
+    REQUIRES_BOND_INFORMATION.find((x) => x === watchLicenceType) !== undefined;
 
   // set default expiry date differently based on the selected licence type
   useEffect(() => {

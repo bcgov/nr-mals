@@ -31,6 +31,8 @@ import {
   REQUEST_STATUS,
   LICENCE_STATUS_TYPES,
   SITES_PATHNAME,
+  COUNTRIES,
+  PROVINCES,
 } from "../../utilities/constants";
 
 function formatResultRow(result) {
@@ -78,6 +80,8 @@ export default function LicenceSites({ licence }) {
       siteStatus: licenceStatuses.data.find(
         (x) => x.code_description === LICENCE_STATUS_TYPES.ACTIVE
       ).id,
+      country: COUNTRIES.CANADA,
+      province: PROVINCES.BC,
       region: null,
       regionalDistrict: null,
     };

@@ -1,4 +1,3 @@
-/* eslint-disable */
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { useSelector, useDispatch } from "react-redux";
@@ -9,7 +8,6 @@ import { Button, Form, Col, InputGroup } from "react-bootstrap";
 import {
   LICENCE_MODE,
   ADDRESS_TYPES,
-  PHONE_NUMBER_TYPES,
   REQUEST_STATUS,
 } from "../../utilities/constants";
 import { parseAsInt } from "../../utilities/parsing";
@@ -28,8 +26,8 @@ import RegionalDistricts from "../lookups/RegionalDistricts";
 import { getLicenceTypeConfiguration } from "./licenceTypeUtility";
 import { formatIrmaNumber } from "./irmaNumberUtility";
 
-import { ADDRESS, AddressModal } from "../../modals/AddressModal";
-import { PHONE, PhoneNumberModal } from "../../modals/PhoneNumberModal";
+import { ADDRESS } from "../../modals/AddressModal";
+import { PHONE } from "../../modals/PhoneNumberModal";
 
 import { openModal } from "../../app/appSlice";
 
@@ -45,6 +43,7 @@ import { selectLicenceSpecies } from "../lookups/licenceSpeciesSlice";
 export default function LicenceDetailsEdit({
   form,
   initialValues,
+  licence,
   licenceTypeId,
   mode,
 }) {
@@ -198,7 +197,7 @@ export default function LicenceDetailsEdit({
   const watchRegion = watch("region", null);
   const parsedRegion = parseAsInt(watchRegion);
 
-  const watchLicenceType = parseAsInt(watch("licenceType"));
+  const watchLicenceType = parseAsInt(watch("licenceType", licenceTypeId));
 
   const config = getLicenceTypeConfiguration(licenceTypeId);
 
@@ -248,12 +247,13 @@ export default function LicenceDetailsEdit({
 
   let speciesDropdown = null;
   if (
-    mode === LICENCE_MODE.CREATE &&
     licenceSpecies.status === REQUEST_STATUS.FULFILLED &&
     (watchLicenceType === LICENCE_TYPE_ID_GAME_FARM ||
-      watchLicenceType === LICENCE_TYPE_ID_FUR_FARM)
+      watchLicenceType === LICENCE_TYPE_ID_FUR_FARM) &&
+    (mode === LICENCE_MODE.CREATE ||
+      (mode === LICENCE_MODE.EDIT && licence.speciesCodeId === null))
   ) {
-    let filteredSpecies = licenceSpecies.data.species.filter(
+    const filteredSpecies = licenceSpecies.data.species.filter(
       (x) => x.licenceTypeId === watchLicenceType
     );
 
@@ -267,7 +267,7 @@ export default function LicenceDetailsEdit({
           <Form.Label>Species Type</Form.Label>
           <Species
             species={filter}
-            name={`speciesCodeId`}
+            name="speciesCodeId"
             defaultValue={licenceSpecies.data.species[0].id}
             ref={register({
               required: true,
@@ -371,7 +371,7 @@ export default function LicenceDetailsEdit({
               >
                 {addresses.map((x) => (
                   <option key={x.key} value={x.key}>
-                    {x.addressType} ({x.addressLine1})
+                    {x.addressType} ({x.addressLine1}, {x.city})
                   </option>
                 ))}
               </Form.Control>
@@ -484,7 +484,7 @@ export default function LicenceDetailsEdit({
           </Col>
         </Form.Row>
       )}
-      <Form.Row>
+      {/* <Form.Row>
         <Col lg={4}>
           <Form.Group controlId="actionRequired">
             <CustomCheckBox
@@ -512,7 +512,7 @@ export default function LicenceDetailsEdit({
             />
           </Form.Group>
         </Col>
-      </Form.Row>
+      </Form.Row> */}
     </>
   );
 }
@@ -520,10 +520,12 @@ export default function LicenceDetailsEdit({
 LicenceDetailsEdit.propTypes = {
   form: PropTypes.object.isRequired,
   initialValues: PropTypes.object.isRequired,
+  licence: PropTypes.object,
   licenceTypeId: PropTypes.number,
   mode: PropTypes.string.isRequired,
 };
 
 LicenceDetailsEdit.defaultProps = {
+  licence: undefined,
   licenceTypeId: undefined,
 };

@@ -1,20 +1,8 @@
-/* eslint-disable */
 import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useForm } from "react-hook-form";
 import PropTypes from "prop-types";
-import { Link } from "react-router-dom";
-import {
-  Alert,
-  Container,
-  Form,
-  Spinner,
-  Table,
-  Row,
-  Col,
-  Button,
-  ButtonGroup,
-} from "react-bootstrap";
+import { Alert, Container, Form, Row, Col, Button } from "react-bootstrap";
 
 import CustomDatePicker from "../../components/CustomDatePicker";
 import { parseAsDate, parseAsInt, parseAsFloat } from "../../utilities/parsing";
@@ -30,12 +18,7 @@ import Species from "../lookups/Species";
 import SubSpecies from "../lookups/SubSpecies";
 
 import { REQUEST_STATUS, SPECIES_SUBCODES } from "../../utilities/constants";
-import { formatDate, formatDateString } from "../../utilities/formatting";
-
-import {
-  LICENCE_TYPE_ID_GAME_FARM,
-  LICENCE_TYPE_ID_FUR_FARM,
-} from "./constants";
+import { formatDate } from "../../utilities/formatting.ts";
 
 export default function LicenceInventory({ licence }) {
   const dispatch = useDispatch();
@@ -43,7 +26,7 @@ export default function LicenceInventory({ licence }) {
 
   const licenceSpecies = useSelector(selectLicenceSpecies);
 
-  const [initialInventory, setInitialInventory] = useState([]);
+  const initialInventory = [];
   const [inventory, setInventory] = useState([]);
 
   const submitting = currentLicence.status === REQUEST_STATUS.PENDING;
@@ -54,51 +37,70 @@ export default function LicenceInventory({ licence }) {
     reValidateMode: "onBlur",
   });
 
-  const {
-    handleSubmit,
-    setError,
-    clearErrors,
-    setValue,
-    getValues,
-    watch,
-    register,
-  } = form;
+  const { handleSubmit, setValue, getValues, register } = form;
 
   useEffect(() => {
-    switch (licence.data.licenceTypeId) {
-      case LICENCE_TYPE_ID_GAME_FARM:
-        dispatch(fetchLicenceSpecies());
-        break;
-      case LICENCE_TYPE_ID_FUR_FARM:
-        dispatch(fetchLicenceSpecies());
-        break;
-      default:
-        break;
-    }
+    dispatch(fetchLicenceSpecies());
 
     // Set initial dates in form because DatePicker doesnt do this
-    initialInventory.map((x, index) => {
+    initialInventory.forEach((x, index) => {
       setValue(`inventoryDates[${index}].date`, parseAsDate(x.date));
     });
   }, [dispatch]);
+
+  const calculateInventoryTotal = () => {
+    // Total = Most Recent Year Value for MALE + Most Recent Year Value for FEMALE
+    let total = 0;
+
+    if (licenceSpecies.status === REQUEST_STATUS.FULFILLED) {
+      // eslint-disable-next-line
+      const recentYear = Math.max.apply(
+        Math,
+        // eslint-disable-next-line
+        inventory.map(function (o, index) {
+          return getValues(`inventoryDates[${index}].date`).getFullYear();
+        })
+      );
+
+      inventory.forEach((x, index) => {
+        const year = getValues(`inventoryDates[${index}].date`).getFullYear();
+        const value = getValues(`inventory[${index}].value`);
+        const parsed = parseAsInt(value);
+
+        if (year === recentYear) {
+          const MALE_ID = licenceSpecies.data.subSpecies.find(
+            (sp) =>
+              sp.codeName === SPECIES_SUBCODES.MALE &&
+              sp.speciesCodeId === x.speciesCodeId
+          )?.id;
+          const FEMALE_ID = licenceSpecies.data.subSpecies.find(
+            (sp) =>
+              sp.codeName === SPECIES_SUBCODES.FEMALE &&
+              sp.speciesCodeId === x.speciesCodeId
+          )?.id;
+
+          if (
+            x.speciesSubCodeId === MALE_ID ||
+            x.speciesSubCodeId === FEMALE_ID
+          ) {
+            total += parsed;
+          }
+        }
+      });
+    }
+
+    setValue("inventoryTotalValue", total);
+    setValue("inventoryTotalValueDisplay", total);
+
+    return total;
+  };
 
   useEffect(() => {
     calculateInventoryTotal();
   }, [inventory]);
 
-  function getSpeciesData() {
-    switch (licence.data.licenceTypeId) {
-      case LICENCE_TYPE_ID_GAME_FARM:
-        return licenceSpecies;
-      case LICENCE_TYPE_ID_FUR_FARM:
-        return licenceSpecies;
-      default:
-        return null;
-    }
-  }
-
   function addInventoryOnClick() {
-    const speciesData = getSpeciesData();
+    const speciesData = licenceSpecies;
     const obj = {
       id: -1,
       speciesCodeId: licence.data.speciesCodeId,
@@ -129,7 +131,7 @@ export default function LicenceInventory({ licence }) {
 
   function deleteRow(index) {
     // Shift all the form values
-    for (let i = index; i < inventory.length - 1; ++i) {
+    for (let i = index; i < inventory.length - 1; i += 1) {
       setValue(`inventory[${i}]`, inventory[i + 1]);
     }
 
@@ -154,30 +156,20 @@ export default function LicenceInventory({ licence }) {
 
     const payload = {
       inventory: formattedRows,
-      totalValue: parseInt(data.inventoryTotalValue),
+      totalValue: parseAsInt(data.inventoryTotalValue),
     };
 
     dispatch(
       updateLicenceInventory({ inventory: payload, id: licence.data.id })
-    )
-      .then(() => {
-        resetInventoryOnClick();
-      })
-      .catch((err) => {});
-  };
-
-  const handleSpeciesChange = (index, value) => {
-    const clone = [...inventory];
-    const item = { ...inventory[index] };
-    item.speciesCodeId = parseInt(value);
-    clone[index] = item;
-    setInventory([...clone]);
+    ).then(() => {
+      resetInventoryOnClick();
+    });
   };
 
   const handleSubSpeciesChange = (field, index, value) => {
     const clone = [...inventory];
     const item = { ...inventory[index] };
-    item.speciesSubCodeId = parseInt(value);
+    item.speciesSubCodeId = parseAsInt(value);
     clone[index] = item;
     setInventory([...clone]);
 
@@ -204,51 +196,6 @@ export default function LicenceInventory({ licence }) {
     };
   };
 
-  const calculateInventoryTotal = () => {
-    // Total = Most Recent Year Value for MALE + Most Recent Year Value for FEMALE
-    let total = 0;
-
-    if (getSpeciesData().status == REQUEST_STATUS.FULFILLED) {
-      const recentYear = Math.max.apply(
-        Math,
-        inventory.map(function (o, index) {
-          return getValues(`inventoryDates[${index}].date`).getFullYear();
-        })
-      );
-
-      inventory.map((x, index) => {
-        const year = getValues(`inventoryDates[${index}].date`).getFullYear();
-        const value = getValues(`inventory[${index}].value`);
-        const parsed = parseAsInt(value);
-
-        if (year === recentYear) {
-          const MALE_ID = getSpeciesData().data.subSpecies.find(
-            (sp) =>
-              sp.codeName === SPECIES_SUBCODES.MALE &&
-              sp.speciesCodeId == x.speciesCodeId
-          )?.id;
-          const FEMALE_ID = getSpeciesData().data.subSpecies.find(
-            (sp) =>
-              sp.codeName === SPECIES_SUBCODES.FEMALE &&
-              sp.speciesCodeId == x.speciesCodeId
-          )?.id;
-
-          if (
-            x.speciesSubCodeId === MALE_ID ||
-            x.speciesSubCodeId === FEMALE_ID
-          ) {
-            total += parsed;
-          }
-        }
-      });
-    }
-
-    setValue("inventoryTotalValue", total);
-    setValue("inventoryTotalValueDisplay", total);
-
-    return total;
-  };
-
   return (
     <>
       <SectionHeading>Inventory</SectionHeading>
@@ -273,11 +220,11 @@ export default function LicenceInventory({ licence }) {
                 />
                 <Col>
                   <Species
-                    species={getSpeciesData()}
+                    species={licenceSpecies}
                     name={`inventory[${index}].speciesCodeId`}
                     defaultValue={x.speciesCodeId}
                     ref={register}
-                    readOnly={true}
+                    readOnly
                   />
                 </Col>
                 <Col>
@@ -294,7 +241,7 @@ export default function LicenceInventory({ licence }) {
                 </Col>
                 <Col>
                   <SubSpecies
-                    subspecies={getSpeciesData()}
+                    subspecies={licenceSpecies}
                     speciesId={x.speciesCodeId}
                     name={`inventory[${index}].speciesSubCodeId`}
                     value={x.speciesSubCodeId}
@@ -363,7 +310,7 @@ export default function LicenceInventory({ licence }) {
                 type="button"
                 variant="secondary"
                 onClick={addInventoryOnClick}
-                disabled={submitting}
+                disabled={submitting || licence.data.speciesCodeId === null}
                 block
               >
                 Add Inventory
