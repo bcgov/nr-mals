@@ -12,8 +12,10 @@ const sitesRouter = require("./routes/sites");
 const regionalDistrictsRouter = require("./routes/regionalDistricts");
 const regionsRouter = require("./routes/regions");
 const statusRouter = require("./routes/status");
-const cdogsRouter = require("./routes/cdogs");
 const commentsRouter = require("./routes/comments");
+const licenceSpeciesRouter = require("./routes/licenceSpecies");
+const documentsRouter = require("./routes/documents");
+const citiesRouter = require("./routes/cities");
 
 const app = express();
 
@@ -29,14 +31,19 @@ app.use("/api/sites", sitesRouter);
 app.use("/api/regional-districts", regionalDistrictsRouter);
 app.use("/api/regions", regionsRouter);
 app.use("/api/status", statusRouter);
-app.use("/api/cdogs", cdogsRouter);
 app.use("/api/comments", commentsRouter.router);
+app.use("/api/licence-species", licenceSpeciesRouter);
+app.use("/api/documents", documentsRouter);
+app.use("/api/cities", citiesRouter);
 app.use("/api/*", (req, res) => {
   res.status(404).send({
     code: 404,
     description: "The requested endpoint could not be found.",
   });
 });
+
+// serve static files
+app.use(express.static("static"));
 
 // serve client
 app.use(express.static(path.join(__dirname, "../client/build")));

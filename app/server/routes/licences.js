@@ -7,7 +7,9 @@ const {
 const licence = require("../models/licence");
 const registrant = require("../models/registrant");
 const comment = require("../models/comment");
+const inventory = require("../models/inventory");
 const comments = require("./comments");
+const constants = require("../utilities/constants");
 
 const router = express.Router();
 const prisma = new PrismaClient();
@@ -33,6 +35,8 @@ async function findLicence(licenceId) {
           mal_registrant: true,
         },
       },
+      mal_game_farm_inventory: true,
+      mal_fur_farm_inventory: true,
     },
   });
 }
@@ -129,6 +133,22 @@ function getSearchFilter(params) {
   return filter;
 }
 
+function getInventoryHistorySearchFilter(params) {
+  let filter = {};
+  const andArray = [];
+
+  const licenceId = parseInt(params.licenceId, 10);
+  if (!Number.isNaN(licenceId)) {
+    andArray.push({ licence_id: licenceId });
+  }
+
+  filter = {
+    AND: andArray,
+  };
+
+  return filter;
+}
+
 async function countLicences(params) {
   const filter = getSearchFilter(params);
   return prisma.mal_licence_summary_vw.count({
@@ -143,6 +163,56 @@ async function findLicences(params, skip, take) {
     skip,
     take,
   });
+}
+
+async function countInventoryHistory(params) {
+  const filter = getInventoryHistorySearchFilter(params);
+  switch (parseInt(params.licenceTypeId)) {
+    case constants.LICENCE_TYPE_ID_GAME_FARM: {
+      return prisma.mal_game_farm_inventory.count({
+        where: filter,
+      });
+    }
+    case constants.LICENCE_TYPE_ID_FUR_FARM: {
+      return prisma.mal_fur_farm_inventory.count({
+        where: filter,
+      });
+    }
+    default:
+      return null;
+  }
+}
+
+async function findInventoryHistory(params, skip, take) {
+  const filter = getInventoryHistorySearchFilter(params);
+  switch (parseInt(params.licenceTypeId)) {
+    case constants.LICENCE_TYPE_ID_GAME_FARM: {
+      return prisma.mal_game_farm_inventory.findMany({
+        where: filter,
+        skip,
+        take,
+        orderBy: [
+          {
+            recorded_date: "desc",
+          },
+        ],
+      });
+    }
+    case constants.LICENCE_TYPE_ID_FUR_FARM: {
+      return prisma.mal_fur_farm_inventory.findMany({
+        where: filter,
+        skip,
+        take,
+        orderBy: [
+          {
+            recorded_date: "desc",
+          },
+        ],
+      });
+    }
+    default:
+      return null;
+  }
 }
 
 async function updateLicence(licenceId, payload) {
@@ -161,6 +231,8 @@ async function updateLicence(licenceId, payload) {
           mal_registrant: true,
         },
       },
+      mal_game_farm_inventory: true,
+      mal_fur_farm_inventory: true,
     },
   });
 }
@@ -219,6 +291,50 @@ async function updateRegistrants(licenceId, payloads) {
       return result;
     })
   );
+}
+
+async function createInventory(licenceTypeId, payloads) {
+  return Promise.all(
+    payloads.map(async (payload) => {
+      switch (licenceTypeId) {
+        case constants.LICENCE_TYPE_ID_GAME_FARM: {
+          const result = await prisma.mal_game_farm_inventory.create({
+            data: payload,
+          });
+          return result;
+        }
+        case constants.LICENCE_TYPE_ID_FUR_FARM: {
+          const result = await prisma.mal_fur_farm_inventory.create({
+            data: payload,
+          });
+          return result;
+        }
+        default:
+          return null;
+      }
+    })
+  );
+}
+
+async function deleteInventory(licenceTypeId, id) {
+  switch (licenceTypeId) {
+    case constants.LICENCE_TYPE_ID_GAME_FARM: {
+      return await prisma.mal_game_farm_inventory.delete({
+        where: {
+          id: id,
+        },
+      });
+    }
+    case constants.LICENCE_TYPE_ID_FURFARM: {
+      return await prisma.mal_fur_farm_inventory.delete({
+        where: {
+          id: id,
+        },
+      });
+    }
+    default:
+      return null;
+  }
 }
 
 router.get("/:licenceId(\\d+)", async (req, res, next) => {
@@ -280,6 +396,51 @@ router.get("/search", async (req, res, next) => {
     .finally(async () => prisma.$disconnect());
 });
 
+router.get("/inventoryhistory", async (req, res, next) => {
+  let { page } = req.query;
+  if (page) {
+    page = parseInt(page, 10);
+  } else {
+    page = 1;
+  }
+
+  const size = 20;
+  const skip = (page - 1) * size;
+
+  const params = req.query;
+
+  await findInventoryHistory(params, skip, size)
+    .then(async (records) => {
+      if (records === null) {
+        return res.status(404).send({
+          code: 404,
+          description: "The requested licence could not be found.",
+        });
+      }
+
+      const licence = await findLicence(parseInt(params.licenceId, 10));
+
+      const results = records.map((record) => {
+        return {
+          ...inventory.convertToLogicalModel(record),
+          speciesCodeId: licence.species_code_id,
+        };
+      });
+
+      const count = await countInventoryHistory(params);
+
+      const payload = {
+        results,
+        page,
+        count,
+      };
+
+      return res.send(payload);
+    })
+    .catch(next)
+    .finally(async () => prisma.$disconnect());
+});
+
 router.put("/renew/:licenceId(\\d+)", async (req, res, next) => {
   const licenceId = parseInt(req.params.licenceId, 10);
   const { issueDate, expiryDate } = req.body;
@@ -298,13 +459,17 @@ router.put("/renew/:licenceId(\\d+)", async (req, res, next) => {
       // Update issued and expiry dates
       update.issuedOnDate = issueDate;
       update.expiryDate = expiryDate;
+      if (update.bondContinuationExpiryDate !== null) {
+        update.bondContinuationExpiryDate = new Date(
+          update.bondContinuationExpiryDate
+        );
+      }
 
       // Reset some connect variables for the update
       update.licenceType = update.licenceTypeId;
       update.licenceStatus = update.licenceStatusId;
       update.regionalDistrict = update.regionalDistrictId;
       update.region = update.regionId;
-      update.primaryRegistrantId = update.primary_registrant_id;
 
       const now = new Date();
       const licencePayload = licence.convertToPhysicalModel(
@@ -367,6 +532,13 @@ router.put("/:licenceId(\\d+)/registrants", async (req, res, next) => {
     (r) => r.status === REGISTRANT_STATUS.EXISTING
   );
 
+  const createRegistrantPayloads = registrantsToCreate.map((r) =>
+    registrant.convertToNewLicenceXrefPhysicalModel(r, licenceId, now)
+  );
+  const updateRegistrantPayloads = registrantsToUpdate.map((r) =>
+    registrant.convertToUpdatePhysicalModel(r, now)
+  );
+
   await findLicence(licenceId)
     .then(async (record) => {
       if (record === null) {
@@ -376,14 +548,78 @@ router.put("/:licenceId(\\d+)/registrants", async (req, res, next) => {
         });
       }
 
-      const createRegistrantPayloads = registrantsToCreate.map((r) =>
-        registrant.convertToNewLicenceXrefPhysicalModel(r, licenceId, now)
-      );
-      const updateRegistrantPayloads = registrantsToUpdate.map((r) =>
-        registrant.convertToUpdatePhysicalModel(r, now)
+      await createRegistrants(createRegistrantPayloads);
+
+      return licenceId;
+    })
+    .then(async (licenceId) => {
+      // Current primary registrant could be getting deleted which would break the FK
+      // First check the updated list for the oldest entry
+      // If none exist get the oldest from the created list
+
+      const updatedRecord = await findLicence(licenceId);
+      let updatedRecordLogical = licence.convertToLogicalModel(updatedRecord);
+      let recordRegistrants = updatedRecordLogical.registrants;
+      recordRegistrants.sort((a, b) =>
+        a.createTimestamp > b.createTimestamp
+          ? 1
+          : b.createTimestamp > a.createTimestamp
+          ? -1
+          : 0
       );
 
-      await createRegistrants(createRegistrantPayloads);
+      let search =
+        registrantsToUpdate.length > 0
+          ? registrantsToUpdate
+          : registrantsToCreate;
+
+      for (r = 0; r < recordRegistrants.length; ++r) {
+        if (
+          search.find((x) => x.id === recordRegistrants[r].id) !== undefined
+        ) {
+          newPrimaryRegistrant = recordRegistrants[r];
+          break;
+        }
+      }
+
+      // Send new primary registrant id if necessary
+      if (
+        newPrimaryRegistrant.id !== updatedRecordLogical.primaryRegistrantId
+      ) {
+        updatedRecordLogical.primaryRegistrantId = newPrimaryRegistrant.id;
+
+        // Update issued and expiry dates
+        updatedRecordLogical.issuedOnDate = new Date(
+          updatedRecordLogical.issuedOnDate
+        );
+        updatedRecordLogical.expiryDate = new Date(
+          updatedRecordLogical.expiryDate
+        );
+        if (updatedRecordLogical.bondContinuationExpiryDate !== null) {
+          updatedRecordLogical.bondContinuationExpiryDate = new Date(
+            updatedRecordLogical.bondContinuationExpiryDate
+          );
+        }
+
+        // Reset some connect variables for the update
+        updatedRecordLogical.licenceType = updatedRecordLogical.licenceTypeId;
+        updatedRecordLogical.licenceStatus =
+          updatedRecordLogical.licenceStatusId;
+        updatedRecordLogical.regionalDistrict =
+          updatedRecordLogical.regionalDistrictId;
+        updatedRecordLogical.region = updatedRecordLogical.regionId;
+
+        const updatedLicencePayload = licence.convertToPhysicalModel(
+          populateAuditColumnsUpdate(updatedRecordLogical, now, now),
+          true
+        );
+        await updateLicence(licenceId, updatedLicencePayload);
+      }
+
+      return licenceId;
+    })
+    .then(async (licenceId) => {
+      // Complete registrant updates
       await deleteRegistrants(licenceId, registrantsToDelete);
       await updateRegistrants(licenceId, updateRegistrantPayloads);
 
@@ -395,6 +631,56 @@ router.put("/:licenceId(\\d+)/registrants", async (req, res, next) => {
     .catch(next)
     .finally(async () => prisma.$disconnect());
 });
+
+router.put("/:licenceId(\\d+)/inventory", async (req, res, next) => {
+  const licenceId = parseInt(req.params.licenceId, 10);
+  const now = new Date();
+
+  let record = await findLicence(licenceId);
+  record = licence.convertToLogicalModel(record);
+
+  const inventoryData = req.body.inventory.map((r) => ({
+    ...r,
+    id: parseInt(r.id, 10),
+    licenceId: licenceId,
+  }));
+  const totalValue = req.body.totalValue;
+
+  const inventoryToCreate = inventoryData.filter((r) => r.id === -1);
+
+  const createInventoryPayload = inventoryToCreate.map((r) =>
+    inventory.convertToPhysicalModel(
+      populateAuditColumnsCreate(r, now),
+      false,
+      record.licenceTypeId
+    )
+  );
+
+  await createInventory(record.licenceTypeId, createInventoryPayload);
+
+  const updatedRecord = await findLicence(licenceId);
+
+  const payload = licence.convertToLogicalModel(updatedRecord);
+  return res.send(payload);
+});
+
+router.put(
+  "/:licenceId(\\d+)/inventory/delete/:inventoryId(\\d+)",
+  async (req, res, next) => {
+    const licenceId = parseInt(req.params.licenceId, 10);
+    const inventoryId = parseInt(req.params.inventoryId, 10);
+
+    let record = await findLicence(licenceId);
+    record = licence.convertToLogicalModel(record);
+
+    await deleteInventory(record.licenceTypeId, inventoryId);
+
+    const updatedRecord = await findLicence(licenceId);
+
+    const payload = licence.convertToLogicalModel(updatedRecord);
+    return res.send(payload);
+  }
+);
 
 router.post("/", async (req, res, next) => {
   const now = new Date();
@@ -430,6 +716,49 @@ router.post("/", async (req, res, next) => {
         );
         await comments.createComment(commentPayload);
       }
+
+      return licenceId;
+    })
+    .then(async (licenceId) => {
+      // Update the primary registrant id
+      const updatedRecord = await findLicence(licenceId);
+      const updatedRecordLogical = licence.convertToLogicalModel(updatedRecord);
+      let registrants = updatedRecordLogical.registrants;
+      registrants.sort((a, b) =>
+        a.createTimestamp > b.createTimestamp
+          ? 1
+          : b.createTimestamp > a.createTimestamp
+          ? -1
+          : 0
+      );
+      updatedRecordLogical.primaryRegistrantId = registrants[0].id;
+
+      // Convert dates from string to date objects
+      updatedRecordLogical.issuedOnDate = new Date(
+        updatedRecordLogical.issuedOnDate
+      );
+      updatedRecordLogical.expiryDate = new Date(
+        updatedRecordLogical.expiryDate
+      );
+      if (updatedRecordLogical.bondContinuationExpiryDate !== null) {
+        updatedRecordLogical.bondContinuationExpiryDate = new Date(
+          updatedRecordLogical.bondContinuationExpiryDate
+        );
+      }
+
+      // Reset some connect variables for the update
+      updatedRecordLogical.licenceType = updatedRecordLogical.licenceTypeId;
+      updatedRecordLogical.licenceStatus = updatedRecordLogical.licenceStatusId;
+      updatedRecordLogical.regionalDistrict =
+        updatedRecordLogical.regionalDistrictId;
+      updatedRecordLogical.region = updatedRecordLogical.regionId;
+
+      // Send new primary registrant id
+      const updatedLicencePayload = licence.convertToPhysicalModel(
+        populateAuditColumnsUpdate(updatedRecordLogical, now, now),
+        true
+      );
+      await updateLicence(licenceId, updatedLicencePayload);
 
       return licenceId;
     })

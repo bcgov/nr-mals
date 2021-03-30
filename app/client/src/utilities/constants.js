@@ -9,12 +9,18 @@ export const SEARCH_REGISTRANTS_PATHNAME = "/registrants/search";
 export const SITES_PATHNAME = "/sites";
 export const SEARCH_SITES_PATHNAME = "/sites/search";
 export const CREATE_SITES_PATHNAME = "/sites/create";
+export const SITE_RESULTS_PATHNAME = "/sites/results";
 export const CONTACTS_PATHNAME = "/contacts";
 export const CREATE_CONTACTS_PATHNAME = "/contacts/create";
 export const INSPECTIONS_PATHNAME = "/inspections";
 export const SEARCH_INSPECTIONS_PATHNAME = "/inspections/search";
 export const CREATE_INSPECTIONS_PATHNAME = "/inspections/create";
-export const REPORTS_PATHNAME = "/reports";
+export const DOCUMENT_GENERATION_PATHNAME = "/documents";
+export const NOTICES_PATHNAME = "/documents/notices";
+export const REPORTS_PATHNAME = "/documents/reports";
+export const SELECT_CERTIFICATES_PATHNAME = "/documents/certificates";
+export const DOWNLOAD_CERTIFICATES_PATHNAME =
+  "/documents/certificates/download";
 export const ADMIN_PATHNAME = "/admin";
 export const USERS_AND_ROLES_ADMIN_PATHNAME = "/admin/users-and-roles";
 export const LICENSE_TYPES_ADMIN_PATHNAME = "/admin/license-types";
@@ -91,3 +97,11 @@ export const COUNTRIES = {
 };
 
 export const COUNTRIES_MAP = [COUNTRIES.CANADA, COUNTRIES.UNITEDSTATES];
+
+export const SPECIES_SUBCODES = {
+  MALE: "MALE",
+  FEMALE: "FEMALE",
+  SLAUGHTERED: "SLAUGHTERED",
+  CALVES: "CALVES",
+  TAG: "TAG",
+};

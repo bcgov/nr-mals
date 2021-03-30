@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { useSelector, useDispatch } from "react-redux";
@@ -5,7 +6,12 @@ import NumberFormat from "react-number-format";
 import { Controller } from "react-hook-form";
 import { Button, Form, Col, InputGroup } from "react-bootstrap";
 
-import { LICENCE_MODE } from "../../utilities/constants";
+import {
+  LICENCE_MODE,
+  ADDRESS_TYPES,
+  PHONE_NUMBER_TYPES,
+  REQUEST_STATUS,
+} from "../../utilities/constants";
 import { parseAsInt } from "../../utilities/parsing";
 import { formatDate, formatPhoneNumber } from "../../utilities/formatting.ts";
 
@@ -27,7 +33,14 @@ import { PHONE, PhoneNumberModal } from "../../modals/PhoneNumberModal";
 
 import { openModal } from "../../app/appSlice";
 
-import { ADDRESS_TYPES, PHONE_NUMBER_TYPES } from "../../utilities/constants";
+import Species from "../lookups/Species";
+
+import {
+  LICENCE_TYPE_ID_GAME_FARM,
+  LICENCE_TYPE_ID_FUR_FARM,
+} from "./constants";
+
+import { selectLicenceSpecies } from "../lookups/licenceSpeciesSlice";
 
 export default function LicenceDetailsEdit({
   form,
@@ -41,6 +54,8 @@ export default function LicenceDetailsEdit({
 
   const watchAddressKey = watch("selectedAddress", 0);
   const watchPhoneKey = watch("selectedPhoneNumber", 0);
+
+  const licenceSpecies = useSelector(selectLicenceSpecies);
 
   const [addresses, setAddresses] = useState([...initialValues.addresses]);
   const [phoneNumbers, setPhoneNumbers] = useState([
@@ -79,7 +94,7 @@ export default function LicenceDetailsEdit({
   };
 
   const editAddressCallback = (data) => {
-    let update = addresses;
+    const update = addresses;
     update[data.key] = data;
     const formatted = formatAddresses(update);
     setValue("addresses", formatted);
@@ -94,6 +109,7 @@ export default function LicenceDetailsEdit({
     const primaryAddress = addresses.find(
       (x) => x.addressType === ADDRESS_TYPES.PRIMARY
     );
+
     dispatch(
       openModal(
         ADDRESS,
@@ -119,6 +135,7 @@ export default function LicenceDetailsEdit({
     const primaryAddress = addresses.find(
       (x) => x.addressType === ADDRESS_TYPES.PRIMARY
     );
+
     dispatch(
       openModal(
         ADDRESS,
@@ -136,7 +153,7 @@ export default function LicenceDetailsEdit({
   };
 
   const editPhoneCallback = (data) => {
-    let update = phoneNumbers;
+    const update = phoneNumbers;
     update[data.key] = data;
     const formatted = formatPhoneNumbers(update);
     setValue("phoneNumbers", formatted);
@@ -181,6 +198,8 @@ export default function LicenceDetailsEdit({
   const watchRegion = watch("region", null);
   const parsedRegion = parseAsInt(watchRegion);
 
+  const watchLicenceType = parseAsInt(watch("licenceType"));
+
   const config = getLicenceTypeConfiguration(licenceTypeId);
 
   useEffect(() => {
@@ -224,6 +243,38 @@ export default function LicenceDetailsEdit({
         notifyOnChange={handleFieldChange("applicationDate")}
         defaultValue={initialValues.applicationDate}
       />
+    );
+  }
+
+  let speciesDropdown = null;
+  if (
+    mode === LICENCE_MODE.CREATE &&
+    licenceSpecies.status === REQUEST_STATUS.FULFILLED &&
+    (watchLicenceType === LICENCE_TYPE_ID_GAME_FARM ||
+      watchLicenceType === LICENCE_TYPE_ID_FUR_FARM)
+  ) {
+    let filteredSpecies = licenceSpecies.data.species.filter(
+      (x) => x.licenceTypeId === watchLicenceType
+    );
+
+    const filter = { data: {} };
+    filter.data.species = filteredSpecies;
+    filter.status = licenceSpecies.status;
+
+    speciesDropdown = (
+      <Form.Row className="mt-3">
+        <Col lg={4}>
+          <Form.Label>Species Type</Form.Label>
+          <Species
+            species={filter}
+            name={`speciesCodeId`}
+            defaultValue={licenceSpecies.data.species[0].id}
+            ref={register({
+              required: true,
+            })}
+          />
+        </Col>
+      </Form.Row>
     );
   }
 
@@ -369,6 +420,7 @@ export default function LicenceDetailsEdit({
           </Form.Row>
         </Col>
       </Form.Row>
+      {speciesDropdown}
       {config.replacePaymentReceivedWithHiveFields ? (
         <Form.Row className="mt-3">
           <Col lg={4}>

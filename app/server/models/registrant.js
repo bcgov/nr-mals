@@ -16,6 +16,7 @@ function convertToLogicalModel(input) {
     label: input.company_name
       ? input.company_name
       : `${input.last_name}, ${input.first_name}`,
+    createdOn: input.create_timestamp,
   };
 
   return output;
@@ -26,7 +27,7 @@ function convertToPhysicalModel(input, update) {
     first_name: input.firstName,
     last_name: input.lastName,
     official_title: input.officialTitle,
-    company_name: input.companyName,
+    //company_name: input.companyName,
     primary_phone: input.primaryPhone,
     email_address: input.email,
     update_userid: input.updatedBy,

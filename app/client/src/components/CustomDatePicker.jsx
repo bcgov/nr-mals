@@ -71,7 +71,7 @@ const CustomDatePicker = React.forwardRef((props, outerRef) => {
 
     return (
       <Form.Group controlId={id}>
-        <Form.Label>{label}</Form.Label>
+        {label ? <Form.Label>{label}</Form.Label> : null}
         <InputGroup>
           <Form.Control
             type="text"
@@ -126,7 +126,7 @@ const CustomDatePicker = React.forwardRef((props, outerRef) => {
 
 CustomDatePicker.propTypes = {
   id: PropTypes.string.isRequired,
-  label: PropTypes.string.isRequired,
+  label: PropTypes.string,
   notifyOnChange: PropTypes.func,
   defaultValue: PropTypes.instanceOf(Date),
   isInvalid: PropTypes.object,
@@ -134,6 +134,7 @@ CustomDatePicker.propTypes = {
 };
 CustomDatePicker.defaultProps = {
   notifyOnChange: Function.prototype,
+  label: null,
   defaultValue: null,
   isInvalid: null,
   invalidFeedback: "Please input a valid date.",

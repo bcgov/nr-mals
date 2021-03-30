@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Link, Redirect, useHistory } from "react-router-dom";
@@ -39,6 +40,8 @@ import {
   selectCreatedLicence,
   clearCreatedLicence,
 } from "./licencesSlice";
+
+import { fetchLicenceSpecies } from "../lookups/licenceSpeciesSlice";
 
 import {
   LICENCE_TYPE_ID_APIARY,
@@ -129,9 +132,9 @@ function submissionController(setError, clearErrors, dispatch) {
       regionalDistrict: parseAsInt(data.regionalDistrict),
       irmaNumber: parseIrmaNumber(data.irmaNumber),
       registrants: formatRegistrants(data.registrants),
+      primaryRegistrantId: null,
     };
 
-    //console.log(data);
     dispatch(createLicence(payload));
   };
 
@@ -148,6 +151,7 @@ export default function CreateLicencePage() {
   useEffect(() => {
     dispatch(fetchRegions());
     dispatch(fetchLicenceStatuses());
+    dispatch(fetchLicenceSpecies());
   }, [dispatch]);
 
   const form = useForm({
@@ -180,13 +184,13 @@ export default function CreateLicencePage() {
 
   const config = getLicenceTypeConfiguration(watchLicenceType);
 
-  const requiresBondInformation = [
+  const REQUIRES_BOND_INFORMATION = [
     LICENCE_TYPE_ID_PUBLIC_SALE_YARD_OPERATOR,
     LICENCE_TYPE_ID_PURCHASE_LIVE_POULTRY,
     LICENCE_TYPE_ID_LIVESTOCK_DEALER,
   ];
   const showBondInformation =
-    requiresBondInformation.find((x) => x == watchLicenceType) !== undefined;
+    REQUIRES_BOND_INFORMATION.find((x) => x == watchLicenceType) !== undefined;
 
   // set default expiry date differently based on the selected licence type
   useEffect(() => {
@@ -235,39 +239,38 @@ export default function CreateLicencePage() {
   if (createdLicence.status === REQUEST_STATUS.FULFILLED) {
     if (createDraft === true) {
       return <Redirect to={`${LICENSES_PATHNAME}/search`} />;
-    } else {
-      return (
-        <section>
-          <PageHeading>Create a Licence</PageHeading>
-          <Alert variant="success">The licence has been created.</Alert>
-          <Form>
-            <Form.Row>
-              <Col sm={4}>
-                <Link
-                  to={`${LICENSES_PATHNAME}/${createdLicence.data.id}`}
-                  component={LinkButton}
-                  variant="primary"
-                  block
-                >
-                  View Licence
-                </Link>
-              </Col>
-              <Col sm={4} />
-              <Col sm={4}>
-                <Button
-                  type="button"
-                  onClick={createAnotherLicence}
-                  variant="primary"
-                  block
-                >
-                  Create Another Licence
-                </Button>
-              </Col>
-            </Form.Row>
-          </Form>
-        </section>
-      );
     }
+    return (
+      <section>
+        <PageHeading>Create a Licence</PageHeading>
+        <Alert variant="success">The licence has been created.</Alert>
+        <Form>
+          <Form.Row>
+            <Col sm={4}>
+              <Link
+                to={`${LICENSES_PATHNAME}/${createdLicence.data.id}`}
+                component={LinkButton}
+                variant="primary"
+                block
+              >
+                View Licence
+              </Link>
+            </Col>
+            <Col sm={4} />
+            <Col sm={4}>
+              <Button
+                type="button"
+                onClick={createAnotherLicence}
+                variant="primary"
+                block
+              >
+                Create Another Licence
+              </Button>
+            </Col>
+          </Form.Row>
+        </Form>
+      </section>
+    );
   }
 
   return (

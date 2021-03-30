@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import PropTypes from "prop-types";
@@ -17,6 +18,8 @@ import SectionHeading from "../../components/SectionHeading";
 
 import { selectCreatedSite, createSite } from "../sites/sitesSlice";
 import {
+  clearSiteParameters,
+  setSiteParameters,
   fetchSiteResults,
   selectSiteResults,
   setSiteSearchPage,
@@ -31,22 +34,22 @@ import {
 } from "../../utilities/constants";
 
 function formatResultRow(result) {
-  const url = `${SITES_PATHNAME}/${result.id}`;
+  const url = `${SITES_PATHNAME}/${result.siteId}`;
   return (
-    <tr key={result.id}>
+    <tr key={result.siteId}>
       <td className="text-nowrap">
         <Link to={url}>
-          {result.apiarySiteId
-            ? `${result.licenceId}-${result.apiarySiteId}`
-            : result.id}
+          {result.apiarySiteIdDisplay
+            ? `${result.apiarySiteIdDisplay}`
+            : result.siteId}
         </Link>
       </td>
       <td className="text-nowrap">{result.siteStatus}</td>
-      <td className="text-nowrap">{result.lastName}</td>
-      <td className="text-nowrap">{result.firstName}</td>
-      <td className="text-nowrap">{result.addressLine1}</td>
-      <td className="text-nowrap">{result.region}</td>
-      <td className="text-nowrap">{result.regionalDistrict}</td>
+      <td className="text-nowrap">{result.registrantLastName}</td>
+      <td className="text-nowrap">{result.registrantFirstName}</td>
+      <td className="text-nowrap">{result.siteAddressLine1}</td>
+      <td className="text-nowrap">{result.licenceRegion}</td>
+      <td className="text-nowrap">{result.licenceDistrict}</td>
     </tr>
   );
 }
@@ -63,7 +66,9 @@ export default function LicenceSites({ licence }) {
   const createdSite = useSelector(selectCreatedSite);
 
   useEffect(() => {
-    dispatch(fetchSiteResults(licence.data.id));
+    dispatch(clearSiteParameters());
+    dispatch(setSiteParameters({ licenceNumber: licence.data.licenceNumber }));
+    dispatch(fetchSiteResults());
   }, [dispatch]);
 
   function addSiteOnClick() {
@@ -79,7 +84,7 @@ export default function LicenceSites({ licence }) {
     dispatch(createSite(payload));
   }
 
-  let addSiteButton = (
+  const addSiteButton = (
     <Button
       size="md"
       type="button"

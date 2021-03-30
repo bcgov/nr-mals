@@ -56,8 +56,9 @@
   },
   "homepage": "https://github.com/bcgov/nr-mals#readme",
   "dependencies": {
-    "@prisma/client": "^2.13.0",
+    "@prisma/client": "^2.18.0",
     "@types/axios-token-interceptor": "^0.2.1",
+    "adm-zip": "^0.5.3",
     "axios": "^0.21.0",
     "axios-oauth-client": "^1.4.0",
     "axios-token-interceptor": "^0.2.0",
@@ -66,16 +67,18 @@
     "dotenv": "^8.2.0",
     "express": "~4.16.1",
     "lodash": "^4.17.20",
-    "morgan": "~1.9.1"
+    "morgan": "~1.9.1",
+    "react-bootstrap-typeahead": "^5.1.4"
   },
   "devDependencies": {
-    "@prisma/cli": "^2.13.0",
     "concurrently": "^5.2.0",
-    "eslint": "^7.6.0",
+    "eslint": "7.21.0",
     "eslint-config-airbnb-base": "^14.2.0",
     "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-import": "^2.22.0",
     "eslint-plugin-prettier": "^3.1.4",
-    "prettier": "^2.0.5"
+    "prettier": "^2.0.5",
+    "prisma": "^2.18.0",
+    "shx": "^0.3.3"
   }
 }

@@ -1,5 +1,5 @@
 APP_NAME = "mals-app"
-PROJECT_NAMESPACE = "bsoszr"
+PROJECT_NAMESPACE = "30245e"
 ENV_LABEL="uat"
 
 class AppEnvironment {
@@ -21,9 +21,6 @@ environments = [
 ARTIFACT_BUILD = "${APP_NAME}-${ENV_LABEL}"
 
 IMAGESTREAM_NAME = "${APP_NAME}"
-
-PATHFINDER_URL = "pathfinder.gov.bc.ca"
-
 
 // Gets the container hash for the latest image in an image stream
 def getLatestHash(imageStreamName) {

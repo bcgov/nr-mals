@@ -1,6 +1,6 @@
 # bash script to be sourced to set environment variables for OpenShift scripts
 
-export PROJECT_NAMESPACE="bsoszr"
+export PROJECT_NAMESPACE="30245e"
 
 export GIT_URI="https://github.com/bcgov/nr-mals.git"
 export GIT_REF="master"

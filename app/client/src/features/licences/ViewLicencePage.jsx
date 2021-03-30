@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useParams, Redirect } from "react-router-dom";
@@ -16,6 +17,12 @@ import { selectCreatedSite } from "../sites/sitesSlice";
 import LicenceDetailsViewEdit from "./LicenceDetailsViewEdit";
 import LicenceHeader from "./LicenceHeader";
 import LicenceSites from "./LicenceSites";
+import LicenceInventory from "./LicenceInventory";
+import LicenceInventoryHistory from "./LicenceInventoryHistory";
+import {
+  LICENCE_TYPE_ID_GAME_FARM,
+  LICENCE_TYPE_ID_FUR_FARM,
+} from "./constants";
 
 import Comments from "../comments/Comments";
 
@@ -45,6 +52,13 @@ export default function ViewLicencePage() {
         <RegistrantsViewEdit licence={licence} />
         <LicenceDetailsViewEdit licence={licence} />
         <LicenceSites licence={licence} />
+        {licence.data.licenceTypeId === LICENCE_TYPE_ID_GAME_FARM ||
+        licence.data.licenceTypeId === LICENCE_TYPE_ID_FUR_FARM ? (
+          <>
+            <LicenceInventory licence={licence} />
+            <LicenceInventoryHistory licence={licence} />
+          </>
+        ) : null}
         <Comments licence={licence.data} />
       </>
     );
