@@ -311,6 +311,10 @@ export default function LicenceDetailsViewEdit({ licence }) {
       return;
     }
 
+    if (data.speciesCodeId === undefined) {
+      data.speciesCodeId = licence.data.speciesCodeId;
+    }
+
     const payload = {
       ...data,
       feePaidAmount: data.paymentReceived
