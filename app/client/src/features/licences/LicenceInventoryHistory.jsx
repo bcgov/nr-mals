@@ -327,65 +327,6 @@ export default function LicenceInventoryHistory({ licence }) {
       <Container className="mt-3 mb-4">{control}</Container>
     </>
   );
-
-  // if( currentLicence.status !== REQUEST_STATUS.FULFILLED || getSpeciesData().status !== REQUEST_STATUS.FULFILLED) {
-  //   return (
-  //     <>
-  //       <SectionHeading>Inventory History</SectionHeading>
-  //       <Container className="mt-3 mb-4"></Container>
-  //       <Spinner animation="border" role="status" variant="primary">
-  //         <span className="sr-only">Loading...</span>
-  //       </Spinner>
-  //     </>
-  //   );
-  // }
-
-  // if( currentLicence.status === REQUEST_STATUS.FULFILLED && getSpeciesData().status === REQUEST_STATUS.FULFILLED ) {
-  //   const inventory = currentLicence.data.inventory;
-  //   return (
-  //     <>
-  //       <SectionHeading>Inventory History</SectionHeading>
-  //       <Container className="mt-3 mb-4">
-  //         <Row className="mb-3">
-  //           <Col className="font-weight-bold">Species</Col>
-  //           <Col className="font-weight-bold">Date</Col>
-  //           <Col className="font-weight-bold">Code</Col>
-  //           <Col className="font-weight-bold">Value</Col>
-  //         </Row>
-  //         {
-  //           inventory.map( (x, index) => {
-  //             {console.log(x)}
-  //             return <Row key={index}>
-  //               <Col>
-  //                 <VerticalField value={getSpeciesData().data.species.find( sp => sp.id == x.speciesCodeId ).codeDescription} />
-  //               </Col>
-  //               <Col>
-  //                 <VerticalField value={formatDateString(x.date)} />
-  //               </Col>
-  //               <Col>
-  //                 <VerticalField value={getSpeciesData().data.subSpecies.find( sp => sp.id == x.speciesSubCodeId ).codeName} />
-  //               </Col>
-  //               <Col>
-  //                 <VerticalField value={x.value} />
-  //               </Col>
-  //             </Row>;
-  //           })
-  //         }
-  //         <Row className="mt-3">
-  //           <Col lg={2}>
-  //           </Col>
-  //           <Col lg={7}>
-  //             <span className="float-right font-weight-bold">Total</span>
-  //           </Col>
-  //           <Col lg={3}>
-  //             <span>{calculateInventoryTotal()}</span>
-  //           </Col>
-  //         </Row>
-
-  //       </Container>
-  //     </>
-  //   );
-  // }
 }
 
 LicenceInventoryHistory.propTypes = {

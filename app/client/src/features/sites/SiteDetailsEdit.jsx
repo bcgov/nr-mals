@@ -15,10 +15,20 @@ import SectionHeading from "../../components/SectionHeading";
 
 import { parseAsInt } from "../../utilities/parsing";
 
+import Cities from "../../features/lookups/Cities";
+
+import { selectCities } from "../../features/lookups/citiesSlice";
+
 import {
   LICENCE_TYPE_ID_APIARY,
   LICENCE_TYPE_ID_GAME_FARM,
 } from "../licences/constants";
+
+import {
+  ADDRESS_TYPES,
+  COUNTRIES,
+  COUNTRIES_MAP,
+} from "../../utilities/constants";
 
 export default function SiteDetailsEdit({
   form,
@@ -30,12 +40,17 @@ export default function SiteDetailsEdit({
   const dispatch = useDispatch();
   const regions = useSelector(selectRegions);
 
+  const cities = useSelector(selectCities);
+
   const watchRegion = watch("region", null);
   const parsedRegion = parseAsInt(watchRegion);
 
   const licencePrimaryAddress = licence.addresses.find(
     (x) => x.addressType === "Primary"
   );
+
+  const selectedCountry = watch("country", COUNTRIES.CANADA);
+  const selectedProvince = watch("province", "BC");
 
   const populateFromPrimary = () => {
     setValue("addressLine1", licencePrimaryAddress.addressLine1);
@@ -58,6 +73,8 @@ export default function SiteDetailsEdit({
     setValue("region", null);
     setValue("regionalDistrict", null);
   };
+
+  console.log(initialValues);
 
   return (
     <>
@@ -134,54 +151,87 @@ export default function SiteDetailsEdit({
         <Col lg={4} />
         <Col lg={4}>
           <Form.Group controlId="city">
-            <Form.Label>City</Form.Label>
-            <Form.Control
-              type="text"
-              name="city"
-              defaultValue={initialValues.city}
-              ref={register}
-            />
+            {selectedProvince !== "BC" ? (
+              <>
+                <Form.Label>City</Form.Label>
+                <Form.Control
+                  type="text"
+                  name="city"
+                  defaultValue={initialValues.city ?? null}
+                  ref={register({
+                    required: true,
+                  })}
+                  isInvalid={errors.city}
+                />
+                <Form.Control.Feedback type="invalid">
+                  Please enter a city.
+                </Form.Control.Feedback>
+              </>
+            ) : (
+              <Cities
+                cities={cities}
+                ref={register({ required: true })}
+                defaultValue={initialValues.city ?? "BC"}
+                isInvalid={errors.city}
+              />
+            )}
           </Form.Group>
         </Col>
       </Row>
       <Row className="mt-3">
         <Col lg={2}>
           <Form.Group controlId="province">
-            <Form.Label>Province</Form.Label>
-            <Form.Control
-              as="select"
-              name="province"
-              ref={register({ required: true })}
-              defaultValue={initialValues.province ?? "BC"}
-              isInvalid={errors.province}
-            >
-              <option value="AB">AB</option>
-              <option value="BC">BC</option>
-              <option value="MB">MB</option>
-              <option value="NB">NB</option>
-              <option value="NL">NL</option>
-              <option value="NT">NT</option>
-              <option value="NS">NS</option>
-              <option value="NU">NU</option>
-              <option value="ON">ON</option>
-              <option value="PE">PE</option>
-              <option value="QC">QC</option>
-              <option value="SK">SK</option>
-              <option value="YT">YT</option>
-            </Form.Control>
-            <Form.Control.Feedback type="invalid">
-              Please enter a valid province.
-            </Form.Control.Feedback>
+            {selectedCountry === COUNTRIES.CANADA ? (
+              <>
+                <Form.Label>Province</Form.Label>
+                <Form.Control
+                  as="select"
+                  name="province"
+                  ref={register}
+                  defaultValue={initialValues.province ?? "BC"}
+                >
+                  <option value="AB">AB</option>
+                  <option value="BC">BC</option>
+                  <option value="MB">MB</option>
+                  <option value="NB">NB</option>
+                  <option value="NL">NL</option>
+                  <option value="NT">NT</option>
+                  <option value="NS">NS</option>
+                  <option value="NU">NU</option>
+                  <option value="ON">ON</option>
+                  <option value="PE">PE</option>
+                  <option value="QC">QC</option>
+                  <option value="SK">SK</option>
+                  <option value="YT">YT</option>
+                </Form.Control>
+              </>
+            ) : (
+              <>
+                <Form.Label>State</Form.Label>
+                <Form.Control
+                  type="text"
+                  name="province"
+                  defaultValue={initialValues.province ?? null}
+                  ref={register}
+                  maxLength={4}
+                />
+              </>
+            )}
           </Form.Group>
         </Col>
         <Col lg={2}>
           <Form.Group controlId="postalCode">
-            <Form.Label>Postal Code</Form.Label>
+            <Form.Label>
+              {selectedCountry === COUNTRIES.CANADA
+                ? "Postal Code"
+                : "Zip Code"}
+            </Form.Label>
             <Form.Control
               type="text"
               name="postalCode"
-              defaultValue={initialValues.postalCode}
+              defaultValue={initialValues.postalCode ?? null}
               ref={register}
+              maxLength={7}
             />
           </Form.Group>
         </Col>
@@ -189,15 +239,19 @@ export default function SiteDetailsEdit({
           <Form.Group controlId="country">
             <Form.Label>Country</Form.Label>
             <Form.Control
-              type="text"
+              as="select"
               name="country"
-              defaultValue={initialValues.country}
-              ref={register({ required: true })}
-              isInvalid={errors.country}
-            />
-            <Form.Control.Feedback type="invalid">
-              Please enter a valid country.
-            </Form.Control.Feedback>
+              ref={register}
+              defaultValue={initialValues.country ?? COUNTRIES.CANADA}
+            >
+              {COUNTRIES_MAP.map((x) => {
+                return (
+                  <option key={x} value={x}>
+                    {x}
+                  </option>
+                );
+              })}
+            </Form.Control>
           </Form.Group>
         </Col>
         <Col lg={2} />

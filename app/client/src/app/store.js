@@ -8,8 +8,10 @@ import statusReducer from "../features/status/statusSlice";
 import searchReducer from "../features/search/searchSlice";
 import commentsReducer from "../features/comments/commentsSlice";
 import certificatesReducer from "../features/documents/certificatesSlice";
+import adminReducer from "../features/admin/adminSlice";
 
 const reducer = {
+  admin: adminReducer,
   app: appReducer,
   certificates: certificatesReducer,
   comments: commentsReducer,

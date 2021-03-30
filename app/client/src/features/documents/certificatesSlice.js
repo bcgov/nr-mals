@@ -39,12 +39,12 @@ export const startCertificateJob = createAsyncThunk(
   }
 );
 
-export const generateCertificate = createAsyncThunk(
-  "certificates/generateCertificate",
-  async (documentId, thunkApi) => {
+export const completeCertificateJob = createAsyncThunk(
+  "certificates/completeCertificateJob",
+  async (jobId, thunkApi) => {
     try {
       const response = await Api.post(
-        `documents/certificates/generate/${documentId}`
+        `documents/certificates/completeJob/${jobId}`
       );
       return response.data;
     } catch (error) {
@@ -56,13 +56,12 @@ export const generateCertificate = createAsyncThunk(
   }
 );
 
-export const generateCertificates = createAsyncThunk(
-  "certificates/generateCertificates",
-  async (documentIds, thunkApi) => {
+export const generateCertificate = createAsyncThunk(
+  "certificates/generateCertificate",
+  async (documentId, thunkApi) => {
     try {
       const response = await Api.post(
-        "documents/certificates/generate",
-        documentIds.slice(0, 10)
+        `documents/certificates/generate/${documentId}`
       );
       return response.data;
     } catch (error) {
@@ -158,10 +157,24 @@ export const certificatesSlice = createSlice({
       state.job.error = action.payload;
       state.job.status = REQUEST_STATUS.REJECTED;
     },
+    [completeCertificateJob.pending]: (state) => {
+      state.job.status = REQUEST_STATUS.PENDING;
+    },
+    [completeCertificateJob.fulfilled]: (state) => {
+      state.job.error = undefined;
+      state.job.status = REQUEST_STATUS.FULFILLED;
+    },
+    [completeCertificateJob.rejected]: (state, action) => {
+      state.job.error = action.payload;
+      state.job.status = REQUEST_STATUS.REJECTED;
+    },
     [generateCertificate.fulfilled]: (state, action) => {
       state.job.pendingDocuments = state.job.pendingDocuments.filter(
         (document) => document.documentId !== action.payload.documentId
       );
+    },
+    [generateCertificate.rejected]: (state) => {
+      state.job.pendingDocuments = { ...state.job.pendingDocuments };
     },
     [fetchCertificateJob.pending]: (state) => {
       state.job.status = REQUEST_STATUS.PENDING;

@@ -1,4 +1,3 @@
-/* eslint-disable */
 import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
@@ -12,7 +11,6 @@ import {
   Col,
   Form,
   Button,
-  ButtonGroup,
 } from "react-bootstrap";
 import { FaPrint } from "react-icons/fa";
 
@@ -99,22 +97,22 @@ export default function SelectCertificatesPage() {
     history.push(DOWNLOAD_CERTIFICATES_PATHNAME);
   };
 
-  const toggleAllLicences = (e) => {
+  const updateToggleAllChecked = () => {
+    const { licences } = getValues();
+    const selectedLicences = getSelectedLicences(licences);
+    setToggleAllChecked(selectedLicences.length === licences.length);
+  };
+
+  const toggleAllLicences = () => {
     let { licences } = getValues();
     const selectedLicences = getSelectedLicences(licences);
-    if (selectedLicences.length == licences.length) {
+    if (selectedLicences.length === licences.length) {
       licences = licences.map((licence) => ({ ...licence, selected: false }));
     } else {
       licences = licences.map((licence) => ({ ...licence, selected: true }));
     }
     setValue("licences", licences);
     updateToggleAllChecked();
-  };
-
-  const updateToggleAllChecked = () => {
-    const { licences } = getValues();
-    const selectedLicences = getSelectedLicences(licences);
-    setToggleAllChecked(selectedLicences.length === licences.length);
   };
 
   let content = null;

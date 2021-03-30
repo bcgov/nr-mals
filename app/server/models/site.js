@@ -74,14 +74,15 @@ function convertToLogicalModel(input) {
 function convertSearchResultToLogicalModel(input) {
   const output = {
     siteId: input.site_id_pk,
+    licenceId: input.licence_id,
     siteStatus: input.site_status,
-    siteStatusId: input.site_status_id_fk,
+    siteStatusId: input.site_status_id,
     licenceNumber: input.licence_number,
     licenceIrmaNumber: input.licence_irma_number,
     licenceType: input.licence_type,
-    licenceTypeId: input.licence_type_id_fk,
+    licenceTypeId: input.licence_type_id,
     licenceStatus: input.licence_status,
-    licenceStatusId: input.licence_status_id_fk,
+    licenceStatusId: input.licence_status_id,
     apiarySiteId: input.apiary_site_id,
     apiarySiteIdDisplay: input.apiary_site_id_display,
     siteContactName: input.site_contact_name,

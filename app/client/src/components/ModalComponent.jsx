@@ -1,13 +1,15 @@
-/* eslint-disable */
-import React, { createRef, useEffect } from "react";
-import PropTypes from "prop-types";
+import React from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { Button, Modal } from "react-bootstrap";
+import { Modal } from "react-bootstrap";
 
 import ConfirmationModal, { CONFIRMATION } from "../modals/ConfirmationModal";
 import AddressModal, { ADDRESS } from "../modals/AddressModal";
 import PhoneNumberModal, { PHONE } from "../modals/PhoneNumberModal";
 import CommentModal, { COMMENT } from "../modals/CommentModal";
+import LicenceSearchModal, {
+  LICENCE_SEARCH,
+} from "../modals/LicenceSearchModal";
+import UserModal, { USER } from "../modals/UserModal";
 
 import { closeModal, selectModal } from "../app/appSlice";
 
@@ -16,27 +18,29 @@ const MODAL_COMPONENTS = {
   [ADDRESS]: AddressModal,
   [PHONE]: PhoneNumberModal,
   [COMMENT]: CommentModal,
+  [LICENCE_SEARCH]: LicenceSearchModal,
+  [USER]: UserModal,
 };
 
 export default function ModalComponent() {
   const dispatch = useDispatch();
 
+  const { open, modalType, data, modalSize, callback } = useSelector(
+    selectModal
+  );
+
   const close = () => {
     dispatch(closeModal());
   };
 
-  const submit = (data) => {
-    if (callback) {
-      callback(data);
-    }
+  const submit = (submitData) => {
     dispatch(closeModal());
+
+    if (callback) {
+      callback(submitData);
+    }
   };
 
-  const ref = createRef();
-
-  const { open, modalType, data, modalSize, callback } = useSelector(
-    selectModal
-  );
   const SpecifiedModal = MODAL_COMPONENTS[modalType];
 
   return (
@@ -48,9 +52,10 @@ export default function ModalComponent() {
     >
       {SpecifiedModal ? (
         <SpecifiedModal
+          // eslint-disable-next-line
           {...data}
           closeModal={() => close()}
-          submit={(data) => submit(data)}
+          submit={(submitData) => submit(submitData)}
         />
       ) : null}
     </Modal>

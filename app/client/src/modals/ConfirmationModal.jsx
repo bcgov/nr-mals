@@ -46,7 +46,7 @@ export default function ConfirmationModal({
 }
 
 ConfirmationModal.propTypes = {
-  data: PropTypes.object,
+  data: PropTypes.any,
   modalTitle: PropTypes.string.isRequired,
   modalContent: PropTypes.any.isRequired,
   closeModal: PropTypes.func.isRequired,

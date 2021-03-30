@@ -21,6 +21,13 @@ export const selectInventoryHistoryParameters = (state) =>
 export const selectInventoryHistoryResults = (state) =>
   state.search.inventoryHistory.results;
 
+export const selectAssociatedLicencesSearchType = (state) =>
+  state.search.associatedLicences.searchType;
+export const selectAssociatedLicencesParameters = (state) =>
+  state.search.associatedLicences.parameters;
+export const selectAssociatedLicencesResults = (state) =>
+  state.search.associatedLicences.results;
+
 export const fetchLicenceResults = createAsyncThunk(
   "search/fetchLicenceResults",
   async (_, thunkApi) => {
@@ -38,6 +45,31 @@ export const fetchLicenceResults = createAsyncThunk(
       };
 
       const response = await Api.get(`licences/search`, parsedParameters);
+      return response.data;
+    } catch (error) {
+      if (error instanceof ApiError) {
+        return thunkApi.rejectWithValue(error.serialize());
+      }
+      return thunkApi.rejectWithValue({ code: -1, description: error.message });
+    }
+  }
+);
+
+export const fetchAssociatedLicenceResults = createAsyncThunk(
+  "search/fetchAssociatedLicenceResults",
+  async (parentOrChildLicenceTypeId, thunkApi) => {
+    try {
+      const parameters = selectLicenceParameters(thunkApi.getState());
+
+      const parsedParameters = {
+        ...parameters,
+        parentOrChildLicenceTypeId,
+      };
+
+      const response = await Api.get(
+        `licences/associatedsearch`,
+        parsedParameters
+      );
       return response.data;
     } catch (error) {
       if (error instanceof ApiError) {
@@ -70,7 +102,7 @@ export const fetchSiteResults = createAsyncThunk(
 );
 
 export const fetchInventoryHistoryResults = createAsyncThunk(
-  "search/fetchInventoryHistory",
+  "search/fetchInventoryHistoryResults",
   async (_, thunkApi) => {
     try {
       const parameters = selectInventoryHistoryParameters(thunkApi.getState());
@@ -83,6 +115,29 @@ export const fetchInventoryHistoryResults = createAsyncThunk(
         `licences/inventoryhistory`,
         parsedParameters
       );
+      return response.data;
+    } catch (error) {
+      if (error instanceof ApiError) {
+        return thunkApi.rejectWithValue(error.serialize());
+      }
+      return thunkApi.rejectWithValue({ code: -1, description: error.message });
+    }
+  }
+);
+
+export const fetchAssociatedLicencesResults = createAsyncThunk(
+  "search/fetchAssociatedLicencesResults",
+  async (_, thunkApi) => {
+    try {
+      const parameters = selectAssociatedLicencesParameters(
+        thunkApi.getState()
+      );
+
+      const parsedParameters = {
+        ...parameters,
+      };
+
+      const response = await Api.get(`licences/associated`, parsedParameters);
       return response.data;
     } catch (error) {
       if (error instanceof ApiError) {
@@ -119,6 +174,17 @@ export const searchSlice = createSlice({
       },
     },
     inventoryHistory: {
+      searchType: SEARCH_TYPE.SIMPLE,
+      parameters: {},
+      results: {
+        data: undefined,
+        page: undefined,
+        count: undefined,
+        error: undefined,
+        status: REQUEST_STATUS.IDLE,
+      },
+    },
+    associatedLicences: {
       searchType: SEARCH_TYPE.SIMPLE,
       parameters: {},
       results: {
@@ -205,6 +271,31 @@ export const searchSlice = createSlice({
     setInventoryHistorySearchPage: (state, action) => {
       state.inventoryHistory.parameters.page = action.payload;
     },
+
+    // Associated Licences
+    clearAssociatedLicencesParameters: (state) => {
+      state.associatedLicences.parameters = {};
+      state.associatedLicences.searchType = SEARCH_TYPE.SIMPLE;
+    },
+    clearAssociatedLicencesResults: (state) => {
+      state.associatedLicences.results.data = undefined;
+      state.associatedLicences.results.error = undefined;
+      state.associatedLicences.results.status = REQUEST_STATUS.IDLE;
+    },
+    toggleAssociatedLicencesSearchType: (state) => {
+      const currentSearchType = state.associatedLicences.searchType;
+      state.associatedLicences.searchType =
+        currentSearchType === SEARCH_TYPE.SIMPLE
+          ? SEARCH_TYPE.ADVANCED
+          : SEARCH_TYPE.SIMPLE;
+    },
+    setAssociatedLicencesParameters: (state, action) => {
+      state.associatedLicences.parameters = action.payload;
+      state.associatedLicences.results.status = REQUEST_STATUS.IDLE;
+    },
+    setAssociatedLicencesSearchPage: (state, action) => {
+      state.associatedLicences.parameters.page = action.payload;
+    },
   },
   extraReducers: {
     // Licences
@@ -220,6 +311,24 @@ export const searchSlice = createSlice({
       state.licences.results.status = REQUEST_STATUS.FULFILLED;
     },
     [fetchLicenceResults.rejected]: (state, action) => {
+      state.licences.results.data = undefined;
+      state.licences.results.error = action.payload;
+      state.licences.results.status = REQUEST_STATUS.REJECTED;
+    },
+
+    // Associated Licences - uses licence state
+    [fetchAssociatedLicenceResults.pending]: (state) => {
+      state.licences.results.error = undefined;
+      state.licences.results.status = REQUEST_STATUS.PENDING;
+    },
+    [fetchAssociatedLicenceResults.fulfilled]: (state, action) => {
+      state.licences.results.data = action.payload.results;
+      state.licences.results.page = action.payload.page;
+      state.licences.results.count = action.payload.count;
+      state.licences.results.error = undefined;
+      state.licences.results.status = REQUEST_STATUS.FULFILLED;
+    },
+    [fetchAssociatedLicenceResults.rejected]: (state, action) => {
       state.licences.results.data = undefined;
       state.licences.results.error = action.payload;
       state.licences.results.status = REQUEST_STATUS.REJECTED;
@@ -260,6 +369,24 @@ export const searchSlice = createSlice({
       state.inventoryHistory.results.error = action.payload;
       state.inventoryHistory.results.status = REQUEST_STATUS.REJECTED;
     },
+
+    // Associated Licences
+    [fetchAssociatedLicencesResults.pending]: (state) => {
+      state.associatedLicences.results.error = undefined;
+      state.associatedLicences.results.status = REQUEST_STATUS.PENDING;
+    },
+    [fetchAssociatedLicencesResults.fulfilled]: (state, action) => {
+      state.associatedLicences.results.data = action.payload.results;
+      state.associatedLicences.results.page = action.payload.page;
+      state.associatedLicences.results.count = action.payload.count;
+      state.associatedLicences.results.error = undefined;
+      state.associatedLicences.results.status = REQUEST_STATUS.FULFILLED;
+    },
+    [fetchAssociatedLicencesResults.rejected]: (state, action) => {
+      state.associatedLicences.results.data = undefined;
+      state.associatedLicences.results.error = action.payload;
+      state.associatedLicences.results.status = REQUEST_STATUS.REJECTED;
+    },
   },
 });
 
@@ -283,6 +410,12 @@ export const {
   toggleInventoryHistorySearchType,
   setInventoryHistoryParameters,
   setInventoryHistorySearchPage,
+
+  clearAssociatedLicencesParameters,
+  clearAssociatedLicencesResults,
+  toggleAssociatedLicencesSearchType,
+  setAssociatedLicencesParameters,
+  setAssociatedLicencesSearchPage,
 } = actions;
 
 export default reducer;

@@ -1,7 +1,6 @@
-/* eslint-disable */
 import React, { useEffect } from "react";
 import PropTypes from "prop-types";
-import { useSelector, useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
 import { useForm } from "react-hook-form";
 import { Button, Container, Form, Row, Col } from "react-bootstrap";
 import { startOfToday, add, set } from "date-fns";
@@ -12,16 +11,13 @@ import {
   LICENCE_TYPE_ID_PUBLIC_SALE_YARD_OPERATOR,
   LICENCE_TYPE_ID_PURCHASE_LIVE_POULTRY,
 } from "./constants";
-import {
-  formatNumber,
-  formatDate,
-  formatDateTimeString,
-} from "../../utilities/formatting.ts";
+import { formatNumber, formatDate } from "../../utilities/formatting.ts";
 import { parseAsInt, parseAsFloat, parseAsDate } from "../../utilities/parsing";
 
 import ErrorMessageRow from "../../components/ErrorMessageRow";
 import SectionHeading from "../../components/SectionHeading";
 import SubmissionButtons from "../../components/SubmissionButtons";
+import CustomCheckBox from "../../components/CustomCheckBox";
 
 import { fetchRegions } from "../lookups/regionsSlice";
 import { fetchLicenceStatuses } from "../lookups/licenceStatusesSlice";
@@ -32,6 +28,7 @@ import {
   setCurrentLicenceModeToEdit,
   setCurrentLicenceModeToView,
   renewLicence,
+  updateLicenceCheckboxes,
 } from "./licencesSlice";
 import { getLicenceTypeConfiguration } from "./licenceTypeUtility";
 
@@ -60,7 +57,14 @@ export default function LicenceDetailsViewEdit({ licence }) {
   const form = useForm({
     reValidateMode: "onBlur",
   });
-  const { register, handleSubmit, clearErrors, setError, setValue } = form;
+  const {
+    register,
+    handleSubmit,
+    clearErrors,
+    setError,
+    setValue,
+    getValues,
+  } = form;
 
   useEffect(() => {
     register("applicationDate");
@@ -142,7 +146,7 @@ export default function LicenceDetailsViewEdit({ licence }) {
   ];
 
   const showBondInformation =
-    REQUIRES_BOND_INFORMATION.find((x) => x == licence.data.licenceTypeId) !==
+    REQUIRES_BOND_INFORMATION.find((x) => x === licence.data.licenceTypeId) !==
     undefined;
 
   const config = getLicenceTypeConfiguration(licence.data.licenceTypeId);
@@ -165,6 +169,11 @@ export default function LicenceDetailsViewEdit({ licence }) {
     return { issueDate: today, expiryDate };
   };
 
+  const onRenewCallback = (data) => {
+    const dates = data;
+    dispatch(renewLicence({ data: dates, id: licence.data.id }));
+  };
+
   const onRenew = () => {
     const dates = getRenewLicenceDates();
     dispatch(
@@ -177,8 +186,8 @@ export default function LicenceDetailsViewEdit({ licence }) {
             <>
               <Row>
                 <div className="justify-content-center">
-                  The Issued On date will be updated to today's date, and the
-                  Expiry Date for Licence Number {licence.data.id} will be
+                  The Issued On date will be updated to today&apos;s date, and
+                  the Expiry Date for Licence Number {licence.data.id} will be
                   updated to {formatDate(dates.expiryDate)}
                 </div>
               </Row>
@@ -196,10 +205,56 @@ export default function LicenceDetailsViewEdit({ licence }) {
     );
   };
 
-  const onRenewCallback = (data) => {
-    const dates = data;
-    dispatch(renewLicence({ data: dates, id: licence.data.id }));
+  const onLicenceDetailsCheckboxChange = () => {
+    const actionRequired = getValues("actionRequired");
+    const printLicence = getValues("printLicence");
+    const renewalNotice = getValues("renewalNotice");
+
+    dispatch(
+      updateLicenceCheckboxes({
+        data: { actionRequired, printLicence, renewalNotice },
+        id: licence.data.id,
+      })
+    );
   };
+
+  const licenceDetailsCheckboxes = (
+    <Form.Row>
+      <Col lg={4}>
+        <Form.Group controlId="actionRequired">
+          <CustomCheckBox
+            id="actionRequired"
+            label="Action Required"
+            ref={register}
+            onChange={onLicenceDetailsCheckboxChange}
+            disabled={submitting}
+          />
+        </Form.Group>
+      </Col>
+      <Col lg={4}>
+        <Form.Group controlId="printLicence">
+          <CustomCheckBox
+            id="printLicence"
+            label="Print Licence"
+            ref={register}
+            onChange={onLicenceDetailsCheckboxChange}
+            disabled={submitting}
+          />
+        </Form.Group>
+      </Col>
+      <Col lg={4}>
+        <Form.Group controlId="renewalNotice">
+          <CustomCheckBox
+            id="renewalNotice"
+            label="Renewal Notice"
+            ref={register}
+            onChange={onLicenceDetailsCheckboxChange}
+            disabled={submitting}
+          />
+        </Form.Group>
+      </Col>
+    </Form.Row>
+  );
 
   if (mode === LICENCE_MODE.VIEW) {
     const onEdit = () => {
@@ -212,6 +267,7 @@ export default function LicenceDetailsViewEdit({ licence }) {
         </SectionHeading>
         <Container className="mt-3 mb-4">
           <LicenceDetailsView licence={licence.data} />
+          {licenceDetailsCheckboxes}
         </Container>
         {showBondInformation ? (
           <>
@@ -255,6 +311,10 @@ export default function LicenceDetailsViewEdit({ licence }) {
       return;
     }
 
+    if (data.speciesCodeId === undefined) {
+      data.speciesCodeId = licence.data.speciesCodeId;
+    }
+
     const payload = {
       ...data,
       feePaidAmount: data.paymentReceived
@@ -264,6 +324,7 @@ export default function LicenceDetailsViewEdit({ licence }) {
       bondCarrierPhoneNumber: data.bondCarrierPhoneNumber
         ? data.bondCarrierPhoneNumber.replace(/\D/g, "")
         : undefined,
+      licenceType: parseAsInt(licence.data.licenceTypeId),
       licenceStatus: parseAsInt(data.licenceStatus),
       region: parseAsInt(data.region),
       regionalDistrict: parseAsInt(data.regionalDistrict),
@@ -288,6 +349,7 @@ export default function LicenceDetailsViewEdit({ licence }) {
           <LicenceDetailsEdit
             form={form}
             initialValues={initialFormValues}
+            licence={licence.data}
             licenceTypeId={licence.data.licenceTypeId}
             mode={LICENCE_MODE.EDIT}
           />
