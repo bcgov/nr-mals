@@ -1,0 +1,33 @@
+name: Manually Test & Deploy Prod
+on: workflow_dispatch
+defaults:
+  run:
+    working-directory: ./app
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - uses: actions/setup-node@master
+        with:
+          node-version: "12"
+      - name: Install dependencies
+        run: npm ci
+      # - name: LINTing
+        # run: npm run lint
+      - name: Prettier
+        run: npm run format:check
+  s2i-build-prod:
+    environment: prod
+    runs-on: ubuntu-latest
+    needs: [test]
+    steps:
+      - name: S2I Build
+        uses: redhat-developer/openshift-actions@v1.1
+        with:
+          version: "latest"
+          openshift_server_url: ${{ secrets.OpenShiftServerURL}}
+          parameters: '{"apitoken": "${{ secrets.OpenShiftToken }}", "acceptUntrustedCerts": "true"}'
+          cmd: |
+            'version'
+            'start-build mals-app-prod --follow -n 30245e-tools'

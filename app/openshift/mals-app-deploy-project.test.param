@@ -1,0 +1,8 @@
+#=========================================================
+# OpenShift template parameters for:
+# Component: mals-app
+# Template File: templates/mals-app-deploy-project.json
+#=========================================================
+# PROJECT_PREFIX=30245e
+# NAME=mals-app
+TAG_NAME=test

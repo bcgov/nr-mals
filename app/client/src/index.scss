@@ -1,6 +1,24 @@
 @import "~@bcgov/bootstrap-theme/dist/scss/bootstrap-theme";
 
-body,
-#root {
+html,
+body {
   height: 100%;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+#root {
+  flex: 1 0 auto;
+}
+
+#footer {
+  flex-shrink: 0;
+}
+
+// fix date-picker calendar appearing behind other elements
+.react-datepicker-popper {
+  z-index: 2147483647 !important;
 }

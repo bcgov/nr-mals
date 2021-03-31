@@ -1,6 +1,6 @@
 # bash script to be sourced to set environment variables for OpenShift scripts
 
-export PROJECT_NAMESPACE="bsoszr"
+export PROJECT_NAMESPACE="30245e"
 
 export GIT_URI="https://github.com/bcgov/nr-mals.git"
 export GIT_REF="master"
@@ -11,7 +11,7 @@ export GIT_REF="master"
 export -a skip_git_overrides=""
 
 # The project components
-export components=${components:-"app db"}
+export components=${components:-"app"}
 
 # The builds to be triggered after buildconfigs created (not auto-triggered)
 export builds=${builds:-""}

@@ -1,0 +1,39 @@
+{
+  "kind": "Template",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "${NAME}-deployment-template",
+    "creationTimestamp": null
+  },
+  "objects": [],
+  "parameters": [
+    {
+      "name": "PROJECT_PREFIX",
+      "displayName": "Name",
+      "description": "The project prefix",
+      "required": true,
+      "value": "30245e"
+    },
+    {
+      "name": "NAME",
+      "displayName": "Name",
+      "description": "The name assigned to all of the resources defined in this template.",
+      "required": true,
+      "value": "mals-app"
+    },
+    {
+      "name": "TAG_NAME",
+      "displayName": "Environment TAG name",
+      "description": "The TAG name for this environment, e.g., dev, test, prod",
+      "required": true,
+      "value": "dev"
+    },
+    {
+      "name": "FAKE_PARAMETER",
+      "displayName": "Fake parameter",
+      "description": "This parameter exists to trick genDepls.sh into thinking this template contains a DeploymentConfig",
+      "required": false,
+      "value": ""
+    }
+  ]
+}
