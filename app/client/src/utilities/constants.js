@@ -23,11 +23,10 @@ export const DOWNLOAD_CERTIFICATES_PATHNAME =
   "/documents/certificates/download";
 export const ADMIN_PATHNAME = "/admin";
 export const ADMIN_CONFIG_PATHNAME = "/admin/config";
-export const USERS_AND_ROLES_ADMIN_PATHNAME = "/admin/users-and-roles";
+export const ADMIN_DAIRY_TEST_RESULTS_PATHNAME = "/admin/dairytestresults";
 export const LICENSE_TYPES_ADMIN_PATHNAME = "/admin/license-types";
 export const SITES_ADMIN_PATHNAME = "/admin/sites";
 export const INSPECTIONS_ADMIN_PATHNAME = "/admin/inspections";
-export const DAIRY_TEST_RESULTS_ADMIN_PATHNAME = "/admin/dairy-test-results";
 
 export const REQUEST_STATUS = {
   IDLE: "idle",

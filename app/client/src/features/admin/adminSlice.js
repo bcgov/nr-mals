@@ -78,6 +78,21 @@ export const fetchRoles = createAsyncThunk(
   }
 );
 
+export const updateDairyTestResults = createAsyncThunk(
+  "admin/updateDairyTestResults",
+  async (data, thunkApi) => {
+    try {
+      const response = await Api.put(`admin/dairytestresults`, data);
+      return response.data;
+    } catch (error) {
+      if (error instanceof ApiError) {
+        return thunkApi.rejectWithValue(error.serialize());
+      }
+      return thunkApi.rejectWithValue({ code: -1, description: error.message });
+    }
+  }
+);
+
 export const adminSlice = createSlice({
   name: "admin",
   initialState: {
@@ -91,8 +106,19 @@ export const adminSlice = createSlice({
       error: undefined,
       status: REQUEST_STATUS.IDLE,
     },
+    dairyTestResults: {
+      data: undefined,
+      error: undefined,
+      status: REQUEST_STATUS.IDLE,
+    },
   },
-  reducers: {},
+  reducers: {
+    clearDairyTestResults: (state) => {
+      state.dairyTestResults.data = undefined;
+      state.dairyTestResults.error = undefined;
+      state.dairyTestResults.status = REQUEST_STATUS.IDLE;
+    },
+  },
   extraReducers: {
     [fetchUsers.pending]: (state) => {
       state.users.error = undefined;
@@ -164,10 +190,29 @@ export const adminSlice = createSlice({
       state.roles.error = action.payload;
       state.roles.status = REQUEST_STATUS.REJECTED;
     },
+    [updateDairyTestResults.pending]: (state) => {
+      state.dairyTestResults.error = undefined;
+      state.dairyTestResults.status = REQUEST_STATUS.PENDING;
+    },
+    [updateDairyTestResults.fulfilled]: (state, action) => {
+      state.dairyTestResults.data = action.payload;
+      state.dairyTestResults.error = undefined;
+      state.dairyTestResults.status = REQUEST_STATUS.FULFILLED;
+    },
+    [updateDairyTestResults.rejected]: (state, action) => {
+      state.dairyTestResults.data = undefined;
+      state.dairyTestResults.error = action.payload;
+      state.dairyTestResults.status = REQUEST_STATUS.REJECTED;
+    },
   },
 });
 
 export const selectUsers = (state) => state.admin.users;
 export const selectRoles = (state) => state.admin.roles;
+export const selectDairyTestResults = (state) => state.admin.dairyTestResults;
 
-export default adminSlice.reducer;
+const { actions, reducer } = adminSlice;
+
+export const { clearDairyTestResults } = actions;
+
+export default reducer;
