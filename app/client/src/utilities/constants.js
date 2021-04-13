@@ -120,3 +120,10 @@ export const SYSTEM_ROLES = {
   USER: 3,
   READ_ONLY: 4,
 };
+
+export const DAIRY_TEST_TYPE_IDS = {
+  IBC: 0, // SCP1
+  SCC: 1,
+  IH: 2,
+  WATER: 3, // CRY
+};

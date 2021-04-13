@@ -74,6 +74,7 @@
       "react/prefer-stateless-function": "off",
       "react/no-array-index-key": "off",
       "react-hooks/exhaustive-deps": "off",
+      "no-unused-vars": "warn",
       "no-param-reassign": [
         "error",
         {

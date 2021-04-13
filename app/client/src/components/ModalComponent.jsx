@@ -9,6 +9,9 @@ import CommentModal, { COMMENT } from "../modals/CommentModal";
 import LicenceSearchModal, {
   LICENCE_SEARCH,
 } from "../modals/LicenceSearchModal";
+import DairyTestHistoryModal, {
+  DAIRY_TEST_HISTORY_SEARCH,
+} from "../modals/DairyTestHistoryModal";
 import UserModal, { USER } from "../modals/UserModal";
 
 import { closeModal, selectModal } from "../app/appSlice";
@@ -19,6 +22,7 @@ const MODAL_COMPONENTS = {
   [PHONE]: PhoneNumberModal,
   [COMMENT]: CommentModal,
   [LICENCE_SEARCH]: LicenceSearchModal,
+  [DAIRY_TEST_HISTORY_SEARCH]: DairyTestHistoryModal,
   [USER]: UserModal,
 };
 

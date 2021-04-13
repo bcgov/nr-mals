@@ -117,10 +117,10 @@ export default function AdminDairyTestResults() {
           testMonth: parseAsInt(split[DAIRY_HEADER_IDS.TEST_MONTH]),
           testYear: parseAsInt(split[DAIRY_HEADER_IDS.TEST_YEAR]),
           // testDay: parseAsInt(split[DAIRY_HEADER_IDS.TEST_DAY]),
-          scp1Day: validateStringValue(split[DAIRY_HEADER_IDS.TEST_DAY]),
+          spc1Day: validateStringValue(split[DAIRY_HEADER_IDS.TEST_DAY]),
           spc1Date: undefined,
-          scp1Value: parseAsFloat(split[DAIRY_HEADER_IDS.SPC_VALUE]),
-          scp1Infraction: undefined,
+          spc1Value: parseAsFloat(split[DAIRY_HEADER_IDS.SPC_VALUE]),
+          spc1InfractionFlag: undefined,
           spc1PreviousInfractionFirstDate: undefined,
           spc1PreviousInfractionCount: undefined,
           spc1LevyPercentage: undefined,
@@ -129,7 +129,7 @@ export default function AdminDairyTestResults() {
           sccDay: validateStringValue(split[DAIRY_HEADER_IDS.SCC_DAY]),
           sccDate: undefined,
           sccValue: parseAsFloat(split[DAIRY_HEADER_IDS.SCC_VALUE]),
-          sccInfrationFlag: undefined,
+          sccInfractionFlag: undefined,
           sccPreviousInfractionFirstDate: undefined,
           sccPreviousInfractionCount: undefined,
           sccLevyPercentage: undefined,
@@ -192,8 +192,8 @@ export default function AdminDairyTestResults() {
         <td className="text-nowrap">{result.plantCode}</td>
         <td className="text-nowrap">{result.testMonth}</td>
         <td className="text-nowrap">{result.testYear}</td>
-        <td className="text-nowrap">{result.scp1Day}</td>
-        <td className="text-nowrap">{result.scp1Value}</td>
+        <td className="text-nowrap">{result.spc1Day}</td>
+        <td className="text-nowrap">{result.spc1Value}</td>
         <td className="text-nowrap">{result.sccDay}</td>
         <td className="text-nowrap">{result.sccValue}</td>
         <td className="text-nowrap">{result.cryDay}</td>

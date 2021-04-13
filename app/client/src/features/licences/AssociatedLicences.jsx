@@ -244,7 +244,7 @@ export default function AssociatedLicences({ licence }) {
       disabled={submitting}
       block
     >
-      Associated a new Licence
+      Associate a new Licence
     </Button>
   );
 
