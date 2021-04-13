@@ -23,6 +23,7 @@ import SiteResultsPage from "./features/search/SiteResultsPage";
 import ViewSitePage from "./features/sites/ViewSitePage";
 
 import AdminConfig from "./features/admin/AdminConfig";
+import AdminDairyTestResults from "./features/admin/AdminDairyTestResults";
 
 import ModalComponent from "./components/ModalComponent";
 
@@ -92,6 +93,9 @@ function App() {
             </Route>
             <Route path={`${Constant.ADMIN_CONFIG_PATHNAME}`}>
               <AdminConfig />
+            </Route>
+            <Route path={`${Constant.ADMIN_DAIRY_TEST_RESULTS_PATHNAME}`}>
+              <AdminDairyTestResults />
             </Route>
             <Route path="/">
               <Redirect to={`${Constant.SEARCH_LICENSES_PATHNAME}`} />

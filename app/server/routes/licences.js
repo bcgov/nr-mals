@@ -11,6 +11,8 @@ const inventory = require("../models/inventory");
 const comments = require("./comments");
 const constants = require("../utilities/constants");
 const collection = require("lodash/collection");
+const dairyTestResult = require("../models/dairyTestResult");
+
 const { parseAsInt } = require("../utilities/parsing");
 
 const router = express.Router();
@@ -182,6 +184,22 @@ function getAssociatedLicencesSearchFilter(params) {
   const licenceId = parseInt(params.licenceId, 10);
   if (!Number.isNaN(licenceId)) {
     andArray.push({ parent_licence_id: licenceId });
+  }
+
+  filter = {
+    AND: andArray,
+  };
+
+  return filter;
+}
+
+function getDairyTestHistorySearchFilter(params) {
+  let filter = {};
+  const andArray = [];
+
+  const licenceId = parseInt(params.licenceId, 10);
+  if (!Number.isNaN(licenceId)) {
+    andArray.push({ licence_id: licenceId });
   }
 
   filter = {
@@ -456,6 +474,43 @@ async function fetchLicenceTypeParentChildXref() {
     childLicenceTypeId: r.child_licence_type_id,
     activeFlag: r.active_flag,
   }));
+}
+
+async function countDairyTestResultHistory(params) {
+  const filter = getDairyTestHistorySearchFilter(params);
+  return prisma.mal_dairy_farm_test_result.count({
+    where: filter,
+  });
+}
+
+async function findDairyTestResultHistory(params, skip, take) {
+  const filter = getDairyTestHistorySearchFilter(params);
+  return prisma.mal_dairy_farm_test_result.findMany({
+    where: filter,
+    skip,
+    take,
+    orderBy: [
+      {
+        test_job_id: "desc",
+      },
+    ],
+  });
+}
+
+async function fetchLicenceDairyFarmTestResult(licenceId) {
+  return await prisma.mal_dairy_farm_test_result.findMany({
+    where: {
+      licence_id: licenceId,
+    },
+  });
+}
+
+async function updateLicenceDairyFarmTestResult(dairyTestResultId, payload) {
+  const result = await prisma.mal_dairy_farm_test_result.update({
+    where: { id: dairyTestResultId },
+    data: payload,
+  });
+  return result;
 }
 
 router.get("/:licenceId(\\d+)", async (req, res, next) => {
@@ -751,6 +806,111 @@ router.get("/associated", async (req, res, next) => {
       };
 
       return res.send(payload);
+    })
+    .catch(next)
+    .finally(async () => prisma.$disconnect());
+});
+
+router.get("/dairytesthistory", async (req, res, next) => {
+  let { page } = req.query;
+  if (page) {
+    page = parseInt(page, 10);
+  } else {
+    page = 1;
+  }
+
+  const size = 20;
+  const skip = (page - 1) * size;
+
+  const params = req.query;
+
+  await findDairyTestResultHistory(params, skip, size)
+    .then(async (records) => {
+      if (records === null) {
+        return res.status(404).send({
+          code: 404,
+          description: "The requested licence could not be found.",
+        });
+      }
+
+      const results = records.map((record) =>
+        dairyTestResult.convertToLogicalModel(record)
+      );
+
+      const count = await countDairyTestResultHistory(params);
+
+      const payload = {
+        results,
+        page,
+        count,
+      };
+
+      return res.send(payload);
+    })
+    .catch(next)
+    .finally(async () => prisma.$disconnect());
+});
+
+router.get("/dairytestresults/:licenceId(\\w+)", async (req, res, next) => {
+  await fetchLicenceDairyFarmTestResult(parseAsInt(req.params.licenceId, 10))
+    .then(async (records) => {
+      if (records === null) {
+        return res.status(404).send({
+          code: 404,
+          description: "The requested licence could not be found.",
+        });
+      }
+      const results = records.map((record) =>
+        dairyTestResult.convertToLogicalModel(record)
+      );
+
+      const latestTestJobId = Math.max.apply(
+        Math,
+        results.map(function (o) {
+          return o.testJobId;
+        })
+      );
+
+      const latestResults = results.filter(
+        (x) => x.testJobId === latestTestJobId
+      );
+
+      return res.send(latestResults);
+    })
+    .catch(next)
+    .finally(async () => prisma.$disconnect());
+});
+
+router.put("/dairytestresults/:licenceId(\\w+)", async (req, res, next) => {
+  const licenceId = parseInt(req.params.licenceId, 10);
+
+  const now = new Date();
+
+  const updatePayload = dairyTestResult.convertToPhysicalModel(
+    populateAuditColumnsUpdate(req.body, now),
+    true
+  );
+
+  await updateLicenceDairyFarmTestResult(req.body.id, updatePayload)
+    .then(async () => {
+      const fetch = await fetchLicenceDairyFarmTestResult(licenceId);
+
+      const results = fetch.map((record) =>
+        dairyTestResult.convertToLogicalModel(record)
+      );
+
+      const latestTestJobId = Math.max.apply(
+        Math,
+        results.map(function (o) {
+          return o.testJobId;
+        })
+      );
+
+      const latestResults = results.filter(
+        (x) => x.testJobId === latestTestJobId
+      );
+
+      return res.send(latestResults);
     })
     .catch(next)
     .finally(async () => prisma.$disconnect());

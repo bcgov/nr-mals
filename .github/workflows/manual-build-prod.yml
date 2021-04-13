@@ -1,4 +1,4 @@
-name: Manually Test & Deploy UAT
+name: Manually Test & Deploy Prod
 on: workflow_dispatch
 defaults:
   run:
@@ -17,8 +17,8 @@ jobs:
         # run: npm run lint
       - name: Prettier
         run: npm run format:check
-  s2i-build-uat:
-    environment: uat
+  s2i-build-prod:
+    environment: prod
     runs-on: ubuntu-latest
     needs: [test]
     steps:
@@ -30,4 +30,4 @@ jobs:
           parameters: '{"apitoken": "${{ secrets.OpenShiftToken }}", "acceptUntrustedCerts": "true"}'
           cmd: |
             'version'
-            'start-build mals-app-uat --follow -n 30245e-tools'
+            'start-build mals-app-prod --follow -n 30245e-tools'

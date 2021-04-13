@@ -23,11 +23,10 @@ export const DOWNLOAD_CERTIFICATES_PATHNAME =
   "/documents/certificates/download";
 export const ADMIN_PATHNAME = "/admin";
 export const ADMIN_CONFIG_PATHNAME = "/admin/config";
-export const USERS_AND_ROLES_ADMIN_PATHNAME = "/admin/users-and-roles";
+export const ADMIN_DAIRY_TEST_RESULTS_PATHNAME = "/admin/dairytestresults";
 export const LICENSE_TYPES_ADMIN_PATHNAME = "/admin/license-types";
 export const SITES_ADMIN_PATHNAME = "/admin/sites";
 export const INSPECTIONS_ADMIN_PATHNAME = "/admin/inspections";
-export const DAIRY_TEST_RESULTS_ADMIN_PATHNAME = "/admin/dairy-test-results";
 
 export const REQUEST_STATUS = {
   IDLE: "idle",
@@ -120,4 +119,11 @@ export const SYSTEM_ROLES = {
   INSPECTOR: 2,
   USER: 3,
   READ_ONLY: 4,
+};
+
+export const DAIRY_TEST_TYPE_IDS = {
+  IBC: 0, // SCP1
+  SCC: 1,
+  IH: 2,
+  WATER: 3, // CRY
 };
