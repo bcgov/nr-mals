@@ -1,4 +1,3 @@
-/* eslint-disable */
 import { createSlice } from "@reduxjs/toolkit";
 
 import { REQUEST_STATUS } from "../utilities/constants";
@@ -36,7 +35,7 @@ export const appSlice = createSlice({
       state.modal.modalType = action.modalType || null;
       state.modal.callback = action.callback || null;
     },
-    HIDE_MODAL(state, action) {
+    HIDE_MODAL(state) {
       state.modal.open = false;
       state.modal.data = null;
       state.modal.modalSize = null;

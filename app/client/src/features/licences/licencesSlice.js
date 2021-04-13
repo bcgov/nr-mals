@@ -84,6 +84,39 @@ export const deleteLicenceInventoryHistory = createAsyncThunk(
   }
 );
 
+export const updateAssociatedLicences = createAsyncThunk(
+  "licences/updateAssociatedLicences",
+  async ({ data, licenceId }, thunkApi) => {
+    try {
+      const response = await Api.put(`licences/${licenceId}/associated`, data);
+      return response.data;
+    } catch (error) {
+      if (error instanceof ApiError) {
+        return thunkApi.rejectWithValue(error.serialize());
+      }
+      return thunkApi.rejectWithValue({ code: -1, description: error.message });
+    }
+  }
+);
+
+export const deleteAssociatedLicences = createAsyncThunk(
+  "licences/deleteAssociatedLicences",
+  async ({ data, licenceId }, thunkApi) => {
+    try {
+      const response = await Api.put(
+        `licences/${licenceId}/associated/delete`,
+        data
+      );
+      return response.data;
+    } catch (error) {
+      if (error instanceof ApiError) {
+        return thunkApi.rejectWithValue(error.serialize());
+      }
+      return thunkApi.rejectWithValue({ code: -1, description: error.message });
+    }
+  }
+);
+
 export const fetchLicence = createAsyncThunk(
   "licences/fetchLicence",
   async (id, thunkApi) => {
@@ -104,6 +137,21 @@ export const renewLicence = createAsyncThunk(
   async ({ data, id }, thunkApi) => {
     try {
       const response = await Api.put(`licences/renew/${id}`, data);
+      return response.data;
+    } catch (error) {
+      if (error instanceof ApiError) {
+        return thunkApi.rejectWithValue(error.serialize());
+      }
+      return thunkApi.rejectWithValue({ code: -1, description: error.message });
+    }
+  }
+);
+
+export const updateLicenceCheckboxes = createAsyncThunk(
+  "licences/updateLicenceCheckboxes",
+  async ({ data, id }, thunkApi) => {
+    try {
+      const response = await Api.put(`licences/checkboxes/${id}`, data);
       return response.data;
     } catch (error) {
       if (error instanceof ApiError) {
@@ -213,6 +261,18 @@ export const licencesSlice = createSlice({
       state.currentLicence.error = action.payload;
       state.currentLicence.status = REQUEST_STATUS.REJECTED;
     },
+    [updateLicenceCheckboxes.pending]: (state) => {
+      state.currentLicence.error = undefined;
+      state.currentLicence.status = REQUEST_STATUS.PENDING;
+    },
+    [updateLicenceCheckboxes.fulfilled]: (state) => {
+      state.currentLicence.error = undefined;
+      state.currentLicence.status = REQUEST_STATUS.FULFILLED;
+    },
+    [updateLicenceCheckboxes.rejected]: (state, action) => {
+      state.currentLicence.error = action.payload;
+      state.currentLicence.status = REQUEST_STATUS.REJECTED;
+    },
     [updateLicenceRegistrants.pending]: (state) => {
       state.currentLicence.error = undefined;
       state.currentLicence.status = REQUEST_STATUS.PENDING;
@@ -250,6 +310,32 @@ export const licencesSlice = createSlice({
       state.currentLicence.status = REQUEST_STATUS.FULFILLED;
     },
     [deleteLicenceInventoryHistory.rejected]: (state, action) => {
+      state.currentLicence.error = action.payload;
+      state.currentLicence.status = REQUEST_STATUS.REJECTED;
+    },
+    [updateAssociatedLicences.pending]: (state) => {
+      state.currentLicence.error = undefined;
+      state.currentLicence.status = REQUEST_STATUS.PENDING;
+    },
+    [updateAssociatedLicences.fulfilled]: (state, action) => {
+      state.currentLicence.data = action.payload;
+      state.currentLicence.error = undefined;
+      state.currentLicence.status = REQUEST_STATUS.FULFILLED;
+    },
+    [updateAssociatedLicences.rejected]: (state, action) => {
+      state.currentLicence.error = action.payload;
+      state.currentLicence.status = REQUEST_STATUS.REJECTED;
+    },
+    [deleteAssociatedLicences.pending]: (state) => {
+      state.currentLicence.error = undefined;
+      state.currentLicence.status = REQUEST_STATUS.PENDING;
+    },
+    [deleteAssociatedLicences.fulfilled]: (state, action) => {
+      state.currentLicence.data = action.payload;
+      state.currentLicence.error = undefined;
+      state.currentLicence.status = REQUEST_STATUS.FULFILLED;
+    },
+    [deleteAssociatedLicences.rejected]: (state, action) => {
       state.currentLicence.error = action.payload;
       state.currentLicence.status = REQUEST_STATUS.REJECTED;
     },

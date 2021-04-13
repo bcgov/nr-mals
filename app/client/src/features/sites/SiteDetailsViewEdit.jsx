@@ -29,6 +29,8 @@ import {
 import SiteDetailsEdit from "./SiteDetailsEdit";
 import SiteDetailsView from "./SiteDetailsView";
 
+import { fetchCities } from "../lookups/citiesSlice";
+
 export default function SiteDetailsViewEdit({ site, licence }) {
   const { status, error, mode } = site;
 
@@ -37,6 +39,7 @@ export default function SiteDetailsViewEdit({ site, licence }) {
   useEffect(() => {
     dispatch(fetchRegions());
     dispatch(fetchLicenceStatuses());
+    dispatch(fetchCities());
   }, [dispatch]);
 
   const form = useForm({

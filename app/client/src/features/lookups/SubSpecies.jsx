@@ -1,4 +1,3 @@
-/* eslint-disable */
 import React from "react";
 import PropTypes from "prop-types";
 import { Form, Alert, Spinner } from "react-bootstrap";
@@ -6,15 +5,7 @@ import { Form, Alert, Spinner } from "react-bootstrap";
 import { REQUEST_STATUS } from "../../utilities/constants";
 
 const SubSpecies = React.forwardRef((props, ref) => {
-  const {
-    subspecies,
-    speciesId,
-    isInvalid,
-    onChange,
-    defaultValue,
-    value,
-    name,
-  } = props;
+  const { subspecies, speciesId, isInvalid, onChange, value, name } = props;
 
   let control = (
     <div>
@@ -36,7 +27,7 @@ const SubSpecies = React.forwardRef((props, ref) => {
         custom
       >
         {subspecies.data.subSpecies
-          .filter((x) => x.speciesCodeId == speciesId)
+          .filter((x) => x.speciesCodeId === speciesId)
           .map((specie) => (
             <option key={specie.id} value={specie.id}>
               {specie.codeName}

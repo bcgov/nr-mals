@@ -9,7 +9,7 @@ import { REQUEST_STATUS } from "../../utilities/constants";
 import PageHeading from "../../components/PageHeading";
 import SectionHeading from "../../components/SectionHeading";
 
-import { fetchSite, selectCurrentSite } from "./sitesSlice";
+import { fetchSite, selectCurrentSite, clearCreatedSite } from "./sitesSlice";
 import { fetchLicence, selectCurrentLicence } from "../licences/licencesSlice";
 
 import SiteHeader from "./SiteHeader";
@@ -31,6 +31,8 @@ export default function ViewLicencePage() {
   const licence = useSelector(selectCurrentLicence);
 
   useEffect(() => {
+    dispatch(clearCreatedSite());
+
     dispatch(fetchSite(id)).then((site) => {
       dispatch(fetchLicence(site.payload.licenceId));
     });

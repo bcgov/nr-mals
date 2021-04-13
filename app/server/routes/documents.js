@@ -88,6 +88,8 @@ async function getDocument(documentId) {
   });
 }
 
+const templateBuffers = [];
+
 async function generateCertificate(documentId) {
   const document = await getDocument(documentId);
 
@@ -106,44 +108,58 @@ async function generateCertificate(documentId) {
     };
   }
 
-  const result = await fs
-    .readFile(path.join(certificateTemplateDir, `${templateFileName}.docx`))
-    .then(async (templateBuffer) => {
-      const { data, status } = await cdogs.post(
-        "template/render",
-        formatCdogsBody(
-          document.document_json,
-          templateBuffer.toString("base64")
-        ),
-        {
-          responseType: "arraybuffer", // Needed for binaries unless you want pain
-        }
-      );
-
-      if (status !== 200) {
-        return {
-          status,
-          payload: {
-            code: status,
-            description: "Error encountered in CDOGS",
-          },
-        };
-      }
-
-      const currentUser = getCurrentUser();
-      const now = new Date();
-
-      await prisma.mal_print_job_output.update({
-        where: { id: document.id },
-        data: {
-          document_binary: data,
-          update_userid: currentUser.idir,
-          update_timestamp: now,
-        },
-      });
-
-      return { status: 200, payload: { documentId: document.id } };
+  if (
+    templateBuffers.find((x) => x.templateFileName === templateFileName) ===
+    undefined
+  ) {
+    const buffer = await fs.readFile(
+      path.join(certificateTemplateDir, `${templateFileName}.docx`)
+    );
+    const bufferBase64 = buffer.toString("base64");
+    templateBuffers.push({
+      templateFileName: templateFileName,
+      templateBuffer: bufferBase64,
     });
+  }
+
+  const template = templateBuffers.find(
+    (x) => x.templateFileName === templateFileName
+  );
+  const generate = async () => {
+    const { data, status } = await cdogs.post(
+      "template/render",
+      formatCdogsBody(document.document_json, template.templateBuffer),
+      {
+        responseType: "arraybuffer", // Needed for binaries unless you want pain
+      }
+    );
+
+    if (status !== 200) {
+      return {
+        status,
+        payload: {
+          code: status,
+          description: "Error encountered in CDOGS",
+        },
+      };
+    }
+
+    const currentUser = getCurrentUser();
+    const now = new Date();
+
+    await prisma.mal_print_job_output.update({
+      where: { id: document.id },
+      data: {
+        document_binary: data,
+        update_userid: currentUser.idir,
+        update_timestamp: now,
+      },
+    });
+
+    return { status: 200, payload: { documentId: document.id } };
+  };
+
+  const result = await generate();
 
   return result;
 }
@@ -176,7 +192,6 @@ async function startCertificateJob(licenceIds) {
       "CALL mals_app.pr_generate_print_json('CERTIFICATE', NULL)"
     ),
     prisma.mal_licence.updateMany({
-      where: licenceFilterCriteria,
       data: { print_certificate: false },
     }),
   ]);
@@ -299,6 +314,24 @@ router.post("/certificates/startJob", async (req, res, next) => {
     .finally(async () => prisma.$disconnect());
 });
 
+router.post(
+  "/certificates/completeJob/:jobId(\\d+)",
+  async (req, res, next) => {
+    const jobId = parseInt(req.params.jobId, 10);
+
+    await prisma.mal_print_job.update({
+      where: {
+        id: jobId,
+      },
+      data: {
+        document_end_time: new Date(),
+      },
+    });
+
+    return res.status(200).send(true);
+  }
+);
+
 router.get("/jobs/:jobId(\\d+)", async (req, res, next) => {
   const jobId = parseInt(req.params.jobId, 10);
 
@@ -334,20 +367,6 @@ router.post(
       .finally(async () => prisma.$disconnect());
   }
 );
-
-router.post("/certificates/generate", async (req, res, next) => {
-  const documentIds = req.body.map((documentId) => parseInt(documentId, 10));
-
-  await generateCertificates(documentIds)
-    .then((results) => {
-      const payload = results
-        .filter((result) => result.status === "fulfilled")
-        .map((result) => result.value.payload.documentId);
-      return res.send(payload);
-    })
-    .catch(next)
-    .finally(async () => prisma.$disconnect());
-});
 
 router.post("/generator-health", async (req, res, next) => {
   await cdogs

@@ -21,7 +21,7 @@ jobs:
       - name: Prettier
         run: npm run format:check
   s2i-build-dev:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    if: github.event_name == 'push' && github.repository == 'bcgov/nr-mals' && github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     needs: [test]
     steps:
@@ -36,7 +36,7 @@ jobs:
             'start-build mals-app-dev --follow -n 30245e-tools'
   s2i-build-test:
     environment: test
-    if: github.event_name == 'push' && github.ref == 'refs/heads/test'
+    if: github.event_name == 'push' && github.repository == 'bcgov/nr-mals' && github.ref == 'refs/heads/test'
     runs-on: ubuntu-latest
     needs: [test]
     steps:
@@ -51,7 +51,7 @@ jobs:
             'start-build mals-app-test --follow -n 30245e-tools'
   s2i-build-uat:
     environment: uat
-    if: github.event_name == 'push' && github.ref == 'refs/heads/uat'
+    if: github.event_name == 'push' && github.repository == 'bcgov/nr-mals' && github.ref == 'refs/heads/uat'
     runs-on: ubuntu-latest
     needs: [test]
     steps:
