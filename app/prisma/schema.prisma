@@ -156,6 +156,7 @@ model mal_licence_type_lu {
   create_timestamp                                                                                                  DateTime                             @db.Timestamp(6)
   update_userid                                                                                                     String                               @db.VarChar(63)
   update_timestamp                                                                                                  DateTime                             @db.Timestamp(6)
+  active_flag                                                                                                       Boolean
   mal_licence                                                                                                       mal_licence[]
   mal_licence_species_code_lu                                                                                       mal_licence_species_code_lu[]
   mal_licence_type_parent_child_xref_mal_licence_type_luTomal_licence_type_parent_child_xref_child_licence_type_id  mal_licence_type_parent_child_xref[] @relation("mal_licence_type_luTomal_licence_type_parent_child_xref_child_licence_type_id")
@@ -353,20 +354,21 @@ model mal_game_farm_inventory {
 }
 
 model mal_dairy_farm_tank {
-  id               Int       @id @default(autoincrement())
-  site_id          Int
-  serial_number    String?   @db.VarChar(30)
-  calibration_date DateTime? @db.Timestamp(6)
-  issue_date       DateTime? @db.Timestamp(6)
-  company_name     String?   @db.VarChar(100)
-  model_number     String?   @db.VarChar(30)
-  tank_capacity    String?   @db.VarChar(30)
-  recheck_year     String?   @db.VarChar(4)
-  create_userid    String    @db.VarChar(30)
-  create_timestamp DateTime  @db.Timestamp(6)
-  update_userid    String    @db.VarChar(30)
-  update_timestamp DateTime  @db.Timestamp(6)
-  mal_site         mal_site  @relation(fields: [site_id], references: [id])
+  id                   Int       @id @default(autoincrement())
+  site_id              Int
+  serial_number        String?   @db.VarChar(30)
+  calibration_date     DateTime? @db.Timestamp(6)
+  issue_date           DateTime? @db.Timestamp(6)
+  company_name         String?   @db.VarChar(100)
+  model_number         String?   @db.VarChar(30)
+  tank_capacity        String?   @db.VarChar(30)
+  recheck_year         String?   @db.VarChar(4)
+  create_userid        String    @db.VarChar(30)
+  create_timestamp     DateTime  @db.Timestamp(6)
+  update_userid        String    @db.VarChar(30)
+  update_timestamp     DateTime  @db.Timestamp(6)
+  print_recheck_notice Boolean?
+  mal_site             mal_site  @relation(fields: [site_id], references: [id])
 
   @@index([serial_number], name: "mal_dryfrmtnk_serial_number_idx")
   @@index([site_id], name: "mal_dryfrmtnk_site_id_idx")
@@ -513,76 +515,17 @@ model mal_application_user {
 }
 
 model mal_dairy_farm_test_infraction_lu {
-  id                          Int      @id @default(autoincrement())
-  test_threshold_id           Int
-  previous_infractions_count  Int
-  levy_percentage             Int?
-  correspondence_code         String   @db.VarChar(50)
-  correspondence__description String   @db.VarChar(120)
-  active_flag                 Boolean
-  create_userid               String   @db.VarChar(30)
-  create_timestamp            DateTime @db.Timestamp(6)
-  update_userid               String   @db.VarChar(30)
-  update_timestamp            DateTime @db.Timestamp(6)
-}
-
-model mal_dairy_farm_test_job {
-  id                   Int       @id @default(autoincrement())
-  job_status           String    @db.VarChar(50)
-  job_source           String    @db.VarChar(30)
-  execution_start_time DateTime  @db.Timestamp(6)
-  execution_end_time   DateTime? @db.Timestamp(6)
-  source_row_count     Int?
-  target_insert_count  Int?
-  target_update_count  Int?
-  create_userid        String    @db.VarChar(63)
-  create_timestamp     DateTime  @db.Timestamp(6)
-  update_userid        String    @db.VarChar(63)
-  update_timestamp     DateTime  @db.Timestamp(6)
-}
-
-model mal_dairy_farm_test_job_result {
-  id                                  Int       @id @default(autoincrement())
-  dairy_farm_test_job_id              Int?
-  licence_id                          Int?
-  irma_number                         String?   @db.VarChar(5)
-  plant_code                          String?   @db.VarChar(2)
-  test_month                          Int?
-  test_year                           Int?
-  spc1_day                            String?   @db.VarChar(2)
-  spc1_date                           DateTime? @db.Date
-  spc1_value                          Decimal?  @db.Decimal(10, 2)
-  spc1_infraction_flag                Boolean?
-  spc1_previous_infraction_first_date DateTime? @db.Date
-  spc1_previous_infraction_count      Int?
-  scc_day                             String?   @db.VarChar(2)
-  scc_date                            DateTime? @db.Date
-  scc_value                           Decimal?  @db.Decimal(10, 2)
-  scc_infraction_flag                 Boolean?
-  scc_previous_infraction_first_date  DateTime? @db.Date
-  scc_previous_infraction_count       Int?
-  cry_day                             String?   @db.VarChar(2)
-  cry_date                            DateTime? @db.Date
-  cry_value                           Decimal?  @db.Decimal(10, 2)
-  cry_infraction_flag                 Boolean?
-  cry_previous_infraction_first_date  DateTime? @db.Date
-  cry_previous_infraction_count       Int?
-  ffa_day                             String?   @db.VarChar(2)
-  ffa_date                            DateTime? @db.Date
-  ffa_value                           Decimal?  @db.Decimal(10, 2)
-  ffa_infraction_flag                 Boolean?
-  ffa_previous_infraction_first_date  DateTime? @db.Date
-  ffa_previous_infraction_count       Int?
-  ih_day                              String?   @db.VarChar(2)
-  ih_date                             DateTime? @db.Date
-  ih_value                            Decimal?  @db.Decimal(10, 2)
-  ih_infraction_flag                  Boolean?
-  ih_previous_infraction_first_date   DateTime? @db.Date
-  ih_previous_infraction_count        Int?
-  create_userid                       String    @db.VarChar(63)
-  create_timestamp                    DateTime  @db.Timestamp(6)
-  update_userid                       String    @db.VarChar(63)
-  update_timestamp                    DateTime  @db.Timestamp(6)
+  id                         Int      @id @default(autoincrement())
+  test_threshold_id          Int
+  previous_infractions_count Int
+  levy_percentage            Int?
+  correspondence_code        String   @db.VarChar(50)
+  correspondence_description String   @db.VarChar(120)
+  active_flag                Boolean
+  create_userid              String   @db.VarChar(30)
+  create_timestamp           DateTime @db.Timestamp(6)
+  update_userid              String   @db.VarChar(30)
+  update_timestamp           DateTime @db.Timestamp(6)
 }
 
 model mal_dairy_farm_test_threshold_lu {
@@ -596,6 +539,82 @@ model mal_dairy_farm_test_threshold_lu {
   create_timestamp  DateTime @db.Timestamp(6)
   update_userid     String   @db.VarChar(30)
   update_timestamp  DateTime @db.Timestamp(6)
+}
+
+model mal_dairy_farm_test_job {
+  id                         Int                          @id @default(autoincrement())
+  job_status                 String                       @db.VarChar(50)
+  job_source                 String                       @db.VarChar(30)
+  execution_start_time       DateTime                     @db.Timestamp(6)
+  execution_end_time         DateTime?                    @db.Timestamp(6)
+  source_row_count           Int?
+  target_insert_count        Int?
+  target_update_count        Int?
+  create_userid              String                       @db.VarChar(63)
+  create_timestamp           DateTime                     @db.Timestamp(6)
+  update_userid              String                       @db.VarChar(63)
+  update_timestamp           DateTime                     @db.Timestamp(6)
+  mal_dairy_farm_test_result mal_dairy_farm_test_result[]
+}
+
+model mal_dairy_farm_test_result {
+  id                                  Int                      @id @default(autoincrement())
+  test_job_id                         Int?
+  licence_id                          Int?
+  irma_number                         String?                  @db.VarChar(5)
+  plant_code                          String?                  @db.VarChar(2)
+  test_month                          Int?
+  test_year                           Int?
+  spc1_day                            String?                  @db.VarChar(2)
+  spc1_date                           DateTime?                @db.Date
+  spc1_value                          Decimal?                 @db.Decimal(10, 2)
+  spc1_infraction_flag                Boolean?
+  spc1_previous_infraction_first_date DateTime?                @db.Date
+  spc1_previous_infraction_count      Int?
+  spc1_levy_percentage                Int?
+  spc1_correspondence_code            String?                  @db.VarChar(50)
+  spc1_correspondence_description     String?                  @db.VarChar(120)
+  scc_day                             String?                  @db.VarChar(2)
+  scc_date                            DateTime?                @db.Date
+  scc_value                           Decimal?                 @db.Decimal(10, 2)
+  scc_infraction_flag                 Boolean?
+  scc_previous_infraction_first_date  DateTime?                @db.Date
+  scc_previous_infraction_count       Int?
+  scc_levy_percentage                 Int?
+  scc_correspondence_code             String?                  @db.VarChar(50)
+  scc_correspondence_description      String?                  @db.VarChar(120)
+  cry_day                             String?                  @db.VarChar(2)
+  cry_date                            DateTime?                @db.Date
+  cry_value                           Decimal?                 @db.Decimal(10, 2)
+  cry_infraction_flag                 Boolean?
+  cry_previous_infraction_first_date  DateTime?                @db.Date
+  cry_previous_infraction_count       Int?
+  cry_levy_percentage                 Int?
+  cry_correspondence_code             String?                  @db.VarChar(50)
+  cry_correspondence_description      String?                  @db.VarChar(120)
+  ffa_day                             String?                  @db.VarChar(2)
+  ffa_date                            DateTime?                @db.Date
+  ffa_value                           Decimal?                 @db.Decimal(10, 2)
+  ffa_infraction_flag                 Boolean?
+  ffa_previous_infraction_first_date  DateTime?                @db.Date
+  ffa_previous_infraction_count       Int?
+  ffa_levy_percentage                 Int?
+  ffa_correspondence_code             String?                  @db.VarChar(50)
+  ffa_correspondence_description      String?                  @db.VarChar(120)
+  ih_day                              String?                  @db.VarChar(2)
+  ih_date                             DateTime?                @db.Date
+  ih_value                            Decimal?                 @db.Decimal(10, 2)
+  ih_infraction_flag                  Boolean?
+  ih_previous_infraction_first_date   DateTime?                @db.Date
+  ih_previous_infraction_count        Int?
+  ih_levy_percentage                  Int?
+  ih_correspondence_code              String?                  @db.VarChar(50)
+  ih_correspondence_description       String?                  @db.VarChar(120)
+  create_userid                       String                   @db.VarChar(63)
+  create_timestamp                    DateTime                 @db.Timestamp(6)
+  update_userid                       String                   @db.VarChar(63)
+  update_timestamp                    DateTime                 @db.Timestamp(6)
+  mal_dairy_farm_test_job             mal_dairy_farm_test_job? @relation(fields: [test_job_id], references: [id])
 }
 
 model mal_licence_summary_vw {

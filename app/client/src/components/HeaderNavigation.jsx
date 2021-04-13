@@ -93,6 +93,11 @@ function HeaderNavigation() {
                 <DropdownNavLink to={Constant.ADMIN_CONFIG_PATHNAME}>
                   Configuration
                 </DropdownNavLink>
+                <DropdownNavLink
+                  to={Constant.ADMIN_DAIRY_TEST_RESULTS_PATHNAME}
+                >
+                  Dairy Test Results
+                </DropdownNavLink>
               </HeaderDropdown>
             </Nav>
           </Navbar.Collapse>

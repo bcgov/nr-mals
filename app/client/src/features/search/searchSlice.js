@@ -28,6 +28,11 @@ export const selectAssociatedLicencesParameters = (state) =>
 export const selectAssociatedLicencesResults = (state) =>
   state.search.associatedLicences.results;
 
+export const selectDairyTestHistoryParameters = (state) =>
+  state.search.dairyTestHistory.parameters;
+export const selectDairyTestHistoryResults = (state) =>
+  state.search.dairyTestHistory.results;
+
 export const fetchLicenceResults = createAsyncThunk(
   "search/fetchLicenceResults",
   async (_, thunkApi) => {
@@ -148,6 +153,30 @@ export const fetchAssociatedLicencesResults = createAsyncThunk(
   }
 );
 
+export const fetchDairyTestHistoryResults = createAsyncThunk(
+  "search/fetchDairyTestHistoryResults",
+  async (_, thunkApi) => {
+    try {
+      const parameters = selectDairyTestHistoryParameters(thunkApi.getState());
+
+      const parsedParameters = {
+        ...parameters,
+      };
+
+      const response = await Api.get(
+        `licences/dairytesthistory`,
+        parsedParameters
+      );
+      return response.data;
+    } catch (error) {
+      if (error instanceof ApiError) {
+        return thunkApi.rejectWithValue(error.serialize());
+      }
+      return thunkApi.rejectWithValue({ code: -1, description: error.message });
+    }
+  }
+);
+
 export const searchSlice = createSlice({
   name: "search",
   initialState: {
@@ -185,6 +214,17 @@ export const searchSlice = createSlice({
       },
     },
     associatedLicences: {
+      searchType: SEARCH_TYPE.SIMPLE,
+      parameters: {},
+      results: {
+        data: undefined,
+        page: undefined,
+        count: undefined,
+        error: undefined,
+        status: REQUEST_STATUS.IDLE,
+      },
+    },
+    dairyTestHistory: {
       searchType: SEARCH_TYPE.SIMPLE,
       parameters: {},
       results: {
@@ -296,6 +336,24 @@ export const searchSlice = createSlice({
     setAssociatedLicencesSearchPage: (state, action) => {
       state.associatedLicences.parameters.page = action.payload;
     },
+
+    // Dairy Test History
+    clearDairyTestHistoryParameters: (state) => {
+      state.dairyTestHistory.parameters = {};
+      state.dairyTestHistory.searchType = SEARCH_TYPE.SIMPLE;
+    },
+    clearDairyTestHistoryResults: (state) => {
+      state.dairyTestHistory.results.data = undefined;
+      state.dairyTestHistory.results.error = undefined;
+      state.dairyTestHistory.results.status = REQUEST_STATUS.IDLE;
+    },
+    setDairyTestHistoryParameters: (state, action) => {
+      state.dairyTestHistory.parameters = action.payload;
+      state.dairyTestHistory.results.status = REQUEST_STATUS.IDLE;
+    },
+    setDairyTestHistorySearchPage: (state, action) => {
+      state.dairyTestHistory.parameters.page = action.payload;
+    },
   },
   extraReducers: {
     // Licences
@@ -387,6 +445,24 @@ export const searchSlice = createSlice({
       state.associatedLicences.results.error = action.payload;
       state.associatedLicences.results.status = REQUEST_STATUS.REJECTED;
     },
+
+    // Dairy Test History
+    [fetchDairyTestHistoryResults.pending]: (state) => {
+      state.dairyTestHistory.results.error = undefined;
+      state.dairyTestHistory.results.status = REQUEST_STATUS.PENDING;
+    },
+    [fetchDairyTestHistoryResults.fulfilled]: (state, action) => {
+      state.dairyTestHistory.results.data = action.payload.results;
+      state.dairyTestHistory.results.page = action.payload.page;
+      state.dairyTestHistory.results.count = action.payload.count;
+      state.dairyTestHistory.results.error = undefined;
+      state.dairyTestHistory.results.status = REQUEST_STATUS.FULFILLED;
+    },
+    [fetchDairyTestHistoryResults.rejected]: (state, action) => {
+      state.dairyTestHistory.results.data = undefined;
+      state.dairyTestHistory.results.error = action.payload;
+      state.dairyTestHistory.results.status = REQUEST_STATUS.REJECTED;
+    },
   },
 });
 
@@ -416,6 +492,11 @@ export const {
   toggleAssociatedLicencesSearchType,
   setAssociatedLicencesParameters,
   setAssociatedLicencesSearchPage,
+
+  clearDairyTestHistoryParameters,
+  clearDairyTestHistoryResults,
+  setDairyTestHistoryParameters,
+  setDairyTestHistorySearchPage,
 } = actions;
 
 export default reducer;

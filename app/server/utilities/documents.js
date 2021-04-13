@@ -55,6 +55,8 @@ function getCertificateTemplateName(documentType, licenceType) {
       return "Limited-Medicated-Feed";
     case "LIVESTOCK DEALER":
       return "Livestock-Dealer";
+    case "LIVESTOCK DEALER AGENT":
+      return "Livestock-Dealer-Agent";
     case "MEDICATED FEED":
       return "Medicated-Feed";
     case "PUBLIC SALE YARD OPERATOR":

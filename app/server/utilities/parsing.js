@@ -14,4 +14,12 @@ const parseAsFloat = (string) => {
   return number;
 };
 
-module.exports = { parseAsInt, parseAsFloat };
+const parseAsDate = (value) => {
+  if (value === null || value === undefined || value.length === 0) {
+    return undefined;
+  }
+
+  return new Date(value);
+};
+
+module.exports = { parseAsInt, parseAsFloat, parseAsDate };
