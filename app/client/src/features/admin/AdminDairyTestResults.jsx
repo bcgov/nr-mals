@@ -217,15 +217,17 @@ export default function AdminDairyTestResults() {
           {dairyTestResults.data.attemptCount} entries were loaded successfully
         </div>
 
-        <div className="mt-3">
-          <span className="font-weight-bold">
-            The following IRMA Numbers are not matching IRMA Numbers on any
-            Licence and were ignored:
-          </span>
-          {dairyTestResults.data.licenceNoIrmaMatch.map((x) => {
-            return <div>IRMA # {x.irmaNumber}</div>;
-          })}
-        </div>
+        {dairyTestResults.data.licenceNoIrmaMatch.length > 0 ? (
+          <div className="mt-3">
+            <span className="font-weight-bold">
+              The following IRMA Numbers are not matching IRMA Numbers on any
+              Licence and were ignored:
+            </span>
+            {dairyTestResults.data.licenceNoIrmaMatch.map((x) => {
+              return <div>IRMA # {x.irmaNumber}</div>;
+            })}
+          </div>
+        ) : null}
       </>
     );
   } else if (results.count === 0) {
