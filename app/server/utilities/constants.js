@@ -40,4 +40,21 @@ module.exports = Object.freeze({
   INSPECTOR: 2,
   USER: 3,
   READ_ONLY: 4,
+
+  // System Roles
+  DAIRY_TEST_SUBSPECIES: {
+    SPC1: "SPC1",
+    SCC: "SCC",
+    CRY: "CRY",
+    FFA: "FFA",
+    IH: "IH",
+  },
+
+  DAIRY_TEST_THRESHOLD_IDS: {
+    WATER: 1, // CRY
+    IH: 2,
+    SCC: 3,
+    IBC: 4, // SCP1
+    FFA: 5,
+  },
 });

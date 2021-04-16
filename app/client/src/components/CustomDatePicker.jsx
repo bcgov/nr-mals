@@ -22,6 +22,7 @@ const CustomDatePicker = React.forwardRef((props, outerRef) => {
     id,
     label,
     notifyOnChange,
+    notifyOnBlur,
     defaultValue,
     isInvalid,
     invalidFeedback,
@@ -30,8 +31,14 @@ const CustomDatePicker = React.forwardRef((props, outerRef) => {
   const [date, setDate] = useState(defaultValue);
 
   const setDateWrapper = (value) => {
+    console.log("setDateWrapper");
     setDate(value);
     notifyOnChange(value);
+  };
+
+  const onBlurWrapper = () => {
+    console.log("onBlurWrapper");
+    notifyOnBlur();
   };
 
   const defaultValueRepresentation = defaultValue
@@ -48,7 +55,8 @@ const CustomDatePicker = React.forwardRef((props, outerRef) => {
   }, [defaultValueRepresentation]);
 
   const CustomDatePickerInput = React.forwardRef(({ onClick }, ref) => {
-    const handleOnBlur = (e) => {
+    const handleOnChange = (e) => {
+      console.log("handleOnChange");
       let newDate = parse(e.currentTarget.value, DATE_FORMAT, new Date(), {
         locale: canadianEnglish,
       });
@@ -60,6 +68,11 @@ const CustomDatePicker = React.forwardRef((props, outerRef) => {
       if (!isEqual(date, newDate)) {
         setDateWrapper(newDate);
       }
+    };
+
+    const handleOnBlur = (e) => {
+      console.log("handleOnBlur");
+      onBlurWrapper();
     };
 
     let dateString;
@@ -77,6 +90,7 @@ const CustomDatePicker = React.forwardRef((props, outerRef) => {
             type="text"
             name={id}
             defaultValue={dateString}
+            onChange={handleOnChange}
             onBlur={handleOnBlur}
             isInvalid={isInvalid}
             ref={ref}
@@ -105,11 +119,13 @@ const CustomDatePicker = React.forwardRef((props, outerRef) => {
       selected={date}
       dateFormat={DATE_FORMAT}
       onChange={setDateWrapper}
+      onCalendarClose={onBlurWrapper}
       popperPlacement="right"
       customInput={
         <CustomDatePickerInput
           date={date}
           setDateWrapper={setDateWrapper}
+          onBlurWrapper={onBlurWrapper}
           fieldId={id}
           label={label}
           isInvalid={isInvalid}
@@ -128,12 +144,14 @@ CustomDatePicker.propTypes = {
   id: PropTypes.string.isRequired,
   label: PropTypes.string,
   notifyOnChange: PropTypes.func,
+  notifyOnBlur: PropTypes.func,
   defaultValue: PropTypes.instanceOf(Date),
   isInvalid: PropTypes.object,
   invalidFeedback: PropTypes.node,
 };
 CustomDatePicker.defaultProps = {
   notifyOnChange: Function.prototype,
+  notifyOnBlur: Function.prototype,
   label: null,
   defaultValue: null,
   isInvalid: null,

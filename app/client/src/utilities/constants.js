@@ -121,9 +121,10 @@ export const SYSTEM_ROLES = {
   READ_ONLY: 4,
 };
 
-export const DAIRY_TEST_TYPE_IDS = {
-  IBC: 0, // SCP1
-  SCC: 1,
+export const DAIRY_TEST_THRESHOLD_IDS = {
+  WATER: 1, // CRY
   IH: 2,
-  WATER: 3, // CRY
+  SCC: 3,
+  IBC: 4, // SCP1
+  FFA: 5,
 };

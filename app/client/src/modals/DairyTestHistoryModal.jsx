@@ -80,10 +80,15 @@ export default function DairyTestHistoryModal({ licenceId, closeModal }) {
             <tr>
               <th className="font-weight-bold">Date</th>
               <th className="font-weight-bold">IBC Value</th>
+              <th className="font-weight-bold">IBC Action</th>
               <th className="font-weight-bold">SCC Value</th>
+              <th className="font-weight-bold">SCC Action</th>
               <th className="font-weight-bold">WATER Value</th>
+              <th className="font-weight-bold">WATER Action</th>
               <th className="font-weight-bold">FFA Value</th>
+              <th className="font-weight-bold">FFA Action</th>
               <th className="font-weight-bold">IH Value</th>
+              <th className="font-weight-bold">IH Action</th>
             </tr>
           </thead>
           <tbody>
@@ -92,10 +97,40 @@ export default function DairyTestHistoryModal({ licenceId, closeModal }) {
                 <tr key={index}>
                   <td className="text-nowrap">{result.spc1Date}</td>
                   <td className="text-nowrap">{result.spc1Value}</td>
+                  <td className="text-nowrap">
+                    {result.spc1CorrespondenceDescription}
+                    {result.spc1LevyPercentage
+                      ? ` (${result.spc1LevyPercentage}%)`
+                      : null}
+                  </td>
                   <td className="text-nowrap">{result.sccValue}</td>
+                  <td className="text-nowrap">
+                    {result.sccCorrespondenceDescription}
+                    {result.sccLevyPercentage
+                      ? ` (${result.sccLevyPercentage}%)`
+                      : null}
+                  </td>
                   <td className="text-nowrap">{result.cryValue}</td>
-                  <td className="text-nowrap">{null}</td>
+                  <td className="text-nowrap">
+                    {result.cryCorrespondenceDescription}
+                    {result.cryLevyPercentage
+                      ? ` (${result.cryLevyPercentage}%)`
+                      : null}
+                  </td>
+                  <td className="text-nowrap">{result.ffaValue}</td>
+                  <td className="text-nowrap">
+                    {result.ffaCorrespondenceDescription}
+                    {result.ffaLevyPercentage
+                      ? ` (${result.ffaLevyPercentage}%)`
+                      : null}
+                  </td>
                   <td className="text-nowrap">{result.ihValue}</td>
+                  <td className="text-nowrap">
+                    {result.ihCorrespondenceDescription}
+                    {result.ihLevyPercentage
+                      ? ` (${result.ihLevyPercentage}%)`
+                      : null}
+                  </td>
                 </tr>
               );
             })}
