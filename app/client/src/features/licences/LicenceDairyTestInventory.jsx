@@ -98,7 +98,6 @@ export default function LicenceDairyTestInventory({ licence }) {
     });
 
     const filtered = rows.filter((x) => x.date !== null);
-    console.log(filtered);
     setInitialInventory(filtered);
   }, [dairyTestResults]);
 
@@ -263,7 +262,6 @@ export default function LicenceDairyTestInventory({ licence }) {
   };
 
   const calculateAction = async (index) => {
-    console.log("calculateAction");
     const clone = [...inventory];
     const item = { ...inventory[index] };
 
@@ -276,7 +274,6 @@ export default function LicenceDairyTestInventory({ licence }) {
     await dispatch(
       calculateWarningLevyNotice({ data: payload, id: licence.data.id })
     ).then((data) => {
-      console.log(data);
       const notice = data.payload;
       if (notice !== undefined) {
         item.action = notice.correspondenceDescription;

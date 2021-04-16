@@ -31,13 +31,11 @@ const CustomDatePicker = React.forwardRef((props, outerRef) => {
   const [date, setDate] = useState(defaultValue);
 
   const setDateWrapper = (value) => {
-    console.log("setDateWrapper");
     setDate(value);
     notifyOnChange(value);
   };
 
   const onBlurWrapper = () => {
-    console.log("onBlurWrapper");
     notifyOnBlur();
   };
 
@@ -56,7 +54,6 @@ const CustomDatePicker = React.forwardRef((props, outerRef) => {
 
   const CustomDatePickerInput = React.forwardRef(({ onClick }, ref) => {
     const handleOnChange = (e) => {
-      console.log("handleOnChange");
       let newDate = parse(e.currentTarget.value, DATE_FORMAT, new Date(), {
         locale: canadianEnglish,
       });
@@ -71,7 +68,6 @@ const CustomDatePicker = React.forwardRef((props, outerRef) => {
     };
 
     const handleOnBlur = (e) => {
-      console.log("handleOnBlur");
       onBlurWrapper();
     };
 
