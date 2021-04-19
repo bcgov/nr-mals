@@ -10,6 +10,7 @@ const { formatDate } = require("../utilities/formatting");
 const user = require("../models/user");
 const role = require("../models/role");
 const dairyTestResult = require("../models/dairyTestResult");
+const dairyTestThreshold = require("../models/dairyTestThreshold");
 
 const constants = require("../utilities/constants");
 const forEach = require("lodash/forEach");
@@ -54,6 +55,15 @@ async function updateUser(id, payload) {
 
 async function deleteUser(id) {
   return prisma.mal_application_user.delete({
+    where: {
+      id: id,
+    },
+  });
+}
+
+async function updateDairyResultThreshold(id, payload) {
+  return prisma.mal_dairy_farm_test_threshold_lu.update({
+    data: payload,
     where: {
       id: id,
     },
@@ -163,19 +173,6 @@ async function createDairyTestResults(payloads) {
       data: payloads[i],
     });
   }
-
-  // const result = await prisma.mal_dairy_farm_test_result.createMany({
-  //   data: payloads,
-  // });
-
-  // return Promise.all(
-  //   payloads.map(async (payload) => {
-  //     const result = await prisma.mal_dairy_farm_test_result.create({
-  //       data: payload,
-  //     });
-  //     return result;
-  //   })
-  // );
 }
 
 router.put("/dairytestresults", async (req, res, next) => {
@@ -404,6 +401,28 @@ router.put("/dairytestresults", async (req, res, next) => {
     successInsertCount: licenceMatch.length,
     licenceNoIrmaMatch: licenceNoMatch,
   });
+});
+
+router.put("/dairyfarmtestthresholds/:id(\\d+)", async (req, res, next) => {
+  const now = new Date();
+
+  const id = parseInt(req.params.id, 10);
+
+  const updatePayload = dairyTestThreshold.convertToPhysicalModel(
+    populateAuditColumnsUpdate(req.body, now),
+    true
+  );
+
+  await updateDairyResultThreshold(id, updatePayload)
+    .then(async () => {
+      const fetchThresholds = await prisma.mal_dairy_farm_test_threshold_lu.findMany();
+      const payload = fetchThresholds.map((x) =>
+        dairyTestThreshold.convertToLogicalModel(x)
+      );
+      return res.send(collection.sortBy(payload, (r) => r.id));
+    })
+    .catch(next)
+    .finally(async () => prisma.$disconnect());
 });
 
 module.exports = router;

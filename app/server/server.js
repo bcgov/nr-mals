@@ -17,6 +17,7 @@ const licenceSpeciesRouter = require("./routes/licenceSpecies");
 const documentsRouter = require("./routes/documents");
 const citiesRouter = require("./routes/cities");
 const adminRouter = require("./routes/admin");
+const dairyFarmTestThresholdsRouter = require("./routes/dairyFarmTestThresholds");
 
 const app = express();
 
@@ -36,6 +37,7 @@ app.use("/api/comments", commentsRouter.router);
 app.use("/api/licence-species", licenceSpeciesRouter);
 app.use("/api/documents", documentsRouter);
 app.use("/api/cities", citiesRouter);
+app.use("/api/dairyfarmtestthresholds", dairyFarmTestThresholdsRouter);
 app.use("/api/admin", adminRouter);
 app.use("/api/*", (req, res) => {
   res.status(404).send({
