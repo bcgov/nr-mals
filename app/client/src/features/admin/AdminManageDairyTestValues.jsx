@@ -26,7 +26,6 @@ export default function AdminManageDairyTestValues() {
   }, [dispatch]);
 
   const editThresholdCallback = (data) => {
-    console.log(data);
     dispatch(updateDairyFarmTestThresholds({ payload: data, id: data.id }));
   };
 
