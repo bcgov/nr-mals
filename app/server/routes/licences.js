@@ -1058,8 +1058,8 @@ router.put("/:licenceId(\\d+)/registrants", async (req, res, next) => {
     })
     .then(async (licenceId) => {
       // Current primary registrant could be getting deleted which would break the FK
-      // First check the updated list for the oldest entry
-      // If none exist get the oldest from the created list
+      // Find the oldest registrant not in the deleted list and update primary registrant
+      // FK and company names to that
 
       const updatedRecord = await findLicence(licenceId);
       let updatedRecordLogical = licence.convertToLogicalModel(updatedRecord);
@@ -1072,53 +1072,55 @@ router.put("/:licenceId(\\d+)/registrants", async (req, res, next) => {
           : 0
       );
 
-      let search =
-        registrantsToUpdate.length > 0
-          ? registrantsToUpdate
-          : registrantsToCreate;
-
+      let newPrimaryRegistrant = undefined;
       for (r = 0; r < recordRegistrants.length; ++r) {
         if (
-          search.find((x) => x.id === recordRegistrants[r].id) !== undefined
+          registrantsToDelete.find((x) => x.id === recordRegistrants[r].id) ===
+          undefined
         ) {
           newPrimaryRegistrant = recordRegistrants[r];
           break;
         }
       }
 
-      // Send new primary registrant id if necessary
-      if (
-        newPrimaryRegistrant.id !== updatedRecordLogical.primaryRegistrantId
-      ) {
-        updatedRecordLogical.primaryRegistrantId = newPrimaryRegistrant.id;
+      // Update licence primary registrant id and company name columns
+      updatedRecordLogical.primaryRegistrantId = newPrimaryRegistrant.id;
 
-        // Update issued and expiry dates
-        updatedRecordLogical.issuedOnDate = new Date(
-          updatedRecordLogical.issuedOnDate
+      // Update issued and expiry dates
+      updatedRecordLogical.issuedOnDate = new Date(
+        updatedRecordLogical.issuedOnDate
+      );
+      updatedRecordLogical.expiryDate = new Date(
+        updatedRecordLogical.expiryDate
+      );
+      if (updatedRecordLogical.bondContinuationExpiryDate !== null) {
+        updatedRecordLogical.bondContinuationExpiryDate = new Date(
+          updatedRecordLogical.bondContinuationExpiryDate
         );
-        updatedRecordLogical.expiryDate = new Date(
-          updatedRecordLogical.expiryDate
-        );
-        if (updatedRecordLogical.bondContinuationExpiryDate !== null) {
-          updatedRecordLogical.bondContinuationExpiryDate = new Date(
-            updatedRecordLogical.bondContinuationExpiryDate
-          );
-        }
-
-        // Reset some connect variables for the update
-        updatedRecordLogical.licenceType = updatedRecordLogical.licenceTypeId;
-        updatedRecordLogical.licenceStatus =
-          updatedRecordLogical.licenceStatusId;
-        updatedRecordLogical.regionalDistrict =
-          updatedRecordLogical.regionalDistrictId;
-        updatedRecordLogical.region = updatedRecordLogical.regionId;
-
-        const updatedLicencePayload = licence.convertToPhysicalModel(
-          populateAuditColumnsUpdate(updatedRecordLogical, now, now),
-          true
-        );
-        await updateLicence(licenceId, updatedLicencePayload);
       }
+
+      // Reset some connect variables for the update
+      updatedRecordLogical.licenceType = updatedRecordLogical.licenceTypeId;
+      updatedRecordLogical.licenceStatus = updatedRecordLogical.licenceStatusId;
+      updatedRecordLogical.regionalDistrict =
+        updatedRecordLogical.regionalDistrictId;
+      updatedRecordLogical.region = updatedRecordLogical.regionId;
+
+      const fromBodyPrimaryRegistrant = registrants.find(
+        (x) =>
+          x.firstName === newPrimaryRegistrant.firstName &&
+          x.lastName === newPrimaryRegistrant.lastName
+      );
+      updatedRecordLogical.companyName =
+        fromBodyPrimaryRegistrant !== undefined
+          ? fromBodyPrimaryRegistrant.companyName
+          : undefined;
+
+      const updatedLicencePayload = licence.convertToPhysicalModel(
+        populateAuditColumnsUpdate(updatedRecordLogical, now, now),
+        true
+      );
+      await updateLicence(licenceId, updatedLicencePayload);
 
       return licenceId;
     })
@@ -1189,15 +1191,19 @@ router.put(
 router.post("/", async (req, res, next) => {
   const now = new Date();
 
-  const licencePayload = licence.convertToPhysicalModel(
-    populateAuditColumnsCreate(req.body, now, now),
-    false
-  );
   const newRegistrants = req.body.registrants
     ? req.body.registrants.filter(
         (r) => r && r.status === REGISTRANT_STATUS.NEW
       )
     : [];
+
+  req.body.companyName =
+    newRegistrants[0] !== undefined ? newRegistrants[0].companyName : undefined;
+
+  const licencePayload = licence.convertToPhysicalModel(
+    populateAuditColumnsCreate(req.body, now, now),
+    false
+  );
 
   const { commentText } = req.body;
 
