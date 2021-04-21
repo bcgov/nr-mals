@@ -31,6 +31,8 @@ function convertToLogicalModel(input) {
     primaryPhone: input.primary_phone,
     secondaryPhone: input.secondary_phone,
     faxNumber: input.fax_number,
+    companyName: input.company_name,
+    companyNameOverride: input.company_name_override,
     regionalDistrictId: input.regional_district_id,
     applicationDate: formatDate(input.application_date),
     issuedOnDate: formatDate(input.issue_date),
@@ -66,6 +68,13 @@ function convertToLogicalModel(input) {
       })
     ),
   };
+
+  let primaryRegistrant = output.registrants.find(
+    (x) => x.id === output.primaryRegistrantId
+  );
+  if (primaryRegistrant !== undefined) {
+    primaryRegistrant.companyName = output.companyName;
+  }
 
   switch (input.licence_type_id) {
     case constants.LICENCE_TYPE_ID_GAME_FARM:
@@ -281,6 +290,8 @@ function convertToPhysicalModel(input, update) {
     mal_licence_species_code_lu: speciesCode,
     issue_date: input.issuedOnDate,
     expiry_date: input.expiryDate,
+    company_name: input.companyName,
+    company_name_override: input.companyNameOverride,
     fee_collected: input.feePaidAmount,
     fee_collected_ind: input.paymentReceived || false,
     action_required: input.actionRequired,
