@@ -75,7 +75,7 @@ function HeaderNavigation() {
                 title="Document Generation"
                 pathPrefix={Constant.DOCUMENT_GENERATION_PATHNAME}
               >
-                <DropdownNavLink to={Constant.NOTICES_PATHNAME}>
+                <DropdownNavLink to={Constant.SELECT_NOTICES_PATHNAME}>
                   Notices
                 </DropdownNavLink>
                 <DropdownNavLink to={Constant.REPORTS_PATHNAME}>

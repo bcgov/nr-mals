@@ -13,6 +13,7 @@ const { getCurrentUser } = require("../utilities/user");
 const {
   formatCdogsBody,
   getCertificateTemplateName,
+  getNoticeTemplateName,
 } = require("../utilities/documents");
 
 const prisma = new PrismaClient();
@@ -22,6 +23,8 @@ const certificateTemplateDir = path.join(
   __dirname,
   "../static/templates/certificates"
 );
+
+const noticeTemplateDir = path.join(__dirname, "../static/templates/notices");
 
 const cdogs = axios.create({
   baseURL: process.env.CDOGS_URL,
@@ -51,6 +54,16 @@ async function getQueuedCertificates() {
 
   return prisma.mal_licence_summary_vw.findMany({
     where: { print_certificate: true, status_code_id: activeStatus.id },
+  });
+}
+
+async function getQueuedNotices() {
+  const activeStatus = await prisma.mal_status_code_lu.findFirst({
+    where: { code_name: "ACT" },
+  });
+
+  return prisma.mal_licence_summary_vw.findMany({
+    where: { print_renewal: true, status_code_id: activeStatus.id },
   });
 }
 
@@ -164,12 +177,6 @@ async function generateCertificate(documentId) {
   return result;
 }
 
-async function generateCertificates(documentIds) {
-  return Promise.allSettled(
-    documentIds.map((documentId) => generateCertificate(documentId))
-  );
-}
-
 async function startCertificateJob(licenceIds) {
   const licenceFilterCriteria = {
     id: {
@@ -201,6 +208,185 @@ async function startCertificateJob(licenceIds) {
   const documents = await getPendingDocuments(jobId);
 
   return { jobId, documents };
+}
+
+async function generateCertificate(documentId) {
+  const document = await getDocument(documentId);
+
+  const templateFileName = getCertificateTemplateName(
+    document.document_type,
+    document.licence_type
+  );
+
+  if (templateFileName === undefined) {
+    return {
+      status: 500,
+      payload: {
+        code: 500,
+        description: `Could not find template matching the given document and licence types [${document.document_type}, ${document.licence_type}] for document ${document.id}`,
+      },
+    };
+  }
+
+  if (
+    templateBuffers.find((x) => x.templateFileName === templateFileName) ===
+    undefined
+  ) {
+    const buffer = await fs.readFile(
+      path.join(certificateTemplateDir, `${templateFileName}.docx`)
+    );
+    const bufferBase64 = buffer.toString("base64");
+    templateBuffers.push({
+      templateFileName: templateFileName,
+      templateBuffer: bufferBase64,
+    });
+  }
+
+  const template = templateBuffers.find(
+    (x) => x.templateFileName === templateFileName
+  );
+  const generate = async () => {
+    const { data, status } = await cdogs.post(
+      "template/render",
+      formatCdogsBody(document.document_json, template.templateBuffer),
+      {
+        responseType: "arraybuffer", // Needed for binaries unless you want pain
+      }
+    );
+
+    if (status !== 200) {
+      return {
+        status,
+        payload: {
+          code: status,
+          description: "Error encountered in CDOGS",
+        },
+      };
+    }
+
+    const currentUser = getCurrentUser();
+    const now = new Date();
+
+    await prisma.mal_print_job_output.update({
+      where: { id: document.id },
+      data: {
+        document_binary: data,
+        update_userid: currentUser.idir,
+        update_timestamp: now,
+      },
+    });
+
+    return { status: 200, payload: { documentId: document.id } };
+  };
+
+  const result = await generate();
+
+  return result;
+}
+
+async function startNoticeJob(licenceIds) {
+  const licenceFilterCriteria = {
+    id: {
+      in: licenceIds,
+    },
+  };
+
+  const [, , procedureResult, ,] = await prisma.$transaction([
+    // ensure selected licences have print_renewal set to true
+    prisma.mal_licence.updateMany({
+      where: licenceFilterCriteria,
+      data: { print_renewal: true },
+    }),
+    // ensure other licences have print_renewal set to false
+    prisma.mal_licence.updateMany({
+      where: { NOT: licenceFilterCriteria },
+      data: { print_renewal: false },
+    }),
+    prisma.$queryRaw("CALL mals_app.pr_generate_print_json('RENEWAL', NULL)"),
+    prisma.mal_licence.updateMany({
+      data: { print_renewal: false },
+    }),
+  ]);
+
+  const jobId = procedureResult[0].iop_print_job_id;
+
+  const documents = await getPendingDocuments(jobId);
+
+  return { jobId, documents };
+}
+
+async function generateNotice(documentId) {
+  const document = await getDocument(documentId);
+
+  const templateFileName = getNoticeTemplateName(
+    document.document_type,
+    document.licence_type
+  );
+
+  if (templateFileName === undefined) {
+    return {
+      status: 500,
+      payload: {
+        code: 500,
+        description: `Could not find template matching the given document and licence types [${document.document_type}, ${document.licence_type}] for document ${document.id}`,
+      },
+    };
+  }
+
+  if (
+    templateBuffers.find((x) => x.templateFileName === templateFileName) ===
+    undefined
+  ) {
+    const buffer = await fs.readFile(
+      path.join(noticeTemplateDir, `${templateFileName}.docx`)
+    );
+    const bufferBase64 = buffer.toString("base64");
+    templateBuffers.push({
+      templateFileName: templateFileName,
+      templateBuffer: bufferBase64,
+    });
+  }
+
+  const template = templateBuffers.find(
+    (x) => x.templateFileName === templateFileName
+  );
+  const generate = async () => {
+    const { data, status } = await cdogs.post(
+      "template/render",
+      formatCdogsBody(document.document_json, template.templateBuffer),
+      {
+        responseType: "arraybuffer", // Needed for binaries unless you want pain
+      }
+    );
+
+    if (status !== 200) {
+      return {
+        status,
+        payload: {
+          code: status,
+          description: "Error encountered in CDOGS",
+        },
+      };
+    }
+
+    const currentUser = getCurrentUser();
+    const now = new Date();
+
+    await prisma.mal_print_job_output.update({
+      where: { id: document.id },
+      data: {
+        document_binary: data,
+        update_userid: currentUser.idir,
+        update_timestamp: now,
+      },
+    });
+
+    return { status: 200, payload: { documentId: document.id } };
+  };
+
+  const result = await generate();
+
+  return result;
 }
 
 async function getJob(jobId) {
@@ -332,6 +518,45 @@ router.post(
   }
 );
 
+router.get("/notices/queued", async (req, res, next) => {
+  await getQueuedNotices()
+    .then(async (records) => {
+      const payload = records.map((record) =>
+        licence.convertNoticeToLogicalModel(record)
+      );
+
+      return res.send(payload);
+    })
+    .catch(next)
+    .finally(async () => prisma.$disconnect());
+});
+
+router.post("/notices/startJob", async (req, res, next) => {
+  const licenceIds = req.body.map((licenceId) => parseInt(licenceId, 10));
+
+  await startNoticeJob(licenceIds)
+    .then(({ jobId, documents }) => {
+      return res.send({ jobId, documents });
+    })
+    .catch(next)
+    .finally(async () => prisma.$disconnect());
+});
+
+router.post("/notices/completeJob/:jobId(\\d+)", async (req, res, next) => {
+  const jobId = parseInt(req.params.jobId, 10);
+
+  await prisma.mal_print_job.update({
+    where: {
+      id: jobId,
+    },
+    data: {
+      document_end_time: new Date(),
+    },
+  });
+
+  return res.status(200).send(true);
+});
+
 router.get("/jobs/:jobId(\\d+)", async (req, res, next) => {
   const jobId = parseInt(req.params.jobId, 10);
 
@@ -367,6 +592,17 @@ router.post(
       .finally(async () => prisma.$disconnect());
   }
 );
+
+router.post("/notices/generate/:documentId(\\d+)", async (req, res, next) => {
+  const documentId = parseInt(req.params.documentId, 10);
+
+  await generateNotice(documentId)
+    .then(({ status, payload }) => {
+      return res.status(status).send(payload);
+    })
+    .catch(next)
+    .finally(async () => prisma.$disconnect());
+});
 
 router.post("/generator-health", async (req, res, next) => {
   await cdogs
