@@ -78,10 +78,16 @@ export default function LicenceInventory({ licence }) {
               sp.codeName === SPECIES_SUBCODES.FEMALE &&
               sp.speciesCodeId === x.speciesCodeId
           )?.id;
+          const CALVES_ID = licenceSpecies.data.subSpecies.find(
+            (sp) =>
+              sp.codeName === SPECIES_SUBCODES.CALVES &&
+              sp.speciesCodeId === x.speciesCodeId
+          )?.id;
 
           if (
             x.speciesSubCodeId === MALE_ID ||
-            x.speciesSubCodeId === FEMALE_ID
+            x.speciesSubCodeId === FEMALE_ID ||
+            x.speciesSubCodeId === CALVES_ID
           ) {
             total += parsed;
           }
