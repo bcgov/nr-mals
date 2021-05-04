@@ -10,10 +10,12 @@ const getToken = () => kc.token;
 const updateToken = (successCallback) =>
   kc.updateToken(5).then(successCallback).catch(doLogin);
 
+const log = () => console.log(kc.tokenParsed);
+
 const getUsername = () => kc.tokenParsed?.preferred_username;
 const getName = () => kc.tokenParsed?.name;
 
-const hasRole = (roles) => roles.some((role) => kc.hasRealmRole(role));
+const hasRealmRole = (roles) => roles.some((role) => kc.hasRealmRole(role));
 
 const init = (onAuthenticatedCallback) => {
   kc.init({
@@ -31,6 +33,7 @@ const init = (onAuthenticatedCallback) => {
 };
 
 const keycloak = {
+  log,
   init,
   doLogin,
   doLogout,
@@ -39,7 +42,7 @@ const keycloak = {
   updateToken,
   getUsername,
   getName,
-  hasRole,
+  hasRealmRole,
 };
 
 export default keycloak;

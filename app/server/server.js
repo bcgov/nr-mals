@@ -5,9 +5,11 @@ const path = require("path");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
 const session = require("express-session");
-const Keycloak = require("keycloak-connect");
 const cors = require("cors");
 
+const keycloak = require("./keycloak");
+
+const userRouter = require("./routes/user");
 const licenceTypesRouter = require("./routes/licenceTypes");
 const licenceStatusesRouter = require("./routes/licenceStatuses");
 const licencesRouter = require("./routes/licences");
@@ -21,28 +23,23 @@ const documentsRouter = require("./routes/documents");
 const citiesRouter = require("./routes/cities");
 const adminRouter = require("./routes/admin");
 const dairyFarmTestThresholdsRouter = require("./routes/dairyFarmTestThresholds");
+const constants = require("./utilities/constants");
 
-var memoryStore = new session.MemoryStore();
-var keycloak = new Keycloak({ store: memoryStore });
+const roleValidation = require("./utilities/roleValidation");
 
 const app = express();
+
+app.use(cors());
+app.options("*", cors()); //enable for all pre-flight requests
+
+app.use(keycloak.middleware({}));
 
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(function (req, res, next) {
-  res.header("Access-Control-Allow-Origin", "https://dev.oidc.gov.bc.ca"); // update to match the domain you will make the request from
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept"
-  );
-  next();
-});
-// app.use(cors());
-// app.options("*", cors()); //enable for all pre-flight requests
-app.use(keycloak.middleware({ logout: "/logout" }));
 
+app.use("/api/user", keycloak.protect(), userRouter);
 app.use("/api/licence-types", keycloak.protect(), licenceTypesRouter);
 app.use("/api/licence-statuses", keycloak.protect(), licenceStatusesRouter);
 app.use("/api/licences", keycloak.protect(), licencesRouter);
@@ -59,7 +56,12 @@ app.use(
   keycloak.protect(),
   dairyFarmTestThresholdsRouter
 );
-app.use("/api/admin", keycloak.protect(), adminRouter);
+app.use(
+  "/api/admin",
+  keycloak.protect(),
+  roleValidation([constants.SYSTEM_ROLES.SYSTEM_ADMIN]),
+  adminRouter
+);
 app.use("/api/*", (req, res) => {
   res.status(404).send({
     code: 404,

@@ -1,12 +1,16 @@
 import React, { useEffect } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { BrowserRouter, Redirect, Route, Switch } from "react-router-dom";
 import { Container } from "react-bootstrap";
+
+import keycloak from "./app/keycloak";
 
 import * as Constant from "./utilities/constants";
 import { fetchStatus } from "./features/status/statusSlice";
 import HeaderBranding from "./components/HeaderBranding";
 import HeaderNavigation from "./components/HeaderNavigation";
+
+import { fetchCurrentUser, selectCurrentUser } from "./app/appSlice";
 
 import CreateLicencePage from "./features/licences/CreateLicencePage";
 import ViewLicencePage from "./features/licences/ViewLicencePage";
@@ -35,8 +39,11 @@ import "./App.scss";
 function App() {
   const dispatch = useDispatch();
 
+  const currentUser = useSelector(selectCurrentUser);
+
   useEffect(() => {
     dispatch(fetchStatus());
+    dispatch(fetchCurrentUser({ data: { idir: keycloak.getUsername() } }));
   }, [dispatch]);
 
   return (
