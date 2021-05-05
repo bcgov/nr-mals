@@ -159,7 +159,7 @@ export default function UserModal({ user, closeModal, submit }) {
                 {roles.data.map((x) => {
                   return (
                     <option key={x.id} value={x.id}>
-                      {x.name}
+                      {x.description}
                     </option>
                   );
                 })}

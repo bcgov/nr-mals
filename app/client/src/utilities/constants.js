@@ -114,6 +114,7 @@ export const SPECIES_SUBCODES = {
 export const ADMIN_CONFIG_OPTIONS = {
   MANAGE_USERS: "ManageUsers",
   MANAGE_DAIRY_THRESHOLDS: "ManageDairyThresholds",
+  MANAGE_LICENCE_TYPES: "ManageLicenceTypes",
 };
 
 export const SYSTEM_ROLES = {
