@@ -97,7 +97,7 @@ function convertToPhysicalModel(input, update) {
     ),
     spc1_previous_infraction_count: input.spc1PreviousInfractionCount,
     spc1_levy_percentage: input.spc1LevyPercentage,
-    spc1_correspondence_code: input.spc1Correspondence,
+    spc1_correspondence_code: input.spc1CorrespondenceCode,
     spc1_correspondence_description: input.spc1CorrespondenceDescription,
     scc_day: input.sccDay,
     scc_date: parseAsDate(input.sccDate),

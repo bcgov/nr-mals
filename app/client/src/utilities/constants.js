@@ -16,11 +16,12 @@ export const INSPECTIONS_PATHNAME = "/inspections";
 export const SEARCH_INSPECTIONS_PATHNAME = "/inspections/search";
 export const CREATE_INSPECTIONS_PATHNAME = "/inspections/create";
 export const DOCUMENT_GENERATION_PATHNAME = "/documents";
-export const NOTICES_PATHNAME = "/documents/notices";
 export const REPORTS_PATHNAME = "/documents/reports";
 export const SELECT_CERTIFICATES_PATHNAME = "/documents/certificates";
 export const DOWNLOAD_CERTIFICATES_PATHNAME =
   "/documents/certificates/download";
+export const SELECT_NOTICES_PATHNAME = "/documents/notices";
+export const DOWNLOAD_NOTICES_PATHNAME = "/documents/notices/download";
 export const ADMIN_PATHNAME = "/admin";
 export const ADMIN_CONFIG_PATHNAME = "/admin/config";
 export const ADMIN_DAIRY_TEST_RESULTS_PATHNAME = "/admin/dairytestresults";
@@ -112,6 +113,7 @@ export const SPECIES_SUBCODES = {
 
 export const ADMIN_CONFIG_OPTIONS = {
   MANAGE_USERS: "ManageUsers",
+  MANAGE_DAIRY_THRESHOLDS: "ManageDairyThresholds",
 };
 
 export const SYSTEM_ROLES = {
@@ -121,9 +123,10 @@ export const SYSTEM_ROLES = {
   READ_ONLY: 4,
 };
 
-export const DAIRY_TEST_TYPE_IDS = {
-  IBC: 0, // SCP1
-  SCC: 1,
+export const DAIRY_TEST_THRESHOLD_IDS = {
+  WATER: 1, // CRY
   IH: 2,
-  WATER: 3, // CRY
+  SCC: 3,
+  IBC: 4, // SCP1
+  FFA: 5,
 };

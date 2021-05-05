@@ -22,7 +22,7 @@ function convertToPhysicalModel(input) {
     given_name_1: input.givenName1,
     given_name_2: input.givenName2,
     given_name_3: input.givenName3,
-    user_name: input.userName,
+    user_name: input.userName.toUpperCase(),
     mal_application_role: { connect: { id: input.roleId } },
     active_flag: input.active,
     create_userid: input.createdBy,

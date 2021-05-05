@@ -187,6 +187,23 @@ function convertCertificateToLogicalModel(input) {
   return output;
 }
 
+function convertNoticeToLogicalModel(input) {
+  const output = {
+    licenceId: input.licence_id,
+    licenceType: input.licence_type,
+    licenceStatus: input.licence_status,
+    region: input.region_name,
+    regionalDistrict: input.district_name,
+    licenceNumber: input.licence_number,
+    lastNames: input.last_name,
+    companyNames: input.company_name,
+    issuedOnDate: input.issue_date,
+    expiryDate: input.expiry_date,
+  };
+
+  return output;
+}
+
 function convertAssociatdLicenceToLogicalModel(input) {
   const output = {
     id: input.id,
@@ -366,6 +383,7 @@ module.exports = {
   convertToLogicalModel,
   convertSearchResultToLogicalModel,
   convertCertificateToLogicalModel,
+  convertNoticeToLogicalModel,
   convertAssociatdLicenceToLogicalModel,
   convertToAssociatedLicencePhysicalModel,
 };

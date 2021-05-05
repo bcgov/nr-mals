@@ -5,6 +5,7 @@ import { Container, Form } from "react-bootstrap";
 import PageHeading from "../../components/PageHeading";
 
 import AdminManageUsers from "./AdminManageUsers";
+import AdminManageDairyTestValues from "./AdminManageDairyTestValues";
 
 import { ADMIN_CONFIG_OPTIONS } from "../../utilities/constants";
 
@@ -20,6 +21,9 @@ export default function AdminConfig() {
   switch (selectedConfig) {
     case ADMIN_CONFIG_OPTIONS.MANAGE_USERS:
       control = <AdminManageUsers />;
+      break;
+    case ADMIN_CONFIG_OPTIONS.MANAGE_DAIRY_THRESHOLDS:
+      control = <AdminManageDairyTestValues />;
       break;
     default:
       break;
@@ -40,6 +44,9 @@ export default function AdminConfig() {
           <option value={null} />
           <option value={ADMIN_CONFIG_OPTIONS.MANAGE_USERS}>
             Manage Users
+          </option>
+          <option value={ADMIN_CONFIG_OPTIONS.MANAGE_DAIRY_THRESHOLDS}>
+            Manage Dairy Test Values
           </option>
         </Form.Control>
 
