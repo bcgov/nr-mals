@@ -36,10 +36,12 @@ module.exports = Object.freeze({
   DOCUMENT_TYPE_RENEWAL: "RENEWAL",
 
   // System Roles
-  SYSTEM_ADMIN: 1,
-  INSPECTOR: 2,
-  USER: 3,
-  READ_ONLY: 4,
+  SYSTEM_ROLES: {
+    SYSTEM_ADMIN: 1,
+    INSPECTOR: 2,
+    USER: 3,
+    READ_ONLY: 4,
+  },
 
   // System Roles
   DAIRY_TEST_SUBSPECIES: {
