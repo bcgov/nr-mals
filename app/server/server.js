@@ -25,12 +25,12 @@ const adminRouter = require("./routes/admin");
 const dairyFarmTestThresholdsRouter = require("./routes/dairyFarmTestThresholds");
 const constants = require("./utilities/constants");
 
-const roleValidation = require("./utilities/roleValidation");
+const roleValidation = require("./middleware/roleValidation");
 
 const app = express();
 
 app.use(cors());
-app.options("*", cors()); //enable for all pre-flight requests
+app.options("*", cors()); // enable for all pre-flight requests
 
 app.use(keycloak.middleware({}));
 
@@ -62,7 +62,7 @@ app.use(
   roleValidation([constants.SYSTEM_ROLES.SYSTEM_ADMIN]),
   adminRouter
 );
-app.use("/api/*", (req, res) => {
+app.use("/api/*", keycloak.protect(), (req, res) => {
   res.status(404).send({
     code: 404,
     description: "The requested endpoint could not be found.",
