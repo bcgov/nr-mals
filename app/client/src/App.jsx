@@ -47,13 +47,6 @@ function App() {
     dispatch(fetchCurrentUser({ data: { idir: keycloak.getUsername() } }));
   }, [dispatch]);
 
-  // Render nothing while waiting to get the user
-  if (
-    currentUser.status === Constant.REQUEST_STATUS.IDLE ||
-    currentUser.status === Constant.REQUEST_STATUS.PENDING
-  ) {
-    return null;
-  }
   if (currentUser.status === Constant.REQUEST_STATUS.FULFILLED) {
     // Deny access if user does not have an assigned role
     if (
@@ -156,6 +149,22 @@ function App() {
       </BrowserRouter>
     );
   }
+
+  // Render nothing while waiting to get the user
+  return (
+    <BrowserRouter>
+      <header>
+        <HeaderBranding />
+      </header>
+      <main role="main">
+        <Container className="mt-3">
+          <Switch>
+            <Route path="/" />
+          </Switch>
+        </Container>
+      </main>
+    </BrowserRouter>
+  );
 }
 
 function RegistrantsSearch() {

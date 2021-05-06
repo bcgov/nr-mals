@@ -39,17 +39,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-app.use(
-  "/api/user",
-  keycloak.protect(),
-  roleValidation([
-    constants.SYSTEM_ROLES.READ_ONLY,
-    constants.SYSTEM_ROLES.USER,
-    constants.SYSTEM_ROLES.INSPECTOR,
-    constants.SYSTEM_ROLES.SYSTEM_ADMIN,
-  ]),
-  userRouter
-);
+app.use("/api/user", keycloak.protect(), userRouter);
 app.use(
   "/api/licence-types",
   keycloak.protect(),
@@ -116,17 +106,7 @@ app.use(
   ]),
   regionsRouter
 );
-app.use(
-  "/api/status",
-  keycloak.protect(),
-  roleValidation([
-    constants.SYSTEM_ROLES.READ_ONLY,
-    constants.SYSTEM_ROLES.USER,
-    constants.SYSTEM_ROLES.INSPECTOR,
-    constants.SYSTEM_ROLES.SYSTEM_ADMIN,
-  ]),
-  statusRouter
-);
+app.use("/api/status", keycloak.protect(), statusRouter);
 app.use(
   "/api/comments",
   keycloak.protect(),
