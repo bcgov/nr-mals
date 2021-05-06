@@ -3,13 +3,15 @@ import PropTypes from "prop-types";
 import { Button, Modal, Form, Col } from "react-bootstrap";
 import { useForm } from "react-hook-form";
 
+import CustomDatePicker from "../components/CustomDatePicker";
+
 export const LICENCE_TYPE = "LICENCE_TYPE";
 
 export default function LicenceTypeModal({ licenceType, closeModal, submit }) {
   const form = useForm({
     reValidateMode: "onBlur",
   });
-  const { register, handleSubmit, errors } = form;
+  const { register, setValue, handleSubmit, errors } = form;
 
   const onSubmit = (data) => {
     const valid = true;
@@ -25,6 +27,12 @@ export default function LicenceTypeModal({ licenceType, closeModal, submit }) {
     submit(payload);
   };
 
+  const handleFieldChange = (field) => {
+    return (value) => {
+      setValue(field, value);
+    };
+  };
+
   return (
     <Form onSubmit={handleSubmit(onSubmit)} noValidate>
       <Form.Control
@@ -37,68 +45,151 @@ export default function LicenceTypeModal({ licenceType, closeModal, submit }) {
       />
       <Modal.Header closeButton>
         <Modal.Title>
-          {licenceType ? "Edit licence type" : "Add licence type"}
+          {licenceType ? "Edit a Licence Type" : "Add a Licence Type"}
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <Form.Row>
           <Col>
-            <Form.Group controlId="speciesCode">
-              <Form.Label>Dairy Test Code</Form.Label>
+            <Form.Group controlId="licenceTypeName">
+              <Form.Label>Licence Type Name</Form.Label>
               <Form.Control
                 type="text"
-                name="dairyTestCode"
-                defaultValue={
-                  licenceType !== null ? licenceType.speciesCode : null
-                }
+                name="licenceTypeName"
+                defaultValue={licenceType !== null ? licenceType.name : null}
                 ref={register({
                   required: true,
                 })}
-                isInvalid={errors.speciesCode}
-                readOnly
+                isInvalid={errors.licenceTypeName}
               />
               <Form.Control.Feedback type="invalid">
-                Please enter a valid test code.
+                Please enter a valid name.
               </Form.Control.Feedback>
             </Form.Group>
           </Col>
         </Form.Row>
         <Form.Row>
           <Col>
-            <Form.Group controlId="description">
-              <Form.Label>Description</Form.Label>
+            <Form.Group controlId="standardFee">
+              <Form.Label>Standard Fee</Form.Label>
               <Form.Control
                 type="text"
-                name="description"
+                name="standardFee"
                 defaultValue={
-                  licenceType !== null ? licenceType.speciesSubCode : null
+                  licenceType !== null ? licenceType.standardFee : null
                 }
                 ref={register({
                   required: true,
                 })}
-                isInvalid={errors.speciesSubCode}
-                readOnly
+                isInvalid={errors.standardFee}
               />
               <Form.Control.Feedback type="invalid">
-                Please enter a valid description.
+                Please enter a valid value.
               </Form.Control.Feedback>
             </Form.Group>
           </Col>
         </Form.Row>
         <Form.Row>
           <Col>
-            <Form.Group controlId="upperLimit">
-              <Form.Label>Threshold value</Form.Label>
+            <Form.Group controlId="renewalNoticeTerm">
+              <Form.Label>Renewal Notice Term</Form.Label>
               <Form.Control
                 type="text"
-                name="upperLimit"
+                name="renewalNoticeTerm"
                 defaultValue={
-                  licenceType !== null ? licenceType.upperLimit : null
+                  licenceType !== null ? licenceType.renewalNoticeTerm : null
                 }
                 ref={register({
                   required: true,
                 })}
                 isInvalid={errors.upperLimit}
+              />
+              <Form.Control.Feedback type="invalid">
+                Please enter a valid value.
+              </Form.Control.Feedback>
+            </Form.Group>
+          </Col>
+        </Form.Row>
+        <Form.Row>
+          <Col>
+            <Form.Group controlId="licenceTerm">
+              <Form.Label>Licence Term (Years)</Form.Label>
+              <Form.Control
+                type="text"
+                name="licenceTerm"
+                defaultValue={
+                  licenceType !== null ? licenceType.licenceTerm : null
+                }
+                ref={register({
+                  required: true,
+                })}
+                isInvalid={errors.upperLimit}
+              />
+              <Form.Control.Feedback type="invalid">
+                Please enter a valid value.
+              </Form.Control.Feedback>
+            </Form.Group>
+          </Col>
+        </Form.Row>
+        <Form.Row>
+          <Col>
+            <CustomDatePicker
+              id="standardIssueDate"
+              label="Standard Issue Date"
+              notifyOnChange={handleFieldChange("standardIssueDate")}
+              defaultValue={licenceType.standardIssueDate}
+            />
+          </Col>
+        </Form.Row>
+        <Form.Row>
+          <Col>
+            <CustomDatePicker
+              id="standardExpiryDate"
+              label="Standard Expiry Date"
+              notifyOnChange={handleFieldChange("standardExpiryDate")}
+              defaultValue={licenceType.standardExpiryDate}
+            />
+          </Col>
+        </Form.Row>
+        <Form.Row>
+          <Col>
+            <Form.Group controlId="applicableAct">
+              <Form.Label>Applicable Act</Form.Label>
+              <Form.Control
+                as="textarea"
+                rows={6}
+                name="applicableAct"
+                defaultValue={
+                  licenceType !== null ? licenceType.applicableAct : null
+                }
+                ref={register({
+                  required: true,
+                })}
+                maxLength={2000}
+                isInvalid={errors.applicableAct}
+              />
+              <Form.Control.Feedback type="invalid">
+                Please enter a valid value.
+              </Form.Control.Feedback>
+            </Form.Group>
+          </Col>
+        </Form.Row>
+        <Form.Row>
+          <Col>
+            <Form.Group controlId="regulation">
+              <Form.Label>Regulation</Form.Label>
+              <Form.Control
+                as="textarea"
+                rows={6}
+                name="regulation"
+                defaultValue={
+                  licenceType !== null ? licenceType.regulation : null
+                }
+                ref={register({
+                  required: true,
+                })}
+                maxLength={2000}
+                isInvalid={errors.regulation}
               />
               <Form.Control.Feedback type="invalid">
                 Please enter a valid value.

@@ -115,6 +115,9 @@ export const ADMIN_CONFIG_OPTIONS = {
   MANAGE_USERS: "ManageUsers",
   MANAGE_DAIRY_THRESHOLDS: "ManageDairyThresholds",
   MANAGE_LICENCE_TYPES: "ManageLicenceTypes",
+  MANAGE_FUR_SPECIES: "ManageFurSpecies",
+  MANAGE_GAME_SPECIES: "ManageGameSpecies",
+  MANAGE_SLAUGHTER_SPECIES: "ManageSlaughterSpecies",
 };
 
 export const SYSTEM_ROLES = {

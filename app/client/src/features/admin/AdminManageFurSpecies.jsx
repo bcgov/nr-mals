@@ -6,26 +6,31 @@ import SectionHeading from "../../components/SectionHeading";
 import ErrorMessageRow from "../../components/ErrorMessageRow";
 
 import {
-  fetchLicenceTypes,
-  updateLicenceTypes,
-  selectLicenceTypes,
-} from "../lookups/licenceTypesSlice";
+  fetchLicenceSpecies,
+  // updateLicenceSpecies,
+  selectLicenceSpecies,
+} from "../lookups/licenceSpeciesSlice";
 
 import { REQUEST_STATUS } from "../../utilities/constants";
+
+import {
+  LICENCE_TYPE_ID_GAME_FARM,
+  LICENCE_TYPE_ID_FUR_FARM,
+} from "../licences/constants";
 
 import { openModal } from "../../app/appSlice";
 import { LICENCE_TYPE } from "../../modals/LicenceTypeModal";
 
-export default function AdminManageLicenceTypes() {
-  const licenceTypes = useSelector(selectLicenceTypes);
+export default function AdminManageFurSpecies() {
+  const species = useSelector(selectLicenceSpecies);
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(fetchLicenceTypes());
+    dispatch(fetchLicenceSpecies());
   }, [dispatch]);
 
   const editCallback = (data) => {
-    dispatch(updateLicenceTypes({ payload: data, id: data.id }));
+    // dispatch(updateLicenceSpecies({ payload: data, id: data.id }));
   };
 
   function onEdit(result) {
@@ -37,10 +42,6 @@ export default function AdminManageLicenceTypes() {
   function formatResultRow(result, showOptions = true) {
     return (
       <tr key={result.id}>
-        <td className="text-nowrap" />
-        <td className="text-nowrap" />
-        <td className="text-nowrap" />
-        <td className="text-nowrap" />
         <td className="text-nowrap" />
         <td className="text-nowrap" />
         {showOptions ? (
@@ -57,33 +58,27 @@ export default function AdminManageLicenceTypes() {
   }
 
   let errorMessage = null;
-  if (licenceTypes.status === REQUEST_STATUS.REJECTED) {
-    errorMessage = `${licenceTypes.error.code}: ${licenceTypes.error.description}`;
+  if (species.status === REQUEST_STATUS.REJECTED) {
+    errorMessage = `${species.error.code}: ${species.error.description}`;
   }
 
   return (
     <>
-      <SectionHeading>Manage Licence Types</SectionHeading>
+      <SectionHeading>Manage Fur Species</SectionHeading>
 
       <Table striped size="sm" responsive className="mt-3" hover>
         <thead className="thead-dark">
           <tr>
-            <th className="text-nowrap">Licence Type</th>
-            <th className="text-nowrap">Standard Fee ($)</th>
-            <th className="text-nowrap">Licence Term (Years)</th>
-            <th className="text-nowrap">Standard Issue Date</th>
-            <th className="text-nowrap">Standard Expiry Date</th>
-            <th className="text-nowrap">Renewal Notice Term</th>
+            <th className="text-nowrap">Species Name</th>
+            <th className="text-nowrap">Species Description</th>
             <th className="text-nowrap" />
           </tr>
         </thead>
-        {licenceTypes.status === REQUEST_STATUS.FULFILLED ? (
-          <tbody>
-            {licenceTypes.data.map((user) => formatResultRow(user))}
-          </tbody>
+        {species.status === REQUEST_STATUS.FULFILLED ? (
+          <tbody>{species.data.species.map((x) => formatResultRow(x))}</tbody>
         ) : null}
       </Table>
-      {licenceTypes.status === REQUEST_STATUS.PENDING ? (
+      {species.status === REQUEST_STATUS.PENDING ? (
         <Spinner animation="border" role="status">
           <span className="sr-only">Searching...</span>
         </Spinner>
@@ -95,4 +90,4 @@ export default function AdminManageLicenceTypes() {
   );
 }
 
-AdminManageLicenceTypes.propTypes = {};
+AdminManageFurSpecies.propTypes = {};
