@@ -40,20 +40,126 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 app.use("/api/user", keycloak.protect(), userRouter);
-app.use("/api/licence-types", keycloak.protect(), licenceTypesRouter);
-app.use("/api/licence-statuses", keycloak.protect(), licenceStatusesRouter);
-app.use("/api/licences", keycloak.protect(), licencesRouter);
-app.use("/api/sites", keycloak.protect(), sitesRouter);
-app.use("/api/regional-districts", keycloak.protect(), regionalDistrictsRouter);
-app.use("/api/regions", keycloak.protect(), regionsRouter);
+app.use(
+  "/api/licence-types",
+  keycloak.protect(),
+  roleValidation([
+    constants.SYSTEM_ROLES.READ_ONLY,
+    constants.SYSTEM_ROLES.USER,
+    constants.SYSTEM_ROLES.INSPECTOR,
+    constants.SYSTEM_ROLES.SYSTEM_ADMIN,
+  ]),
+  licenceTypesRouter
+);
+app.use(
+  "/api/licence-statuses",
+  keycloak.protect(),
+  roleValidation([
+    constants.SYSTEM_ROLES.READ_ONLY,
+    constants.SYSTEM_ROLES.USER,
+    constants.SYSTEM_ROLES.INSPECTOR,
+    constants.SYSTEM_ROLES.SYSTEM_ADMIN,
+  ]),
+  licenceStatusesRouter
+);
+app.use(
+  "/api/licences",
+  keycloak.protect(),
+  roleValidation([
+    constants.SYSTEM_ROLES.READ_ONLY,
+    constants.SYSTEM_ROLES.USER,
+    constants.SYSTEM_ROLES.INSPECTOR,
+    constants.SYSTEM_ROLES.SYSTEM_ADMIN,
+  ]),
+  licencesRouter
+);
+app.use(
+  "/api/sites",
+  keycloak.protect(),
+  roleValidation([
+    constants.SYSTEM_ROLES.READ_ONLY,
+    constants.SYSTEM_ROLES.USER,
+    constants.SYSTEM_ROLES.INSPECTOR,
+    constants.SYSTEM_ROLES.SYSTEM_ADMIN,
+  ]),
+  sitesRouter
+);
+app.use(
+  "/api/regional-districts",
+  keycloak.protect(),
+  roleValidation([
+    constants.SYSTEM_ROLES.READ_ONLY,
+    constants.SYSTEM_ROLES.USER,
+    constants.SYSTEM_ROLES.INSPECTOR,
+    constants.SYSTEM_ROLES.SYSTEM_ADMIN,
+  ]),
+  regionalDistrictsRouter
+);
+app.use(
+  "/api/regions",
+  keycloak.protect(),
+  roleValidation([
+    constants.SYSTEM_ROLES.READ_ONLY,
+    constants.SYSTEM_ROLES.USER,
+    constants.SYSTEM_ROLES.INSPECTOR,
+    constants.SYSTEM_ROLES.SYSTEM_ADMIN,
+  ]),
+  regionsRouter
+);
 app.use("/api/status", keycloak.protect(), statusRouter);
-app.use("/api/comments", keycloak.protect(), commentsRouter.router);
-app.use("/api/licence-species", keycloak.protect(), licenceSpeciesRouter);
-app.use("/api/documents", keycloak.protect(), documentsRouter);
-app.use("/api/cities", keycloak.protect(), citiesRouter);
+app.use(
+  "/api/comments",
+  keycloak.protect(),
+  roleValidation([
+    constants.SYSTEM_ROLES.READ_ONLY,
+    constants.SYSTEM_ROLES.USER,
+    constants.SYSTEM_ROLES.INSPECTOR,
+    constants.SYSTEM_ROLES.SYSTEM_ADMIN,
+  ]),
+  commentsRouter.router
+);
+app.use(
+  "/api/licence-species",
+  keycloak.protect(),
+  roleValidation([
+    constants.SYSTEM_ROLES.READ_ONLY,
+    constants.SYSTEM_ROLES.USER,
+    constants.SYSTEM_ROLES.INSPECTOR,
+    constants.SYSTEM_ROLES.SYSTEM_ADMIN,
+  ]),
+  licenceSpeciesRouter
+);
+app.use(
+  "/api/documents",
+  keycloak.protect(),
+  roleValidation([
+    constants.SYSTEM_ROLES.READ_ONLY,
+    constants.SYSTEM_ROLES.USER,
+    constants.SYSTEM_ROLES.INSPECTOR,
+    constants.SYSTEM_ROLES.SYSTEM_ADMIN,
+  ]),
+  documentsRouter
+);
+app.use(
+  "/api/cities",
+  keycloak.protect(),
+  roleValidation([
+    constants.SYSTEM_ROLES.READ_ONLY,
+    constants.SYSTEM_ROLES.USER,
+    constants.SYSTEM_ROLES.INSPECTOR,
+    constants.SYSTEM_ROLES.SYSTEM_ADMIN,
+  ]),
+  citiesRouter
+);
 app.use(
   "/api/dairyfarmtestthresholds",
   keycloak.protect(),
+  roleValidation([
+    constants.SYSTEM_ROLES.READ_ONLY,
+    constants.SYSTEM_ROLES.USER,
+    constants.SYSTEM_ROLES.INSPECTOR,
+    constants.SYSTEM_ROLES.SYSTEM_ADMIN,
+  ]),
   dairyFarmTestThresholdsRouter
 );
 app.use(
