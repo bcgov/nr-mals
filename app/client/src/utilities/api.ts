@@ -1,4 +1,5 @@
 import axios, { Method } from "axios";
+import keycloak from "../app/keycloak";
 
 export class ApiError extends Error {
   code: string;
@@ -23,6 +24,19 @@ export class ApiError extends Error {
 const axiosInstance = axios.create({
   baseURL: "/api/",
   timeout: 10000,
+});
+
+axiosInstance.interceptors.request.use((config) => {
+  if (keycloak.isLoggedIn()) {
+    const cb = () => {
+      config.headers.Authorization = `Bearer ${keycloak.getToken()}`;
+      config.headers.CurrentUser = `${keycloak.getUsername()}`;
+      return Promise.resolve(config);
+    };
+    return keycloak.updateToken(cb);
+  }
+
+  return Promise.reject();
 });
 
 async function request(method: Method, url: any, params: any, data: any) {

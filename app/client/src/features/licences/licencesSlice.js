@@ -192,6 +192,21 @@ export const updateLicenceDairyTestResults = createAsyncThunk(
   }
 );
 
+export const calculateWarningLevyNotice = createAsyncThunk(
+  "licences/calculateWarningLevyNotice",
+  async ({ data, id }, thunkApi) => {
+    try {
+      const response = await Api.put(`licences/dairyactions/${id}`, data);
+      return response.data;
+    } catch (error) {
+      if (error instanceof ApiError) {
+        return thunkApi.rejectWithValue(error.serialize());
+      }
+      return thunkApi.rejectWithValue({ code: -1, description: error.message });
+    }
+  }
+);
+
 export const licencesSlice = createSlice({
   name: "licences",
   initialState: {
@@ -209,6 +224,7 @@ export const licencesSlice = createSlice({
     },
     dairyTestResults: {
       data: undefined,
+      warningLevyNotice: undefined,
       error: undefined,
       status: REQUEST_STATUS.IDLE,
     },
@@ -401,6 +417,19 @@ export const licencesSlice = createSlice({
       state.dairyTestResults.status = REQUEST_STATUS.FULFILLED;
     },
     [updateLicenceDairyTestResults.rejected]: (state, action) => {
+      state.dairyTestResults.error = action.payload;
+      state.dairyTestResults.status = REQUEST_STATUS.REJECTED;
+    },
+    [calculateWarningLevyNotice.pending]: (state) => {
+      state.dairyTestResults.error = undefined;
+      state.dairyTestResults.status = REQUEST_STATUS.PENDING;
+    },
+    [calculateWarningLevyNotice.fulfilled]: (state, action) => {
+      state.dairyTestResults.warningLevyNotice = action.payload;
+      state.dairyTestResults.error = undefined;
+      state.dairyTestResults.status = REQUEST_STATUS.FULFILLED;
+    },
+    [calculateWarningLevyNotice.rejected]: (state, action) => {
       state.dairyTestResults.error = action.payload;
       state.dairyTestResults.status = REQUEST_STATUS.REJECTED;
     },

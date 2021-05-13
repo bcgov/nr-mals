@@ -5,6 +5,7 @@ import licenceStatusesReducer from "./licenceStatusesSlice";
 import regionsReducer from "./regionsSlice";
 import licenceSpeciesReducer from "./licenceSpeciesSlice";
 import citiesReducer from "./citiesSlice";
+import dairyFarmTestThresholdReducer from "./dairyFarmTestThresholdSlice";
 
 export default combineReducers({
   licenceTypes: licenceTypesReducer,
@@ -12,4 +13,5 @@ export default combineReducers({
   regions: regionsReducer,
   licenceSpecies: licenceSpeciesReducer,
   cities: citiesReducer,
+  dairyFarmTestThresholds: dairyFarmTestThresholdReducer,
 });
