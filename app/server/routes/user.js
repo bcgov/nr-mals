@@ -27,8 +27,14 @@ router.get("/currentUser", async (req, res, next) => {
 
   await fetchUser(userName.toUpperCase())
     .then((data) => {
-      const logical = user.convertToLogicalModel(data);
+      if (data === null) {
+        return res.status(200).send({
+          code: 200,
+          description: "The requested IDIR could not be found.",
+        });
+      }
 
+      const logical = user.convertToLogicalModel(data);
       return res.send(logical);
     })
     .catch(next)
