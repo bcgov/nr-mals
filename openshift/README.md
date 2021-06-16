@@ -99,7 +99,7 @@ oc policy add-role-to-user system:image-puller system:serviceaccount:30245e-prod
 3. Create a new secret in OpenShift to be provided to GitHub as an API access token.
 4. Add the secret to GitHub (https://github.com/bcgov/nr-mals/settings/secrets/actions) as OPENSHIFTTOKEN.
 5. Additionally, a secret for the URL of the OpenShift cluster must be created, named as OPENSHIFTSERVERURL.
-6. Create build.yml within nr-mals\github\workflows. A standard automated deployment script for deploying to DEV is as follows
+6. Create build.yml within nr-mals\.github\workflows. A standard automated deployment script for deploying to DEV is as follows
 ```
 name: Test & Deploy
 on:
@@ -138,4 +138,4 @@ jobs:
             'version'
             'start-build mals-app-dev --follow -n 30245e-tools'
 ```
-7. GitHub will automatically recognize actions within MALS\.github\workflows and they will be viewable/runnable at https://github.com/bcgov/nr-mals/actions
+7. GitHub will automatically recognize actions within nr-mals\.github\workflows and they will be viewable/runnable at https://github.com/bcgov/nr-mals/actions
