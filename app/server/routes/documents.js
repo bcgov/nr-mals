@@ -480,11 +480,13 @@ async function getJob(jobId) {
   const totalEnvelopeCount = job.envelope_json_count;
   const totalCardCount = job.card_json_count;
   const totalRenewalCount = job.renewal_json_count;
+  const totalDairyNoticeCount = job.dairy_infraction_json_count;
   const totalDocumentCount =
     totalCertificateCount +
     totalEnvelopeCount +
     totalCardCount +
-    totalRenewalCount;
+    totalRenewalCount +
+    totalDairyNoticeCount;
 
   const completedDocuments = await prisma.mal_print_job_output.findMany({
     where: {
@@ -511,6 +513,10 @@ async function getJob(jobId) {
   const completedRenewalCount = completedDocuments.filter(
     (document) => document.document_type === constants.DOCUMENT_TYPE_RENEWAL
   ).length;
+  const completedDairyNoticeCount = completedDocuments.filter(
+    (document) =>
+      document.document_type === constants.DOCUMENT_TYPE_DAIRY_INFRACTION
+  ).length;
 
   return {
     printCategory,
@@ -526,6 +532,8 @@ async function getJob(jobId) {
     completedCardCount,
     totalRenewalCount,
     completedRenewalCount,
+    totalDairyNoticeCount,
+    completedDairyNoticeCount,
     totalDocumentCount,
     completedDocumentCount,
   };
@@ -543,6 +551,7 @@ async function getJobBlobs(jobId) {
       document_binary: true,
       licence_number: true,
       document_type: true,
+      document_json: true,
     },
   });
 }
@@ -769,11 +778,17 @@ router.post("/download/:jobId(\\d+)", async (req, res, next) => {
   await getJobBlobs(jobId)
     .then((documents) => {
       const zip = new AdmZip();
+      let fileName = null;
       documents.forEach((document) => {
-        zip.addFile(
-          `${document.licence_number}-${document.document_type}.docx`,
-          document.document_binary
-        );
+        if (
+          document.document_type === constants.DOCUMENT_TYPE_DAIRY_INFRACTION
+        ) {
+          fileName = `${document.licence_number}-${document.document_type}-${document.document_json.SpeciesSubCode}-${document.document_json.CorrespondenceCode}.docx`;
+        } else {
+          fileName = `${document.licence_number}-${document.document_type}.docx`;
+        }
+
+        zip.addFile(fileName, document.document_binary);
       });
 
       res
