@@ -55,6 +55,8 @@ function getCertificateTemplateName(documentType, licenceType) {
       return "Limited-Medicated-Feed";
     case "LIVESTOCK DEALER":
       return "Livestock-Dealer";
+    case "LIVESTOCK DEALER AGENT":
+      return "Livestock-Dealer-Agent";
     case "MEDICATED FEED":
       return "Medicated-Feed";
     case "PUBLIC SALE YARD OPERATOR":
@@ -72,4 +74,47 @@ function getCertificateTemplateName(documentType, licenceType) {
   }
 }
 
-module.exports = { formatCdogsBody, getCertificateTemplateName };
+function getNoticeTemplateName(documentType, licenceType) {
+  if (documentType !== "RENEWAL") {
+    return undefined;
+  }
+
+  switch (licenceType) {
+    case "APIARY":
+      return "Renewal_Apiary_Template";
+    case "BULK TANK MILK GRADER":
+      return "Renewal_BTMG_Template";
+    case "FUR FARM":
+      return "Renewal_FurFarm_Template";
+    case "GAME FARM":
+      return "Renewal_GameFarm_Template";
+    case "HIDE DEALER":
+      return "Renewal_HideDealer_Template";
+    case "LIMITED MEDICATED FEED":
+      return "Renewal_LimitedMedicatedFeed_Template";
+    case "LIVESTOCK DEALER":
+      return "Renewal_LivestockDealer_Template";
+    case "LIVESTOCK DEALER AGENT":
+      return "Renewal_LivestockDealerAgent_Template";
+    case "MEDICATED FEED":
+      return "Renewal_MedicatedFeed_Template";
+    case "PUBLIC SALE YARD OPERATOR":
+      return "Renewal_PublicSaleYard_Template";
+    case "PURCHASE LIVE POULTRY":
+      return "Renewal_PurchaseLivePoultry_Template";
+    case "SLAUGHTERHOUSE":
+      return "Renewal_Slaughterhouse_Template";
+    case "VETERINARY DRUG":
+      return "Renewal_VetDrugLicence_Template";
+    case "DISPENSER":
+      return "Renewal_VetDrugDispenser_Template";
+    default:
+      return undefined;
+  }
+}
+
+module.exports = {
+  formatCdogsBody,
+  getCertificateTemplateName,
+  getNoticeTemplateName,
+};

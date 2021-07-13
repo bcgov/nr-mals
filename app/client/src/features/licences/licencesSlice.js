@@ -162,6 +162,51 @@ export const updateLicenceCheckboxes = createAsyncThunk(
   }
 );
 
+export const fetchLicenceDairyTestResults = createAsyncThunk(
+  "licences/fetchLicenceDairyTestResults",
+  async (id, thunkApi) => {
+    try {
+      const response = await Api.get(`licences/dairytestresults/${id}`);
+      return response.data;
+    } catch (error) {
+      if (error instanceof ApiError) {
+        return thunkApi.rejectWithValue(error.serialize());
+      }
+      return thunkApi.rejectWithValue({ code: -1, description: error.message });
+    }
+  }
+);
+
+export const updateLicenceDairyTestResults = createAsyncThunk(
+  "licences/updateLicenceDairyTestResults",
+  async ({ data, id }, thunkApi) => {
+    try {
+      const response = await Api.put(`licences/dairytestresults/${id}`, data);
+      return response.data;
+    } catch (error) {
+      if (error instanceof ApiError) {
+        return thunkApi.rejectWithValue(error.serialize());
+      }
+      return thunkApi.rejectWithValue({ code: -1, description: error.message });
+    }
+  }
+);
+
+export const calculateWarningLevyNotice = createAsyncThunk(
+  "licences/calculateWarningLevyNotice",
+  async ({ data, id }, thunkApi) => {
+    try {
+      const response = await Api.put(`licences/dairyactions/${id}`, data);
+      return response.data;
+    } catch (error) {
+      if (error instanceof ApiError) {
+        return thunkApi.rejectWithValue(error.serialize());
+      }
+      return thunkApi.rejectWithValue({ code: -1, description: error.message });
+    }
+  }
+);
+
 export const licencesSlice = createSlice({
   name: "licences",
   initialState: {
@@ -177,6 +222,12 @@ export const licencesSlice = createSlice({
       mode: LICENCE_MODE.VIEW,
       registrantMode: REGISTRANT_MODE.VIEW,
     },
+    dairyTestResults: {
+      data: undefined,
+      warningLevyNotice: undefined,
+      error: undefined,
+      status: REQUEST_STATUS.IDLE,
+    },
   },
   reducers: {
     clearCreatedLicence: (state) => {
@@ -188,6 +239,10 @@ export const licencesSlice = createSlice({
       state.currentLicence.data = undefined;
       state.currentLicence.error = undefined;
       state.currentLicence.status = REQUEST_STATUS.IDLE;
+
+      state.dairyTestResults.data = undefined;
+      state.dairyTestResults.error = undefined;
+      state.dairyTestResults.status = REQUEST_STATUS.IDLE;
     },
     setCurrentLicenceModeToEdit: (state) => {
       state.currentLicence.mode = LICENCE_MODE.EDIT;
@@ -339,11 +394,52 @@ export const licencesSlice = createSlice({
       state.currentLicence.error = action.payload;
       state.currentLicence.status = REQUEST_STATUS.REJECTED;
     },
+    [fetchLicenceDairyTestResults.pending]: (state) => {
+      state.dairyTestResults.error = undefined;
+      state.dairyTestResults.status = REQUEST_STATUS.PENDING;
+    },
+    [fetchLicenceDairyTestResults.fulfilled]: (state, action) => {
+      state.dairyTestResults.data = action.payload;
+      state.dairyTestResults.error = undefined;
+      state.dairyTestResults.status = REQUEST_STATUS.FULFILLED;
+    },
+    [fetchLicenceDairyTestResults.rejected]: (state, action) => {
+      state.dairyTestResults.error = action.payload;
+      state.dairyTestResults.status = REQUEST_STATUS.REJECTED;
+    },
+    [updateLicenceDairyTestResults.pending]: (state) => {
+      state.dairyTestResults.error = undefined;
+      state.dairyTestResults.status = REQUEST_STATUS.PENDING;
+    },
+    [updateLicenceDairyTestResults.fulfilled]: (state, action) => {
+      state.dairyTestResults.data = action.payload;
+      state.dairyTestResults.error = undefined;
+      state.dairyTestResults.status = REQUEST_STATUS.FULFILLED;
+    },
+    [updateLicenceDairyTestResults.rejected]: (state, action) => {
+      state.dairyTestResults.error = action.payload;
+      state.dairyTestResults.status = REQUEST_STATUS.REJECTED;
+    },
+    [calculateWarningLevyNotice.pending]: (state) => {
+      state.dairyTestResults.error = undefined;
+      state.dairyTestResults.status = REQUEST_STATUS.PENDING;
+    },
+    [calculateWarningLevyNotice.fulfilled]: (state, action) => {
+      state.dairyTestResults.warningLevyNotice = action.payload;
+      state.dairyTestResults.error = undefined;
+      state.dairyTestResults.status = REQUEST_STATUS.FULFILLED;
+    },
+    [calculateWarningLevyNotice.rejected]: (state, action) => {
+      state.dairyTestResults.error = action.payload;
+      state.dairyTestResults.status = REQUEST_STATUS.REJECTED;
+    },
   },
 });
 
 export const selectCreatedLicence = (state) => state.licences.createdLicence;
 export const selectCurrentLicence = (state) => state.licences.currentLicence;
+export const selectDairyTestResults = (state) =>
+  state.licences.dairyTestResults;
 
 const { actions, reducer } = licencesSlice;
 

@@ -9,6 +9,8 @@ import HeaderDropdown from "./HeaderDropdown";
 
 import "./HeaderNavigation.scss";
 
+import RenderOnRole from "./RenderOnRole";
+
 function HeaderNavigation() {
   const { environment } = useSelector((state) => state.status.data);
 
@@ -75,7 +77,7 @@ function HeaderNavigation() {
                 title="Document Generation"
                 pathPrefix={Constant.DOCUMENT_GENERATION_PATHNAME}
               >
-                <DropdownNavLink to={Constant.NOTICES_PATHNAME}>
+                <DropdownNavLink to={Constant.SELECT_NOTICES_PATHNAME}>
                   Notices
                 </DropdownNavLink>
                 <DropdownNavLink to={Constant.REPORTS_PATHNAME}>
@@ -85,15 +87,22 @@ function HeaderNavigation() {
                   Certificates
                 </DropdownNavLink>
               </HeaderDropdown>
-              <HeaderDropdown
-                id="admin-dropdown"
-                title="Administration"
-                pathPrefix={Constant.ADMIN_PATHNAME}
-              >
-                <DropdownNavLink to={Constant.ADMIN_CONFIG_PATHNAME}>
-                  Configuration
-                </DropdownNavLink>
-              </HeaderDropdown>
+              <RenderOnRole roles={[Constant.SYSTEM_ROLES.SYSTEM_ADMIN]}>
+                <HeaderDropdown
+                  id="admin-dropdown"
+                  title="Administration"
+                  pathPrefix={Constant.ADMIN_PATHNAME}
+                >
+                  <DropdownNavLink to={Constant.ADMIN_CONFIG_PATHNAME}>
+                    Configuration
+                  </DropdownNavLink>
+                  <DropdownNavLink
+                    to={Constant.ADMIN_DAIRY_TEST_RESULTS_PATHNAME}
+                  >
+                    Dairy Test Results
+                  </DropdownNavLink>
+                </HeaderDropdown>
+              </RenderOnRole>
             </Nav>
           </Navbar.Collapse>
         </Container>

@@ -11,7 +11,10 @@ const inventory = require("../models/inventory");
 const comments = require("./comments");
 const constants = require("../utilities/constants");
 const collection = require("lodash/collection");
-const { parseAsInt } = require("../utilities/parsing");
+const dairyTestResult = require("../models/dairyTestResult");
+
+const { parseAsInt, parseAsFloat } = require("../utilities/parsing");
+const { formatDate } = require("../utilities/formatting");
 
 const router = express.Router();
 const prisma = new PrismaClient();
@@ -182,6 +185,22 @@ function getAssociatedLicencesSearchFilter(params) {
   const licenceId = parseInt(params.licenceId, 10);
   if (!Number.isNaN(licenceId)) {
     andArray.push({ parent_licence_id: licenceId });
+  }
+
+  filter = {
+    AND: andArray,
+  };
+
+  return filter;
+}
+
+function getDairyTestHistorySearchFilter(params) {
+  let filter = {};
+  const andArray = [];
+
+  const licenceId = parseInt(params.licenceId, 10);
+  if (!Number.isNaN(licenceId)) {
+    andArray.push({ licence_id: licenceId });
   }
 
   filter = {
@@ -456,6 +475,43 @@ async function fetchLicenceTypeParentChildXref() {
     childLicenceTypeId: r.child_licence_type_id,
     activeFlag: r.active_flag,
   }));
+}
+
+async function countDairyTestResultHistory(params) {
+  const filter = getDairyTestHistorySearchFilter(params);
+  return prisma.mal_dairy_farm_test_result.count({
+    where: filter,
+  });
+}
+
+async function findDairyTestResultHistory(params, skip, take) {
+  const filter = getDairyTestHistorySearchFilter(params);
+  return prisma.mal_dairy_farm_test_result.findMany({
+    where: filter,
+    skip,
+    take,
+    orderBy: [
+      {
+        test_job_id: "desc",
+      },
+    ],
+  });
+}
+
+async function fetchLicenceDairyFarmTestResult(licenceId) {
+  return await prisma.mal_dairy_farm_test_result.findMany({
+    where: {
+      licence_id: licenceId,
+    },
+  });
+}
+
+async function updateLicenceDairyFarmTestResult(dairyTestResultId, payload) {
+  const result = await prisma.mal_dairy_farm_test_result.update({
+    where: { id: dairyTestResultId },
+    data: payload,
+  });
+  return result;
 }
 
 router.get("/:licenceId(\\d+)", async (req, res, next) => {
@@ -756,6 +812,202 @@ router.get("/associated", async (req, res, next) => {
     .finally(async () => prisma.$disconnect());
 });
 
+router.get("/dairytesthistory", async (req, res, next) => {
+  let { page } = req.query;
+  if (page) {
+    page = parseInt(page, 10);
+  } else {
+    page = 1;
+  }
+
+  const size = 20;
+  const skip = (page - 1) * size;
+
+  const params = req.query;
+
+  await findDairyTestResultHistory(params, skip, size)
+    .then(async (records) => {
+      if (records === null) {
+        return res.status(404).send({
+          code: 404,
+          description: "The requested licence could not be found.",
+        });
+      }
+
+      const results = records.map((record) =>
+        dairyTestResult.convertToLogicalModel(record)
+      );
+
+      const count = await countDairyTestResultHistory(params);
+
+      const payload = {
+        results,
+        page,
+        count,
+      };
+
+      return res.send(payload);
+    })
+    .catch(next)
+    .finally(async () => prisma.$disconnect());
+});
+
+router.get("/dairytestresults/:licenceId(\\d+)", async (req, res, next) => {
+  await fetchLicenceDairyFarmTestResult(parseAsInt(req.params.licenceId, 10))
+    .then(async (records) => {
+      if (records === null) {
+        return res.status(404).send({
+          code: 404,
+          description: "The requested licence could not be found.",
+        });
+      }
+      const results = records.map((record) =>
+        dairyTestResult.convertToLogicalModel(record)
+      );
+
+      const latestTestJobId = Math.max.apply(
+        Math,
+        results.map(function (o) {
+          return o.testJobId;
+        })
+      );
+
+      const latestResults = results.filter(
+        (x) => x.testJobId === latestTestJobId
+      );
+
+      return res.send(latestResults);
+    })
+    .catch(next)
+    .finally(async () => prisma.$disconnect());
+});
+
+router.put("/dairytestresults/:licenceId(\\d+)", async (req, res, next) => {
+  const licenceId = parseInt(req.params.licenceId, 10);
+
+  const now = new Date();
+
+  req.body.spc1InfractionFlag = req.body.spc1CorrespondenceCode !== undefined;
+  req.body.sccInfractionFlag = req.body.sccCorrespondenceCode !== undefined;
+  req.body.cryInfractionFlag = req.body.cryCorrespondenceCode !== undefined;
+  req.body.ffaInfractionFlag = req.body.ffaCorrespondenceCode !== undefined;
+  req.body.ihInfractionFlag = req.body.ihCorrespondenceCode !== undefined;
+
+  const updatePayload = dairyTestResult.convertToPhysicalModel(
+    populateAuditColumnsUpdate(req.body, now),
+    true
+  );
+
+  await updateLicenceDairyFarmTestResult(req.body.id, updatePayload)
+    .then(async () => {
+      const fetch = await fetchLicenceDairyFarmTestResult(licenceId);
+
+      const results = fetch.map((record) =>
+        dairyTestResult.convertToLogicalModel(record)
+      );
+
+      const latestTestJobId = Math.max.apply(
+        Math,
+        results.map(function (o) {
+          return o.testJobId;
+        })
+      );
+
+      const latestResults = results.filter(
+        (x) => x.testJobId === latestTestJobId
+      );
+
+      return res.send(latestResults);
+    })
+    .catch(next)
+    .finally(async () => prisma.$disconnect());
+});
+
+router.put("/dairyactions/:licenceId(\\d+)", async (req, res, next) => {
+  const licenceId = parseInt(req.params.licenceId, 10);
+  const now = new Date();
+
+  const threshold = await prisma.mal_dairy_farm_test_threshold_lu.findUnique({
+    where: { id: req.body.thresholdId },
+  });
+
+  if (req.body.value > threshold.upper_limit.toFixed(2)) {
+    const infractions = await prisma.mal_dairy_farm_test_infraction_lu.findMany(
+      {
+        where: { test_threshold_id: req.body.thresholdId },
+      }
+    );
+
+    const fetchResults = await prisma.mal_dairy_farm_test_result.findMany({
+      where: {
+        licence_id: licenceId,
+      },
+    });
+
+    const previousResults = fetchResults.map((record) =>
+      dairyTestResult.convertToLogicalModel(record)
+    );
+
+    // Get any data loads from the past 11 months
+    let elevenMonths = new Date(req.body.date);
+    elevenMonths.setMonth(elevenMonths.getMonth() - 11);
+    elevenMonths = formatDate(elevenMonths);
+
+    const filteredResults = previousResults.filter(
+      (x) => x.spc1Date >= elevenMonths
+    );
+
+    let infractionCount = 0;
+
+    if (req.body.thresholdId == constants.DAIRY_TEST_THRESHOLD_IDS.IBC) {
+      infractionCount = Math.min(
+        filteredResults.filter((x) => x.spc1CorrespondenceDescription !== null)
+          .length,
+        3
+      );
+    } else if (req.body.thresholdId == constants.DAIRY_TEST_THRESHOLD_IDS.SCC) {
+      infractionCount = Math.min(
+        filteredResults.filter((x) => x.sccCorrespondenceDescription !== null)
+          .length,
+        3
+      );
+    } else if (req.body.thresholdId == constants.DAIRY_TEST_THRESHOLD_IDS.FFA) {
+      infractionCount = Math.min(
+        filteredResults.filter((x) => x.ffaCorrespondenceDescription !== null)
+          .length,
+        3
+      );
+    } else if (req.body.thresholdId == constants.DAIRY_TEST_THRESHOLD_IDS.CRY) {
+      infractionCount = Math.min(
+        filteredResults.filter((x) => x.cryCorrespondenceDescription !== null)
+          .length,
+        3
+      );
+    } else if (req.body.thresholdId == constants.DAIRY_TEST_THRESHOLD_IDS.IH) {
+      infractionCount = Math.min(
+        filteredResults.filter((x) => x.ihCorrespondenceDescription !== null)
+          .length,
+        3
+      );
+    }
+
+    const infraction = infractions.find(
+      (x) => x.previous_infractions_count === infractionCount
+    );
+
+    const payload = {
+      previousInfractionFirstDate: now,
+      previousInfractionCount: infractionCount,
+      levyPercentage: infraction.levy_percentage,
+      correspondence: infraction.correspondence_code,
+      correspondenceDescription: infraction.correspondence_description,
+    };
+
+    return res.send(payload);
+  }
+  return res.send(undefined);
+});
+
 router.put("/renew/:licenceId(\\d+)", async (req, res, next) => {
   const licenceId = parseInt(req.params.licenceId, 10);
   const { issueDate, expiryDate } = req.body;
@@ -898,8 +1150,8 @@ router.put("/:licenceId(\\d+)/registrants", async (req, res, next) => {
     })
     .then(async (licenceId) => {
       // Current primary registrant could be getting deleted which would break the FK
-      // First check the updated list for the oldest entry
-      // If none exist get the oldest from the created list
+      // Find the oldest registrant not in the deleted list and update primary registrant
+      // FK and company names to that
 
       const updatedRecord = await findLicence(licenceId);
       let updatedRecordLogical = licence.convertToLogicalModel(updatedRecord);
@@ -912,53 +1164,55 @@ router.put("/:licenceId(\\d+)/registrants", async (req, res, next) => {
           : 0
       );
 
-      let search =
-        registrantsToUpdate.length > 0
-          ? registrantsToUpdate
-          : registrantsToCreate;
-
+      let newPrimaryRegistrant = undefined;
       for (r = 0; r < recordRegistrants.length; ++r) {
         if (
-          search.find((x) => x.id === recordRegistrants[r].id) !== undefined
+          registrantsToDelete.find((x) => x.id === recordRegistrants[r].id) ===
+          undefined
         ) {
           newPrimaryRegistrant = recordRegistrants[r];
           break;
         }
       }
 
-      // Send new primary registrant id if necessary
-      if (
-        newPrimaryRegistrant.id !== updatedRecordLogical.primaryRegistrantId
-      ) {
-        updatedRecordLogical.primaryRegistrantId = newPrimaryRegistrant.id;
+      // Update licence primary registrant id and company name columns
+      updatedRecordLogical.primaryRegistrantId = newPrimaryRegistrant.id;
 
-        // Update issued and expiry dates
-        updatedRecordLogical.issuedOnDate = new Date(
-          updatedRecordLogical.issuedOnDate
+      // Update issued and expiry dates
+      updatedRecordLogical.issuedOnDate = new Date(
+        updatedRecordLogical.issuedOnDate
+      );
+      updatedRecordLogical.expiryDate = new Date(
+        updatedRecordLogical.expiryDate
+      );
+      if (updatedRecordLogical.bondContinuationExpiryDate !== null) {
+        updatedRecordLogical.bondContinuationExpiryDate = new Date(
+          updatedRecordLogical.bondContinuationExpiryDate
         );
-        updatedRecordLogical.expiryDate = new Date(
-          updatedRecordLogical.expiryDate
-        );
-        if (updatedRecordLogical.bondContinuationExpiryDate !== null) {
-          updatedRecordLogical.bondContinuationExpiryDate = new Date(
-            updatedRecordLogical.bondContinuationExpiryDate
-          );
-        }
-
-        // Reset some connect variables for the update
-        updatedRecordLogical.licenceType = updatedRecordLogical.licenceTypeId;
-        updatedRecordLogical.licenceStatus =
-          updatedRecordLogical.licenceStatusId;
-        updatedRecordLogical.regionalDistrict =
-          updatedRecordLogical.regionalDistrictId;
-        updatedRecordLogical.region = updatedRecordLogical.regionId;
-
-        const updatedLicencePayload = licence.convertToPhysicalModel(
-          populateAuditColumnsUpdate(updatedRecordLogical, now, now),
-          true
-        );
-        await updateLicence(licenceId, updatedLicencePayload);
       }
+
+      // Reset some connect variables for the update
+      updatedRecordLogical.licenceType = updatedRecordLogical.licenceTypeId;
+      updatedRecordLogical.licenceStatus = updatedRecordLogical.licenceStatusId;
+      updatedRecordLogical.regionalDistrict =
+        updatedRecordLogical.regionalDistrictId;
+      updatedRecordLogical.region = updatedRecordLogical.regionId;
+
+      const fromBodyPrimaryRegistrant = registrants.find(
+        (x) =>
+          x.firstName === newPrimaryRegistrant.firstName &&
+          x.lastName === newPrimaryRegistrant.lastName
+      );
+      updatedRecordLogical.companyName =
+        fromBodyPrimaryRegistrant !== undefined
+          ? fromBodyPrimaryRegistrant.companyName
+          : undefined;
+
+      const updatedLicencePayload = licence.convertToPhysicalModel(
+        populateAuditColumnsUpdate(updatedRecordLogical, now, now),
+        true
+      );
+      await updateLicence(licenceId, updatedLicencePayload);
 
       return licenceId;
     })
@@ -1029,15 +1283,19 @@ router.put(
 router.post("/", async (req, res, next) => {
   const now = new Date();
 
-  const licencePayload = licence.convertToPhysicalModel(
-    populateAuditColumnsCreate(req.body, now, now),
-    false
-  );
   const newRegistrants = req.body.registrants
     ? req.body.registrants.filter(
         (r) => r && r.status === REGISTRANT_STATUS.NEW
       )
     : [];
+
+  req.body.companyName =
+    newRegistrants[0] !== undefined ? newRegistrants[0].companyName : undefined;
+
+  const licencePayload = licence.convertToPhysicalModel(
+    populateAuditColumnsCreate(req.body, now, now),
+    false
+  );
 
   const { commentText } = req.body;
 

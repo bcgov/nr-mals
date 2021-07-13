@@ -4,7 +4,12 @@ const express = require("express");
 const path = require("path");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
+const session = require("express-session");
+const cors = require("cors");
 
+const keycloak = require("./keycloak");
+
+const userRouter = require("./routes/user");
 const licenceTypesRouter = require("./routes/licenceTypes");
 const licenceStatusesRouter = require("./routes/licenceStatuses");
 const licencesRouter = require("./routes/licences");
@@ -17,27 +22,153 @@ const licenceSpeciesRouter = require("./routes/licenceSpecies");
 const documentsRouter = require("./routes/documents");
 const citiesRouter = require("./routes/cities");
 const adminRouter = require("./routes/admin");
+const dairyFarmTestThresholdsRouter = require("./routes/dairyFarmTestThresholds");
+const constants = require("./utilities/constants");
+
+const roleValidation = require("./middleware/roleValidation");
 
 const app = express();
+
+app.use(cors());
+app.options("*", cors()); // enable for all pre-flight requests
+
+app.use(keycloak.middleware({}));
 
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-app.use("/api/licence-types", licenceTypesRouter);
-app.use("/api/licence-statuses", licenceStatusesRouter);
-app.use("/api/licences", licencesRouter);
-app.use("/api/sites", sitesRouter);
-app.use("/api/regional-districts", regionalDistrictsRouter);
-app.use("/api/regions", regionsRouter);
-app.use("/api/status", statusRouter);
-app.use("/api/comments", commentsRouter.router);
-app.use("/api/licence-species", licenceSpeciesRouter);
-app.use("/api/documents", documentsRouter);
-app.use("/api/cities", citiesRouter);
-app.use("/api/admin", adminRouter);
-app.use("/api/*", (req, res) => {
+app.use("/api/user", keycloak.protect(), userRouter);
+app.use(
+  "/api/licence-types",
+  keycloak.protect(),
+  roleValidation([
+    constants.SYSTEM_ROLES.READ_ONLY,
+    constants.SYSTEM_ROLES.USER,
+    constants.SYSTEM_ROLES.INSPECTOR,
+    constants.SYSTEM_ROLES.SYSTEM_ADMIN,
+  ]),
+  licenceTypesRouter
+);
+app.use(
+  "/api/licence-statuses",
+  keycloak.protect(),
+  roleValidation([
+    constants.SYSTEM_ROLES.READ_ONLY,
+    constants.SYSTEM_ROLES.USER,
+    constants.SYSTEM_ROLES.INSPECTOR,
+    constants.SYSTEM_ROLES.SYSTEM_ADMIN,
+  ]),
+  licenceStatusesRouter
+);
+app.use(
+  "/api/licences",
+  keycloak.protect(),
+  roleValidation([
+    constants.SYSTEM_ROLES.READ_ONLY,
+    constants.SYSTEM_ROLES.USER,
+    constants.SYSTEM_ROLES.INSPECTOR,
+    constants.SYSTEM_ROLES.SYSTEM_ADMIN,
+  ]),
+  licencesRouter
+);
+app.use(
+  "/api/sites",
+  keycloak.protect(),
+  roleValidation([
+    constants.SYSTEM_ROLES.READ_ONLY,
+    constants.SYSTEM_ROLES.USER,
+    constants.SYSTEM_ROLES.INSPECTOR,
+    constants.SYSTEM_ROLES.SYSTEM_ADMIN,
+  ]),
+  sitesRouter
+);
+app.use(
+  "/api/regional-districts",
+  keycloak.protect(),
+  roleValidation([
+    constants.SYSTEM_ROLES.READ_ONLY,
+    constants.SYSTEM_ROLES.USER,
+    constants.SYSTEM_ROLES.INSPECTOR,
+    constants.SYSTEM_ROLES.SYSTEM_ADMIN,
+  ]),
+  regionalDistrictsRouter
+);
+app.use(
+  "/api/regions",
+  keycloak.protect(),
+  roleValidation([
+    constants.SYSTEM_ROLES.READ_ONLY,
+    constants.SYSTEM_ROLES.USER,
+    constants.SYSTEM_ROLES.INSPECTOR,
+    constants.SYSTEM_ROLES.SYSTEM_ADMIN,
+  ]),
+  regionsRouter
+);
+app.use("/api/status", keycloak.protect(), statusRouter);
+app.use(
+  "/api/comments",
+  keycloak.protect(),
+  roleValidation([
+    constants.SYSTEM_ROLES.READ_ONLY,
+    constants.SYSTEM_ROLES.USER,
+    constants.SYSTEM_ROLES.INSPECTOR,
+    constants.SYSTEM_ROLES.SYSTEM_ADMIN,
+  ]),
+  commentsRouter.router
+);
+app.use(
+  "/api/licence-species",
+  keycloak.protect(),
+  roleValidation([
+    constants.SYSTEM_ROLES.READ_ONLY,
+    constants.SYSTEM_ROLES.USER,
+    constants.SYSTEM_ROLES.INSPECTOR,
+    constants.SYSTEM_ROLES.SYSTEM_ADMIN,
+  ]),
+  licenceSpeciesRouter
+);
+app.use(
+  "/api/documents",
+  keycloak.protect(),
+  roleValidation([
+    constants.SYSTEM_ROLES.READ_ONLY,
+    constants.SYSTEM_ROLES.USER,
+    constants.SYSTEM_ROLES.INSPECTOR,
+    constants.SYSTEM_ROLES.SYSTEM_ADMIN,
+  ]),
+  documentsRouter
+);
+app.use(
+  "/api/cities",
+  keycloak.protect(),
+  roleValidation([
+    constants.SYSTEM_ROLES.READ_ONLY,
+    constants.SYSTEM_ROLES.USER,
+    constants.SYSTEM_ROLES.INSPECTOR,
+    constants.SYSTEM_ROLES.SYSTEM_ADMIN,
+  ]),
+  citiesRouter
+);
+app.use(
+  "/api/dairyfarmtestthresholds",
+  keycloak.protect(),
+  roleValidation([
+    constants.SYSTEM_ROLES.READ_ONLY,
+    constants.SYSTEM_ROLES.USER,
+    constants.SYSTEM_ROLES.INSPECTOR,
+    constants.SYSTEM_ROLES.SYSTEM_ADMIN,
+  ]),
+  dairyFarmTestThresholdsRouter
+);
+app.use(
+  "/api/admin",
+  keycloak.protect(),
+  roleValidation([constants.SYSTEM_ROLES.SYSTEM_ADMIN]),
+  adminRouter
+);
+app.use("/api/*", keycloak.protect(), (req, res) => {
   res.status(404).send({
     code: 404,
     description: "The requested endpoint could not be found.",

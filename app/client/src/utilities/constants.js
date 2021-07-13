@@ -16,18 +16,18 @@ export const INSPECTIONS_PATHNAME = "/inspections";
 export const SEARCH_INSPECTIONS_PATHNAME = "/inspections/search";
 export const CREATE_INSPECTIONS_PATHNAME = "/inspections/create";
 export const DOCUMENT_GENERATION_PATHNAME = "/documents";
-export const NOTICES_PATHNAME = "/documents/notices";
 export const REPORTS_PATHNAME = "/documents/reports";
 export const SELECT_CERTIFICATES_PATHNAME = "/documents/certificates";
 export const DOWNLOAD_CERTIFICATES_PATHNAME =
   "/documents/certificates/download";
+export const SELECT_NOTICES_PATHNAME = "/documents/notices";
+export const DOWNLOAD_NOTICES_PATHNAME = "/documents/notices/download";
 export const ADMIN_PATHNAME = "/admin";
 export const ADMIN_CONFIG_PATHNAME = "/admin/config";
-export const USERS_AND_ROLES_ADMIN_PATHNAME = "/admin/users-and-roles";
+export const ADMIN_DAIRY_TEST_RESULTS_PATHNAME = "/admin/dairytestresults";
 export const LICENSE_TYPES_ADMIN_PATHNAME = "/admin/license-types";
 export const SITES_ADMIN_PATHNAME = "/admin/sites";
 export const INSPECTIONS_ADMIN_PATHNAME = "/admin/inspections";
-export const DAIRY_TEST_RESULTS_ADMIN_PATHNAME = "/admin/dairy-test-results";
 
 export const REQUEST_STATUS = {
   IDLE: "idle",
@@ -113,6 +113,7 @@ export const SPECIES_SUBCODES = {
 
 export const ADMIN_CONFIG_OPTIONS = {
   MANAGE_USERS: "ManageUsers",
+  MANAGE_DAIRY_THRESHOLDS: "ManageDairyThresholds",
 };
 
 export const SYSTEM_ROLES = {
@@ -120,4 +121,12 @@ export const SYSTEM_ROLES = {
   INSPECTOR: 2,
   USER: 3,
   READ_ONLY: 4,
+};
+
+export const DAIRY_TEST_THRESHOLD_IDS = {
+  WATER: 1, // CRY
+  IH: 2,
+  SCC: 3,
+  IBC: 4, // SCP1
+  FFA: 5,
 };

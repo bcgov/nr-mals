@@ -18,6 +18,7 @@ import LicenceHeader from "./LicenceHeader";
 import LicenceSites from "./LicenceSites";
 import LicenceInventory from "./LicenceInventory";
 import LicenceInventoryHistory from "./LicenceInventoryHistory";
+import LicenceDairyTestInventory from "./LicenceDairyTestInventory";
 import AssociatedLicences from "./AssociatedLicences";
 import {
   LICENCE_TYPE_ID_GAME_FARM,
@@ -28,6 +29,7 @@ import {
   LICENCE_TYPE_ID_DISPENSER,
   LICENCE_TYPE_ID_VETERINARY_DRUG,
   LICENCE_TYPE_ID_MEDICATED_FEED,
+  LICENCE_TYPE_ID_DAIRY_FARM,
 } from "./constants";
 
 import Comments from "../comments/Comments";
@@ -72,6 +74,9 @@ export default function ViewLicencePage() {
         <RegistrantsViewEdit licence={licence} />
         <LicenceDetailsViewEdit licence={licence} />
         <LicenceSites licence={licence} />
+        {licence.data.licenceTypeId === LICENCE_TYPE_ID_DAIRY_FARM ? (
+          <LicenceDairyTestInventory licence={licence} />
+        ) : null}
         {licence.data.licenceTypeId === LICENCE_TYPE_ID_GAME_FARM ||
         licence.data.licenceTypeId === LICENCE_TYPE_ID_FUR_FARM ? (
           <>
