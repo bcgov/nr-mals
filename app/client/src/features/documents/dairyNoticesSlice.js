@@ -3,14 +3,14 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import Api, { ApiError } from "../../utilities/api.ts";
 import { REQUEST_STATUS } from "../../utilities/constants";
 
-export const selectQueuedNotices = (state) => state.notices.queued;
-export const selectNoticeJob = (state) => state.notices.job;
+export const selectQueuedDairyNotices = (state) => state.dairyNotices.queued;
+export const selectDairyNoticesJob = (state) => state.dairyNotices.job;
 
-export const fetchQueuedNotices = createAsyncThunk(
-  "notices/fetchQueued",
+export const fetchQueuedDairyNotices = createAsyncThunk(
+  "dairyNotices/fetchQueued",
   async (_, thunkApi) => {
     try {
-      const response = await Api.get("documents/notices/queued");
+      const response = await Api.get("documents/dairyNotices/queued");
       return response.data;
     } catch (error) {
       if (error instanceof ApiError) {
@@ -21,11 +21,11 @@ export const fetchQueuedNotices = createAsyncThunk(
   }
 );
 
-export const startNoticeJob = createAsyncThunk(
-  "notices/startNoticeJob",
-  async (licenceIds, thunkApi) => {
+export const startDairyNoticeJob = createAsyncThunk(
+  "dairyNotices/startDairyNoticeJob",
+  async (data, thunkApi) => {
     try {
-      const response = await Api.post("documents/notices/startJob", licenceIds);
+      const response = await Api.post("documents/dairyNotices/startJob", data);
       return response.data;
     } catch (error) {
       if (error instanceof ApiError) {
@@ -36,11 +36,13 @@ export const startNoticeJob = createAsyncThunk(
   }
 );
 
-export const completeNoticeJob = createAsyncThunk(
-  "notices/completeNoticeJob",
+export const completeDairyNoticeJob = createAsyncThunk(
+  "dairyNotices/completeDairyNoticeJob",
   async (jobId, thunkApi) => {
     try {
-      const response = await Api.post(`documents/notices/completeJob/${jobId}`);
+      const response = await Api.post(
+        `documents/dairyNotices/completeJob/${jobId}`
+      );
       return response.data;
     } catch (error) {
       if (error instanceof ApiError) {
@@ -51,12 +53,12 @@ export const completeNoticeJob = createAsyncThunk(
   }
 );
 
-export const generateNotice = createAsyncThunk(
-  "notices/generateNotice",
+export const generateDairyNotice = createAsyncThunk(
+  "dairyNotices/generateDairyNotice",
   async (documentId, thunkApi) => {
     try {
       const response = await Api.post(
-        `documents/notices/generate/${documentId}`
+        `documents/dairyNotices/generate/${documentId}`
       );
       return response.data;
     } catch (error) {
@@ -69,10 +71,10 @@ export const generateNotice = createAsyncThunk(
 );
 
 export const fetchPendingDocuments = createAsyncThunk(
-  "notices/fetchPendingDocuments",
+  "dairyNotices/fetchPendingDocuments",
   async (_, thunkApi) => {
     try {
-      const job = selectNoticeJob(thunkApi.getState());
+      const job = selectDairyNoticesJob(thunkApi.getState());
       const response = await Api.get(`documents/pending/${job.id}`);
       return response.data;
     } catch (error) {
@@ -84,11 +86,11 @@ export const fetchPendingDocuments = createAsyncThunk(
   }
 );
 
-export const fetchNoticeJob = createAsyncThunk(
-  "notices/fetchNoticeJob",
+export const fetchDairyNoticeJob = createAsyncThunk(
+  "dairyNotices/fetchDairyNoticeJob",
   async (_, thunkApi) => {
     try {
-      const job = selectNoticeJob(thunkApi.getState());
+      const job = selectDairyNoticesJob(thunkApi.getState());
       const response = await Api.get(`documents/jobs/${job.id}`);
       return response.data;
     } catch (error) {
@@ -100,8 +102,8 @@ export const fetchNoticeJob = createAsyncThunk(
   }
 );
 
-export const noticesSlice = createSlice({
-  name: "notices",
+export const dairyNoticesSlice = createSlice({
+  name: "dairyNotices",
   initialState: {
     queued: {
       data: undefined,
@@ -117,7 +119,7 @@ export const noticesSlice = createSlice({
     },
   },
   reducers: {
-    clearNoticeJob: (state) => {
+    clearDairyNoticeJob: (state) => {
       state.job.id = undefined;
       state.job.details = undefined;
       state.job.error = undefined;
@@ -125,61 +127,61 @@ export const noticesSlice = createSlice({
     },
   },
   extraReducers: {
-    [fetchQueuedNotices.pending]: (state) => {
+    [fetchQueuedDairyNotices.pending]: (state) => {
       state.queued.data = undefined;
       state.queued.status = REQUEST_STATUS.PENDING;
     },
-    [fetchQueuedNotices.fulfilled]: (state, action) => {
+    [fetchQueuedDairyNotices.fulfilled]: (state, action) => {
       state.queued.data = action.payload;
       state.queued.error = undefined;
       state.queued.status = REQUEST_STATUS.FULFILLED;
     },
-    [fetchQueuedNotices.rejected]: (state, action) => {
+    [fetchQueuedDairyNotices.rejected]: (state, action) => {
       state.queued.data = undefined;
       state.queued.error = action.payload;
       state.queued.status = REQUEST_STATUS.REJECTED;
     },
-    [startNoticeJob.pending]: (state) => {
+    [startDairyNoticeJob.pending]: (state) => {
       state.job.status = REQUEST_STATUS.PENDING;
     },
-    [startNoticeJob.fulfilled]: (state, action) => {
+    [startDairyNoticeJob.fulfilled]: (state, action) => {
       state.job.id = action.payload.jobId;
       state.job.pendingDocuments = action.payload.documents;
       state.job.error = undefined;
       state.job.status = REQUEST_STATUS.FULFILLED;
     },
-    [startNoticeJob.rejected]: (state, action) => {
+    [startDairyNoticeJob.rejected]: (state, action) => {
       state.job.error = action.payload;
       state.job.status = REQUEST_STATUS.REJECTED;
     },
-    [completeNoticeJob.pending]: (state) => {
+    [completeDairyNoticeJob.pending]: (state) => {
       state.job.status = REQUEST_STATUS.PENDING;
     },
-    [completeNoticeJob.fulfilled]: (state) => {
+    [completeDairyNoticeJob.fulfilled]: (state) => {
       state.job.error = undefined;
       state.job.status = REQUEST_STATUS.FULFILLED;
     },
-    [completeNoticeJob.rejected]: (state, action) => {
+    [completeDairyNoticeJob.rejected]: (state, action) => {
       state.job.error = action.payload;
       state.job.status = REQUEST_STATUS.REJECTED;
     },
-    [generateNotice.fulfilled]: (state, action) => {
+    [generateDairyNotice.fulfilled]: (state, action) => {
       state.job.pendingDocuments = state.job.pendingDocuments.filter(
         (document) => document.documentId !== action.payload.documentId
       );
     },
-    [generateNotice.rejected]: (state) => {
+    [generateDairyNotice.rejected]: (state) => {
       state.job.pendingDocuments = { ...state.job.pendingDocuments };
     },
-    [fetchNoticeJob.pending]: (state) => {
+    [fetchDairyNoticeJob.pending]: (state) => {
       state.job.status = REQUEST_STATUS.PENDING;
     },
-    [fetchNoticeJob.fulfilled]: (state, action) => {
+    [fetchDairyNoticeJob.fulfilled]: (state, action) => {
       state.job.details = action.payload;
       state.job.error = undefined;
       state.job.status = REQUEST_STATUS.FULFILLED;
     },
-    [fetchNoticeJob.rejected]: (state, action) => {
+    [fetchDairyNoticeJob.rejected]: (state, action) => {
       state.job.error = action.payload;
       state.job.status = REQUEST_STATUS.REJECTED;
     },
@@ -200,8 +202,8 @@ export const noticesSlice = createSlice({
   },
 });
 
-const { actions, reducer } = noticesSlice;
+const { actions, reducer } = dairyNoticesSlice;
 
-export const { clearNoticeJob } = actions;
+export const { clearDairyNoticeJob } = actions;
 
 export default reducer;

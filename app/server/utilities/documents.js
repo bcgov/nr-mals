@@ -74,7 +74,7 @@ function getCertificateTemplateName(documentType, licenceType) {
   }
 }
 
-function getNoticeTemplateName(documentType, licenceType) {
+function getRenewalTemplateName(documentType, licenceType) {
   if (documentType !== "RENEWAL") {
     return undefined;
   }
@@ -113,8 +113,50 @@ function getNoticeTemplateName(documentType, licenceType) {
   }
 }
 
+function getDairyNoticeTemplateName(
+  documentType,
+  speciesSubCode,
+  correspondenceCode
+) {
+  if (documentType !== "DAIRY_INFRACTION") {
+    return undefined;
+  }
+
+  let templateSubCode = speciesSubCode;
+  switch (speciesSubCode) {
+    case "WATER":
+    case "WATER1":
+    case "WATER2":
+      templateSubCode = "CRY";
+      break;
+    case "SPC1":
+      templateSubCode = "IBC";
+      break;
+    default:
+      break;
+  }
+
+  let templateCorrespondenceCode = correspondenceCode;
+  switch (correspondenceCode) {
+    case "W":
+      templateCorrespondenceCode = "Warning";
+      break;
+    case "L":
+      templateCorrespondenceCode = "Levy";
+      break;
+    case "S":
+      templateCorrespondenceCode = "Suspension";
+      break;
+    default:
+      break;
+  }
+
+  return `${templateSubCode}_${templateCorrespondenceCode}_Template`;
+}
+
 module.exports = {
   formatCdogsBody,
   getCertificateTemplateName,
-  getNoticeTemplateName,
+  getRenewalTemplateName,
+  getDairyNoticeTemplateName,
 };

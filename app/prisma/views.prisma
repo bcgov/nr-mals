@@ -59,3 +59,16 @@ model mal_site_detail_vw {
   licence_regional_district_number  String?
   licence_regional_district_name    String?
 }
+
+model mal_print_dairy_farm_infraction_vw {
+  dairy_farm_test_result_id         Int
+  licence_id                        Int 
+  licence_number                    Int
+  species_sub_code                  String
+  recorded_date                     DateTime
+  correspondence_code               String
+  correspondence_description        String
+  infraction_json                   Json
+
+  @@unique([dairy_farm_test_result_id, licence_id, species_sub_code], name: "mal_print_dairy_farm_infraction_vw_uk")
+}

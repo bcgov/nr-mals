@@ -20,8 +20,11 @@ export const REPORTS_PATHNAME = "/documents/reports";
 export const SELECT_CERTIFICATES_PATHNAME = "/documents/certificates";
 export const DOWNLOAD_CERTIFICATES_PATHNAME =
   "/documents/certificates/download";
-export const SELECT_NOTICES_PATHNAME = "/documents/notices";
-export const DOWNLOAD_NOTICES_PATHNAME = "/documents/notices/download";
+export const SELECT_RENEWALS_PATHNAME = "/documents/renewals";
+export const DOWNLOAD_RENEWALS_PATHNAME = "/documents/renewals/download";
+export const SELECT_DAIRYNOTICES_PATHNAME = "/documents/dairynotices";
+export const DOWNLOAD_DAIRYNOTICES_PATHNAME =
+  "/documents/dairynotices/download";
 export const ADMIN_PATHNAME = "/admin";
 export const ADMIN_CONFIG_PATHNAME = "/admin/config";
 export const ADMIN_DAIRY_TEST_RESULTS_PATHNAME = "/admin/dairytestresults";
@@ -127,6 +130,6 @@ export const DAIRY_TEST_THRESHOLD_IDS = {
   WATER: 1, // CRY
   IH: 2,
   SCC: 3,
-  IBC: 4, // SCP1
+  IBC: 4, // SPC1
   FFA: 5,
 };

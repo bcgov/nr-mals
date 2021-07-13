@@ -17,7 +17,7 @@ import { FaPrint } from "react-icons/fa";
 import {
   REQUEST_STATUS,
   LICENSES_PATHNAME,
-  DOWNLOAD_NOTICES_PATHNAME,
+  DOWNLOAD_RENEWALS_PATHNAME,
 } from "../../utilities/constants";
 import {
   pluralize,
@@ -28,12 +28,12 @@ import {
 import PageHeading from "../../components/PageHeading";
 
 import {
-  fetchQueuedNotices,
-  selectQueuedNotices,
-  startNoticeJob,
-  selectNoticeJob,
-  clearNoticeJob,
-} from "./noticesSlice";
+  fetchQueuedRenewals,
+  selectQueuedRenewals,
+  startRenewalJob,
+  selectRenewalsJob,
+  clearRenewalJob,
+} from "./renewalsSlice";
 
 function getSelectedLicences(licences) {
   return licences
@@ -41,11 +41,11 @@ function getSelectedLicences(licences) {
     .map((licence) => licence.id);
 }
 
-export default function SelectNoticesPage() {
+export default function SelectRenewalsPage() {
   const [toggleAllChecked, setToggleAllChecked] = useState(true);
 
-  const queuedNotices = useSelector(selectQueuedNotices);
-  const noticeJob = useSelector(selectNoticeJob);
+  const queuedRenewals = useSelector(selectQueuedRenewals);
+  const renewalJob = useSelector(selectRenewalsJob);
 
   const dispatch = useDispatch();
   const history = useHistory();
@@ -65,14 +65,14 @@ export default function SelectNoticesPage() {
   });
 
   useEffect(() => {
-    dispatch(clearNoticeJob());
-    dispatch(fetchQueuedNotices());
+    dispatch(clearRenewalJob());
+    dispatch(fetchQueuedRenewals());
   }, [dispatch]);
 
   useEffect(() => {
     reset({
-      licences: queuedNotices.data
-        ? queuedNotices.data.map((licence) => ({
+      licences: queuedRenewals.data
+        ? queuedRenewals.data.map((licence) => ({
             id: licence.licenceId,
             licenceNumber: licence.licenceNumber,
             licenceType: licence.licenceType,
@@ -86,15 +86,15 @@ export default function SelectNoticesPage() {
           }))
         : [],
     });
-  }, [reset, queuedNotices.data]);
+  }, [reset, queuedRenewals.data]);
 
   const watchLicences = watch("licences", []);
   const selectedLicencesCount = getSelectedLicences(watchLicences).length;
 
   const onSubmit = (data) => {
     const selectedIds = getSelectedLicences(data.licences);
-    dispatch(startNoticeJob(selectedIds));
-    history.push(DOWNLOAD_NOTICES_PATHNAME);
+    dispatch(startRenewalJob(selectedIds));
+    history.push(DOWNLOAD_RENEWALS_PATHNAME);
   };
 
   const updateToggleAllChecked = () => {
@@ -121,14 +121,14 @@ export default function SelectNoticesPage() {
       variant="primary"
       type="submit"
       disabled={
-        selectedLicencesCount === 0 || noticeJob.status !== REQUEST_STATUS.IDLE
+        selectedLicencesCount === 0 || renewalJob.status !== REQUEST_STATUS.IDLE
       }
     >
       Generate
     </Button>
   );
 
-  if (queuedNotices.status === REQUEST_STATUS.PENDING) {
+  if (queuedRenewals.status === REQUEST_STATUS.PENDING) {
     content = (
       <div>
         <Spinner animation="border" role="status">
@@ -136,38 +136,39 @@ export default function SelectNoticesPage() {
         </Spinner>
       </div>
     );
-  } else if (queuedNotices.status === REQUEST_STATUS.REJECTED) {
+  } else if (queuedRenewals.status === REQUEST_STATUS.REJECTED) {
     content = (
       <Alert variant="danger">
         <Alert.Heading>
           An error was encountered while retrieving licences.
         </Alert.Heading>
         <p>
-          {queuedNotices.error.code}: {queuedNotices.error.description}
+          {queuedRenewals.error.code}: {queuedRenewals.error.description}
         </p>
       </Alert>
     );
   } else if (
-    queuedNotices.status === REQUEST_STATUS.FULFILLED &&
-    queuedNotices.data.length === 0
+    queuedRenewals.status === REQUEST_STATUS.FULFILLED &&
+    queuedRenewals.data.length === 0
   ) {
     content = (
       <>
         <Alert variant="success" className="mt-3">
-          <div>No licences have been flagged for notice generation.</div>
+          <div>No licences have been flagged for renewal generation.</div>
         </Alert>
       </>
     );
   } else if (
-    queuedNotices.status === REQUEST_STATUS.FULFILLED &&
-    queuedNotices.data.length > 0
+    queuedRenewals.status === REQUEST_STATUS.FULFILLED &&
+    queuedRenewals.data.length > 0
   ) {
     content = (
       <Form onSubmit={handleSubmit(onSubmit)}>
         <Row className="mt-3 d-flex justify-content-end">
           <Col md="auto">
-            {selectedLicencesCount} {pluralize(selectedLicencesCount, "notice")}{" "}
-            selected for generation.
+            {selectedLicencesCount}{" "}
+            {pluralize(selectedLicencesCount, "renewal")} selected for
+            generation.
           </Col>
         </Row>
         <Table striped size="sm" responsive className="mt-3" hover>
@@ -245,7 +246,7 @@ export default function SelectNoticesPage() {
 
   return (
     <section>
-      <PageHeading>Generate Notices</PageHeading>
+      <PageHeading>Generate Renewals</PageHeading>
       <Container>{content}</Container>
     </section>
   );

@@ -20,8 +20,11 @@ import ViewLicencePage from "./features/licences/ViewLicencePage";
 import SelectCertificatesPage from "./features/documents/SelectCertificatesPage";
 import DownloadCertificatesPage from "./features/documents/DownloadCertificatesPage";
 
-import SelectNoticesPage from "./features/documents/SelectNoticesPage";
-import DownloadNoticesPage from "./features/documents/DownloadNoticesPage";
+import SelectRenewalsPage from "./features/documents/SelectRenewalsPage";
+import DownloadRenewalsPage from "./features/documents/DownloadRenewalsPage";
+
+import SelectDairyNoticesPage from "./features/documents/SelectDairyNoticesPage";
+import DownloadDairyNoticesPage from "./features/documents/DownloadDairyNoticesPage";
 
 import LicenceSearchPage from "./features/search/LicenceSearchPage";
 import LicenceResultsPage from "./features/search/LicenceResultsPage";
@@ -134,11 +137,17 @@ function App() {
             <Route path={`${Constant.SELECT_CERTIFICATES_PATHNAME}`}>
               <SelectCertificatesPage />
             </Route>
-            <Route path={`${Constant.DOWNLOAD_NOTICES_PATHNAME}`}>
-              <DownloadNoticesPage />
+            <Route path={`${Constant.DOWNLOAD_RENEWALS_PATHNAME}`}>
+              <DownloadRenewalsPage />
             </Route>
-            <Route path={`${Constant.SELECT_NOTICES_PATHNAME}`}>
-              <SelectNoticesPage />
+            <Route path={`${Constant.SELECT_RENEWALS_PATHNAME}`}>
+              <SelectRenewalsPage />
+            </Route>
+            <Route path={`${Constant.DOWNLOAD_DAIRYNOTICES_PATHNAME}`}>
+              <DownloadDairyNoticesPage />
+            </Route>
+            <Route path={`${Constant.SELECT_DAIRYNOTICES_PATHNAME}`}>
+              <SelectDairyNoticesPage />
             </Route>
             <ProtectedRoute
               path={`${Constant.ADMIN_CONFIG_PATHNAME}`}

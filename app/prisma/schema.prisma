@@ -85,6 +85,7 @@ model mal_licence {
   action_required                                                                            Boolean?
   print_certificate                                                                          Boolean?
   print_renewal                                                                              Boolean?
+  print_dairy_infraction                                                                     Boolean?
   legacy_game_farm_species_code                                                              String?                         @db.VarChar(10)
   create_userid                                                                              String                          @db.VarChar(63)
   create_timestamp                                                                           DateTime                        @db.Timestamp(6)
@@ -92,6 +93,7 @@ model mal_licence {
   update_timestamp                                                                           DateTime                        @db.Timestamp(6)
   mal_licence_type_lu                                                                        mal_licence_type_lu             @relation(fields: [licence_type_id], references: [id])
   mal_plant_code_lu                                                                          mal_plant_code_lu?              @relation(fields: [plant_code_id], references: [id])
+  mal_registrant                                                                             mal_registrant?                 @relation(fields: [primary_registrant_id], references: [id])
   mal_region_lu                                                                              mal_region_lu?                  @relation(fields: [region_id], references: [id])
   mal_regional_district_lu                                                                   mal_regional_district_lu?       @relation(fields: [regional_district_id], references: [id])
   mal_licence_species_code_lu                                                                mal_licence_species_code_lu?    @relation(fields: [species_code_id], references: [id])
@@ -224,6 +226,7 @@ model mal_registrant {
   create_timestamp            DateTime                      @db.Timestamp(6)
   update_userid               String                        @db.VarChar(63)
   update_timestamp            DateTime                      @db.Timestamp(6)
+  mal_licence                 mal_licence[]
   mal_licence_registrant_xref mal_licence_registrant_xref[]
 
   @@index([last_name], name: "mal_rgst_last_name_idx")
@@ -389,22 +392,23 @@ model mal_city_lu {
 }
 
 model mal_print_job {
-  id                     Int       @id @default(autoincrement())
-  print_job_number       Int       @default(autoincrement())
-  job_status             String?   @db.VarChar(30)
-  print_category         String    @db.VarChar(100)
-  execution_start_time   DateTime  @db.Timestamp(6)
-  json_end_time          DateTime? @db.Timestamp(6)
-  document_end_time      DateTime? @db.Timestamp(6)
-  certificate_json_count Int?
-  envelope_json_count    Int?
-  card_json_count        Int?
-  renewal_json_count     Int?
-  report_json_count      Int?
-  create_userid          String    @db.VarChar(63)
-  create_timestamp       DateTime  @db.Timestamp(6)
-  update_userid          String    @db.VarChar(63)
-  update_timestamp       DateTime  @db.Timestamp(6)
+  id                          Int       @id @default(autoincrement())
+  print_job_number            Int       @default(autoincrement())
+  job_status                  String?   @db.VarChar(30)
+  print_category              String    @db.VarChar(100)
+  execution_start_time        DateTime  @db.Timestamp(6)
+  json_end_time               DateTime? @db.Timestamp(6)
+  document_end_time           DateTime? @db.Timestamp(6)
+  certificate_json_count      Int?
+  envelope_json_count         Int?
+  card_json_count             Int?
+  renewal_json_count          Int?
+  dairy_infraction_json_count Int?
+  report_json_count           Int?
+  create_userid               String    @db.VarChar(63)
+  create_timestamp            DateTime  @db.Timestamp(6)
+  update_userid               String    @db.VarChar(63)
+  update_timestamp            DateTime  @db.Timestamp(6)
 }
 
 model mal_print_job_output {
@@ -465,7 +469,6 @@ model mal_licence_species_sub_code_lu {
   mal_licence_species_code_lu mal_licence_species_code_lu @relation(fields: [species_code_id], references: [id])
   mal_fur_farm_inventory      mal_fur_farm_inventory[]
   mal_game_farm_inventory     mal_game_farm_inventory[]
-  mal_sale_yard_inventory     mal_sale_yard_inventory[]
 
   @@unique([species_code_id, code_name], name: "mal_lssc_id_code_uk")
 }
@@ -618,17 +621,17 @@ model mal_dairy_farm_test_result {
 }
 
 model mal_sale_yard_inventory {
-  id                              Int                              @id
-  licence_id                      Int
-  species_sub_code_id             Int?
-  recorded_date                   DateTime                         @db.Timestamp(6)
-  recorded_value                  Float
-  create_userid                   String                           @db.VarChar(30)
-  create_timestamp                DateTime                         @db.Timestamp(6)
-  update_userid                   String                           @db.VarChar(30)
-  update_timestamp                DateTime                         @db.Timestamp(6)
-  mal_licence                     mal_licence                      @relation(fields: [licence_id], references: [id])
-  mal_licence_species_sub_code_lu mal_licence_species_sub_code_lu? @relation(fields: [species_sub_code_id], references: [id])
+  id                                Int                                @id @default(autoincrement())
+  licence_id                        Int
+  species_sub_code_id               Int?
+  recorded_date                     DateTime                           @db.Timestamp(6)
+  recorded_value                    Float
+  create_userid                     String                             @db.VarChar(30)
+  create_timestamp                  DateTime                           @db.Timestamp(6)
+  update_userid                     String                             @db.VarChar(30)
+  update_timestamp                  DateTime                           @db.Timestamp(6)
+  mal_licence                       mal_licence                        @relation(fields: [licence_id], references: [id])
+  mal_sale_yard_species_sub_code_lu mal_sale_yard_species_sub_code_lu? @relation(fields: [species_sub_code_id], references: [id])
 
   @@unique([licence_id, species_sub_code_id, recorded_date], name: "inv_saleyardinv_uk")
   @@index([licence_id], name: "mal_saleyardinv_licence_id_idx")
@@ -658,6 +661,7 @@ model mal_sale_yard_species_sub_code_lu {
   update_userid                 String                        @db.VarChar(63)
   update_timestamp              DateTime                      @db.Timestamp(6)
   mal_sale_yard_species_code_lu mal_sale_yard_species_code_lu @relation(fields: [species_code_id], references: [id])
+  mal_sale_yard_inventory       mal_sale_yard_inventory[]
 
   @@unique([species_code_id, code_name], name: "mal_syssc_id_code_uk")
 }
@@ -721,4 +725,17 @@ model mal_site_detail_vw {
   licence_region_name               String?
   licence_regional_district_number  String?
   licence_regional_district_name    String?
+}
+
+model mal_print_dairy_farm_infraction_vw {
+  dairy_farm_test_result_id         Int
+  licence_id                        Int 
+  licence_number                    Int
+  species_sub_code                  String
+  recorded_date                     DateTime
+  correspondence_code               String
+  correspondence_description        String
+  infraction_json                   Json
+
+  @@unique([dairy_farm_test_result_id, licence_id, species_sub_code], name: "mal_print_dairy_farm_infraction_vw_uk")
 }

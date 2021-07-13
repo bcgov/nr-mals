@@ -187,7 +187,7 @@ function convertCertificateToLogicalModel(input) {
   return output;
 }
 
-function convertNoticeToLogicalModel(input) {
+function convertRenewalToLogicalModel(input) {
   const output = {
     licenceId: input.licence_id,
     licenceType: input.licence_type,
@@ -383,7 +383,7 @@ module.exports = {
   convertToLogicalModel,
   convertSearchResultToLogicalModel,
   convertCertificateToLogicalModel,
-  convertNoticeToLogicalModel,
+  convertRenewalToLogicalModel,
   convertAssociatdLicenceToLogicalModel,
   convertToAssociatedLicencePhysicalModel,
 };
