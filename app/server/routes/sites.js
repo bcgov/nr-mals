@@ -48,7 +48,7 @@ function getSearchFilter(params) {
     const licenceNumber = parseInt(params.licenceNumber, 10);
 
     if (!Number.isNaN(licenceTypeId)) {
-      andArray.push({ licence_type_id_fk: licenceTypeId });
+      andArray.push({ licence_type_id: licenceTypeId });
     }
 
     if (params.registrantName) {
