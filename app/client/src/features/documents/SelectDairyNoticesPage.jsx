@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import {
   Alert,
   Container,
@@ -22,8 +22,8 @@ import {
 } from "../../utilities/constants";
 import {
   pluralize,
+  formatDate,
   formatDateString,
-  formatListShorten,
 } from "../../utilities/formatting.ts";
 
 import PageHeading from "../../components/PageHeading";
@@ -38,11 +38,16 @@ import {
 } from "./dairyNoticesSlice";
 
 function getSelectedLicences(licences) {
-  return licences
-    .filter((licence) => licence.selected === "true")
-    .map((licence) => licence.licenceId)
-    .filter((value, index, self) => self.indexOf(value) === index);
+  const filter = licences.filter((licence) => licence.selected === "true");
+  const map = filter.map((licence) => licence.licenceId);
+  return map;
 }
+
+function getSelectedLicencesAlt(licences) {
+  return getSelectedLicences(licences);
+}
+
+let licences = [];
 
 export default function SelectDairyNoticesPage() {
   const [toggleAllChecked, setToggleAllChecked] = useState(true);
@@ -53,35 +58,41 @@ export default function SelectDairyNoticesPage() {
   const dispatch = useDispatch();
   const history = useHistory();
 
-  const {
-    control,
-    reset,
-    register,
-    handleSubmit,
-    watch,
-    getValues,
-    setValue,
-  } = useForm();
-  const { fields } = useFieldArray({
-    control,
-    name: "licences",
-  });
+  const { register, handleSubmit, watch, getValues, setValue } = useForm();
+
+  const startDate = sub(startOfToday(), { days: 15 });
+  const endDate = startOfToday();
+
+  const watchLicences = watch("licences", []);
+  const watchStartDate = watch("startDate", startDate);
+  const watchEndDate = watch("endDate", endDate);
+  const selectedLicencesCount = getSelectedLicencesAlt(watchLicences).length;
 
   useEffect(() => {
     dispatch(clearDairyNoticeJob());
     dispatch(fetchQueuedDairyNotices());
+
+    setValue("startDate", startDate);
+    setValue("endDate", endDate);
+    setValue("licences", licences);
   }, [dispatch]);
 
   useEffect(() => {
-    reset({
-      licences: queuedDairyNotices.data
-        ? queuedDairyNotices.data.map((licence) => licence)
-        : [],
-    });
-  }, [reset, queuedDairyNotices.data]);
-
-  const watchLicences = watch("licences", []);
-  const selectedLicencesCount = getSelectedLicences(watchLicences).length;
+    licences = queuedDairyNotices.data
+      ? queuedDairyNotices.data
+          .filter(
+            (notice) =>
+              formatDateString(notice.recordedDate) >=
+                formatDate(watchStartDate) &&
+              formatDateString(notice.recordedDate) <= formatDate(watchEndDate)
+          )
+          .map((licence) => ({
+            ...licence,
+            selected: "true",
+          }))
+      : [];
+    setValue("licences", licences);
+  }, [queuedDairyNotices.data]);
 
   const onSubmit = (data) => {
     const selectedIds = getSelectedLicences(data.licences);
@@ -95,20 +106,26 @@ export default function SelectDairyNoticesPage() {
   };
 
   const updateToggleAllChecked = () => {
-    const { licences } = getValues();
-    const selectedLicences = getSelectedLicences(licences);
-    setToggleAllChecked(selectedLicences.length === licences.length);
+    const values = getValues();
+    const selectedLicences = getSelectedLicences(values.licences);
+    setToggleAllChecked(selectedLicences.length === values.licences.length);
   };
 
   const toggleAllLicences = () => {
-    let { licences } = getValues();
-    const selectedLicences = getSelectedLicences(licences);
-    if (selectedLicences.length === licences.length) {
-      licences = licences.map((licence) => ({ ...licence, selected: false }));
+    const values = getValues();
+    const selectedLicences = getSelectedLicences(values.licences);
+    if (selectedLicences.length === values.licences.length) {
+      values.licences = values.licences.map((licence) => ({
+        ...licence,
+        selected: false,
+      }));
     } else {
-      licences = licences.map((licence) => ({ ...licence, selected: true }));
+      values.licences = values.licences.map((licence) => ({
+        ...licence,
+        selected: true,
+      }));
     }
-    setValue("licences", licences);
+    setValue("licences", values.licences);
     updateToggleAllChecked();
   };
 
@@ -167,27 +184,8 @@ export default function SelectDairyNoticesPage() {
     queuedDairyNotices.status === REQUEST_STATUS.FULFILLED &&
     queuedDairyNotices.data.length > 0
   ) {
-    const endDate = startOfToday();
-    const startDate = sub(endDate, { days: 30 });
-    setValue("startDate", startDate);
-    setValue("endDate", endDate);
-
     content = (
       <Form onSubmit={handleSubmit(onSubmit)}>
-        <Row>
-          <CustomDatePicker
-            id="startDate"
-            label="Start Date"
-            notifyOnChange={handleFieldChange("startDate")}
-            defaultValue={startDate}
-          />
-          <CustomDatePicker
-            id="endDate"
-            label="End Date"
-            notifyOnChange={handleFieldChange("endDate")}
-            defaultValue={endDate}
-          />
-        </Row>
         <Row className="mt-3 d-flex justify-content-end">
           <Col md="auto">
             {selectedLicencesCount}{" "}
@@ -214,7 +212,7 @@ export default function SelectDairyNoticesPage() {
             </tr>
           </thead>
           <tbody>
-            {fields.map((item, index) => {
+            {licences.map((item, index) => {
               const url = `${LICENSES_PATHNAME}/${item.licenceId}`;
               return (
                 <tr key={item.id}>
@@ -271,7 +269,29 @@ export default function SelectDairyNoticesPage() {
   return (
     <section>
       <PageHeading>Generate Dairy Notices</PageHeading>
-      <Container>{content}</Container>
+      <Container>
+        <Row>
+          <Col lg={3}>
+            <CustomDatePicker
+              id="startDate"
+              label="Start Date"
+              notifyOnChange={handleFieldChange("startDate")}
+              notifyOnBlur={() => dispatch(fetchQueuedDairyNotices())}
+              defaultValue={startDate}
+            />
+          </Col>
+          <Col lg={3}>
+            <CustomDatePicker
+              id="endDate"
+              label="End Date"
+              notifyOnChange={handleFieldChange("endDate")}
+              notifyOnBlur={() => dispatch(fetchQueuedDairyNotices())}
+              defaultValue={endDate}
+            />
+          </Col>
+        </Row>
+        {content}
+      </Container>
     </section>
   );
 }

@@ -1,3 +1,5 @@
+const { formatDate } = require("../utilities/formatting");
+
 function convertToLogicalModel(input) {
   const output = {
     id:
@@ -10,7 +12,7 @@ function convertToLogicalModel(input) {
     licenceId: input.licence_id,
     licenceNumber: input.licence_number,
     speciesSubCode: input.species_sub_code,
-    recordedDate: input.recorded_date,
+    recordedDate: formatDate(input.recorded_date),
     correspondenceCode: input.correspondence_code,
     correspondenceDescription: input.correspondence_description,
     levyPercent: input.infraction_json.LevyPercent,

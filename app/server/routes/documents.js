@@ -305,13 +305,7 @@ async function getQueuedDairyNotices() {
     where: { code_name: "ACT" },
   });
 
-  const maxDate = await prisma.$queryRaw(
-    "select MAX(recorded_date) FROM mals_app.mal_print_dairy_farm_infraction_vw"
-  );
-
-  return prisma.mal_print_dairy_farm_infraction_vw.findMany({
-    where: { recorded_date: new Date(maxDate[0].max) },
-  });
+  return prisma.mal_print_dairy_farm_infraction_vw.findMany({});
 }
 
 async function startDairyNoticeJob(licenceIds, startDate, endDate) {
