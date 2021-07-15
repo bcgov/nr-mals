@@ -14,13 +14,13 @@ export default function FurSpeciesModal({ species, closeModal, submit }) {
   const { register, handleSubmit, setError, errors } = form;
 
   const onSubmit = (data) => {
-    let valid = true;
+    const valid = true;
 
     if (!valid) {
       return;
     }
 
-    submit(payload);
+    submit(data);
   };
 
   return (
@@ -30,27 +30,27 @@ export default function FurSpeciesModal({ species, closeModal, submit }) {
         type="number"
         id="id"
         name="id"
-        defaultValue={user !== null ? user.id : null}
+        defaultValue={species !== null ? species.id : null}
         ref={register}
       />
       <Modal.Header closeButton>
         <Modal.Title>
-          {user ? "Edit Fur Species" : "Add Fur Species"}
+          {species ? "Edit Fur Species" : "Add Fur Species"}
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <Form.Row>
           <Col>
-            <Form.Group controlId="speciesName">
+            <Form.Group controlId="codeName">
               <Form.Label>Species Name</Form.Label>
               <Form.Control
                 type="text"
-                name="speciesName"
-                defaultValue={user !== null ? user.speciesName : null}
+                name="codeName"
+                defaultValue={species !== null ? species.codeName : null}
                 ref={register({
                   required: true,
                 })}
-                isInvalid={errors.speciesName}
+                isInvalid={errors.codeName}
               />
               <Form.Control.Feedback type="invalid">
                 Please enter a valid name.
@@ -60,19 +60,19 @@ export default function FurSpeciesModal({ species, closeModal, submit }) {
         </Form.Row>
         <Form.Row>
           <Col>
-            <Form.Group controlId="speciesDescription">
+            <Form.Group controlId="codeDescription">
               <Form.Label>Species Description</Form.Label>
               <Form.Control
                 type="text"
                 as="textarea"
                 rows={6}
-                maxLength={2000}
-                name="speciesDescription"
-                defaultValue={user !== null ? user.speciesDescription : null}
+                maxLength={120}
+                name="codeDescription"
+                defaultValue={species !== null ? species.codeDescription : null}
                 ref={register({
                   required: true,
                 })}
-                isInvalid={errors.speciesDescription}
+                isInvalid={errors.codeDescription}
               />
               <Form.Control.Feedback type="invalid">
                 Please enter a valid description.

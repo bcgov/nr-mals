@@ -27,6 +27,21 @@ export const fetchLicenceSpecies = createAsyncThunk(
   }
 );
 
+export const updateLicenceSpecies = createAsyncThunk(
+  "gameFarm/updateLicenceSpecies",
+  async ({ payload, id }, thunkApi) => {
+    try {
+      const response = await Api.post(`licence-species/species/${id}`, payload);
+      return response.data;
+    } catch (error) {
+      if (error instanceof ApiError) {
+        return thunkApi.rejectWithValue(error.serialize());
+      }
+      return thunkApi.rejectWithValue({ code: -1, description: error.message });
+    }
+  }
+);
+
 export const licenceSpeciesSlice = createSlice({
   name: "licenceSpecies",
   initialState: {

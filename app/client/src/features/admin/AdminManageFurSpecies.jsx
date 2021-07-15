@@ -7,19 +7,14 @@ import ErrorMessageRow from "../../components/ErrorMessageRow";
 
 import {
   fetchLicenceSpecies,
-  // updateLicenceSpecies,
+  updateLicenceSpecies,
   selectLicenceSpecies,
 } from "../lookups/licenceSpeciesSlice";
 
 import { REQUEST_STATUS } from "../../utilities/constants";
 
-import {
-  LICENCE_TYPE_ID_GAME_FARM,
-  LICENCE_TYPE_ID_FUR_FARM,
-} from "../licences/constants";
-
 import { openModal } from "../../app/appSlice";
-import { LICENCE_TYPE } from "../../modals/LicenceTypeModal";
+import { FUR_SPECIES_MODAL } from "../../modals/FurSpeciesModal";
 
 export default function AdminManageFurSpecies() {
   const species = useSelector(selectLicenceSpecies);
@@ -30,20 +25,22 @@ export default function AdminManageFurSpecies() {
   }, [dispatch]);
 
   const editCallback = (data) => {
-    // dispatch(updateLicenceSpecies({ payload: data, id: data.id }));
+    dispatch(updateLicenceSpecies({ payload: data, id: data.id })).then(() =>
+      dispatch(fetchLicenceSpecies())
+    );
   };
 
   function onEdit(result) {
     dispatch(
-      openModal(LICENCE_TYPE, editCallback, { licenceType: result }, "md")
+      openModal(FUR_SPECIES_MODAL, editCallback, { species: result }, "md")
     );
   }
 
   function formatResultRow(result, showOptions = true) {
     return (
       <tr key={result.id}>
-        <td className="text-nowrap" />
-        <td className="text-nowrap" />
+        <td className="text-nowrap">{result.codeName}</td>
+        <td className="text-nowrap">{result.codeDescription}</td>
         {showOptions ? (
           <>
             <td className="text-nowrap">

@@ -13,6 +13,8 @@ import {
 
 import { REQUEST_STATUS } from "../../utilities/constants";
 
+import { formatMoney } from "../../utilities/formatting.ts";
+
 import { openModal } from "../../app/appSlice";
 import { LICENCE_TYPE } from "../../modals/LicenceTypeModal";
 
@@ -37,12 +39,12 @@ export default function AdminManageLicenceTypes() {
   function formatResultRow(result, showOptions = true) {
     return (
       <tr key={result.id}>
-        <td className="text-nowrap" />
-        <td className="text-nowrap" />
-        <td className="text-nowrap" />
-        <td className="text-nowrap" />
-        <td className="text-nowrap" />
-        <td className="text-nowrap" />
+        <td className="text-nowrap">{result.licenceType}</td>
+        <td className="text-nowrap">{result.standardFee}</td>
+        <td className="text-nowrap">{result.licenceTerm}</td>
+        <td className="text-nowrap">{result.standardIssueDate}</td>
+        <td className="text-nowrap">{result.standardExpiryDate}</td>
+        <td className="text-nowrap">{result.renewalNotice}</td>
         {showOptions ? (
           <>
             <td className="text-nowrap">

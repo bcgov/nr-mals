@@ -17,6 +17,7 @@ import DairyFarmTestThresholdsModal, {
   THRESHOLD,
 } from "../modals/DairyFarmTestThresholdsModal";
 import LicenceTypeModal, { LICENCE_TYPE } from "../modals/LicenceTypeModal";
+import FurSpeciesModal, { FUR_SPECIES_MODAL } from "../modals/FurSpeciesModal";
 
 import { closeModal, selectModal } from "../app/appSlice";
 
@@ -30,6 +31,7 @@ const MODAL_COMPONENTS = {
   [USER]: UserModal,
   [THRESHOLD]: DairyFarmTestThresholdsModal,
   [LICENCE_TYPE]: LicenceTypeModal,
+  [FUR_SPECIES_MODAL]: FurSpeciesModal,
 };
 
 export default function ModalComponent() {

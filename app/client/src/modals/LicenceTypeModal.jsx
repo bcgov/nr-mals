@@ -4,6 +4,8 @@ import { Button, Modal, Form, Col } from "react-bootstrap";
 import { useForm } from "react-hook-form";
 
 import CustomDatePicker from "../components/CustomDatePicker";
+import { parseAsDate, parseAsInt, parseAsFloat } from "../utilities/parsing";
+import { formatDateString } from "../utilities/formatting.ts";
 
 export const LICENCE_TYPE = "LICENCE_TYPE";
 
@@ -12,6 +14,8 @@ export default function LicenceTypeModal({ licenceType, closeModal, submit }) {
     reValidateMode: "onBlur",
   });
   const { register, setValue, handleSubmit, errors } = form;
+  setValue("standardIssueDate", licenceType.standardIssueDate);
+  setValue("standardExpiryDate", licenceType.standardExpiryDate);
 
   const onSubmit = (data) => {
     const valid = true;
@@ -21,7 +25,15 @@ export default function LicenceTypeModal({ licenceType, closeModal, submit }) {
     }
 
     const payload = {
-      ...data,
+      id: data.id,
+      licenceType: data.licenceType,
+      standardFee: parseAsFloat(data.standardFee),
+      licenceTerm: parseAsInt(data.licenceTerm),
+      standardIssueDate: new Date(data.standardIssueDate),
+      standardExpiryDate: new Date(data.standardExpiryDate),
+      renewalNotice: parseAsInt(data.renewalNotice),
+      legislation: data.legislation,
+      regulation: data.regulation,
     };
 
     submit(payload);
@@ -51,16 +63,18 @@ export default function LicenceTypeModal({ licenceType, closeModal, submit }) {
       <Modal.Body>
         <Form.Row>
           <Col>
-            <Form.Group controlId="licenceTypeName">
+            <Form.Group controlId="licenceType">
               <Form.Label>Licence Type Name</Form.Label>
               <Form.Control
                 type="text"
-                name="licenceTypeName"
-                defaultValue={licenceType !== null ? licenceType.name : null}
+                name="licenceType"
+                defaultValue={
+                  licenceType !== null ? licenceType.licenceType : null
+                }
                 ref={register({
                   required: true,
                 })}
-                isInvalid={errors.licenceTypeName}
+                isInvalid={errors.licenceType}
               />
               <Form.Control.Feedback type="invalid">
                 Please enter a valid name.
@@ -91,18 +105,18 @@ export default function LicenceTypeModal({ licenceType, closeModal, submit }) {
         </Form.Row>
         <Form.Row>
           <Col>
-            <Form.Group controlId="renewalNoticeTerm">
+            <Form.Group controlId="renewalNotice">
               <Form.Label>Renewal Notice Term</Form.Label>
               <Form.Control
                 type="text"
-                name="renewalNoticeTerm"
+                name="renewalNotice"
                 defaultValue={
-                  licenceType !== null ? licenceType.renewalNoticeTerm : null
+                  licenceType !== null ? licenceType.renewalNotice : null
                 }
                 ref={register({
                   required: true,
                 })}
-                isInvalid={errors.upperLimit}
+                isInvalid={errors.renewalNotice}
               />
               <Form.Control.Feedback type="invalid">
                 Please enter a valid value.
@@ -123,7 +137,7 @@ export default function LicenceTypeModal({ licenceType, closeModal, submit }) {
                 ref={register({
                   required: true,
                 })}
-                isInvalid={errors.upperLimit}
+                isInvalid={errors.licenceTerm}
               />
               <Form.Control.Feedback type="invalid">
                 Please enter a valid value.
@@ -137,7 +151,7 @@ export default function LicenceTypeModal({ licenceType, closeModal, submit }) {
               id="standardIssueDate"
               label="Standard Issue Date"
               notifyOnChange={handleFieldChange("standardIssueDate")}
-              defaultValue={licenceType.standardIssueDate}
+              defaultValue={parseAsDate(licenceType.standardIssueDate)}
             />
           </Col>
         </Form.Row>
@@ -147,7 +161,7 @@ export default function LicenceTypeModal({ licenceType, closeModal, submit }) {
               id="standardExpiryDate"
               label="Standard Expiry Date"
               notifyOnChange={handleFieldChange("standardExpiryDate")}
-              defaultValue={licenceType.standardExpiryDate}
+              defaultValue={parseAsDate(licenceType.standardExpiryDate)}
             />
           </Col>
         </Form.Row>
@@ -160,10 +174,10 @@ export default function LicenceTypeModal({ licenceType, closeModal, submit }) {
                 rows={6}
                 name="applicableAct"
                 defaultValue={
-                  licenceType !== null ? licenceType.applicableAct : null
+                  licenceType !== null ? licenceType.legislation : null
                 }
                 ref={register({
-                  required: true,
+                  required: false,
                 })}
                 maxLength={2000}
                 isInvalid={errors.applicableAct}
@@ -186,7 +200,7 @@ export default function LicenceTypeModal({ licenceType, closeModal, submit }) {
                   licenceType !== null ? licenceType.regulation : null
                 }
                 ref={register({
-                  required: true,
+                  required: false,
                 })}
                 maxLength={2000}
                 isInvalid={errors.regulation}
