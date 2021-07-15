@@ -43,10 +43,6 @@ function getSelectedLicences(licences) {
   return map;
 }
 
-function getSelectedLicencesAlt(licences) {
-  return getSelectedLicences(licences);
-}
-
 let licences = [];
 
 export default function SelectDairyNoticesPage() {
@@ -66,7 +62,9 @@ export default function SelectDairyNoticesPage() {
   const watchLicences = watch("licences", []);
   const watchStartDate = watch("startDate", startDate);
   const watchEndDate = watch("endDate", endDate);
-  const selectedLicencesCount = getSelectedLicencesAlt(watchLicences).length;
+  const selectedLicencesCount = getSelectedLicences(watchLicences).length;
+
+  let licenceIdsWithChecks = [];
 
   useEffect(() => {
     dispatch(clearDairyNoticeJob());
@@ -78,6 +76,10 @@ export default function SelectDairyNoticesPage() {
   }, [dispatch]);
 
   useEffect(() => {
+    // Reset array used to determine when checks are displayed
+    licenceIdsWithChecks = [];
+
+    const checked = [];
     licences = queuedDairyNotices.data
       ? queuedDairyNotices.data
           .filter(
@@ -86,10 +88,17 @@ export default function SelectDairyNoticesPage() {
                 formatDate(watchStartDate) &&
               formatDateString(notice.recordedDate) <= formatDate(watchEndDate)
           )
-          .map((licence) => ({
-            ...licence,
-            selected: "true",
-          }))
+          .map((licence) => {
+            const obj = {
+              ...licence,
+              selected:
+                checked.find((x) => x === licence.licenceId) === undefined
+                  ? "true"
+                  : "false",
+            };
+            checked.push(licence.licenceId);
+            return obj;
+          })
       : [];
     setValue("licences", licences);
   }, [queuedDairyNotices.data]);
@@ -108,13 +117,19 @@ export default function SelectDairyNoticesPage() {
   const updateToggleAllChecked = () => {
     const values = getValues();
     const selectedLicences = getSelectedLicences(values.licences);
-    setToggleAllChecked(selectedLicences.length === values.licences.length);
+    const uniqueLicences = [
+      ...new Set(values.licences.map((x) => x.licenceId)),
+    ];
+    setToggleAllChecked(selectedLicences.length === uniqueLicences.length);
   };
 
   const toggleAllLicences = () => {
     const values = getValues();
     const selectedLicences = getSelectedLicences(values.licences);
-    if (selectedLicences.length === values.licences.length) {
+    const uniqueLicences = [
+      ...new Set(values.licences.map((x) => x.licenceId)),
+    ];
+    if (selectedLicences.length === uniqueLicences.length) {
       values.licences = values.licences.map((licence) => ({
         ...licence,
         selected: false,
@@ -189,8 +204,8 @@ export default function SelectDairyNoticesPage() {
         <Row className="mt-3 d-flex justify-content-end">
           <Col md="auto">
             {selectedLicencesCount}{" "}
-            {pluralize(selectedLicencesCount, "Dairy Notice")} selected for
-            generation.
+            {pluralize(selectedLicencesCount, "Dairy Notice Licence")} selected
+            for generation.
           </Col>
         </Row>
         <Table striped size="sm" responsive className="mt-3" hover>
@@ -214,16 +229,22 @@ export default function SelectDairyNoticesPage() {
           <tbody>
             {licences.map((item, index) => {
               const url = `${LICENSES_PATHNAME}/${item.licenceId}`;
+              const addCheck =
+                licenceIdsWithChecks.find((x) => x === item.licenceId) ===
+                undefined;
+              licenceIdsWithChecks.push(item.licenceId);
               return (
                 <tr key={item.id}>
                   <td>
-                    <Form.Check
-                      name={`licences[${index}].selected`}
-                      ref={register()}
-                      defaultChecked
-                      defaultValue
-                      onChange={() => updateToggleAllChecked()}
-                    />
+                    {addCheck ? (
+                      <Form.Check
+                        name={`licences[${index}].selected`}
+                        ref={register()}
+                        defaultChecked
+                        defaultValue
+                        onChange={() => updateToggleAllChecked()}
+                      />
+                    ) : null}
                     <input
                       hidden
                       name={`licences[${index}].id`}

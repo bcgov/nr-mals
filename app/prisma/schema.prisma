@@ -409,6 +409,7 @@ model mal_print_job {
   create_timestamp            DateTime  @db.Timestamp(6)
   update_userid               String    @db.VarChar(63)
   update_timestamp            DateTime  @db.Timestamp(6)
+  recheck_notice_json_count   Int?
 }
 
 model mal_print_job_output {

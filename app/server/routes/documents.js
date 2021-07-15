@@ -305,7 +305,13 @@ async function getQueuedDairyNotices() {
     where: { code_name: "ACT" },
   });
 
-  return prisma.mal_print_dairy_farm_infraction_vw.findMany({});
+  return prisma.mal_print_dairy_farm_infraction_vw.findMany({
+    orderBy: [
+      {
+        licence_id: "asc",
+      },
+    ],
+  });
 }
 
 async function startDairyNoticeJob(licenceIds, startDate, endDate) {
@@ -685,6 +691,7 @@ router.post("/dairyNotices/startJob", async (req, res, next) => {
   const licenceIds = req.body.licenceIds.map((licenceId) =>
     parseInt(licenceId, 10)
   );
+
   const startDate = formatDate(new Date(req.body.startDate));
   const endDate = formatDate(new Date(req.body.endDate));
 
