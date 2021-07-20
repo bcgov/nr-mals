@@ -81,7 +81,10 @@ function HeaderNavigation() {
                   Renewals
                 </DropdownNavLink>
                 <DropdownNavLink to={Constant.SELECT_DAIRYNOTICES_PATHNAME}>
-                  Dairy Notices
+                  Dairy Infractions
+                </DropdownNavLink>
+                <DropdownNavLink to={Constant.SELECT_DAIRYTANKNOTICES_PATHNAME}>
+                  Dairy Tank ReCheck Notices
                 </DropdownNavLink>
                 <DropdownNavLink to={Constant.REPORTS_PATHNAME}>
                   Reports

@@ -154,9 +154,18 @@ function getDairyNoticeTemplateName(
   return `${templateSubCode}_${templateCorrespondenceCode}_Template`;
 }
 
+function getDairyTankNoticeTemplateName(documentType) {
+  if (documentType !== "RECHECK_NOTICE") {
+    return undefined;
+  }
+
+  return `Dairy_Tank_Recheck_Template`;
+}
+
 module.exports = {
   formatCdogsBody,
   getCertificateTemplateName,
   getRenewalTemplateName,
   getDairyNoticeTemplateName,
+  getDairyTankNoticeTemplateName,
 };

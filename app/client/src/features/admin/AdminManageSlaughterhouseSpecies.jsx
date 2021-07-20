@@ -6,44 +6,51 @@ import SectionHeading from "../../components/SectionHeading";
 import ErrorMessageRow from "../../components/ErrorMessageRow";
 
 import {
-  fetchLicenceSpecies,
-  createLicenceSpecies,
-  updateLicenceSpecies,
-  selectLicenceSpecies,
-} from "../lookups/licenceSpeciesSlice";
+  fetchSlaughterhouseSpecies,
+  createSlaughterhouseSpecies,
+  updateSlaughterhouseSpecies,
+  selectSlaughterhouseSpecies,
+} from "../lookups/slaughterhouseSpeciesSlice";
 
 import { REQUEST_STATUS } from "../../utilities/constants";
 
-import { LICENCE_TYPE_ID_FUR_FARM } from "../licences/constants";
+import { LICENCE_TYPE_ID_SLAUGHTERHOUSE } from "../licences/constants";
 
 import { openModal } from "../../app/appSlice";
-import { FUR_SPECIES_MODAL } from "../../modals/FurSpeciesModal";
+import { SLAUGHTERHOUSE_SPECIES_MODAL } from "../../modals/SlaughterhouseSpeciesModal";
 
-export default function AdminManageFurSpecies() {
-  const species = useSelector(selectLicenceSpecies);
+export default function AdminManageSlaughterhouseSpecies() {
+  const species = useSelector(selectSlaughterhouseSpecies);
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(fetchLicenceSpecies());
+    dispatch(fetchSlaughterhouseSpecies());
   }, [dispatch]);
 
   const addCallback = (data) => {
     dispatch(
-      createLicenceSpecies({ ...data, licenceTypeId: LICENCE_TYPE_ID_FUR_FARM })
+      createSlaughterhouseSpecies({
+        ...data,
+      })
     );
   };
 
   function onAdd() {
-    dispatch(openModal(FUR_SPECIES_MODAL, addCallback, {}, "md"));
+    dispatch(openModal(SLAUGHTERHOUSE_SPECIES_MODAL, addCallback, {}, "md"));
   }
 
   const editCallback = (data) => {
-    dispatch(updateLicenceSpecies({ payload: data, id: data.id }));
+    dispatch(updateSlaughterhouseSpecies({ payload: data, id: data.id }));
   };
 
   function onEdit(result) {
     dispatch(
-      openModal(FUR_SPECIES_MODAL, editCallback, { species: result }, "md")
+      openModal(
+        SLAUGHTERHOUSE_SPECIES_MODAL,
+        editCallback,
+        { species: result },
+        "md"
+      )
     );
   }
 
@@ -72,7 +79,7 @@ export default function AdminManageFurSpecies() {
 
   return (
     <>
-      <SectionHeading>Manage Fur Species</SectionHeading>
+      <SectionHeading>Manage Slaughterhouse Species</SectionHeading>
       <Row className="mt-3 d-flex justify-content-end">
         <Col md="auto">
           <Button
@@ -80,7 +87,7 @@ export default function AdminManageFurSpecies() {
             type="button"
             onClick={async () => onAdd()}
           >
-            Add a Fur Species
+            Add a Slaughterhouse Species
           </Button>
         </Col>
       </Row>
@@ -93,11 +100,7 @@ export default function AdminManageFurSpecies() {
           </tr>
         </thead>
         {species.status === REQUEST_STATUS.FULFILLED ? (
-          <tbody>
-            {species.data.species
-              .filter((x) => x.licenceTypeId === LICENCE_TYPE_ID_FUR_FARM)
-              .map((x) => formatResultRow(x))}
-          </tbody>
+          <tbody>{species.data.species.map((x) => formatResultRow(x))}</tbody>
         ) : null}
       </Table>
       {species.status === REQUEST_STATUS.PENDING ? (
@@ -112,4 +115,4 @@ export default function AdminManageFurSpecies() {
   );
 }
 
-AdminManageFurSpecies.propTypes = {};
+AdminManageSlaughterhouseSpecies.propTypes = {};

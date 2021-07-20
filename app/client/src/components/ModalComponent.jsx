@@ -18,6 +18,12 @@ import DairyFarmTestThresholdsModal, {
 } from "../modals/DairyFarmTestThresholdsModal";
 import LicenceTypeModal, { LICENCE_TYPE } from "../modals/LicenceTypeModal";
 import FurSpeciesModal, { FUR_SPECIES_MODAL } from "../modals/FurSpeciesModal";
+import GameSpeciesModal, {
+  GAME_SPECIES_MODAL,
+} from "../modals/GameSpeciesModal";
+import SlaughterhouseSpeciesModal, {
+  SLAUGHTERHOUSE_SPECIES_MODAL,
+} from "../modals/SlaughterhouseSpeciesModal";
 
 import { closeModal, selectModal } from "../app/appSlice";
 
@@ -32,6 +38,8 @@ const MODAL_COMPONENTS = {
   [THRESHOLD]: DairyFarmTestThresholdsModal,
   [LICENCE_TYPE]: LicenceTypeModal,
   [FUR_SPECIES_MODAL]: FurSpeciesModal,
+  [GAME_SPECIES_MODAL]: GameSpeciesModal,
+  [SLAUGHTERHOUSE_SPECIES_MODAL]: SlaughterhouseSpeciesModal,
 };
 
 export default function ModalComponent() {

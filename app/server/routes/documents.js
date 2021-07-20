@@ -9,6 +9,7 @@ const fs = require("fs").promises;
 
 const licence = require("../models/licence");
 const dairyFarmInfractionView = require("../models/dairyFarmInfractionView");
+const dairyFarmTankRecheckView = require("../models/dairyFarmTankRecheckView");
 const constants = require("../utilities/constants");
 const { getCurrentUser } = require("../utilities/user");
 const {
@@ -16,6 +17,7 @@ const {
   getCertificateTemplateName,
   getRenewalTemplateName,
   getDairyNoticeTemplateName,
+  getDairyTankNoticeTemplateName,
 } = require("../utilities/documents");
 const { formatDate } = require("../utilities/formatting");
 
@@ -424,6 +426,133 @@ async function generateDairyNotice(documentId) {
 
 //#endregion
 
+//#region Dairy Tank Notices Functions
+
+async function getQueuedDairyTankNotices() {
+  const activeStatus = await prisma.mal_status_code_lu.findFirst({
+    where: { code_name: "ACT" },
+  });
+
+  return prisma.mal_print_dairy_farm_tank_recheck_vw.findMany({
+    where: {
+      print_recheck_notice: true,
+    },
+    orderBy: [
+      {
+        tank_id: "asc",
+      },
+    ],
+  });
+}
+
+async function startDairyTankNoticeJob(tankIds) {
+  const tankFilterCriteria = {
+    id: {
+      in: tankIds,
+    },
+  };
+
+  const [, , procedureResult, ,] = await prisma.$transaction([
+    // ensure selected licences have print_recheck_notice set to true
+    prisma.mal_dairy_farm_tank.updateMany({
+      where: tankFilterCriteria,
+      data: { print_recheck_notice: true },
+    }),
+    // ensure other licences have print_recheck_notice set to false
+    prisma.mal_dairy_farm_tank.updateMany({
+      where: { NOT: tankFilterCriteria },
+      data: { print_recheck_notice: false },
+    }),
+    prisma.$queryRaw(
+      `CALL mals_app.pr_generate_print_json('RECHECK_NOTICE', NULL, NULL, NULL)`
+    ),
+    prisma.mal_dairy_farm_tank.updateMany({
+      data: { print_recheck_notice: false },
+    }),
+  ]);
+
+  const jobId = procedureResult[0].iop_print_job_id;
+
+  const documents = await getPendingDocuments(jobId);
+
+  return { jobId, documents };
+}
+
+async function generateDairyTankNotice(documentId) {
+  const document = await getDocument(documentId);
+
+  const templateFileName = getDairyTankNoticeTemplateName(
+    document.document_type
+  );
+
+  if (templateFileName === undefined) {
+    return {
+      status: 500,
+      payload: {
+        code: 500,
+        description: `Could not find template matching the given document and licence types [${document.document_type}, ${document.licence_type}] for document ${document.id}`,
+      },
+    };
+  }
+
+  if (
+    templateBuffers.find((x) => x.templateFileName === templateFileName) ===
+    undefined
+  ) {
+    const buffer = await fs.readFile(
+      path.join(dairyNoticeTemplateDir, `${templateFileName}.docx`)
+    );
+    const bufferBase64 = buffer.toString("base64");
+    templateBuffers.push({
+      templateFileName: templateFileName,
+      templateBuffer: bufferBase64,
+    });
+  }
+
+  const template = templateBuffers.find(
+    (x) => x.templateFileName === templateFileName
+  );
+  const generate = async () => {
+    const { data, status } = await cdogs.post(
+      "template/render",
+      formatCdogsBody(document.document_json, template.templateBuffer),
+      {
+        responseType: "arraybuffer", // Needed for binaries unless you want pain
+      }
+    );
+
+    if (status !== 200) {
+      return {
+        status,
+        payload: {
+          code: status,
+          description: "Error encountered in CDOGS",
+        },
+      };
+    }
+
+    const currentUser = getCurrentUser();
+    const now = new Date();
+
+    await prisma.mal_print_job_output.update({
+      where: { id: document.id },
+      data: {
+        document_binary: data,
+        update_userid: currentUser.idir,
+        update_timestamp: now,
+      },
+    });
+
+    return { status: 200, payload: { documentId: document.id } };
+  };
+
+  const result = await generate();
+
+  return result;
+}
+
+//#endregion
+
 //#region General Functions
 
 async function getPendingDocuments(jobId) {
@@ -481,12 +610,14 @@ async function getJob(jobId) {
   const totalCardCount = job.card_json_count;
   const totalRenewalCount = job.renewal_json_count;
   const totalDairyNoticeCount = job.dairy_infraction_json_count;
+  const totalDairyTankNoticeCount = job.recheck_notice_json_count;
   const totalDocumentCount =
     totalCertificateCount +
     totalEnvelopeCount +
     totalCardCount +
     totalRenewalCount +
-    totalDairyNoticeCount;
+    totalDairyNoticeCount +
+    totalDairyTankNoticeCount;
 
   const completedDocuments = await prisma.mal_print_job_output.findMany({
     where: {
@@ -517,6 +648,11 @@ async function getJob(jobId) {
     (document) =>
       document.document_type === constants.DOCUMENT_TYPE_DAIRY_INFRACTION
   ).length;
+  const completedDairyTankNoticeCount = completedDocuments.filter(
+    (document) =>
+      document.document_type ===
+      constants.DOCUMENT_TYPE_DAIRY_TANK_RECHECK_NOTICE
+  ).length;
 
   return {
     printCategory,
@@ -534,6 +670,8 @@ async function getJob(jobId) {
     completedRenewalCount,
     totalDairyNoticeCount,
     completedDairyNoticeCount,
+    totalDairyTankNoticeCount,
+    completedDairyTankNoticeCount,
     totalDocumentCount,
     completedDocumentCount,
   };
@@ -719,6 +857,66 @@ router.post(
 
 router.post(
   "/dairyNotices/completeJob/:jobId(\\d+)",
+  async (req, res, next) => {
+    const jobId = parseInt(req.params.jobId, 10);
+
+    await prisma.mal_print_job.update({
+      where: {
+        id: jobId,
+      },
+      data: {
+        document_end_time: new Date(),
+      },
+    });
+
+    return res.status(200).send(true);
+  }
+);
+
+//#endregion
+
+//#region Dairy Tank Notices Endpoints
+
+router.get("/dairyTankNotices/queued", async (req, res, next) => {
+  await getQueuedDairyTankNotices()
+    .then(async (records) => {
+      const payload = records.map((record) =>
+        dairyFarmTankRecheckView.convertToLogicalModel(record)
+      );
+
+      return res.send(payload);
+    })
+    .catch(next)
+    .finally(async () => prisma.$disconnect());
+});
+
+router.post("/dairyTankNotices/startJob", async (req, res, next) => {
+  const tankIds = req.body.map((tankId) => parseInt(tankId, 10));
+
+  await startDairyTankNoticeJob(tankIds)
+    .then(({ jobId, documents }) => {
+      return res.send({ jobId, documents });
+    })
+    .catch(next)
+    .finally(async () => prisma.$disconnect());
+});
+
+router.post(
+  "/dairyTankNotices/generate/:documentId(\\d+)",
+  async (req, res, next) => {
+    const documentId = parseInt(req.params.documentId, 10);
+
+    await generateDairyTankNotice(documentId)
+      .then(({ status, payload }) => {
+        return res.status(status).send(payload);
+      })
+      .catch(next)
+      .finally(async () => prisma.$disconnect());
+  }
+);
+
+router.post(
+  "/dairyTankNotices/completeJob/:jobId(\\d+)",
   async (req, res, next) => {
     const jobId = parseInt(req.params.jobId, 10);
 

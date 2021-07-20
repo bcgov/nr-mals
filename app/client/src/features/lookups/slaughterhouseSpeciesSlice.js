@@ -3,12 +3,12 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import Api, { ApiError } from "../../utilities/api.ts";
 import { REQUEST_STATUS } from "../../utilities/constants";
 
-export const fetchLicenceSpecies = createAsyncThunk(
-  "gameFarm/fetchLicenceSpecies",
+export const fetchSlaughterhouseSpecies = createAsyncThunk(
+  "saleYard/fetchSlaughterhouseSpecies",
   async (_, thunkApi) => {
     try {
-      const speciesPromise = Api.get("licence-species/species");
-      const subSpeciesPromise = Api.get("licence-species/subspecies");
+      const speciesPromise = Api.get("slaughterhouse-species/species");
+      const subSpeciesPromise = Api.get("slaughterhouse-species/subspecies");
 
       return await Promise.all([speciesPromise, subSpeciesPromise]).then(
         ([species, subSpecies]) => {
@@ -27,11 +27,14 @@ export const fetchLicenceSpecies = createAsyncThunk(
   }
 );
 
-export const createLicenceSpecies = createAsyncThunk(
-  "gameFarm/createLicenceSpecies",
+export const createSlaughterhouseSpecies = createAsyncThunk(
+  "saleYard/createSlaughterhouseSpecies",
   async (payload, thunkApi) => {
     try {
-      const response = await Api.post(`licence-species/species`, payload);
+      const response = await Api.post(
+        `slaughterhouse-species/species`,
+        payload
+      );
       return response.data;
     } catch (error) {
       if (error instanceof ApiError) {
@@ -42,11 +45,14 @@ export const createLicenceSpecies = createAsyncThunk(
   }
 );
 
-export const updateLicenceSpecies = createAsyncThunk(
-  "gameFarm/updateLicenceSpecies",
+export const updateSlaughterhouseSpecies = createAsyncThunk(
+  "saleYard/updateSlaughterhouseSpecies",
   async ({ payload, id }, thunkApi) => {
     try {
-      const response = await Api.put(`licence-species/species/${id}`, payload);
+      const response = await Api.put(
+        `slaughterhouse-species/species/${id}`,
+        payload
+      );
       return response.data;
     } catch (error) {
       if (error instanceof ApiError) {
@@ -57,52 +63,52 @@ export const updateLicenceSpecies = createAsyncThunk(
   }
 );
 
-export const licenceSpeciesSlice = createSlice({
-  name: "licenceSpecies",
+export const slaughterhouseSpeciesSlice = createSlice({
+  name: "slaughterhouseSpecies",
   initialState: {
     data: undefined,
     error: undefined,
     status: REQUEST_STATUS.IDLE,
   },
   extraReducers: {
-    [fetchLicenceSpecies.pending]: (state) => {
+    [fetchSlaughterhouseSpecies.pending]: (state) => {
       state.error = undefined;
       state.status = REQUEST_STATUS.PENDING;
     },
-    [fetchLicenceSpecies.fulfilled]: (state, action) => {
+    [fetchSlaughterhouseSpecies.fulfilled]: (state, action) => {
       state.data = action.payload;
       state.error = undefined;
       state.status = REQUEST_STATUS.FULFILLED;
     },
-    [fetchLicenceSpecies.rejected]: (state, action) => {
+    [fetchSlaughterhouseSpecies.rejected]: (state, action) => {
       state.data = undefined;
       state.error = action.payload;
       state.status = REQUEST_STATUS.REJECTED;
     },
-    [createLicenceSpecies.pending]: (state) => {
+    [createSlaughterhouseSpecies.pending]: (state) => {
       state.error = undefined;
       state.status = REQUEST_STATUS.PENDING;
     },
-    [createLicenceSpecies.fulfilled]: (state, action) => {
+    [createSlaughterhouseSpecies.fulfilled]: (state, action) => {
       state.data = action.payload;
       state.error = undefined;
       state.status = REQUEST_STATUS.FULFILLED;
     },
-    [createLicenceSpecies.rejected]: (state, action) => {
+    [createSlaughterhouseSpecies.rejected]: (state, action) => {
       state.data = undefined;
       state.error = action.payload;
       state.status = REQUEST_STATUS.REJECTED;
     },
-    [updateLicenceSpecies.pending]: (state) => {
+    [updateSlaughterhouseSpecies.pending]: (state) => {
       state.error = undefined;
       state.status = REQUEST_STATUS.PENDING;
     },
-    [updateLicenceSpecies.fulfilled]: (state, action) => {
+    [updateSlaughterhouseSpecies.fulfilled]: (state, action) => {
       state.data = action.payload;
       state.error = undefined;
       state.status = REQUEST_STATUS.FULFILLED;
     },
-    [updateLicenceSpecies.rejected]: (state, action) => {
+    [updateSlaughterhouseSpecies.rejected]: (state, action) => {
       state.data = undefined;
       state.error = action.payload;
       state.status = REQUEST_STATUS.REJECTED;
@@ -110,6 +116,7 @@ export const licenceSpeciesSlice = createSlice({
   },
 });
 
-export const selectLicenceSpecies = (state) => state.lookups.licenceSpecies;
+export const selectSlaughterhouseSpecies = (state) =>
+  state.lookups.slaughterhouseSpecies;
 
-export default licenceSpeciesSlice.reducer;
+export default slaughterhouseSpeciesSlice.reducer;

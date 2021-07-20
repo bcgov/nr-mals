@@ -25,6 +25,10 @@ export const DOWNLOAD_RENEWALS_PATHNAME = "/documents/renewals/download";
 export const SELECT_DAIRYNOTICES_PATHNAME = "/documents/dairynotices";
 export const DOWNLOAD_DAIRYNOTICES_PATHNAME =
   "/documents/dairynotices/download";
+export const SELECT_DAIRYTANKNOTICES_PATHNAME = "/documents/dairytanknotices";
+export const DOWNLOAD_DAIRYTANKNOTICES_PATHNAME =
+  "/documents/dairytanknotices/download";
+
 export const ADMIN_PATHNAME = "/admin";
 export const ADMIN_CONFIG_PATHNAME = "/admin/config";
 export const ADMIN_DAIRY_TEST_RESULTS_PATHNAME = "/admin/dairytestresults";
@@ -121,6 +125,10 @@ export const ADMIN_CONFIG_OPTIONS = {
   MANAGE_FUR_SPECIES: "ManageFurSpecies",
   MANAGE_GAME_SPECIES: "ManageGameSpecies",
   MANAGE_SLAUGHTER_SPECIES: "ManageSlaughterSpecies",
+};
+
+export const REPORTS_OPTIONS = {
+  ACTION_REQUIRED: "ActionRequired",
 };
 
 export const SYSTEM_ROLES = {

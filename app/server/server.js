@@ -19,6 +19,7 @@ const regionsRouter = require("./routes/regions");
 const statusRouter = require("./routes/status");
 const commentsRouter = require("./routes/comments");
 const licenceSpeciesRouter = require("./routes/licenceSpecies");
+const slaughterhouseSpeciesRouter = require("./routes/slaughterhouseSpecies");
 const documentsRouter = require("./routes/documents");
 const citiesRouter = require("./routes/cities");
 const adminRouter = require("./routes/admin");
@@ -128,6 +129,17 @@ app.use(
     constants.SYSTEM_ROLES.SYSTEM_ADMIN,
   ]),
   licenceSpeciesRouter
+);
+app.use(
+  "/api/slaughterhouse-species",
+  keycloak.protect(),
+  roleValidation([
+    constants.SYSTEM_ROLES.READ_ONLY,
+    constants.SYSTEM_ROLES.USER,
+    constants.SYSTEM_ROLES.INSPECTOR,
+    constants.SYSTEM_ROLES.SYSTEM_ADMIN,
+  ]),
+  slaughterhouseSpeciesRouter
 );
 app.use(
   "/api/documents",

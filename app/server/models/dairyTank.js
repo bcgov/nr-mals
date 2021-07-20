@@ -16,6 +16,7 @@ function convertToLogicalModel(input) {
     modelNumber: input.model_number,
     capacity: input.tank_capacity,
     recheckYear: input.recheck_year,
+    printRecheckNotice: input.print_recheck_notice,
     status: "existing",
     createdBy: input.create_userid,
     createdOn: input.create_timestamp,

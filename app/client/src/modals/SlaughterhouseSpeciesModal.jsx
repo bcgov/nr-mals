@@ -5,9 +5,13 @@ import { Button, Modal, Form, Col } from "react-bootstrap";
 import { useForm } from "react-hook-form";
 import { parseAsInt } from "../utilities/parsing";
 
-export const FUR_SPECIES_MODAL = "FUR_SPECIES_MODAL";
+export const SLAUGHTERHOUSE_SPECIES_MODAL = "SLAUGHTERHOUSE_SPECIES_MODAL";
 
-export default function FurSpeciesModal({ species, closeModal, submit }) {
+export default function SlaughterhouseSpeciesModal({
+  species,
+  closeModal,
+  submit,
+}) {
   const form = useForm({
     reValidateMode: "onBlur",
   });
@@ -35,7 +39,9 @@ export default function FurSpeciesModal({ species, closeModal, submit }) {
       />
       <Modal.Header closeButton>
         <Modal.Title>
-          {species ? "Edit Fur Species" : "Add Fur Species"}
+          {species
+            ? "Edit Slaughterhouse Species"
+            : "Add Slaughterhouse Species"}
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>
@@ -93,12 +99,12 @@ export default function FurSpeciesModal({ species, closeModal, submit }) {
   );
 }
 
-FurSpeciesModal.propTypes = {
+SlaughterhouseSpeciesModal.propTypes = {
   species: PropTypes.object,
   closeModal: PropTypes.func.isRequired,
   submit: PropTypes.func.isRequired,
 };
 
-FurSpeciesModal.defaultProps = {
+SlaughterhouseSpeciesModal.defaultProps = {
   species: null,
 };

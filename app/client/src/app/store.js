@@ -10,6 +10,7 @@ import commentsReducer from "../features/comments/commentsSlice";
 import certificatesReducer from "../features/documents/certificatesSlice";
 import renewalsReducer from "../features/documents/renewalsSlice";
 import dairyNoticesReducer from "../features/documents/dairyNoticesSlice";
+import dairyTankNoticesReducer from "../features/documents/dairyTankNoticesSlice";
 import adminReducer from "../features/admin/adminSlice";
 
 const reducer = {
@@ -18,6 +19,7 @@ const reducer = {
   certificates: certificatesReducer,
   renewals: renewalsReducer,
   dairyNotices: dairyNoticesReducer,
+  dairyTankNotices: dairyTankNoticesReducer,
   comments: commentsReducer,
   licences: licencesReducer,
   lookups: lookupsReducer,

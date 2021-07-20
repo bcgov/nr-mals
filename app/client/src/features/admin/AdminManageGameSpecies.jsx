@@ -14,12 +14,12 @@ import {
 
 import { REQUEST_STATUS } from "../../utilities/constants";
 
-import { LICENCE_TYPE_ID_FUR_FARM } from "../licences/constants";
+import { LICENCE_TYPE_ID_GAME_FARM } from "../licences/constants";
 
 import { openModal } from "../../app/appSlice";
-import { FUR_SPECIES_MODAL } from "../../modals/FurSpeciesModal";
+import { GAME_SPECIES_MODAL } from "../../modals/GameSpeciesModal";
 
-export default function AdminManageFurSpecies() {
+export default function AdminManageGameSpecies() {
   const species = useSelector(selectLicenceSpecies);
   const dispatch = useDispatch();
 
@@ -29,12 +29,15 @@ export default function AdminManageFurSpecies() {
 
   const addCallback = (data) => {
     dispatch(
-      createLicenceSpecies({ ...data, licenceTypeId: LICENCE_TYPE_ID_FUR_FARM })
+      createLicenceSpecies({
+        ...data,
+        licenceTypeId: LICENCE_TYPE_ID_GAME_FARM,
+      })
     );
   };
 
   function onAdd() {
-    dispatch(openModal(FUR_SPECIES_MODAL, addCallback, {}, "md"));
+    dispatch(openModal(GAME_SPECIES_MODAL, addCallback, {}, "md"));
   }
 
   const editCallback = (data) => {
@@ -43,7 +46,7 @@ export default function AdminManageFurSpecies() {
 
   function onEdit(result) {
     dispatch(
-      openModal(FUR_SPECIES_MODAL, editCallback, { species: result }, "md")
+      openModal(GAME_SPECIES_MODAL, editCallback, { species: result }, "md")
     );
   }
 
@@ -72,7 +75,7 @@ export default function AdminManageFurSpecies() {
 
   return (
     <>
-      <SectionHeading>Manage Fur Species</SectionHeading>
+      <SectionHeading>Manage Game Species</SectionHeading>
       <Row className="mt-3 d-flex justify-content-end">
         <Col md="auto">
           <Button
@@ -80,7 +83,7 @@ export default function AdminManageFurSpecies() {
             type="button"
             onClick={async () => onAdd()}
           >
-            Add a Fur Species
+            Add a Game Species
           </Button>
         </Col>
       </Row>
@@ -95,7 +98,7 @@ export default function AdminManageFurSpecies() {
         {species.status === REQUEST_STATUS.FULFILLED ? (
           <tbody>
             {species.data.species
-              .filter((x) => x.licenceTypeId === LICENCE_TYPE_ID_FUR_FARM)
+              .filter((x) => x.licenceTypeId === LICENCE_TYPE_ID_GAME_FARM)
               .map((x) => formatResultRow(x))}
           </tbody>
         ) : null}
@@ -112,4 +115,4 @@ export default function AdminManageFurSpecies() {
   );
 }
 
-AdminManageFurSpecies.propTypes = {};
+AdminManageGameSpecies.propTypes = {};

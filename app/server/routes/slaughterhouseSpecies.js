@@ -11,7 +11,7 @@ const prisma = new PrismaClient();
 const router = express.Router();
 
 async function fetchSpecies() {
-  const records = await prisma.mal_licence_species_code_lu.findMany();
+  const records = await prisma.mal_sale_yard_species_code_lu.findMany();
   return collection.map(records, (r) => ({
     id: r.id,
     licenceTypeId: r.licence_type_id,
@@ -22,7 +22,7 @@ async function fetchSpecies() {
 }
 
 async function fetchSubSpecies() {
-  const records = await prisma.mal_licence_species_sub_code_lu.findMany();
+  const records = await prisma.mal_sale_yard_species_sub_code_lu.findMany();
   return collection.map(records, (r) => ({
     id: r.id,
     speciesCodeId: r.species_code_id,
@@ -33,13 +33,13 @@ async function fetchSubSpecies() {
 }
 
 async function createSpecies(payload) {
-  return prisma.mal_licence_species_code_lu.create({
+  return prisma.mal_sale_yard_species_code_lu.create({
     data: payload,
   });
 }
 
 async function updateSpecies(id, payload) {
-  return prisma.mal_licence_species_code_lu.update({
+  return prisma.mal_sale_yard_species_code_lu.update({
     data: payload,
     where: {
       id: id,
@@ -72,7 +72,6 @@ router.post("/species", async (req, res, next) => {
   let payload = {
     code_name: record.codeName,
     code_description: record.codeDescription,
-    mal_licence_type_lu: { connect: { id: record.licenceTypeId } },
     active_flag: true,
   };
   payloadWithAudit = populateAuditColumnsCreate(payload, now, now);

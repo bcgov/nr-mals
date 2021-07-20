@@ -189,13 +189,22 @@ async function deleteDairyTanks(dairyTanks) {
   );
 }
 
-async function updateDairyTanks(payloads, siteId) {
+async function updateDairyTanks(payloads) {
   return Promise.all(
     payloads.map(async (payload) => {
       const result = await prisma.mal_dairy_farm_tank.update(payload);
       return result;
     })
   );
+}
+
+async function updateDairyTankRecheckNotice(id, payload) {
+  return await prisma.mal_dairy_farm_tank.update({
+    where: {
+      id: id,
+    },
+    data: payload,
+  });
 }
 
 router.get("/search", async (req, res, next) => {
@@ -381,6 +390,20 @@ router.put("/:siteId(\\d+)/dairytanks", async (req, res, next) => {
 
       const payload = site.convertToLogicalModel(updatedRecord);
       return res.send(payload);
+    })
+    .catch(next)
+    .finally(async () => prisma.$disconnect());
+});
+
+router.put("/dairytanksrecheck/:id(\\d+)", async (req, res, next) => {
+  const id = parseInt(req.params.id, 10);
+  const now = new Date();
+
+  await updateDairyTankRecheckNotice(id, {
+    print_recheck_notice: req.body.checked,
+  })
+    .then(async () => {
+      return res.status(200).send({});
     })
     .catch(next)
     .finally(async () => prisma.$disconnect());

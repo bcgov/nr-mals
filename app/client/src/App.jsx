@@ -26,6 +26,9 @@ import DownloadRenewalsPage from "./features/documents/DownloadRenewalsPage";
 import SelectDairyNoticesPage from "./features/documents/SelectDairyNoticesPage";
 import DownloadDairyNoticesPage from "./features/documents/DownloadDairyNoticesPage";
 
+import SelectDairyTankNoticesPage from "./features/documents/SelectDairyTankNoticesPage";
+import DownloadDairyTankNoticesPage from "./features/documents/DownloadDairyTankNoticesPage";
+
 import LicenceSearchPage from "./features/search/LicenceSearchPage";
 import LicenceResultsPage from "./features/search/LicenceResultsPage";
 
@@ -33,6 +36,8 @@ import SiteSearchPage from "./features/search/SiteSearchPage";
 import SiteResultsPage from "./features/search/SiteResultsPage";
 
 import ViewSitePage from "./features/sites/ViewSitePage";
+
+import Reports from "./features/reports/Reports";
 
 import AdminConfig from "./features/admin/AdminConfig";
 import AdminDairyTestResults from "./features/admin/AdminDairyTestResults";
@@ -149,6 +154,12 @@ function App() {
             <Route path={`${Constant.SELECT_DAIRYNOTICES_PATHNAME}`}>
               <SelectDairyNoticesPage />
             </Route>
+            <Route path={`${Constant.DOWNLOAD_DAIRYTANKNOTICES_PATHNAME}`}>
+              <DownloadDairyTankNoticesPage />
+            </Route>
+            <Route path={`${Constant.SELECT_DAIRYTANKNOTICES_PATHNAME}`}>
+              <SelectDairyTankNoticesPage />
+            </Route>
             <ProtectedRoute
               path={`${Constant.ADMIN_CONFIG_PATHNAME}`}
               validRoles={[Constant.SYSTEM_ROLES.SYSTEM_ADMIN]}
@@ -208,14 +219,6 @@ function InspectionsSearch() {
 
 function InspectionsCreate() {
   return <h2>Create Inspection</h2>;
-}
-
-function Notices() {
-  return <h2>Notices</h2>;
-}
-
-function Reports() {
-  return <h2>Reports</h2>;
 }
 
 export default App;

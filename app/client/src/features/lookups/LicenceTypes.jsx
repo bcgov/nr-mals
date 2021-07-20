@@ -8,7 +8,7 @@ import { REQUEST_STATUS } from "../../utilities/constants";
 import { fetchLicenceTypes, selectLicenceTypes } from "./licenceTypesSlice";
 
 const LicenceTypes = React.forwardRef(
-  ({ onChange, allowAny, defaultValue }, ref) => {
+  ({ onChange, allowAny, defaultValue, label }, ref) => {
     const licenceTypes = useSelector(selectLicenceTypes);
     const dispatch = useDispatch();
 
@@ -37,7 +37,7 @@ const LicenceTypes = React.forwardRef(
           {allowAny && <option value={null} />}
           {licenceTypes.data.map((type) => (
             <option key={type.id} value={type.id}>
-              {type.licence_type}
+              {type.licenceType}
             </option>
           ))}
         </Form.Control>
@@ -48,7 +48,7 @@ const LicenceTypes = React.forwardRef(
 
     return (
       <Form.Group controlId="licenceType">
-        <Form.Label>Licence Type</Form.Label>
+        <Form.Label>{label}</Form.Label>
         {control}
       </Form.Group>
     );
@@ -59,11 +59,13 @@ LicenceTypes.propTypes = {
   onChange: PropTypes.func,
   allowAny: PropTypes.bool,
   defaultValue: PropTypes.string,
+  label: PropTypes.string,
 };
 LicenceTypes.defaultProps = {
   onChange: undefined,
   allowAny: false,
   defaultValue: undefined,
+  label: "Licence Type",
 };
 
 export default LicenceTypes;

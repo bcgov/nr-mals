@@ -10,8 +10,8 @@ import AdminManageUsers from "./AdminManageUsers";
 import AdminManageDairyTestValues from "./AdminManageDairyTestValues";
 import AdminManageLicenceTypes from "./AdminManageLicenceTypes";
 import AdminManageFurSpecies from "./AdminManageFurSpecies";
-// import AdminManageGameSpecies from "./AdminManageGameSpecies";
-// import AdminManageSlaughterSpecies from "./AdminManageSlaughterSpecies";
+import AdminManageGameSpecies from "./AdminManageGameSpecies";
+import AdminManageSlaughterhouseSpecies from "./AdminManageSlaughterhouseSpecies";
 
 export default function AdminConfig() {
   const form = useForm({
@@ -35,12 +35,12 @@ export default function AdminConfig() {
     case ADMIN_CONFIG_OPTIONS.MANAGE_FUR_SPECIES:
       control = <AdminManageFurSpecies />;
       break;
-    // case ADMIN_CONFIG_OPTIONS.MANAGE_GAME_SPECIES:
-    //   control = <AdminManageGameSpecies />;
-    //   break;
-    // case ADMIN_CONFIG_OPTIONS.MANAGE_SLAUGHTER_SPECIES:
-    //   control = <AdminManageSlaughterSpecies />;
-    //   break;
+    case ADMIN_CONFIG_OPTIONS.MANAGE_GAME_SPECIES:
+      control = <AdminManageGameSpecies />;
+      break;
+    case ADMIN_CONFIG_OPTIONS.MANAGE_SLAUGHTER_SPECIES:
+      control = <AdminManageSlaughterhouseSpecies />;
+      break;
     default:
       break;
   }
@@ -70,12 +70,12 @@ export default function AdminConfig() {
           <option value={ADMIN_CONFIG_OPTIONS.MANAGE_FUR_SPECIES}>
             Manage Fur Species
           </option>
-          {/* <option value={ADMIN_CONFIG_OPTIONS.MANAGE_GAME_SPECIES}>
+          <option value={ADMIN_CONFIG_OPTIONS.MANAGE_GAME_SPECIES}>
             Manage Game Species
           </option>
           <option value={ADMIN_CONFIG_OPTIONS.MANAGE_SLAUGHTER_SPECIES}>
             Manage Slaughterhouse Species
-          </option> */}
+          </option>
         </Form.Control>
 
         <div className="mt-5">{control}</div>
