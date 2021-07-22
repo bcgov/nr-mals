@@ -80,6 +80,9 @@ function HeaderNavigation() {
                 <DropdownNavLink to={Constant.SELECT_RENEWALS_PATHNAME}>
                   Renewals
                 </DropdownNavLink>
+                <DropdownNavLink to={Constant.SELECT_RENEWALS_APIARY_PATHNAME}>
+                  Renewals - Apiary
+                </DropdownNavLink>
                 <DropdownNavLink to={Constant.SELECT_DAIRYNOTICES_PATHNAME}>
                   Dairy Infractions
                 </DropdownNavLink>

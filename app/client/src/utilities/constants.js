@@ -21,6 +21,7 @@ export const SELECT_CERTIFICATES_PATHNAME = "/documents/certificates";
 export const DOWNLOAD_CERTIFICATES_PATHNAME =
   "/documents/certificates/download";
 export const SELECT_RENEWALS_PATHNAME = "/documents/renewals";
+export const SELECT_RENEWALS_APIARY_PATHNAME = "/documents/renewals/apiary";
 export const DOWNLOAD_RENEWALS_PATHNAME = "/documents/renewals/download";
 export const SELECT_DAIRYNOTICES_PATHNAME = "/documents/dairynotices";
 export const DOWNLOAD_DAIRYNOTICES_PATHNAME =

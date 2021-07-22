@@ -21,6 +21,7 @@ import SelectCertificatesPage from "./features/documents/SelectCertificatesPage"
 import DownloadCertificatesPage from "./features/documents/DownloadCertificatesPage";
 
 import SelectRenewalsPage from "./features/documents/SelectRenewalsPage";
+import SelectApiaryRenewalsPage from "./features/documents/SelectApiaryRenewalsPage";
 import DownloadRenewalsPage from "./features/documents/DownloadRenewalsPage";
 
 import SelectDairyNoticesPage from "./features/documents/SelectDairyNoticesPage";
@@ -144,6 +145,9 @@ function App() {
             </Route>
             <Route path={`${Constant.DOWNLOAD_RENEWALS_PATHNAME}`}>
               <DownloadRenewalsPage />
+            </Route>
+            <Route path={`${Constant.SELECT_RENEWALS_APIARY_PATHNAME}`}>
+              <SelectApiaryRenewalsPage />
             </Route>
             <Route path={`${Constant.SELECT_RENEWALS_PATHNAME}`}>
               <SelectRenewalsPage />

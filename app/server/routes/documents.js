@@ -18,6 +18,7 @@ const {
   getRenewalTemplateName,
   getDairyNoticeTemplateName,
   getDairyTankNoticeTemplateName,
+  getReportsTemplateName,
 } = require("../utilities/documents");
 const { formatDate } = require("../utilities/formatting");
 
@@ -33,6 +34,7 @@ const dairyNoticeTemplateDir = path.join(
   __dirname,
   "../static/templates/notices/dairy"
 );
+const reportsTemplateDir = path.join(__dirname, "../static/templates/reports");
 
 // As templates are converted to base 64 for the first time they will be pushed to this for reuse
 const templateBuffers = [];
@@ -188,6 +190,24 @@ async function getQueuedRenewals() {
 
   return prisma.mal_licence_summary_vw.findMany({
     where: { print_renewal: true, status_code_id: activeStatus.id },
+  });
+}
+
+async function getQueuedApiaryRenewals() {
+  const activeStatus = await prisma.mal_status_code_lu.findFirst({
+    where: { code_name: "ACT" },
+  });
+
+  return prisma.mal_licence_summary_vw.findMany({
+    where: {
+      licence_type_id: constants.LICENCE_TYPE_ID_APIARY,
+      status_code_id: activeStatus.id,
+    },
+    orderBy: [
+      {
+        licence_id: "asc",
+      },
+    ],
   });
 }
 
@@ -553,6 +573,101 @@ async function generateDairyTankNotice(documentId) {
 
 //#endregion
 
+//#region Reports Functions
+
+async function startActionRequiredJob(licenceTypeId) {
+  const [procedureResult] = await prisma.$transaction([
+    prisma.$queryRaw(
+      `CALL mals_app.pr_generate_print_json_action_required(${licenceTypeId}, NULL)`
+    ),
+  ]);
+
+  const jobId = procedureResult[0].iop_print_job_id;
+
+  const documents = await getPendingDocuments(jobId);
+
+  return { jobId, documents };
+}
+
+async function generateReport(documentId) {
+  const document = await getDocument(documentId);
+
+  const templateFileName = getReportsTemplateName(document.document_type);
+
+  if (templateFileName === undefined) {
+    return {
+      status: 500,
+      payload: {
+        code: 500,
+        description: `Could not find template matching the given document and licence types [${document.document_type}, ${document.licence_type}] for document ${document.id}`,
+      },
+    };
+  }
+
+  if (
+    templateBuffers.find((x) => x.templateFileName === templateFileName) ===
+    undefined
+  ) {
+    const buffer = await fs.readFile(
+      path.join(reportsTemplateDir, `${templateFileName}.xlsx`)
+    );
+    const bufferBase64 = buffer.toString("base64");
+    templateBuffers.push({
+      templateFileName: templateFileName,
+      templateBuffer: bufferBase64,
+    });
+  }
+
+  const template = templateBuffers.find(
+    (x) => x.templateFileName === templateFileName
+  );
+  const generate = async () => {
+    const { data, status } = await cdogs.post(
+      "template/render",
+      formatCdogsBody(
+        document.document_json,
+        template.templateBuffer,
+        "document",
+        "xlsx",
+        "xlsx"
+      ),
+      {
+        responseType: "arraybuffer", // Needed for binaries unless you want pain
+      }
+    );
+
+    if (status !== 200) {
+      return {
+        status,
+        payload: {
+          code: status,
+          description: "Error encountered in CDOGS",
+        },
+      };
+    }
+
+    const currentUser = getCurrentUser();
+    const now = new Date();
+
+    await prisma.mal_print_job_output.update({
+      where: { id: document.id },
+      data: {
+        document_binary: data,
+        update_userid: currentUser.idir,
+        update_timestamp: now,
+      },
+    });
+
+    return { status: 200, payload: { documentId: document.id } };
+  };
+
+  const result = await generate();
+
+  return result;
+}
+
+//#endregion
+
 //#region General Functions
 
 async function getPendingDocuments(jobId) {
@@ -611,13 +726,15 @@ async function getJob(jobId) {
   const totalRenewalCount = job.renewal_json_count;
   const totalDairyNoticeCount = job.dairy_infraction_json_count;
   const totalDairyTankNoticeCount = job.recheck_notice_json_count;
+  const totalReportCount = job.report_json_count;
   const totalDocumentCount =
     totalCertificateCount +
     totalEnvelopeCount +
     totalCardCount +
     totalRenewalCount +
     totalDairyNoticeCount +
-    totalDairyTankNoticeCount;
+    totalDairyTankNoticeCount +
+    totalReportCount;
 
   const completedDocuments = await prisma.mal_print_job_output.findMany({
     where: {
@@ -653,6 +770,9 @@ async function getJob(jobId) {
       document.document_type ===
       constants.DOCUMENT_TYPE_DAIRY_TANK_RECHECK_NOTICE
   ).length;
+  const completedReportCount = completedDocuments.filter(
+    (document) => document.document_type === constants.DOCUMENT_TYPE_REPORT
+  ).length;
 
   return {
     printCategory,
@@ -674,6 +794,8 @@ async function getJob(jobId) {
     completedDairyTankNoticeCount,
     totalDocumentCount,
     completedDocumentCount,
+    totalReportCount,
+    completedReportCount,
   };
 }
 
@@ -760,6 +882,19 @@ router.post(
 
 router.get("/renewals/queued", async (req, res, next) => {
   await getQueuedRenewals()
+    .then(async (records) => {
+      const payload = records.map((record) =>
+        licence.convertRenewalToLogicalModel(record)
+      );
+
+      return res.send(payload);
+    })
+    .catch(next)
+    .finally(async () => prisma.$disconnect());
+});
+
+router.get("/renewals/apiary/queued", async (req, res, next) => {
+  await getQueuedApiaryRenewals()
     .then(async (records) => {
       const payload = records.map((record) =>
         licence.convertRenewalToLogicalModel(record)
@@ -935,6 +1070,38 @@ router.post(
 
 //#endregion
 
+//#region Reports Endpoints
+
+router.post(
+  "/reports/startJob/actionRequired/:licenceTypeId(\\d+)",
+  async (req, res, next) => {
+    const licenceTypeId = parseInt(req.params.licenceTypeId, 10);
+
+    await startActionRequiredJob(licenceTypeId)
+      .then(({ jobId, documents }) => {
+        return res.send({ jobId, documents });
+      })
+      .catch(next)
+      .finally(async () => prisma.$disconnect());
+  }
+);
+
+router.post(
+  "/reports/generate/actionRequired/:documentId(\\d+)",
+  async (req, res, next) => {
+    const documentId = parseInt(req.params.documentId, 10);
+
+    await generateReport(documentId)
+      .then(({ status, payload }) => {
+        return res.status(status).send(payload);
+      })
+      .catch(next)
+      .finally(async () => prisma.$disconnect());
+  }
+);
+
+//#endregion
+
 //#region General Endpoints
 
 router.get("/jobs/:jobId(\\d+)", async (req, res, next) => {
@@ -959,6 +1126,21 @@ router.get("/pending/:jobId(\\d+)", async (req, res, next) => {
     .finally(async () => prisma.$disconnect());
 });
 
+router.post("/completeJob/:jobId(\\d+)", async (req, res, next) => {
+  const jobId = parseInt(req.params.jobId, 10);
+
+  await prisma.mal_print_job.update({
+    where: {
+      id: jobId,
+    },
+    data: {
+      document_end_time: new Date(),
+    },
+  });
+
+  return res.status(200).send(true);
+});
+
 router.post("/generator-health", async (req, res, next) => {
   await cdogs
     .get("health", {
@@ -974,12 +1156,15 @@ router.post("/generator-health", async (req, res, next) => {
 
 router.post("/download/:jobId(\\d+)", async (req, res, next) => {
   const jobId = parseInt(req.params.jobId, 10);
+  const job = await getJob(jobId);
   await getJobBlobs(jobId)
     .then((documents) => {
       const zip = new AdmZip();
       let fileName = null;
       documents.forEach((document) => {
-        if (
+        if (job.printCategory === constants.DOCUMENT_TYPE_REPORT) {
+          fileName = `${document.document_json.Licence_Type}-${document.document_type}.xlsx`;
+        } else if (
           document.document_type === constants.DOCUMENT_TYPE_DAIRY_INFRACTION
         ) {
           fileName = `${document.licence_number}-${document.document_type}-${document.document_json.SpeciesSubCode}-${document.document_json.CorrespondenceCode}.docx`;

@@ -1,6 +1,6 @@
 import React from "react";
 import { useForm } from "react-hook-form";
-import { Container, Form } from "react-bootstrap";
+import { Container, Form, Row, Col } from "react-bootstrap";
 
 import PageHeading from "../../components/PageHeading";
 
@@ -29,21 +29,23 @@ export default function Reports() {
     <>
       <PageHeading>Reports</PageHeading>
       <Container className="mt-3 mb-4">
-        <Form.Label>Select a Report:</Form.Label>
-        <Form.Control
-          as="select"
-          name="selectedConfig"
-          ref={register}
-          defaultValue={null}
-          style={{ width: 300 }}
-        >
-          <option value={null} />
-          <option value={REPORTS_OPTIONS.ACTION_REQUIRED}>
-            Action Required Report
-          </option>
-        </Form.Control>
-
-        <div className="mt-5">{control}</div>
+        <Row>
+          <Col sm={3}>
+            <Form.Label>Select a Report</Form.Label>
+            <Form.Control
+              as="select"
+              name="selectedConfig"
+              ref={register}
+              defaultValue={null}
+            >
+              <option value={null} />
+              <option value={REPORTS_OPTIONS.ACTION_REQUIRED}>
+                Action Required
+              </option>
+            </Form.Control>
+          </Col>
+        </Row>
+        <div className="mt-3">{control}</div>
       </Container>
     </>
   );

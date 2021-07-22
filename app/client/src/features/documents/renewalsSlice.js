@@ -21,6 +21,21 @@ export const fetchQueuedRenewals = createAsyncThunk(
   }
 );
 
+export const fetchQueuedApiaryRenewals = createAsyncThunk(
+  "renewals/fetchQueuedApiary",
+  async (_, thunkApi) => {
+    try {
+      const response = await Api.get("documents/renewals/apiary/queued");
+      return response.data;
+    } catch (error) {
+      if (error instanceof ApiError) {
+        return thunkApi.rejectWithValue(error.serialize());
+      }
+      return thunkApi.rejectWithValue({ code: -1, description: error.message });
+    }
+  }
+);
+
 export const startRenewalJob = createAsyncThunk(
   "renewals/startRenewalJob",
   async (licenceIds, thunkApi) => {
@@ -140,6 +155,20 @@ export const renewalsSlice = createSlice({
       state.queued.status = REQUEST_STATUS.FULFILLED;
     },
     [fetchQueuedRenewals.rejected]: (state, action) => {
+      state.queued.data = undefined;
+      state.queued.error = action.payload;
+      state.queued.status = REQUEST_STATUS.REJECTED;
+    },
+    [fetchQueuedApiaryRenewals.pending]: (state) => {
+      state.queued.data = undefined;
+      state.queued.status = REQUEST_STATUS.PENDING;
+    },
+    [fetchQueuedApiaryRenewals.fulfilled]: (state, action) => {
+      state.queued.data = action.payload;
+      state.queued.error = undefined;
+      state.queued.status = REQUEST_STATUS.FULFILLED;
+    },
+    [fetchQueuedApiaryRenewals.rejected]: (state, action) => {
       state.queued.data = undefined;
       state.queued.error = action.payload;
       state.queued.status = REQUEST_STATUS.REJECTED;

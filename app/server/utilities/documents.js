@@ -1,3 +1,5 @@
+const constants = require("./constants");
+
 function formatCdogsBody(
   jsonData,
   templateBlobBase64,
@@ -162,10 +164,20 @@ function getDairyTankNoticeTemplateName(documentType) {
   return `Dairy_Tank_Recheck_Template`;
 }
 
+function getReportsTemplateName(documentType) {
+  switch (documentType) {
+    case constants.REPORTS.ACTION_REQUIRED:
+      return "Action_Required_Template";
+    default:
+      return null;
+  }
+}
+
 module.exports = {
   formatCdogsBody,
   getCertificateTemplateName,
   getRenewalTemplateName,
   getDairyNoticeTemplateName,
   getDairyTankNoticeTemplateName,
+  getReportsTemplateName,
 };

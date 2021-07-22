@@ -12,6 +12,7 @@ import renewalsReducer from "../features/documents/renewalsSlice";
 import dairyNoticesReducer from "../features/documents/dairyNoticesSlice";
 import dairyTankNoticesReducer from "../features/documents/dairyTankNoticesSlice";
 import adminReducer from "../features/admin/adminSlice";
+import reportsReducer from "../features/reports/reportsSlice";
 
 const reducer = {
   admin: adminReducer,
@@ -23,6 +24,7 @@ const reducer = {
   comments: commentsReducer,
   licences: licencesReducer,
   lookups: lookupsReducer,
+  reports: reportsReducer,
   search: searchReducer,
   sites: sitesReducer,
   status: statusReducer,

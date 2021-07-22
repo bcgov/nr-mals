@@ -18,38 +18,39 @@ import { startOfToday, add } from "date-fns";
 import {
   REQUEST_STATUS,
   LICENSES_PATHNAME,
-  DOWNLOAD_DAIRYNOTICES_PATHNAME,
+  DOWNLOAD_RENEWALS_PATHNAME,
 } from "../../utilities/constants";
 import {
   pluralize,
   formatDate,
   formatDateString,
+  formatListShorten,
 } from "../../utilities/formatting.ts";
 
 import PageHeading from "../../components/PageHeading";
 import CustomDatePicker from "../../components/CustomDatePicker";
 
 import {
-  fetchQueuedDairyNotices,
-  selectQueuedDairyNotices,
-  startDairyNoticeJob,
-  selectDairyNoticesJob,
-  clearDairyNoticeJob,
-} from "./dairyNoticesSlice";
+  fetchQueuedApiaryRenewals,
+  selectQueuedRenewals,
+  startRenewalJob,
+  selectRenewalsJob,
+  clearRenewalJob,
+} from "./renewalsSlice";
 
 function getSelectedLicences(licences) {
-  const filter = licences.filter((licence) => licence.selected === "true");
-  const map = filter.map((licence) => licence.licenceId);
-  return map;
+  return licences
+    .filter((licence) => licence.selected === "true")
+    .map((licence) => licence.id);
 }
 
 let licences = [];
 
-export default function SelectDairyNoticesPage() {
+export default function SelectApiaryRenewalsPage() {
   const [toggleAllChecked, setToggleAllChecked] = useState(true);
 
-  const queuedDairyNotices = useSelector(selectQueuedDairyNotices);
-  const dairyNoticeJob = useSelector(selectDairyNoticesJob);
+  const queuedRenewals = useSelector(selectQueuedRenewals);
+  const renewalJob = useSelector(selectRenewalsJob);
 
   const dispatch = useDispatch();
   const history = useHistory();
@@ -64,11 +65,9 @@ export default function SelectDairyNoticesPage() {
   const watchEndDate = watch("endDate", endDate);
   const selectedLicencesCount = getSelectedLicences(watchLicences).length;
 
-  let licenceIdsWithChecks = [];
-
   useEffect(() => {
-    dispatch(clearDairyNoticeJob());
-    dispatch(fetchQueuedDairyNotices());
+    dispatch(clearRenewalJob());
+    dispatch(fetchQueuedApiaryRenewals());
 
     setValue("startDate", startDate);
     setValue("endDate", endDate);
@@ -76,60 +75,47 @@ export default function SelectDairyNoticesPage() {
   }, [dispatch]);
 
   useEffect(() => {
-    // Reset array used to determine when checks are displayed
-    licenceIdsWithChecks = [];
-
-    const checked = [];
-    licences = queuedDairyNotices.data
-      ? queuedDairyNotices.data
+    licences = queuedRenewals.data
+      ? queuedRenewals.data
           .filter(
             (notice) =>
-              formatDateString(notice.recordedDate) >=
+              formatDateString(notice.expiryDate) >=
                 formatDate(watchStartDate) &&
-              formatDateString(notice.recordedDate) <= formatDate(watchEndDate)
+              formatDateString(notice.expiryDate) <= formatDate(watchEndDate)
           )
-          .map((licence) => {
-            const obj = {
-              ...licence,
-              selected:
-                checked.find((x) => x === licence.licenceId) === undefined
-                  ? "true"
-                  : "false",
-            };
-            checked.push(licence.licenceId);
-            return obj;
-          })
+          .map((licence) => ({
+            id: licence.licenceId,
+            licenceNumber: licence.licenceNumber,
+            licenceType: licence.licenceType,
+            lastNames: licence.lastNames,
+            companyNames: licence.companyNames,
+            licenceStatus: licence.licenceStatus,
+            issuedOnDate: licence.issuedOnDate,
+            expiryDate: licence.expiryDate,
+            region: licence.region,
+            regionalDistrict: licence.regionalDistrict,
+            selected: "true",
+          }))
       : [];
     setValue("licences", licences);
-  }, [queuedDairyNotices.data]);
+  }, [queuedRenewals.data]);
 
   const onSubmit = (data) => {
     const selectedIds = getSelectedLicences(data.licences);
-    const payload = {
-      licenceIds: selectedIds,
-      startDate: data.startDate,
-      endDate: data.endDate,
-    };
-    dispatch(startDairyNoticeJob(payload));
-    history.push(DOWNLOAD_DAIRYNOTICES_PATHNAME);
+    dispatch(startRenewalJob(selectedIds));
+    history.push(DOWNLOAD_RENEWALS_PATHNAME);
   };
 
   const updateToggleAllChecked = () => {
     const values = getValues();
     const selectedLicences = getSelectedLicences(values.licences);
-    const uniqueLicences = [
-      ...new Set(values.licences.map((x) => x.licenceId)),
-    ];
-    setToggleAllChecked(selectedLicences.length === uniqueLicences.length);
+    setToggleAllChecked(selectedLicences.length === values.licences.length);
   };
 
   const toggleAllLicences = () => {
     const values = getValues();
     const selectedLicences = getSelectedLicences(values.licences);
-    const uniqueLicences = [
-      ...new Set(values.licences.map((x) => x.licenceId)),
-    ];
-    if (selectedLicences.length === uniqueLicences.length) {
+    if (selectedLicences.length === values.licences.length) {
       values.licences = values.licences.map((licence) => ({
         ...licence,
         selected: false,
@@ -156,15 +142,14 @@ export default function SelectDairyNoticesPage() {
       variant="primary"
       type="submit"
       disabled={
-        selectedLicencesCount === 0 ||
-        dairyNoticeJob.status !== REQUEST_STATUS.IDLE
+        selectedLicencesCount === 0 || renewalJob.status !== REQUEST_STATUS.IDLE
       }
     >
       Generate
     </Button>
   );
 
-  if (queuedDairyNotices.status === REQUEST_STATUS.PENDING) {
+  if (queuedRenewals.status === REQUEST_STATUS.PENDING) {
     content = (
       <div>
         <Spinner animation="border" role="status">
@@ -172,40 +157,39 @@ export default function SelectDairyNoticesPage() {
         </Spinner>
       </div>
     );
-  } else if (queuedDairyNotices.status === REQUEST_STATUS.REJECTED) {
+  } else if (queuedRenewals.status === REQUEST_STATUS.REJECTED) {
     content = (
       <Alert variant="danger">
         <Alert.Heading>
           An error was encountered while retrieving licences.
         </Alert.Heading>
         <p>
-          {queuedDairyNotices.error.code}:{" "}
-          {queuedDairyNotices.error.description}
+          {queuedRenewals.error.code}: {queuedRenewals.error.description}
         </p>
       </Alert>
     );
   } else if (
-    queuedDairyNotices.status === REQUEST_STATUS.FULFILLED &&
-    queuedDairyNotices.data.length === 0
+    queuedRenewals.status === REQUEST_STATUS.FULFILLED &&
+    queuedRenewals.data.length === 0
   ) {
     content = (
       <>
         <Alert variant="success" className="mt-3">
-          <div>No licences have been flagged for notice generation.</div>
+          <div>No licences have been flagged for renewal generation.</div>
         </Alert>
       </>
     );
   } else if (
-    queuedDairyNotices.status === REQUEST_STATUS.FULFILLED &&
-    queuedDairyNotices.data.length > 0
+    queuedRenewals.status === REQUEST_STATUS.FULFILLED &&
+    queuedRenewals.data.length > 0
   ) {
     content = (
       <Form onSubmit={handleSubmit(onSubmit)}>
         <Row className="mt-3 d-flex justify-content-end">
           <Col md="auto">
             {selectedLicencesCount}{" "}
-            {pluralize(selectedLicencesCount, "Dairy Notice Licence")} selected
-            for generation.
+            {pluralize(selectedLicencesCount, "renewal")} selected for
+            generation.
           </Col>
         </Row>
         <Table striped size="sm" responsive className="mt-3" hover>
@@ -220,61 +204,55 @@ export default function SelectDairyNoticesPage() {
                 />
               </th>
               <th>Licence</th>
-              <th className="text-nowrap">Recorded Date</th>
-              <th className="text-nowrap">Species Sub Code</th>
-              <th className="text-nowrap">Description</th>
-              <th className="text-nowrap">Levy</th>
+              <th className="text-nowrap">Licence Type</th>
+              <th className="text-nowrap">Last Names</th>
+              <th className="text-nowrap">Company Names</th>
+              <th className="text-nowrap">Licence Status</th>
+              <th className="text-nowrap">Issued On Date</th>
+              <th className="text-nowrap">Expiry Date</th>
+              <th>Region</th>
+              <th>District</th>
             </tr>
           </thead>
           <tbody>
             {licences.map((item, index) => {
-              const url = `${LICENSES_PATHNAME}/${item.licenceId}`;
-              const addCheck =
-                licenceIdsWithChecks.find((x) => x === item.licenceId) ===
-                undefined;
-              licenceIdsWithChecks.push(item.licenceId);
+              const url = `${LICENSES_PATHNAME}/${item.id}`;
               return (
                 <tr key={item.id}>
                   <td>
-                    {addCheck ? (
-                      <Form.Check
-                        name={`licences[${index}].selected`}
-                        ref={register()}
-                        defaultChecked
-                        defaultValue
-                        onChange={() => updateToggleAllChecked()}
-                      />
-                    ) : null}
+                    <Form.Check
+                      name={`licences[${index}].selected`}
+                      ref={register()}
+                      defaultChecked
+                      defaultValue
+                      onChange={() => updateToggleAllChecked()}
+                    />
                     <input
                       hidden
                       name={`licences[${index}].id`}
                       ref={register()}
                       defaultValue={item.id}
                     />
-                    <input
-                      hidden
-                      name={`licences[${index}].licenceId`}
-                      ref={register()}
-                      defaultValue={item.licenceId}
-                    />
-                    <input
-                      hidden
-                      name={`licences[${index}].infractionJson`}
-                      ref={register()}
-                      defaultValue={item.infractionJson}
-                    />
                   </td>
                   <td className="text-nowrap">
                     <Link to={url}>{item.licenceNumber}</Link>
                   </td>
+                  <td className="text-nowrap">{item.licenceType}</td>
                   <td className="text-nowrap">
-                    {formatDateString(item.recordedDate)}
+                    {formatListShorten(item.lastNames)}
                   </td>
-                  <td className="text-nowrap">{item.speciesSubCode}</td>
                   <td className="text-nowrap">
-                    {item.correspondenceDescription}
+                    {formatListShorten(item.companyNames)}
                   </td>
-                  <td className="text-nowrap">{item.levyPercent}</td>
+                  <td className="text-nowrap">{item.licenceStatus}</td>
+                  <td className="text-nowrap">
+                    {formatDateString(item.issuedOnDate)}
+                  </td>
+                  <td className="text-nowrap">
+                    {formatDateString(item.expiryDate)}
+                  </td>
+                  <td className="text-nowrap">{item.region}</td>
+                  <td className="text-nowrap">{item.regionalDistrict}</td>
                 </tr>
               );
             })}
@@ -289,24 +267,24 @@ export default function SelectDairyNoticesPage() {
 
   return (
     <section>
-      <PageHeading>Generate Dairy Notices</PageHeading>
+      <PageHeading>Generate Apiary Renewals</PageHeading>
       <Container>
         <Row>
           <Col lg={3}>
             <CustomDatePicker
               id="startDate"
-              label="Start Date"
+              label="Expiry Date - From"
               notifyOnChange={handleFieldChange("startDate")}
-              notifyOnBlur={() => dispatch(fetchQueuedDairyNotices())}
+              notifyOnBlur={() => dispatch(fetchQueuedApiaryRenewals())}
               defaultValue={startDate}
             />
           </Col>
           <Col lg={3}>
             <CustomDatePicker
               id="endDate"
-              label="End Date"
+              label="Expiry Date - To"
               notifyOnChange={handleFieldChange("endDate")}
-              notifyOnBlur={() => dispatch(fetchQueuedDairyNotices())}
+              notifyOnBlur={() => dispatch(fetchQueuedApiaryRenewals())}
               defaultValue={endDate}
             />
           </Col>

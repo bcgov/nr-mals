@@ -404,7 +404,7 @@ model mal_print_job {
   card_json_count             Int?
   renewal_json_count          Int?
   dairy_infraction_json_count Int?
-  report_json_count           Int?
+  report_json_count           Int?      @default(0)
   create_userid               String    @db.VarChar(63)
   create_timestamp            DateTime  @db.Timestamp(6)
   update_userid               String    @db.VarChar(63)
@@ -753,4 +753,27 @@ model mal_print_dairy_farm_tank_recheck_vw {
   recheck_year                      String
   print_recheck_notice              Boolean
   recheck_notice_json               Json
+}
+
+
+model mal_licence_action_required_vw {
+  licence_id                        Int       @unique
+  licence_number                    Int
+  licence_type_id                   Int
+  licence_type                      String?
+  site_region                       String?
+  licence_status                    String?
+  licence_type_legislation          String?
+  derived_licence_holder_name       String?
+  company_name                      String?
+  registrant_name                   String?
+  registrant_last_first             String?
+  site_address                      String?
+  site_city                         String?
+  site_province                     String?
+  site_postal_code                  String?
+  site_primary_phone                String?
+  site_secondary_phone              String?
+  site_fax_number                   String?
+  email_address                     String?
 }
