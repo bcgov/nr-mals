@@ -589,6 +589,20 @@ async function startActionRequiredJob(licenceTypeId) {
   return { jobId, documents };
 }
 
+async function startApiaryHiveInspectionJob(startDate, endDate) {
+  const [procedureResult] = await prisma.$transaction([
+    prisma.$queryRaw(
+      `CALL mals_app.pr_generate_print_json_apiary_inspection('${startDate}', '${endDate}', NULL)`
+    ),
+  ]);
+
+  const jobId = procedureResult[0].iop_print_job_id;
+
+  const documents = await getPendingDocuments(jobId);
+
+  return { jobId, documents };
+}
+
 async function generateReport(documentId) {
   const document = await getDocument(documentId);
 
@@ -1087,18 +1101,30 @@ router.post(
 );
 
 router.post(
-  "/reports/generate/actionRequired/:documentId(\\d+)",
+  "/reports/startJob/apiaryHiveInspection",
   async (req, res, next) => {
-    const documentId = parseInt(req.params.documentId, 10);
+    const startDate = formatDate(new Date(req.body.startDate));
+    const endDate = formatDate(new Date(req.body.endDate));
 
-    await generateReport(documentId)
-      .then(({ status, payload }) => {
-        return res.status(status).send(payload);
+    await startApiaryHiveInspectionJob(startDate, endDate)
+      .then(({ jobId, documents }) => {
+        return res.send({ jobId, documents });
       })
       .catch(next)
       .finally(async () => prisma.$disconnect());
   }
 );
+
+router.post("/reports/generate/:documentId(\\d+)", async (req, res, next) => {
+  const documentId = parseInt(req.params.documentId, 10);
+
+  await generateReport(documentId)
+    .then(({ status, payload }) => {
+      return res.status(status).send(payload);
+    })
+    .catch(next)
+    .finally(async () => prisma.$disconnect());
+});
 
 //#endregion
 

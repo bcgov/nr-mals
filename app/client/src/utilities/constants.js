@@ -128,8 +128,9 @@ export const ADMIN_CONFIG_OPTIONS = {
   MANAGE_SLAUGHTER_SPECIES: "ManageSlaughterSpecies",
 };
 
-export const REPORTS_OPTIONS = {
-  ACTION_REQUIRED: "ActionRequired",
+export const REPORTS = {
+  ACTION_REQUIRED: "ACTION_REQUIRED",
+  APIARY_INSPECTION: "APIARY_INSPECTION",
 };
 
 export const SYSTEM_ROLES = {

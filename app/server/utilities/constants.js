@@ -66,5 +66,6 @@ module.exports = Object.freeze({
   // Report types
   REPORTS: {
     ACTION_REQUIRED: "ACTION_REQUIRED",
+    APIARY_INSPECTION: "APIARY_INSPECTION",
   },
 });

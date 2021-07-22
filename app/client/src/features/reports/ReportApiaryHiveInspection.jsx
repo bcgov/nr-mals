@@ -3,18 +3,22 @@ import { useForm } from "react-hook-form";
 import { useSelector, useDispatch } from "react-redux";
 import { Alert, Spinner, Table, Row, Col, Form, Button } from "react-bootstrap";
 
+import { startOfToday, add } from "date-fns";
+
 import { REQUEST_STATUS } from "../../utilities/constants";
 import {
+  formatDate,
+  formatDateString,
   formatPhoneNumber,
   formatListShorten,
 } from "../../utilities/formatting.ts";
-import LicenceTypes from "../lookups/LicenceTypes";
 
+import CustomDatePicker from "../../components/CustomDatePicker";
 import DocGenDownloadBar from "../../components/DocGenDownloadBar";
 
 import {
-  fetchActionRequired,
-  startActionRequiredJob,
+  fetchApiaryHiveInspection,
+  startApiaryHiveInspectionJob,
   generateReport,
   selectQueuedReports,
   clearQueuedReport,
@@ -24,9 +28,7 @@ import {
   completeReportJob,
 } from "./reportsSlice";
 
-import { isNullOrEmpty } from "../../utilities/parsing";
-
-export default function ReportActionRequired() {
+export default function ReportApiaryHiveInspection() {
   const dispatch = useDispatch();
 
   const reportData = useSelector(selectQueuedReports);
@@ -36,24 +38,33 @@ export default function ReportActionRequired() {
   const form = useForm({
     reValidateMode: "onBlur",
   });
-  const { register, watch } = form;
+  const { register, setValue, watch } = form;
 
-  const selectedLicenceType = watch("licenceType", null);
+  const startDate = startOfToday();
+  const endDate = add(startOfToday(), { days: 15 });
+  const watchStartDate = watch("startDate", startDate);
+  const watchEndDate = watch("endDate", endDate);
 
   useEffect(() => {
     dispatch(clearQueuedReport());
     dispatch(clearReportsJob());
+
+    setValue("startDate", startDate);
+    setValue("endDate", endDate);
   }, [dispatch]);
 
   useEffect(() => {
-    dispatch(clearReportsJob());
-
-    if (!isNullOrEmpty(selectedLicenceType)) {
-      dispatch(fetchActionRequired(selectedLicenceType));
-    } else {
-      dispatch(clearQueuedReport());
+    async function clearJobAndFetch() {
+      await dispatch(clearReportsJob());
+      await dispatch(
+        fetchApiaryHiveInspection({
+          startDate: watchStartDate,
+          endDate: watchEndDate,
+        })
+      );
     }
-  }, [selectedLicenceType]);
+    clearJobAndFetch();
+  }, [watchStartDate, watchEndDate]);
 
   useEffect(() => {
     if (job.id) {
@@ -67,8 +78,19 @@ export default function ReportActionRequired() {
     }
   }, [pendingDocuments]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const handleFieldChange = (field) => {
+    return (value) => {
+      setValue(field, value);
+    };
+  };
+
   const onGenerateReport = () => {
-    dispatch(startActionRequiredJob(selectedLicenceType));
+    dispatch(
+      startApiaryHiveInspectionJob({
+        startDate: watchStartDate,
+        endDate: watchEndDate,
+      })
+    );
   };
 
   let content = null;
@@ -112,38 +134,26 @@ export default function ReportActionRequired() {
           <Table striped size="sm" responsive hover>
             <thead className="thead-dark">
               <tr>
+                <th className="text-nowrap">Licence Number</th>
                 <th className="text-nowrap">Region</th>
-                <th className="text-nowrap">Licence Type</th>
-                <th className="text-nowrap">Registrant</th>
-                <th className="text-nowrap">Licence</th>
                 <th className="text-nowrap">Status</th>
-                <th className="text-nowrap">Site Contact</th>
-                <th className="text-nowrap">Site Address</th>
-                <th className="text-nowrap">Company Name</th>
-                <th className="text-nowrap">Primary Phone</th>
-                <th className="text-nowrap">Secondary Phone</th>
+                <th className="text-nowrap">Apiary Site ID</th>
+                <th className="text-nowrap">Inspection Date</th>
               </tr>
             </thead>
             <tbody>
               {reportData.data.map((item) => {
                 return (
-                  <tr key={item.licenceId}>
-                    <td className="text-nowrap">{item.siteRegion}</td>
-                    <td className="text-nowrap">{item.licenceType}</td>
-                    <td className="text-nowrap">
-                      {formatListShorten(item.registrantName)}
-                    </td>
+                  <tr
+                    key={`${item.licenceId}_${formatDateString(
+                      item.inspectionDate
+                    )}`}
+                  >
                     <td className="text-nowrap">{item.licenceNumber}</td>
+                    <td className="text-nowrap">{item.regionName}</td>
                     <td className="text-nowrap">{item.licenceStatus}</td>
-                    <td className="text-nowrap">{item.registrantName}</td>
-                    <td className="text-nowrap">{item.siteAddress}</td>
-                    <td className="text-nowrap">{item.companyName}</td>
-                    <td className="text-nowrap">
-                      {formatPhoneNumber(item.sitePrimaryPhone)}
-                    </td>
-                    <td className="text-nowrap">
-                      {formatPhoneNumber(item.siteSecondaryPhone)}
-                    </td>
+                    <td className="text-nowrap">{item.apiarySiteId}</td>
+                    <td className="text-nowrap">{item.inspectionDate}</td>
                   </tr>
                 );
               })}
@@ -157,12 +167,20 @@ export default function ReportActionRequired() {
   return (
     <>
       <Row>
-        <Col sm={3}>
-          <LicenceTypes
-            ref={register}
-            defaultValue={null}
-            allowAny
-            label="Select a Licence Type"
+        <Col lg={3}>
+          <CustomDatePicker
+            id="startDate"
+            label="Start Date"
+            notifyOnChange={handleFieldChange("startDate")}
+            defaultValue={startDate}
+          />
+        </Col>
+        <Col lg={3}>
+          <CustomDatePicker
+            id="endDate"
+            label="End Date"
+            notifyOnChange={handleFieldChange("endDate")}
+            defaultValue={endDate}
           />
         </Col>
         {reportData.status === REQUEST_STATUS.FULFILLED &&
@@ -188,4 +206,4 @@ export default function ReportActionRequired() {
   );
 }
 
-ReportActionRequired.propTypes = {};
+ReportApiaryHiveInspection.propTypes = {};

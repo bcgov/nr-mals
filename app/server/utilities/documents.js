@@ -168,6 +168,8 @@ function getReportsTemplateName(documentType) {
   switch (documentType) {
     case constants.REPORTS.ACTION_REQUIRED:
       return "Action_Required_Template";
+    case constants.REPORTS.APIARY_INSPECTION:
+      return "Apiary_Hive_Inspection_Template";
     default:
       return null;
   }

@@ -22,10 +22,36 @@ function convertActionRequiredToLogicalModel(input) {
     siteSecondaryphone: input.site_secondary_phone,
     siteFaxNumber: input.site_fax_number,
     emailAddress: input.email_address,
-    createdBy: input.create_userid,
-    createdOn: input.create_timestamp,
-    updatedBy: input.update_userid,
-    updatedOn: input.update_timestamp,
+  };
+
+  return output;
+}
+
+function convertApiaryHiveInspectionToLogicalModel(input) {
+  const output = {
+    licenceId: input.licence_id,
+    licenceNumber: input.licence_number,
+    licenceStatus: input.licence_status,
+    apiarySiteId: input.apiary_site_id,
+    regionName: input.region_name,
+    lastName: input.last_name,
+    firstName: input.first_name,
+    inspectionDate: formatDate(input.inspection_date),
+    coloniesTested: input.colonies_tested,
+    americanFoulbroodResult: input.american_foulbrood_result,
+    europeanFoulbroodResult: input.european_foulbrood_result,
+    nosemaResult: input.nosema_result,
+    chalkbroodResult: input.chalkbrood_result,
+    sacbroodResult: input.sacbrood_result,
+    varroaTested: input.varroa_tested,
+    varroaMiteResult: input.varroa_mite_result,
+    varroaMiteResultPercent: input.varroa_mite_result_percent,
+    smallHiveBeetleTested: input.small_hive_beetle_tested,
+    smallHiveBeetleResult: input.small_hive_beetle_result,
+    supersInspected: input.supers_inspected,
+    supersDestroyed: input.supers_destroyed,
+    hivesPerApiary: input.hives_per_apiary,
+    hiveCount: input.hive_count,
   };
 
   return output;
@@ -33,4 +59,5 @@ function convertActionRequiredToLogicalModel(input) {
 
 module.exports = {
   convertActionRequiredToLogicalModel,
+  convertApiaryHiveInspectionToLogicalModel,
 };

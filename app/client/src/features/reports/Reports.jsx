@@ -4,9 +4,10 @@ import { Container, Form, Row, Col } from "react-bootstrap";
 
 import PageHeading from "../../components/PageHeading";
 
-import { REPORTS_OPTIONS } from "../../utilities/constants";
+import { REPORTS } from "../../utilities/constants";
 
 import ReportActionRequired from "./ReportActionRequired";
+import ReportApiaryHiveInspection from "./ReportApiaryHiveInspection";
 
 export default function Reports() {
   const form = useForm({
@@ -18,8 +19,11 @@ export default function Reports() {
 
   let control = null;
   switch (selectedConfig) {
-    case REPORTS_OPTIONS.ACTION_REQUIRED:
+    case REPORTS.ACTION_REQUIRED:
       control = <ReportActionRequired />;
+      break;
+    case REPORTS.APIARY_INSPECTION:
+      control = <ReportApiaryHiveInspection />;
       break;
     default:
       break;
@@ -39,8 +43,9 @@ export default function Reports() {
               defaultValue={null}
             >
               <option value={null} />
-              <option value={REPORTS_OPTIONS.ACTION_REQUIRED}>
-                Action Required
+              <option value={REPORTS.ACTION_REQUIRED}>Action Required</option>
+              <option value={REPORTS.APIARY_INSPECTION}>
+                Apiary Hive Inspection
               </option>
             </Form.Control>
           </Col>

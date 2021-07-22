@@ -109,3 +109,31 @@ model mal_licence_action_required_vw {
   site_fax_number                   String?
   email_address                     String?
 }
+
+model mal_apiary_inspection_vw {
+  licence_id                        Int     
+  licence_number                    Int
+  licence_status                    String?
+  apiary_site_id                    Int?
+  region_name                       String?
+  last_name                         String?
+  first_name                        String?
+  inspection_date                   DateTime
+  colonies_tested                   Int?
+  american_foulbrood_result         Int?
+  european_foulbrood_result         Int?
+  nosema_result                     Int?
+  chalkbrood_result                 Int?
+  sacbrood_result                   Int?
+  varroa_tested                     Int?
+  varroa_mite_result                Int?
+  varroa_mite_result_percent        Float?
+  small_hive_beetle_tested          Int?
+  small_hive_beetle_result          Int?
+  supers_inspected                  Int?
+  supers_destroyed                  Int?
+  hives_per_apiary                  Int?
+  hive_count                        Int?
+
+  @@unique([licence_id, inspection_date], name: "mal_apiary_inspection_vw_uk")
+}
