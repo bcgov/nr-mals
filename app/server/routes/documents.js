@@ -603,6 +603,34 @@ async function startApiaryHiveInspectionJob(startDate, endDate) {
   return { jobId, documents };
 }
 
+async function startProducersAnalysisRegionJob() {
+  const [procedureResult] = await prisma.$transaction([
+    prisma.$queryRaw(
+      `CALL mals_app.pr_generate_print_json_apiary_producer_region(NULL)`
+    ),
+  ]);
+
+  const jobId = procedureResult[0].iop_print_job_id;
+
+  const documents = await getPendingDocuments(jobId);
+
+  return { jobId, documents };
+}
+
+async function startProducersAnalysisDistrictJob() {
+  const [procedureResult] = await prisma.$transaction([
+    prisma.$queryRaw(
+      `CALL mals_app.pr_generate_print_json_apiary_producer_district(NULL)`
+    ),
+  ]);
+
+  const jobId = procedureResult[0].iop_print_job_id;
+
+  const documents = await getPendingDocuments(jobId);
+
+  return { jobId, documents };
+}
+
 async function generateReport(documentId) {
   const document = await getDocument(documentId);
 
@@ -1107,6 +1135,30 @@ router.post(
     const endDate = formatDate(new Date(req.body.endDate));
 
     await startApiaryHiveInspectionJob(startDate, endDate)
+      .then(({ jobId, documents }) => {
+        return res.send({ jobId, documents });
+      })
+      .catch(next)
+      .finally(async () => prisma.$disconnect());
+  }
+);
+
+router.post(
+  "/reports/startJob/producersAnalysisRegion",
+  async (req, res, next) => {
+    await startProducersAnalysisRegionJob()
+      .then(({ jobId, documents }) => {
+        return res.send({ jobId, documents });
+      })
+      .catch(next)
+      .finally(async () => prisma.$disconnect());
+  }
+);
+
+router.post(
+  "/reports/startJob/producersAnalysisDistrict",
+  async (req, res, next) => {
+    await startProducersAnalysisDistrictJob()
       .then(({ jobId, documents }) => {
         return res.send({ jobId, documents });
       })

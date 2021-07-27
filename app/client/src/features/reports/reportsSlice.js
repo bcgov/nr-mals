@@ -71,6 +71,55 @@ export const startApiaryHiveInspectionJob = createAsyncThunk(
   }
 );
 
+export const fetchProducersAnalysis = createAsyncThunk(
+  "reports/fetchProducersAnalysis",
+  async (payload, thunkApi) => {
+    try {
+      const response = await Api.post(`reports/producersAnalysis`, payload);
+      return response.data;
+    } catch (error) {
+      if (error instanceof ApiError) {
+        return thunkApi.rejectWithValue(error.serialize());
+      }
+      return thunkApi.rejectWithValue({ code: -1, description: error.message });
+    }
+  }
+);
+
+export const startProducersAnalysisRegionJob = createAsyncThunk(
+  "reports/startProducersAnalysisRegionJob",
+  async (_, thunkApi) => {
+    try {
+      const response = await Api.post(
+        `documents/reports/startJob/producersAnalysisRegion`
+      );
+      return response.data;
+    } catch (error) {
+      if (error instanceof ApiError) {
+        return thunkApi.rejectWithValue(error.serialize());
+      }
+      return thunkApi.rejectWithValue({ code: -1, description: error.message });
+    }
+  }
+);
+
+export const startProducersAnalysisDistrictJob = createAsyncThunk(
+  "reports/startProducersAnalysisDistrictJob",
+  async (_, thunkApi) => {
+    try {
+      const response = await Api.post(
+        `documents/reports/startJob/producersAnalysisDistrict`
+      );
+      return response.data;
+    } catch (error) {
+      if (error instanceof ApiError) {
+        return thunkApi.rejectWithValue(error.serialize());
+      }
+      return thunkApi.rejectWithValue({ code: -1, description: error.message });
+    }
+  }
+);
+
 export const fetchReportJob = createAsyncThunk(
   "reports/fetchReportJob",
   async (_, thunkApi) => {
@@ -194,6 +243,16 @@ export const reportsSlice = createSlice({
     [startApiaryHiveInspectionJob.pending]: pendingStartJobReducer,
     [startApiaryHiveInspectionJob.fulfilled]: fulfilledStartJobReducer,
     [startApiaryHiveInspectionJob.rejected]: rejectionStartJobReducer,
+    [fetchProducersAnalysis.pending]: pendingFetchReducer,
+    [fetchProducersAnalysis.fulfilled]: fulfilledFetchReducer,
+    [fetchProducersAnalysis.rejected]: rejectionFetchReducer,
+    [startProducersAnalysisRegionJob.pending]: pendingStartJobReducer,
+    [startProducersAnalysisRegionJob.fulfilled]: fulfilledStartJobReducer,
+    [startProducersAnalysisRegionJob.rejected]: rejectionStartJobReducer,
+    [startProducersAnalysisDistrictJob.pending]: pendingStartJobReducer,
+    [startProducersAnalysisDistrictJob.fulfilled]: fulfilledStartJobReducer,
+    [startProducersAnalysisDistrictJob.rejected]: rejectionStartJobReducer,
+
     [fetchReportJob.pending]: (state) => {
       state.job.status = REQUEST_STATUS.PENDING;
     },

@@ -170,6 +170,10 @@ function getReportsTemplateName(documentType) {
       return "Action_Required_Template";
     case constants.REPORTS.APIARY_INSPECTION:
       return "Apiary_Hive_Inspection_Template";
+    case constants.REPORTS.APIARY_PRODUCER_REGION:
+      return "Apiary_Producer_Analysis_Region";
+    case constants.REPORTS.APIARY_PRODUCER_DISTRICT:
+      return "Apiary_Producer_Analysis_Region";
     default:
       return null;
   }

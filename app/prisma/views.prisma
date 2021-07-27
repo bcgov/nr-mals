@@ -111,6 +111,7 @@ model mal_licence_action_required_vw {
 }
 
 model mal_apiary_inspection_vw {
+  apiary_inspection_id              Int       @unique
   licence_id                        Int     
   licence_number                    Int
   licence_status                    String?
@@ -134,6 +135,25 @@ model mal_apiary_inspection_vw {
   supers_destroyed                  Int?
   hives_per_apiary                  Int?
   hive_count                        Int?
+}
 
-  @@unique([licence_id, inspection_date], name: "mal_apiary_inspection_vw_uk")
+
+model mal_apiary_producer_vw {
+  site_id                           Int     @unique
+  licence_id                        Int
+  licence_number                    Int
+  site_status                       String
+  apiary_site_id                    Int
+  registrant_last_name              String?
+  registrant_first_name             String?
+  registrant_email_address          String?
+  site_region_id                    Int
+  site_region_name                  String
+  site_regional_district_id         Int
+  site_district_name                String
+  site_address                      String?
+  site_city                         String?
+  site_primary_phone                String?
+  registration_date                 DateTime?
+  hive_count                        Int?
 }

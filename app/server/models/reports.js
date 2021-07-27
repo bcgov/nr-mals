@@ -57,7 +57,32 @@ function convertApiaryHiveInspectionToLogicalModel(input) {
   return output;
 }
 
+function convertProducersAnalysisToLogicalModel(input) {
+  const output = {
+    siteId: input.site_id,
+    licenceId: input.licence_id,
+    licenceNumber: input.licence_number,
+    siteStatus: input.site_status,
+    apiarySiteId: input.apiary_site_id,
+    registrantLastName: input.registrant_last_name,
+    registrantFirstName: input.registrant_first_name,
+    registrantEmailAddress: input.registrant_email_address,
+    siteRegionId: input.site_region_id,
+    siteRegionName: input.site_region_name,
+    siteRegionalDistrictId: input.site_regional_district_id,
+    siteDistrictName: input.site_district_name,
+    siteAddress: input.site_address,
+    siteCity: input.site_city,
+    sitePrimaryPhone: input.site_primary_phone,
+    registrationDate: input.registration_date,
+    hiveCount: input.hive_count,
+  };
+
+  return output;
+}
+
 module.exports = {
   convertActionRequiredToLogicalModel,
   convertApiaryHiveInspectionToLogicalModel,
+  convertProducersAnalysisToLogicalModel,
 };

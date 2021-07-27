@@ -8,6 +8,7 @@ import { REPORTS } from "../../utilities/constants";
 
 import ReportActionRequired from "./ReportActionRequired";
 import ReportApiaryHiveInspection from "./ReportApiaryHiveInspection";
+import ReportProducersAnalysis from "./ReportProducersAnalysis";
 
 export default function Reports() {
   const form = useForm({
@@ -24,6 +25,9 @@ export default function Reports() {
       break;
     case REPORTS.APIARY_INSPECTION:
       control = <ReportApiaryHiveInspection />;
+      break;
+    case REPORTS.PRODUCERS_ANALYSIS:
+      control = <ReportProducersAnalysis />;
       break;
     default:
       break;
@@ -46,6 +50,9 @@ export default function Reports() {
               <option value={REPORTS.ACTION_REQUIRED}>Action Required</option>
               <option value={REPORTS.APIARY_INSPECTION}>
                 Apiary Hive Inspection
+              </option>
+              <option value={REPORTS.PRODUCERS_ANALYSIS}>
+                Producer&apos;s Analysis Report by Region/District
               </option>
             </Form.Control>
           </Col>

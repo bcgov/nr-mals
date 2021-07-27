@@ -667,6 +667,34 @@ model mal_sale_yard_species_sub_code_lu {
   @@unique([species_code_id, code_name], name: "mal_syssc_id_code_uk")
 }
 
+model mal_apiary_inspection {
+  id                         Int      @id @default(autoincrement())
+  site_id                    Int
+  inspection_date            DateTime @db.Timestamp(6)
+  inspector_id               String?  @db.VarChar(10)
+  colonies_tested            Int?
+  brood_tested               Int?
+  varroa_tested              Int?
+  small_hive_beetle_tested   Int?
+  american_foulbrood_result  Int?
+  european_foulbrood_result  Int?
+  small_hive_beetle_result   Int?
+  chalkbrood_result          Int?
+  sacbrood_result            Int?
+  nosema_result              Int?
+  varroa_mite_result         Int?
+  varroa_mite_result_percent Decimal? @db.Decimal(5, 2)
+  other_result_description   String?  @db.VarChar(240)
+  supers_inspected           Int?
+  supers_destroyed           Int?
+  inspection_comment         String?  @db.VarChar(2000)
+  old_identifier             String?  @db.VarChar(100)
+  create_userid              String   @db.VarChar(30)
+  create_timestamp           DateTime @db.Timestamp(6)
+  update_userid              String   @db.VarChar(30)
+  update_timestamp           DateTime @db.Timestamp(6)
+}
+
 model mal_licence_summary_vw {
   licence_id           Int       @unique
   licence_type_id      Int
@@ -779,6 +807,7 @@ model mal_licence_action_required_vw {
 }
 
 model mal_apiary_inspection_vw {
+  apiary_inspection_id              Int       @unique
   licence_id                        Int     
   licence_number                    Int
   licence_status                    String?
@@ -802,6 +831,25 @@ model mal_apiary_inspection_vw {
   supers_destroyed                  Int?
   hives_per_apiary                  Int?
   hive_count                        Int?
+}
 
-  @@unique([licence_id, inspection_date], name: "mal_apiary_inspection_vw_uk")
+
+model mal_apiary_producer_vw {
+  site_id                           Int     @unique
+  licence_id                        Int
+  licence_number                    Int
+  site_status                       String
+  apiary_site_id                    Int
+  registrant_last_name              String?
+  registrant_first_name             String?
+  registrant_email_address          String?
+  site_region_id                    Int
+  site_region_name                  String
+  site_regional_district_id         Int
+  site_district_name                String
+  site_address                      String?
+  site_city                         String?
+  site_primary_phone                String?
+  registration_date                 DateTime?
+  hive_count                        Int?
 }

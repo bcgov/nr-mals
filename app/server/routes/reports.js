@@ -1,11 +1,7 @@
 const express = require("express");
 const { PrismaClient } = require("@prisma/client");
-const collection = require("lodash/collection");
-const {
-  populateAuditColumnsCreate,
-  populateAuditColumnsUpdate,
-} = require("../utilities/auditing");
 const { formatDate } = require("../utilities/formatting");
+const { parseAsInt } = require("../utilities/parsing");
 
 const reports = require("../models/reports");
 
@@ -35,6 +31,20 @@ async function getApiaryHiveInspection(startDate, endDate) {
     orderBy: [
       {
         licence_id: "asc",
+      },
+    ],
+  });
+}
+
+async function getProducersAnalysis(region, district) {
+  return prisma.mal_apiary_producer_vw.findMany({
+    where: { site_region_id: region, site_regional_district_id: district },
+    orderBy: [
+      {
+        licence_id: "asc",
+      },
+      {
+        apiary_site_id: "asc",
       },
     ],
   });
@@ -76,6 +86,28 @@ router.post("/apiaryHiveInspection", async (req, res, next) => {
 
       const payload = records.map((record) =>
         reports.convertApiaryHiveInspectionToLogicalModel(record)
+      );
+      return res.send(payload);
+    })
+    .catch(next)
+    .finally(async () => prisma.$disconnect());
+});
+
+router.post("/producersAnalysis", async (req, res, next) => {
+  const region = parseAsInt(req.body.region);
+  const district = parseAsInt(req.body.district);
+
+  await getProducersAnalysis(region, district)
+    .then((records) => {
+      if (records === null) {
+        return res.status(404).send({
+          code: 404,
+          description: "The requested data could not be found.",
+        });
+      }
+
+      const payload = records.map((record) =>
+        reports.convertProducersAnalysisToLogicalModel(record)
       );
       return res.send(payload);
     })
