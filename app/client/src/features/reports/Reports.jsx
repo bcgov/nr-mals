@@ -8,7 +8,9 @@ import { REPORTS } from "../../utilities/constants";
 
 import ReportActionRequired from "./ReportActionRequired";
 import ReportApiaryHiveInspection from "./ReportApiaryHiveInspection";
-import ReportProducersAnalysis from "./ReportProducersAnalysis";
+import ReportProducersAnalysisRegion from "./ReportProducersAnalysisRegion";
+import ReportProducersAnalysisCity from "./ReportProducersAnalysisCity";
+import ReportProvincialFarmQuality from "./ReportProvincialFarmQuality";
 
 export default function Reports() {
   const form = useForm({
@@ -26,9 +28,16 @@ export default function Reports() {
     case REPORTS.APIARY_INSPECTION:
       control = <ReportApiaryHiveInspection />;
       break;
-    case REPORTS.PRODUCERS_ANALYSIS:
-      control = <ReportProducersAnalysis />;
+    case REPORTS.PRODUCERS_ANALYSIS_REGION:
+      control = <ReportProducersAnalysisRegion />;
       break;
+    case REPORTS.PRODUCERS_ANALYSIS_CITY:
+      control = <ReportProducersAnalysisCity />;
+      break;
+    case REPORTS.DAIRY_FARM_QUALITY:
+      control = <ReportProvincialFarmQuality />;
+      break;
+
     default:
       break;
   }
@@ -51,8 +60,14 @@ export default function Reports() {
               <option value={REPORTS.APIARY_INSPECTION}>
                 Apiary Hive Inspection
               </option>
-              <option value={REPORTS.PRODUCERS_ANALYSIS}>
+              <option value={REPORTS.PRODUCERS_ANALYSIS_REGION}>
                 Producer&apos;s Analysis Report by Region/District
+              </option>
+              <option value={REPORTS.PRODUCERS_ANALYSIS_CITY}>
+                Producer&apos;s Analysis Report by City/Municipality
+              </option>
+              <option value={REPORTS.DAIRY_FARM_QUALITY}>
+                Provincial Farm Quality
               </option>
             </Form.Control>
           </Col>

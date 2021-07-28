@@ -68,7 +68,12 @@ export default function SelectDairyNoticesPage() {
 
   useEffect(() => {
     dispatch(clearDairyNoticeJob());
-    dispatch(fetchQueuedDairyNotices());
+    dispatch(
+      fetchQueuedDairyNotices({
+        startDate: watchStartDate,
+        endDate: watchEndDate,
+      })
+    );
 
     setValue("startDate", startDate);
     setValue("endDate", endDate);
@@ -81,27 +86,29 @@ export default function SelectDairyNoticesPage() {
 
     const checked = [];
     licences = queuedDairyNotices.data
-      ? queuedDairyNotices.data
-          .filter(
-            (notice) =>
-              formatDateString(notice.recordedDate) >=
-                formatDate(watchStartDate) &&
-              formatDateString(notice.recordedDate) <= formatDate(watchEndDate)
-          )
-          .map((licence) => {
-            const obj = {
-              ...licence,
-              selected:
-                checked.find((x) => x === licence.licenceId) === undefined
-                  ? "true"
-                  : "false",
-            };
-            checked.push(licence.licenceId);
-            return obj;
-          })
+      ? queuedDairyNotices.data.map((licence) => {
+          const obj = {
+            ...licence,
+            selected:
+              checked.find((x) => x === licence.licenceId) === undefined
+                ? "true"
+                : "false",
+          };
+          checked.push(licence.licenceId);
+          return obj;
+        })
       : [];
     setValue("licences", licences);
   }, [queuedDairyNotices.data]);
+
+  useEffect(() => {
+    dispatch(
+      fetchQueuedDairyNotices({
+        startDate: watchStartDate,
+        endDate: watchEndDate,
+      })
+    );
+  }, [watchStartDate, watchEndDate]);
 
   const onSubmit = (data) => {
     const selectedIds = getSelectedLicences(data.licences);
@@ -297,7 +304,6 @@ export default function SelectDairyNoticesPage() {
               id="startDate"
               label="Start Date"
               notifyOnChange={handleFieldChange("startDate")}
-              notifyOnBlur={() => dispatch(fetchQueuedDairyNotices())}
               defaultValue={startDate}
             />
           </Col>
@@ -306,7 +312,6 @@ export default function SelectDairyNoticesPage() {
               id="endDate"
               label="End Date"
               notifyOnChange={handleFieldChange("endDate")}
-              notifyOnBlur={() => dispatch(fetchQueuedDairyNotices())}
               defaultValue={endDate}
             />
           </Col>

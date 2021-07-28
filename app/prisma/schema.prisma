@@ -853,3 +853,22 @@ model mal_apiary_producer_vw {
   registration_date                 DateTime?
   hive_count                        Int?
 }
+
+model mal_dairy_farm_quality_vw {
+  licence_id                        Int     @unique
+  licence_number                    Int
+  irma_number                       String
+  derived_licence_holder_name       String
+  registrant_last_name              String
+  registrant_first_name             String
+  spc1_date                         DateTime?
+  spc1_value                        Float?
+  scc_date                          DateTime?
+  scc_value                         Float?
+  cry_date                          DateTime?
+  cry_value                         Float?
+  ffa_date                          DateTime?
+  ffa_value                         Float?
+  ih_date                           DateTime?
+  ih_value                          Float?
+}

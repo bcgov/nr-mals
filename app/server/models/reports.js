@@ -74,8 +74,31 @@ function convertProducersAnalysisToLogicalModel(input) {
     siteAddress: input.site_address,
     siteCity: input.site_city,
     sitePrimaryPhone: input.site_primary_phone,
-    registrationDate: input.registration_date,
+    registrationDate: formatDate(input.registration_date),
     hiveCount: input.hive_count,
+  };
+
+  return output;
+}
+
+function convertProvincialFarmQualityToLogicalModel(input) {
+  const output = {
+    licenceId: input.licence_id,
+    licenceNumber: input.licence_number,
+    irmaNumber: input.irma_number,
+    derivedLicenceHolderName: input.derived_licence_holder_name,
+    registrantLastName: input.registrant_last_name,
+    registrantFirstName: input.registrant_first_name,
+    spc1Date: formatDate(input.spc1_date),
+    spc1Value: input.spc1_value,
+    sccDate: formatDate(input.scc_date),
+    sccValue: input.scc_value,
+    cryDate: formatDate(input.cry_date),
+    cryValue: input.cry_value,
+    ffaDate: formatDate(input.ffa_date),
+    ffaValue: input.ffa_value,
+    ihDate: formatDate(input.ih_date),
+    ihValue: input.ih_value,
   };
 
   return output;
@@ -85,4 +108,5 @@ module.exports = {
   convertActionRequiredToLogicalModel,
   convertApiaryHiveInspectionToLogicalModel,
   convertProducersAnalysisToLogicalModel,
+  convertProvincialFarmQualityToLogicalModel,
 };

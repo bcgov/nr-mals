@@ -23,9 +23,12 @@ export const fetchQueuedRenewals = createAsyncThunk(
 
 export const fetchQueuedApiaryRenewals = createAsyncThunk(
   "renewals/fetchQueuedApiary",
-  async (_, thunkApi) => {
+  async (payload, thunkApi) => {
     try {
-      const response = await Api.get("documents/renewals/apiary/queued");
+      const response = await Api.post(
+        "documents/renewals/apiary/queued",
+        payload
+      );
       return response.data;
     } catch (error) {
       if (error instanceof ApiError) {

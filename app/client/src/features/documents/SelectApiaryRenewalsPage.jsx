@@ -67,7 +67,12 @@ export default function SelectApiaryRenewalsPage() {
 
   useEffect(() => {
     dispatch(clearRenewalJob());
-    dispatch(fetchQueuedApiaryRenewals());
+    dispatch(
+      fetchQueuedApiaryRenewals({
+        startDate: watchStartDate,
+        endDate: watchEndDate,
+      })
+    );
 
     setValue("startDate", startDate);
     setValue("endDate", endDate);
@@ -76,29 +81,24 @@ export default function SelectApiaryRenewalsPage() {
 
   useEffect(() => {
     licences = queuedRenewals.data
-      ? queuedRenewals.data
-          .filter(
-            (notice) =>
-              formatDateString(notice.expiryDate) >=
-                formatDate(watchStartDate) &&
-              formatDateString(notice.expiryDate) <= formatDate(watchEndDate)
-          )
-          .map((licence) => ({
-            id: licence.licenceId,
-            licenceNumber: licence.licenceNumber,
-            licenceType: licence.licenceType,
-            lastNames: licence.lastNames,
-            companyNames: licence.companyNames,
-            licenceStatus: licence.licenceStatus,
-            issuedOnDate: licence.issuedOnDate,
-            expiryDate: licence.expiryDate,
-            region: licence.region,
-            regionalDistrict: licence.regionalDistrict,
-            selected: "true",
-          }))
+      ? queuedRenewals.data.map((licence) => ({
+          ...licence,
+          issuedOnDate: formatDateString(licence.issuedOnDate),
+          expiryDate: formatDateString(licence.expiryDate),
+          selected: "true",
+        }))
       : [];
     setValue("licences", licences);
   }, [queuedRenewals.data]);
+
+  useEffect(() => {
+    dispatch(
+      fetchQueuedApiaryRenewals({
+        startDate: watchStartDate,
+        endDate: watchEndDate,
+      })
+    );
+  }, [watchStartDate, watchEndDate]);
 
   const onSubmit = (data) => {
     const selectedIds = getSelectedLicences(data.licences);
@@ -275,7 +275,6 @@ export default function SelectApiaryRenewalsPage() {
               id="startDate"
               label="Expiry Date - From"
               notifyOnChange={handleFieldChange("startDate")}
-              notifyOnBlur={() => dispatch(fetchQueuedApiaryRenewals())}
               defaultValue={startDate}
             />
           </Col>
@@ -284,7 +283,6 @@ export default function SelectApiaryRenewalsPage() {
               id="endDate"
               label="Expiry Date - To"
               notifyOnChange={handleFieldChange("endDate")}
-              notifyOnBlur={() => dispatch(fetchQueuedApiaryRenewals())}
               defaultValue={endDate}
             />
           </Col>

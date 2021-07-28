@@ -193,16 +193,19 @@ async function getQueuedRenewals() {
   });
 }
 
-async function getQueuedApiaryRenewals() {
+async function getQueuedApiaryRenewals(startDate, endDate) {
   const activeStatus = await prisma.mal_status_code_lu.findFirst({
     where: { code_name: "ACT" },
   });
 
+  const andArray = [];
+  andArray.push({ licence_type_id: constants.LICENCE_TYPE_ID_APIARY });
+  andArray.push({ status_code_id: activeStatus.id });
+  andArray.push({ expiry_date: { gte: new Date(startDate) } });
+  andArray.push({ expiry_date: { lte: new Date(endDate) } });
+
   return prisma.mal_licence_summary_vw.findMany({
-    where: {
-      licence_type_id: constants.LICENCE_TYPE_ID_APIARY,
-      status_code_id: activeStatus.id,
-    },
+    where: { AND: andArray },
     orderBy: [
       {
         licence_id: "asc",
@@ -322,12 +325,17 @@ async function generateRenewal(documentId) {
 
 //#region Dairy Notices Functions
 
-async function getQueuedDairyNotices() {
+async function getQueuedDairyNotices(startDate, endDate) {
   const activeStatus = await prisma.mal_status_code_lu.findFirst({
     where: { code_name: "ACT" },
   });
 
+  const andArray = [];
+  andArray.push({ recorded_date: { gte: new Date(startDate) } });
+  andArray.push({ recorded_date: { lte: new Date(endDate) } });
+
   return prisma.mal_print_dairy_farm_infraction_vw.findMany({
+    where: { AND: andArray },
     orderBy: [
       {
         licence_id: "asc",
@@ -583,9 +591,7 @@ async function startActionRequiredJob(licenceTypeId) {
   ]);
 
   const jobId = procedureResult[0].iop_print_job_id;
-
   const documents = await getPendingDocuments(jobId);
-
   return { jobId, documents };
 }
 
@@ -597,9 +603,7 @@ async function startApiaryHiveInspectionJob(startDate, endDate) {
   ]);
 
   const jobId = procedureResult[0].iop_print_job_id;
-
   const documents = await getPendingDocuments(jobId);
-
   return { jobId, documents };
 }
 
@@ -611,9 +615,7 @@ async function startProducersAnalysisRegionJob() {
   ]);
 
   const jobId = procedureResult[0].iop_print_job_id;
-
   const documents = await getPendingDocuments(jobId);
-
   return { jobId, documents };
 }
 
@@ -621,6 +623,30 @@ async function startProducersAnalysisDistrictJob() {
   const [procedureResult] = await prisma.$transaction([
     prisma.$queryRaw(
       `CALL mals_app.pr_generate_print_json_apiary_producer_district(NULL)`
+    ),
+  ]);
+
+  const jobId = procedureResult[0].iop_print_job_id;
+  const documents = await getPendingDocuments(jobId);
+  return { jobId, documents };
+}
+
+async function startProducersAnalysisCityJob(city, minHives, maxHives) {
+  const [procedureResult] = await prisma.$transaction([
+    prisma.$queryRaw(
+      `CALL mals_app.pr_generate_print_json_apiary_producer_city('${city}', '${minHives}', '${maxHives}', NULL)`
+    ),
+  ]);
+
+  const jobId = procedureResult[0].iop_print_job_id;
+  const documents = await getPendingDocuments(jobId);
+  return { jobId, documents };
+}
+
+async function startProvincialFarmQualityJob(startDate, endDate) {
+  const [procedureResult] = await prisma.$transaction([
+    prisma.$queryRaw(
+      `CALL mals_app.pr_generate_print_json_dairy_farm_quality('${startDate}', '${endDate}', NULL)`
     ),
   ]);
 
@@ -935,8 +961,11 @@ router.get("/renewals/queued", async (req, res, next) => {
     .finally(async () => prisma.$disconnect());
 });
 
-router.get("/renewals/apiary/queued", async (req, res, next) => {
-  await getQueuedApiaryRenewals()
+router.post("/renewals/apiary/queued", async (req, res, next) => {
+  const startDate = formatDate(new Date(req.body.startDate));
+  const endDate = formatDate(new Date(req.body.endDate));
+
+  await getQueuedApiaryRenewals(startDate, endDate)
     .then(async (records) => {
       const payload = records.map((record) =>
         licence.convertRenewalToLogicalModel(record)
@@ -989,8 +1018,11 @@ router.post("/renewals/completeJob/:jobId(\\d+)", async (req, res, next) => {
 
 //#region Dairy Notices Endpoints
 
-router.get("/dairyNotices/queued", async (req, res, next) => {
-  await getQueuedDairyNotices()
+router.post("/dairyNotices/queued", async (req, res, next) => {
+  const startDate = formatDate(new Date(req.body.startDate));
+  const endDate = formatDate(new Date(req.body.endDate));
+
+  await getQueuedDairyNotices(startDate, endDate)
     .then(async (records) => {
       const payload = records.map((record) =>
         dairyFarmInfractionView.convertToLogicalModel(record)
@@ -1159,6 +1191,37 @@ router.post(
   "/reports/startJob/producersAnalysisDistrict",
   async (req, res, next) => {
     await startProducersAnalysisDistrictJob()
+      .then(({ jobId, documents }) => {
+        return res.send({ jobId, documents });
+      })
+      .catch(next)
+      .finally(async () => prisma.$disconnect());
+  }
+);
+
+router.post(
+  "/reports/startJob/producersAnalysisCity",
+  async (req, res, next) => {
+    const city = req.body.city;
+    const minHives = parseAsInt(req.body.minHives);
+    const maxHives = parseAsInt(req.body.maxHives);
+
+    await startProducersAnalysisCityJob(city, minHives, maxHives)
+      .then(({ jobId, documents }) => {
+        return res.send({ jobId, documents });
+      })
+      .catch(next)
+      .finally(async () => prisma.$disconnect());
+  }
+);
+
+router.post(
+  "/reports/startJob/provincialFarmQuality",
+  async (req, res, next) => {
+    const startDate = formatDate(new Date(req.body.startDate));
+    const endDate = formatDate(new Date(req.body.endDate));
+
+    await startProvincialFarmQualityJob(startDate, endDate)
       .then(({ jobId, documents }) => {
         return res.send({ jobId, documents });
       })

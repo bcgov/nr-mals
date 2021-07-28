@@ -71,11 +71,14 @@ export const startApiaryHiveInspectionJob = createAsyncThunk(
   }
 );
 
-export const fetchProducersAnalysis = createAsyncThunk(
-  "reports/fetchProducersAnalysis",
+export const fetchProducersAnalysisRegion = createAsyncThunk(
+  "reports/fetchProducersAnalysisRegion",
   async (payload, thunkApi) => {
     try {
-      const response = await Api.post(`reports/producersAnalysis`, payload);
+      const response = await Api.post(
+        `reports/producersAnalysisRegion`,
+        payload
+      );
       return response.data;
     } catch (error) {
       if (error instanceof ApiError) {
@@ -109,6 +112,71 @@ export const startProducersAnalysisDistrictJob = createAsyncThunk(
     try {
       const response = await Api.post(
         `documents/reports/startJob/producersAnalysisDistrict`
+      );
+      return response.data;
+    } catch (error) {
+      if (error instanceof ApiError) {
+        return thunkApi.rejectWithValue(error.serialize());
+      }
+      return thunkApi.rejectWithValue({ code: -1, description: error.message });
+    }
+  }
+);
+
+export const fetchProducersAnalysisCity = createAsyncThunk(
+  "reports/fetchProducersAnalysisCity",
+  async (payload, thunkApi) => {
+    try {
+      const response = await Api.post(`reports/producersAnalysisCity`, payload);
+      return response.data;
+    } catch (error) {
+      if (error instanceof ApiError) {
+        return thunkApi.rejectWithValue(error.serialize());
+      }
+      return thunkApi.rejectWithValue({ code: -1, description: error.message });
+    }
+  }
+);
+
+export const startProducersAnalysisCityJob = createAsyncThunk(
+  "reports/startProducersAnalysisCityJob",
+  async (_, thunkApi) => {
+    try {
+      const response = await Api.post(
+        `documents/reports/startJob/producersAnalysisCity`
+      );
+      return response.data;
+    } catch (error) {
+      if (error instanceof ApiError) {
+        return thunkApi.rejectWithValue(error.serialize());
+      }
+      return thunkApi.rejectWithValue({ code: -1, description: error.message });
+    }
+  }
+);
+
+export const fetchProvincialFarmQuality = createAsyncThunk(
+  "reports/fetchProvincialFarmQuality",
+  async (payload, thunkApi) => {
+    try {
+      const response = await Api.post(`reports/provincialFarmQuality`, payload);
+      return response.data;
+    } catch (error) {
+      if (error instanceof ApiError) {
+        return thunkApi.rejectWithValue(error.serialize());
+      }
+      return thunkApi.rejectWithValue({ code: -1, description: error.message });
+    }
+  }
+);
+
+export const startProvincialFarmQualityJob = createAsyncThunk(
+  "reports/startProvincialFarmQuality",
+  async (payload, thunkApi) => {
+    try {
+      const response = await Api.post(
+        `documents/reports/startJob/provincialFarmQuality`,
+        payload
       );
       return response.data;
     } catch (error) {
@@ -243,15 +311,27 @@ export const reportsSlice = createSlice({
     [startApiaryHiveInspectionJob.pending]: pendingStartJobReducer,
     [startApiaryHiveInspectionJob.fulfilled]: fulfilledStartJobReducer,
     [startApiaryHiveInspectionJob.rejected]: rejectionStartJobReducer,
-    [fetchProducersAnalysis.pending]: pendingFetchReducer,
-    [fetchProducersAnalysis.fulfilled]: fulfilledFetchReducer,
-    [fetchProducersAnalysis.rejected]: rejectionFetchReducer,
+    [fetchProducersAnalysisRegion.pending]: pendingFetchReducer,
+    [fetchProducersAnalysisRegion.fulfilled]: fulfilledFetchReducer,
+    [fetchProducersAnalysisRegion.rejected]: rejectionFetchReducer,
     [startProducersAnalysisRegionJob.pending]: pendingStartJobReducer,
     [startProducersAnalysisRegionJob.fulfilled]: fulfilledStartJobReducer,
     [startProducersAnalysisRegionJob.rejected]: rejectionStartJobReducer,
     [startProducersAnalysisDistrictJob.pending]: pendingStartJobReducer,
     [startProducersAnalysisDistrictJob.fulfilled]: fulfilledStartJobReducer,
     [startProducersAnalysisDistrictJob.rejected]: rejectionStartJobReducer,
+    [fetchProducersAnalysisCity.pending]: pendingFetchReducer,
+    [fetchProducersAnalysisCity.fulfilled]: fulfilledFetchReducer,
+    [fetchProducersAnalysisCity.rejected]: rejectionFetchReducer,
+    [startProducersAnalysisCityJob.pending]: pendingStartJobReducer,
+    [startProducersAnalysisCityJob.fulfilled]: fulfilledStartJobReducer,
+    [startProducersAnalysisCityJob.rejected]: rejectionStartJobReducer,
+    [fetchProvincialFarmQuality.pending]: pendingFetchReducer,
+    [fetchProvincialFarmQuality.fulfilled]: fulfilledFetchReducer,
+    [fetchProvincialFarmQuality.rejected]: rejectionFetchReducer,
+    [startProvincialFarmQualityJob.pending]: pendingStartJobReducer,
+    [startProvincialFarmQualityJob.fulfilled]: fulfilledStartJobReducer,
+    [startProvincialFarmQualityJob.rejected]: rejectionStartJobReducer,
 
     [fetchReportJob.pending]: (state) => {
       state.job.status = REQUEST_STATUS.PENDING;

@@ -171,9 +171,13 @@ function getReportsTemplateName(documentType) {
     case constants.REPORTS.APIARY_INSPECTION:
       return "Apiary_Hive_Inspection_Template";
     case constants.REPORTS.APIARY_PRODUCER_REGION:
-      return "Apiary_Producer_Analysis_Region";
+      return "Apiary_Producer_Analysis_Region_Template";
     case constants.REPORTS.APIARY_PRODUCER_DISTRICT:
-      return "Apiary_Producer_Analysis_Region";
+      return "Apiary_Producer_Analysis_Region_Template";
+    case constants.REPORTS.APIARY_PRODUCER_CITY:
+      return "Apiary_Producer_Report_City_Template";
+    case constants.REPORTS.DAIRY_FARM_QUALITY:
+      return "Dairy_Provincial_Producer_Farm_Quality_Template";
     default:
       return null;
   }

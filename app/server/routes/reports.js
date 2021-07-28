@@ -36,7 +36,7 @@ async function getApiaryHiveInspection(startDate, endDate) {
   });
 }
 
-async function getProducersAnalysis(region, district) {
+async function getProducersAnalysisRegion(region, district) {
   return prisma.mal_apiary_producer_vw.findMany({
     where: { site_region_id: region, site_regional_district_id: district },
     orderBy: [
@@ -45,6 +45,64 @@ async function getProducersAnalysis(region, district) {
       },
       {
         apiary_site_id: "asc",
+      },
+    ],
+  });
+}
+
+async function getProducersAnalysisCity(city, minHives, maxHives) {
+  const andArray = [];
+  andArray.push({ site_city: city });
+  andArray.push({ hive_count: { gte: minHives } });
+  andArray.push({ hive_count: { lte: maxHives } });
+
+  return prisma.mal_apiary_producer_vw.findMany({
+    where: { AND: andArray },
+    orderBy: [
+      {
+        licence_id: "asc",
+      },
+      {
+        apiary_site_id: "asc",
+      },
+    ],
+  });
+}
+
+async function getProvincialFarmQuality(startDate, endDate) {
+  const spc1Array = [];
+  const sccArray = [];
+  const cryArray = [];
+  const ffaArray = [];
+  const ihArray = [];
+  spc1Array.push({ spc1_date: { gte: new Date(startDate) } });
+  spc1Array.push({ spc1_date: { lte: new Date(endDate) } });
+
+  sccArray.push({ scc_date: { gte: new Date(startDate) } });
+  sccArray.push({ scc_date: { lte: new Date(endDate) } });
+
+  cryArray.push({ cry_date: { gte: new Date(startDate) } });
+  cryArray.push({ cry_date: { lte: new Date(endDate) } });
+
+  ffaArray.push({ ffa_date: { gte: new Date(startDate) } });
+  ffaArray.push({ ffa_date: { lte: new Date(endDate) } });
+
+  ihArray.push({ ih_date: { gte: new Date(startDate) } });
+  ihArray.push({ ih_date: { lte: new Date(endDate) } });
+
+  return prisma.mal_dairy_farm_quality_vw.findMany({
+    where: {
+      OR: [
+        { AND: spc1Array },
+        { AND: sccArray },
+        { AND: cryArray },
+        { AND: ffaArray },
+        { AND: ihArray },
+      ],
+    },
+    orderBy: [
+      {
+        licence_id: "asc",
       },
     ],
   });
@@ -93,11 +151,11 @@ router.post("/apiaryHiveInspection", async (req, res, next) => {
     .finally(async () => prisma.$disconnect());
 });
 
-router.post("/producersAnalysis", async (req, res, next) => {
+router.post("/producersAnalysisRegion", async (req, res, next) => {
   const region = parseAsInt(req.body.region);
   const district = parseAsInt(req.body.district);
 
-  await getProducersAnalysis(region, district)
+  await getProducersAnalysisRegion(region, district)
     .then((records) => {
       if (records === null) {
         return res.status(404).send({
@@ -108,6 +166,51 @@ router.post("/producersAnalysis", async (req, res, next) => {
 
       const payload = records.map((record) =>
         reports.convertProducersAnalysisToLogicalModel(record)
+      );
+      return res.send(payload);
+    })
+    .catch(next)
+    .finally(async () => prisma.$disconnect());
+});
+
+router.post("/producersAnalysisCity", async (req, res, next) => {
+  const city = req.body.city;
+  const minHives = parseAsInt(req.body.minHives);
+  const maxHives = parseAsInt(req.body.maxHives);
+
+  await getProducersAnalysisCity(city, minHives, maxHives)
+    .then((records) => {
+      if (records === null) {
+        return res.status(404).send({
+          code: 404,
+          description: "The requested data could not be found.",
+        });
+      }
+
+      const payload = records.map((record) =>
+        reports.convertProducersAnalysisToLogicalModel(record)
+      );
+      return res.send(payload);
+    })
+    .catch(next)
+    .finally(async () => prisma.$disconnect());
+});
+
+router.post("/provincialFarmQuality", async (req, res, next) => {
+  const startDate = formatDate(new Date(req.body.startDate));
+  const endDate = formatDate(new Date(req.body.endDate));
+
+  await getProvincialFarmQuality(startDate, endDate)
+    .then((records) => {
+      if (records === null) {
+        return res.status(404).send({
+          code: 404,
+          description: "The requested data could not be found.",
+        });
+      }
+
+      const payload = records.map((record) =>
+        reports.convertProvincialFarmQualityToLogicalModel(record)
       );
       return res.send(payload);
     })

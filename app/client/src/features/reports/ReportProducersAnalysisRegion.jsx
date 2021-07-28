@@ -16,7 +16,7 @@ import { selectRegions, fetchRegions } from "../lookups/regionsSlice";
 import DocGenDownloadBar from "../../components/DocGenDownloadBar";
 
 import {
-  fetchProducersAnalysis,
+  fetchProducersAnalysisRegion,
   startProducersAnalysisRegionJob,
   startProducersAnalysisDistrictJob,
   generateReport,
@@ -28,7 +28,7 @@ import {
   completeReportJob,
 } from "./reportsSlice";
 
-export default function ReportProducersAnalysis() {
+export default function ReportProducersAnalysisRegion() {
   const dispatch = useDispatch();
 
   const regions = useSelector(selectRegions);
@@ -60,7 +60,7 @@ export default function ReportProducersAnalysis() {
       !isNullOrEmpty(parsedRegionalDistrict)
     ) {
       dispatch(
-        fetchProducersAnalysis({
+        fetchProducersAnalysisRegion({
           region: parsedRegion,
           district: parsedRegionalDistrict,
         })
@@ -197,18 +197,7 @@ export default function ReportProducersAnalysis() {
                 onClick={() => onGenerateRegionReport()}
                 block
               >
-                Generate Region Report
-              </Button>
-            </Col>
-            <Col sm={2}>
-              <Form.Label>&nbsp;</Form.Label>
-              <Button
-                variant="primary"
-                type="button"
-                onClick={() => onGenerateDistrictReport()}
-                block
-              >
-                Generate District Report
+                Generate Report
               </Button>
             </Col>
           </>
@@ -222,4 +211,4 @@ export default function ReportProducersAnalysis() {
   );
 }
 
-ReportProducersAnalysis.propTypes = {};
+ReportProducersAnalysisRegion.propTypes = {};

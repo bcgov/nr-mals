@@ -8,9 +8,9 @@ export const selectDairyNoticesJob = (state) => state.dairyNotices.job;
 
 export const fetchQueuedDairyNotices = createAsyncThunk(
   "dairyNotices/fetchQueued",
-  async (_, thunkApi) => {
+  async (payload, thunkApi) => {
     try {
-      const response = await Api.get("documents/dairyNotices/queued");
+      const response = await Api.post("documents/dairyNotices/queued", payload);
       return response.data;
     } catch (error) {
       if (error instanceof ApiError) {
