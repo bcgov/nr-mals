@@ -83,6 +83,7 @@ function convertProducersAnalysisToLogicalModel(input) {
 
 function convertProvincialFarmQualityToLogicalModel(input) {
   const output = {
+    dairyFarmTestResultId: input.dairy_farm_test_result_id,
     licenceId: input.licence_id,
     licenceNumber: input.licence_number,
     irmaNumber: input.irma_number,

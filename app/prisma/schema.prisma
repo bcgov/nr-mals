@@ -855,7 +855,8 @@ model mal_apiary_producer_vw {
 }
 
 model mal_dairy_farm_quality_vw {
-  licence_id                        Int     @unique
+  dairy_farm_test_result_id         Int
+  licence_id                        Int 
   licence_number                    Int
   irma_number                       String
   derived_licence_holder_name       String
@@ -871,4 +872,6 @@ model mal_dairy_farm_quality_vw {
   ffa_value                         Float?
   ih_date                           DateTime?
   ih_value                          Float?
+
+  @@unique([dairy_farm_test_result_id, licence_id], name: "mal_dairy_farm_quality_vw_uk")
 }

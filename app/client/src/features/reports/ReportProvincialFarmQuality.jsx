@@ -152,7 +152,7 @@ export default function ReportProvincialFarmQuality() {
             <tbody>
               {reportData.data.map((item) => {
                 return (
-                  <tr key={item.licenceId}>
+                  <tr key={`${item.dairyFarmTestResultId}_${item.licenceId}`}>
                     <td className="text-nowrap">{item.licenceNumber}</td>
                     <td className="text-nowrap">{item.irmaNumber}</td>
                     <td className="text-nowrap">
