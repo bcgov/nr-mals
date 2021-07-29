@@ -6,6 +6,7 @@ const cookieParser = require("cookie-parser");
 const logger = require("morgan");
 const session = require("express-session");
 const cors = require("cors");
+const helmet = require("helmet");
 
 const keycloak = require("./keycloak");
 
@@ -30,12 +31,13 @@ const constants = require("./utilities/constants");
 const roleValidation = require("./middleware/roleValidation");
 
 const app = express();
+app.disable("x-powered-by");
 
+app.use(helmet());
 app.use(cors());
-app.options("*", cors()); // enable for all pre-flight requests
+// app.options("*", cors()); // enable for all pre-flight requests
 
 app.use(keycloak.middleware({}));
-
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
