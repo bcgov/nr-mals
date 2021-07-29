@@ -33,16 +33,28 @@ const roleValidation = require("./middleware/roleValidation");
 const app = express();
 app.disable("x-powered-by");
 
+// app.use(helmet());
+
 app.use(
   helmet({
     contentSecurityPolicy: {
       directives: {
         ...helmet.contentSecurityPolicy.getDefaultDirectives(),
-        "script-src": ["'self'", "'unsafe-inline'"],
+        "script-src": [
+          "self",
+          "mals-app-dev.apps.silver.devops.gov.bc.ca",
+          "dev.oidc.gov.bc.ca",
+        ],
+        "frame-ancestors": [
+          "self",
+          "mals-app-dev.apps.silver.devops.gov.bc.ca",
+          "dev.oidc.gov.bc.ca",
+        ],
       },
     },
   })
 );
+
 app.use(cors());
 // app.options("*", cors()); // enable for all pre-flight requests
 
