@@ -33,7 +33,16 @@ const roleValidation = require("./middleware/roleValidation");
 const app = express();
 app.disable("x-powered-by");
 
-app.use(helmet());
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+        "script-src": ["'self'", "'unsafe-inline'"],
+      },
+    },
+  })
+);
 app.use(cors());
 // app.options("*", cors()); // enable for all pre-flight requests
 
