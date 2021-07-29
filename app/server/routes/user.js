@@ -20,10 +20,10 @@ async function fetchUser(username) {
   });
 }
 
-router.get("/currentUser", async (req, res, next) => {
+router.post("/currentUser", async (req, res, next) => {
   const now = new Date();
 
-  const userName = req.query.idir.substring(0, req.query.idir.indexOf("@idir"));
+  const userName = req.body.idir.substring(0, req.body.idir.indexOf("@idir"));
 
   await fetchUser(userName.toUpperCase())
     .then((data) => {

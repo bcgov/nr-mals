@@ -8,17 +8,23 @@ import statusReducer from "../features/status/statusSlice";
 import searchReducer from "../features/search/searchSlice";
 import commentsReducer from "../features/comments/commentsSlice";
 import certificatesReducer from "../features/documents/certificatesSlice";
-import noticesReducer from "../features/documents/noticesSlice";
+import renewalsReducer from "../features/documents/renewalsSlice";
+import dairyNoticesReducer from "../features/documents/dairyNoticesSlice";
+import dairyTankNoticesReducer from "../features/documents/dairyTankNoticesSlice";
 import adminReducer from "../features/admin/adminSlice";
+import reportsReducer from "../features/reports/reportsSlice";
 
 const reducer = {
   admin: adminReducer,
   app: appReducer,
   certificates: certificatesReducer,
-  notices: noticesReducer,
+  renewals: renewalsReducer,
+  dairyNotices: dairyNoticesReducer,
+  dairyTankNotices: dairyTankNoticesReducer,
   comments: commentsReducer,
   licences: licencesReducer,
   lookups: lookupsReducer,
+  reports: reportsReducer,
   search: searchReducer,
   sites: sitesReducer,
   status: statusReducer,

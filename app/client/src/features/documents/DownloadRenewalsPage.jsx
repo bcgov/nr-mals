@@ -15,11 +15,11 @@ import {
 import PageHeading from "../../components/PageHeading";
 
 import {
-  selectNoticeJob,
-  fetchNoticeJob,
-  generateNotice,
-  completeNoticeJob,
-} from "./noticesSlice";
+  selectRenewalsJob,
+  fetchRenewalJob,
+  generateRenewal,
+  completeRenewalJob,
+} from "./renewalsSlice";
 
 async function download(jobId) {
   try {
@@ -53,8 +53,8 @@ async function download(jobId) {
   }
 }
 
-export default function DownloadNoticesPage() {
-  const job = useSelector(selectNoticeJob);
+export default function DownloadRenewalsPage() {
+  const job = useSelector(selectRenewalsJob);
   const jobDetails = job.details;
   const { pendingDocuments } = job;
 
@@ -66,12 +66,12 @@ export default function DownloadNoticesPage() {
 
   useEffect(() => {
     if (job.id) {
-      dispatch(fetchNoticeJob());
+      dispatch(fetchRenewalJob());
 
       if (pendingDocuments?.length > 0) {
-        dispatch(generateNotice(pendingDocuments[0].documentId));
+        dispatch(generateRenewal(pendingDocuments[0].documentId));
       } else {
-        dispatch(completeNoticeJob(job.id));
+        dispatch(completeRenewalJob(job.id));
       }
     }
   }, [pendingDocuments]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -93,7 +93,7 @@ export default function DownloadNoticesPage() {
   if (jobInProgress) {
     return (
       <section>
-        <PageHeading>Generate Notices</PageHeading>
+        <PageHeading>Generate Renewals</PageHeading>
         <Container>
           <ProgressBar animated now={percentage} label={progressLabel} />
         </Container>
@@ -116,7 +116,7 @@ export default function DownloadNoticesPage() {
 
   return (
     <section>
-      <PageHeading>Download Notices</PageHeading>
+      <PageHeading>Download Renewals</PageHeading>
       <Container>{content}</Container>
     </section>
   );

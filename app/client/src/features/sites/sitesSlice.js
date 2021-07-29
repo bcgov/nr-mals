@@ -52,6 +52,21 @@ export const updateSiteDairyTanks = createAsyncThunk(
   }
 );
 
+export const updateSiteDairyTankRecheckNotice = createAsyncThunk(
+  "licences/updateSiteDairyTankRecheckNotice",
+  async ({ data, id }, thunkApi) => {
+    try {
+      const response = await Api.put(`sites/dairytanksrecheck/${id}`, data);
+      return response.data;
+    } catch (error) {
+      if (error instanceof ApiError) {
+        return thunkApi.rejectWithValue(error.serialize());
+      }
+      return thunkApi.rejectWithValue({ code: -1, description: error.message });
+    }
+  }
+);
+
 export const fetchSite = createAsyncThunk(
   "sites/fetchSite",
   async (id, thunkApi) => {

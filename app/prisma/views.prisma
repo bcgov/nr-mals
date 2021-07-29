@@ -59,3 +59,123 @@ model mal_site_detail_vw {
   licence_regional_district_number  String?
   licence_regional_district_name    String?
 }
+
+model mal_print_dairy_farm_infraction_vw {
+  dairy_farm_test_result_id         Int
+  licence_id                        Int 
+  licence_number                    Int
+  species_sub_code                  String
+  recorded_date                     DateTime
+  correspondence_code               String
+  correspondence_description        String
+  infraction_json                   Json
+
+  @@unique([dairy_farm_test_result_id, licence_id, species_sub_code], name: "mal_print_dairy_farm_infraction_vw_uk")
+}
+
+model mal_print_dairy_farm_tank_recheck_vw {
+  tank_id                           Int       @unique
+  licence_type                      String
+  licence_id                        Int 
+  licence_number                    Int
+  irma_number                       String
+  last_name                         String
+  region_name                       String
+  district_name                     String
+  recheck_year                      String
+  print_recheck_notice              Boolean
+  recheck_notice_json               Json
+}
+
+
+model mal_licence_action_required_vw {
+  licence_id                        Int       @unique
+  licence_number                    Int
+  licence_type_id                   Int
+  licence_type                      String?
+  site_region                       String?
+  licence_status                    String?
+  licence_type_legislation          String?
+  derived_licence_holder_name       String?
+  company_name                      String?
+  registrant_name                   String?
+  registrant_last_first             String?
+  site_address                      String?
+  site_city                         String?
+  site_province                     String?
+  site_postal_code                  String?
+  site_primary_phone                String?
+  site_secondary_phone              String?
+  site_fax_number                   String?
+  email_address                     String?
+}
+
+model mal_apiary_inspection_vw {
+  apiary_inspection_id              Int       @unique
+  licence_id                        Int     
+  licence_number                    Int
+  licence_status                    String?
+  apiary_site_id                    Int?
+  region_name                       String?
+  last_name                         String?
+  first_name                        String?
+  inspection_date                   DateTime
+  colonies_tested                   Int?
+  american_foulbrood_result         Int?
+  european_foulbrood_result         Int?
+  nosema_result                     Int?
+  chalkbrood_result                 Int?
+  sacbrood_result                   Int?
+  varroa_tested                     Int?
+  varroa_mite_result                Int?
+  varroa_mite_result_percent        Float?
+  small_hive_beetle_tested          Int?
+  small_hive_beetle_result          Int?
+  supers_inspected                  Int?
+  supers_destroyed                  Int?
+  hives_per_apiary                  Int?
+  hive_count                        Int?
+}
+
+
+model mal_apiary_producer_vw {
+  site_id                           Int     @unique
+  licence_id                        Int
+  licence_number                    Int
+  site_status                       String
+  apiary_site_id                    Int
+  registrant_last_name              String?
+  registrant_first_name             String?
+  registrant_email_address          String?
+  site_region_id                    Int
+  site_region_name                  String
+  site_regional_district_id         Int
+  site_district_name                String
+  site_address                      String?
+  site_city                         String?
+  site_primary_phone                String?
+  registration_date                 DateTime?
+  hive_count                        Int?
+}
+
+model mal_dairy_farm_quality_vw {
+  dairy_farm_test_result_id         Int
+  licence_id                        Int 
+  licence_number                    Int
+  irma_number                       String
+  derived_licence_holder_name       String
+  registrant_last_name              String
+  registrant_first_name             String
+  spc1_date                         DateTime?
+  spc1_value                        Float?
+  scc_date                          DateTime?
+  scc_value                         Float?
+  cry_date                          DateTime?
+  cry_value                         Float?
+  ffa_date                          DateTime?
+  ffa_value                         Float?
+  ih_date                           DateTime?
+  ih_value                          Float?
+
+  @@unique([dairy_farm_test_result_id, licence_id], name: "mal_dairy_farm_quality_vw_uk")
+}
