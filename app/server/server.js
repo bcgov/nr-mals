@@ -41,14 +41,14 @@ app.use(
       directives: {
         ...helmet.contentSecurityPolicy.getDefaultDirectives(),
         "script-src": [
-          "self",
-          "mals-app-dev.apps.silver.devops.gov.bc.ca",
-          "dev.oidc.gov.bc.ca",
+          "'self'",
+          "'mals-app-dev.apps.silver.devops.gov.bc.ca'",
+          "'dev.oidc.gov.bc.ca'",
         ],
         "frame-ancestors": [
-          "self",
-          "mals-app-dev.apps.silver.devops.gov.bc.ca",
-          "dev.oidc.gov.bc.ca",
+          "'self'",
+          "'mals-app-dev.apps.silver.devops.gov.bc.ca'",
+          "'dev.oidc.gov.bc.ca'",
         ],
       },
     },
