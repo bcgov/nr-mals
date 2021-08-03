@@ -1,3 +1,5 @@
+const constants = require("./constants");
+
 function formatCdogsBody(
   jsonData,
   templateBlobBase64,
@@ -74,7 +76,7 @@ function getCertificateTemplateName(documentType, licenceType) {
   }
 }
 
-function getNoticeTemplateName(documentType, licenceType) {
+function getRenewalTemplateName(documentType, licenceType) {
   if (documentType !== "RENEWAL") {
     return undefined;
   }
@@ -113,8 +115,79 @@ function getNoticeTemplateName(documentType, licenceType) {
   }
 }
 
+function getDairyNoticeTemplateName(
+  documentType,
+  speciesSubCode,
+  correspondenceCode
+) {
+  if (documentType !== "DAIRY_INFRACTION") {
+    return undefined;
+  }
+
+  let templateSubCode = speciesSubCode;
+  switch (speciesSubCode) {
+    case "WATER":
+    case "WATER1":
+    case "WATER2":
+      templateSubCode = "CRY";
+      break;
+    case "SPC1":
+      templateSubCode = "IBC";
+      break;
+    default:
+      break;
+  }
+
+  let templateCorrespondenceCode = correspondenceCode;
+  switch (correspondenceCode) {
+    case "W":
+      templateCorrespondenceCode = "Warning";
+      break;
+    case "L":
+      templateCorrespondenceCode = "Levy";
+      break;
+    case "S":
+      templateCorrespondenceCode = "Suspension";
+      break;
+    default:
+      break;
+  }
+
+  return `${templateSubCode}_${templateCorrespondenceCode}_Template`;
+}
+
+function getDairyTankNoticeTemplateName(documentType) {
+  if (documentType !== "RECHECK_NOTICE") {
+    return undefined;
+  }
+
+  return `Dairy_Tank_Recheck_Template`;
+}
+
+function getReportsTemplateName(documentType) {
+  switch (documentType) {
+    case constants.REPORTS.ACTION_REQUIRED:
+      return "Action_Required_Template";
+    case constants.REPORTS.APIARY_INSPECTION:
+      return "Apiary_Hive_Inspection_Template";
+    case constants.REPORTS.APIARY_PRODUCER_REGION:
+      return "Apiary_Producer_Analysis_Region_Template";
+    case constants.REPORTS.APIARY_PRODUCER_DISTRICT:
+      return "Apiary_Producer_Analysis_Region_Template";
+    case constants.REPORTS.APIARY_PRODUCER_CITY:
+      return "Apiary_Producer_Report_City_Template";
+    case constants.REPORTS.DAIRY_FARM_QUALITY:
+      return "Dairy_Provincial_Producer_Farm_Quality_Template";
+    default:
+      return null;
+  }
+}
+
 module.exports = {
   formatCdogsBody,
   getCertificateTemplateName,
-  getNoticeTemplateName,
+  getRenewalTemplateName,
+  getDairyNoticeTemplateName,
+  getDairyTankNoticeTemplateName,
+  getReportsTemplateName,
 };

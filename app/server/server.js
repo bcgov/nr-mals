@@ -6,6 +6,7 @@ const cookieParser = require("cookie-parser");
 const logger = require("morgan");
 const session = require("express-session");
 const cors = require("cors");
+const helmet = require("helmet");
 
 const keycloak = require("./keycloak");
 
@@ -19,21 +20,45 @@ const regionsRouter = require("./routes/regions");
 const statusRouter = require("./routes/status");
 const commentsRouter = require("./routes/comments");
 const licenceSpeciesRouter = require("./routes/licenceSpecies");
+const slaughterhouseSpeciesRouter = require("./routes/slaughterhouseSpecies");
 const documentsRouter = require("./routes/documents");
 const citiesRouter = require("./routes/cities");
 const adminRouter = require("./routes/admin");
 const dairyFarmTestThresholdsRouter = require("./routes/dairyFarmTestThresholds");
+const reportsRouter = require("./routes/reports");
 const constants = require("./utilities/constants");
 
 const roleValidation = require("./middleware/roleValidation");
 
 const app = express();
+app.disable("x-powered-by");
+
+// app.use(helmet());
+
+// app.use(
+//   helmet({
+//     contentSecurityPolicy: {
+//       directives: {
+//         ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+//         "script-src": [
+//           "'self'",
+//           "'https://mals-app-dev.apps.silver.devops.gov.bc.ca/'",
+//           "'dev.oidc.gov.bc.ca'",
+//         ],
+//         "frame-ancestors": [
+//           "'self'",
+//           "'https://mals-app-dev.apps.silver.devops.gov.bc.ca/'",
+//           "'dev.oidc.gov.bc.ca'",
+//         ],
+//       },
+//     },
+//   })
+// );
 
 app.use(cors());
-app.options("*", cors()); // enable for all pre-flight requests
+// app.options("*", cors()); // enable for all pre-flight requests
 
 app.use(keycloak.middleware({}));
-
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -130,6 +155,17 @@ app.use(
   licenceSpeciesRouter
 );
 app.use(
+  "/api/slaughterhouse-species",
+  keycloak.protect(),
+  roleValidation([
+    constants.SYSTEM_ROLES.READ_ONLY,
+    constants.SYSTEM_ROLES.USER,
+    constants.SYSTEM_ROLES.INSPECTOR,
+    constants.SYSTEM_ROLES.SYSTEM_ADMIN,
+  ]),
+  slaughterhouseSpeciesRouter
+);
+app.use(
   "/api/documents",
   keycloak.protect(),
   roleValidation([
@@ -161,6 +197,17 @@ app.use(
     constants.SYSTEM_ROLES.SYSTEM_ADMIN,
   ]),
   dairyFarmTestThresholdsRouter
+);
+app.use(
+  "/api/reports",
+  keycloak.protect(),
+  roleValidation([
+    constants.SYSTEM_ROLES.READ_ONLY,
+    constants.SYSTEM_ROLES.USER,
+    constants.SYSTEM_ROLES.INSPECTOR,
+    constants.SYSTEM_ROLES.SYSTEM_ADMIN,
+  ]),
+  reportsRouter
 );
 app.use(
   "/api/admin",
