@@ -73,6 +73,10 @@
                     "name": "ENVIRONMENT_LABEL",
                     "value": "${ENVIRONMENT}"
                   },
+				  {
+                    "name": "INLINE_RUNTIME_CHUNK",
+                    "value": "false"
+                  },				  
                   {
                     "name": "DATABASE_URL",
                     "valueFrom": {
