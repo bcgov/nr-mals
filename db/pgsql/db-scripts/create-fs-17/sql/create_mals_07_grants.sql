@@ -12,6 +12,7 @@ SET client_min_messages = warning;
 --
 
 grant select, insert, update, delete on mal_add_reason_code_lu               to mals_app_role;
+grant select, insert, update, delete on mal_apiary_inspection                to mals_app_role;
 grant select, insert, update, delete on mal_application_role                 to mals_app_role;
 grant select, insert, update, delete on mal_application_user                 to mals_app_role;
 grant select, insert, update, delete on mal_city_lu                          to mals_app_role;
@@ -45,26 +46,45 @@ grant select, insert, update, delete on mal_sale_yard_species_sub_code_lu    to 
 grant select, insert, update, delete on mal_site                             to mals_app_role;
 grant select, insert, update, delete on mal_status_code_lu                   to mals_app_role;
 
-
 --
 -- VIEWS
 --
 
-grant select on mal_dairy_farm_test_infraction_vw            to mals_app_role;
-grant select on mal_licence_summary_vw                       to mals_app_role;
-grant select on mal_print_card_vw                            to mals_app_role;
-grant select on mal_print_certificate_vw                     to mals_app_role;
-grant select on mal_print_dairy_farm_infraction_vw           to mals_app_role;
-grant select on mal_print_dairy_farm_tank_recheck_vw         to mals_app_role;
-grant select on mal_print_renewal_vw                         to mals_app_role;
-grant select on mal_site_detail_vw                           to mals_app_role;
+grant select on mal_apiary_inspection_vw                 to mals_app_role;
+grant select on mal_apiary_producer_vw                   to mals_app_role;
+grant select on mal_dairy_farm_quality_vw                to mals_app_role;
+grant select on mal_dairy_farm_tank_vw                   to mals_app_role;
+grant select on mal_dairy_farm_test_infraction_vw        to mals_app_role;
+grant select on mal_licence_action_required_vw           to mals_app_role;
+grant select on mal_licence_summary_vw                   to mals_app_role;
+grant select on mal_licence_species_vw                   to mals_app_role;
+grant select on mal_print_card_vw                        to mals_app_role;
+grant select on mal_print_certificate_vw                 to mals_app_role;
+grant select on mal_print_dairy_farm_infraction_vw       to mals_app_role;
+grant select on mal_print_dairy_farm_tank_recheck_vw     to mals_app_role;
+grant select on mal_print_renewal_vw                     to mals_app_role;
+grant select on mal_site_detail_vw                       to mals_app_role;
 
 
 
 --
 --  PLPGSQL
 --
+grant execute on procedure pr_generate_print_json                           to mals_app_role;
+grant execute on procedure pr_generate_print_json_action_required           to mals_app_role;
+grant execute on procedure pr_generate_print_json_apiary_inspection         to mals_app_role;
+grant execute on procedure pr_generate_print_json_apiary_producer_city      to mals_app_role;
+grant execute on procedure pr_generate_print_json_apiary_producer_district  to mals_app_role;
+grant execute on procedure pr_generate_print_json_apiary_producer_region    to mals_app_role;
+grant execute on procedure pr_generate_print_json_dairy_farm_quality        to mals_app_role;
+grant execute on procedure pr_generate_print_json_dairy_farm_tank_recheck   to mals_app_role;
+grant execute on procedure pr_generate_print_json_licence_location          to mals_app_role;
+grant execute on procedure pr_start_dairy_farm_test_job                     to mals_app_role;
+grant execute on procedure pr_update_dairy_farm_test_results                to mals_app_role;
 
-grant execute on procedure pr_generate_print_json             to mals_app_role;
-grant execute on procedure pr_start_dairy_farm_test_job       to mals_app_role;
-grant execute on procedure pr_update_dairy_farm_test_results  to mals_app_role;
+
+
+
+
+
+
