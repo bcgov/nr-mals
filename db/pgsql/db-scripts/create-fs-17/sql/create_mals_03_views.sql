@@ -1,5 +1,4 @@
 SET statement_timeout = 0; 
-SET lock_timeout = 0;
 SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SELECT pg_catalog.set_config('search_path', 'mals_app', true);
@@ -11,20 +10,172 @@ SET client_min_messages = warning;
 -- DROP:  ALL VIEWS
 --
 
+DROP VIEW IF EXISTS mal_apiary_inspection_vw                     CASCADE;
+DROP VIEW IF EXISTS mal_apiary_producer_vw                       CASCADE;
 DROP VIEW IF EXISTS mal_dairy_farm_test_infraction_vw            CASCADE;
+DROP VIEW IF EXISTS mal_dairy_farm_quality_vw                    CASCADE;
+DROP VIEW IF EXISTS mal_licence_action_required_vw               CASCADE;
 DROP VIEW IF EXISTS mal_licence_summary_vw                       CASCADE;
+DROP VIEW IF EXISTS mal_licence_species_vw                       CASCADE;
 DROP VIEW IF EXISTS mal_print_card_vw                            CASCADE;
 DROP VIEW IF EXISTS mal_print_certificate_vw                     CASCADE;
 DROP VIEW IF EXISTS mal_print_dairy_farm_infraction_vw           CASCADE;
 DROP VIEW IF EXISTS mal_print_dairy_farm_tank_recheck_vw         CASCADE;
+DROP VIEW IF EXISTS mal_print_licence_species_vw                 CASCADE;
 DROP VIEW IF EXISTS mal_print_renewal_vw                         CASCADE;
 DROP VIEW IF EXISTS mal_site_detail_vw                           CASCADE;
 
+
+--
+-- VIEW:  MAL_APIARY_INSPECTION_VW
+--
+
+CREATE OR REPLACE VIEW mal_apiary_inspection_vw as
+	select 			
+		insp.id apiary_inspection_id,
+		lic.id licence_id,
+		lic.licence_number,
+		stat.code_description licence_status,
+		site.apiary_site_id,
+		rgn.region_name,
+		reg.last_name,
+		reg.first_name,
+		insp.inspection_date,
+		insp.colonies_tested,
+		insp.american_foulbrood_result,
+		insp.european_foulbrood_result,
+		insp.nosema_result,
+		insp.chalkbrood_result,
+		insp.sacbrood_result,
+		insp.varroa_tested,
+		insp.varroa_mite_result,
+		insp.varroa_mite_result_percent,
+		insp.small_hive_beetle_tested,
+		insp.small_hive_beetle_result,
+		insp.supers_inspected,
+		insp.supers_destroyed,
+		lic.hives_per_apiary,
+		site.hive_count
+	from mal_apiary_inspection insp
+	inner join mal_site site
+	on insp.site_id = site.id
+	inner join mal_licence lic
+	on site.licence_id = lic.id
+	inner join mals_app.mal_status_code_lu stat 
+	on lic.status_code_id = stat.id 
+	inner join mal_registrant reg
+	on lic.primary_registrant_id = reg.id
+	inner join mal_region_lu rgn
+	on site.region_id = rgn.id;
+
+--
+-- VIEW:  MAL_APIARY_PRODUCER_VW
+--
+
+CREATE OR REPLACE VIEW mal_apiary_producer_vw as 
+	select site.id site_id,
+		lic.id licence_id,
+		lic.licence_number,
+		stat.code_name site_status,
+		site.apiary_site_id,
+		reg.last_name registrant_last_name,
+		reg.first_name registrant_first_name,
+		reg.email_address registrant_email_address,	
+		lic.region_id site_region_id,
+		rgn.region_name site_region_name,
+		lic.regional_district_id site_regional_district_id,
+		dist.district_name site_district_name,
+		trim(concat(site.address_line_1 , ' ', site.address_line_2)) site_address,
+		site.city site_city,
+		site.primary_phone site_primary_phone,
+		site.registration_date,
+		site.hive_count
+	from mals_app.mal_licence lic
+	inner join mal_registrant reg
+	on lic.primary_registrant_id = reg.id
+	inner join mal_site site
+	on lic.id = site.licence_id
+	inner join mal_licence_type_lu lictyp
+	on lic.licence_type_id = lictyp.id
+	inner join mal_region_lu rgn
+	on site.region_id = rgn.id
+	inner join mal_regional_district_lu dist
+	on site.regional_district_id = dist.id
+	inner join mals_app.mal_status_code_lu stat
+	on site.status_code_id = stat.id
+	where lictyp.licence_type = 'APIARY'
+	and stat.code_name = 'ACT';
+		
+--
+-- VIEW:  MALDAIRY_FARM_QUALITY_VW
+--
+
+CREATE OR REPLACE VIEW mal_dairy_farm_quality_vw as (
+		select dry.id dairy_farm_test_result_id,
+			lic.id licence_id,
+			lic.licence_number,
+			lic.irma_number,	
+		    -- Consider the Company Name Override flag to determine the Licence Holder name.
+		    case 
+			  when lic.company_name_override and lic.company_name is not null 
+			  then lic.company_name
+			  else nullif(trim(concat(reg.first_name, ' ', reg.last_name)),'')
+			end derived_licence_holder_name,
+			reg.last_name registrant_last_name,
+			reg.first_name registrant_first_name,
+			dry.spc1_date,
+			dry.spc1_value,
+			dry.scc_date,
+			dry.scc_value,
+			dry.cry_date,
+			dry.cry_value,
+			dry.ffa_date,
+			dry.ffa_value,
+			dry.ih_date,
+			dry.ih_value
+		from mal_licence lic
+		inner join mal_registrant reg
+		on lic.primary_registrant_id = reg.id
+		inner join mal_dairy_farm_test_result dry
+		on lic.id = dry.licence_id);
+
+--
+-- VIEW:  MAL_DAIRY_FARM_TANK_VW
+--
+
+CREATE OR REPLACE VIEW mal_dairy_farm_tank_vw as
+	select dft.id dairy_farm_tank_id,
+		site_id,
+		lic.id licence_id,
+		lic.licence_number,
+		lic.irma_number,
+	    -- Consider the Company Name Override flag to determine the Licence Holder name.
+	    case 
+		  when lic.company_name_override and lic.company_name is not null 
+		  then lic.company_name
+		  else nullif(trim(concat(reg.first_name, ' ', reg.last_name)),'')
+		end derived_licence_holder_name,
+		dft.recheck_year,
+		dft.calibration_date,
+		dft.issue_date,
+		dft.company_name,
+		dft.model_number,
+		dft.serial_number,
+		dft.tank_capacity,
+		dft.print_recheck_notice
+	from mal_licence lic
+	inner join mal_registrant reg
+	on lic.primary_registrant_id = reg.id
+	inner join mal_site site 
+	on lic.id = site.licence_id
+	inner join mal_dairy_farm_tank dft
+	on site.id = dft.site_id;
+	
 --
 -- VIEW:  MAL_DAIRY_FARM_TEST_INFRACTION_VW
 --
 
-create or replace view mal_dairy_farm_test_infraction_vw as
+CREATE OR REPLACE VIEW mal_dairy_farm_test_infraction_vw as
 	with thresholds as (
 		select species_sub_code
 		    ,upper_limit
@@ -209,102 +360,140 @@ create or replace view mal_dairy_farm_test_infraction_vw as
 			on thr.id = inf.test_threshold_id 
 			and thr.active_flag = true 
 			and inf.active_flag = true) subq)
+	--
+	--  MAIN QUERY
+	--
+	select result3.test_result_id
+		,result3.test_job_id
+		,result3.licence_id
+		,result3.irma_number
+		,result3.spc1_date
+		,result3.spc1_infraction_flag
+		,result3.spc1_previous_infraction_first_date
+		,result3.spc1_previous_infraction_count
+		,spc1_inf.levy_percentage spc1_levy_percentage
+		,spc1_inf.correspondence_code spc1_correspondence_code
+		,spc1_inf.correspondence_description spc1_correspondence_description
+		,result3.scc_date
+		,result3.scc_infraction_flag
+		,result3.scc_previous_infraction_first_date
+		,result3.scc_previous_infraction_count
+		,scc_inf.levy_percentage scc_levy_percentage
+		,scc_inf.correspondence_code scc_correspondence_code
+		,scc_inf.correspondence_description scc_correspondence_description
+		,result3.cry_date
+		,result3.cry_infraction_flag
+		,result3.cry_previous_infraction_first_date
+		,result3.cry_previous_infraction_count
+		,cry_inf.levy_percentage cry_levy_percentage
+		,cry_inf.correspondence_code cry_correspondence_code
+		,cry_inf.correspondence_description cry_correspondence_description
+		,result3.ffa_date
+		,result3.ffa_infraction_flag
+		,result3.ffa_previous_infraction_first_date
+		,result3.ffa_previous_infraction_count
+		,ffa_inf.levy_percentage ffa_levy_percentage
+		,ffa_inf.correspondence_code ffa_correspondence_code
+		,ffa_inf.correspondence_description ffa_correspondence_description
+		,result3.ih_date
+		,result3.ih_infraction_flag
+		,result3.ih_previous_infraction_first_date
+		,result3.ih_previous_infraction_count
+		,ih_inf.levy_percentage ih_levy_percentage
+		,ih_inf.correspondence_code ih_correspondence_code
+		,ih_inf.correspondence_description ih_correspondence_description
+	from result3 
+	left join infractions spc1_inf
+	on result3.spc1_infraction_flag = true
+	and spc1_inf.species_sub_code = 'SPC1'
+	and (result3.spc1_previous_infraction_count = spc1_inf.previous_infractions_count 
+	     or 
+	     (result3.spc1_previous_infraction_count > spc1_inf.previous_infractions_count
+	     and spc1_inf.max_previous_infractions_flag = true))
+	left join infractions scc_inf
+	on result3.scc_infraction_flag = true
+	and scc_inf.species_sub_code = 'SCC'
+	and (result3.scc_previous_infraction_count = scc_inf.previous_infractions_count 
+	     or 
+	     (result3.scc_previous_infraction_count > scc_inf.previous_infractions_count
+	     and scc_inf.max_previous_infractions_flag = true))
+	left join infractions cry_inf
+	on result3.cry_infraction_flag = true
+	and cry_inf.species_sub_code = 'CRY'
+	and (result3.cry_previous_infraction_count = cry_inf.previous_infractions_count 
+	     or 
+	     (result3.cry_previous_infraction_count > cry_inf.previous_infractions_count
+	     and cry_inf.max_previous_infractions_flag = true))
+	left join infractions ffa_inf
+	on result3.ffa_infraction_flag = true
+	and ffa_inf.species_sub_code = 'FFA'
+	and (result3.spc1_previous_infraction_count = ffa_inf.previous_infractions_count 
+	     or 
+	     (result3.spc1_previous_infraction_count > ffa_inf.previous_infractions_count
+	     and ffa_inf.max_previous_infractions_flag = true))
+	left join infractions ih_inf
+	on result3.ih_infraction_flag = true
+	and ih_inf.species_sub_code = 'IH'
+	and (result3.spc1_previous_infraction_count = ih_inf.previous_infractions_count 
+	     or 
+	     (result3.spc1_previous_infraction_count > ih_inf.previous_infractions_count
+	     and ih_inf.max_previous_infractions_flag = true));
+
 --
---  MAIN QUERY
+-- VIEW:  MAL_LICENCE_ACTION_REQUIRED_VW
 --
-select result3.test_result_id
-	,result3.test_job_id
-	,result3.licence_id
-	,result3.irma_number
-	,result3.spc1_date
-	,result3.spc1_infraction_flag
-	,result3.spc1_previous_infraction_first_date
-	,result3.spc1_previous_infraction_count
-	,spc1_inf.levy_percentage spc1_levy_percentage
-	,spc1_inf.correspondence_code spc1_correspondence_code
-	,spc1_inf.correspondence_description spc1_correspondence_description
-	,result3.scc_date
-	,result3.scc_infraction_flag
-	,result3.scc_previous_infraction_first_date
-	,result3.scc_previous_infraction_count
-	,scc_inf.levy_percentage scc_levy_percentage
-	,scc_inf.correspondence_code scc_correspondence_code
-	,scc_inf.correspondence_description scc_correspondence_description
-	,result3.cry_date
-	,result3.cry_infraction_flag
-	,result3.cry_previous_infraction_first_date
-	,result3.cry_previous_infraction_count
-	,cry_inf.levy_percentage cry_levy_percentage
-	,cry_inf.correspondence_code cry_correspondence_code
-	,cry_inf.correspondence_description cry_correspondence_description
-	,result3.ffa_date
-	,result3.ffa_infraction_flag
-	,result3.ffa_previous_infraction_first_date
-	,result3.ffa_previous_infraction_count
-	,ffa_inf.levy_percentage ffa_levy_percentage
-	,ffa_inf.correspondence_code ffa_correspondence_code
-	,ffa_inf.correspondence_description ffa_correspondence_description
-	,result3.ih_date
-	,result3.ih_infraction_flag
-	,result3.ih_previous_infraction_first_date
-	,result3.ih_previous_infraction_count
-	,ih_inf.levy_percentage ih_levy_percentage
-	,ih_inf.correspondence_code ih_correspondence_code
-	,ih_inf.correspondence_description ih_correspondence_description
-from result3 
-left join infractions spc1_inf
-on result3.spc1_infraction_flag = true
-and spc1_inf.species_sub_code = 'SPC1'
-and (result3.spc1_previous_infraction_count = spc1_inf.previous_infractions_count 
-     or 
-     (result3.spc1_previous_infraction_count > spc1_inf.previous_infractions_count
-     and spc1_inf.max_previous_infractions_flag = true))
-left join infractions scc_inf
-on result3.scc_infraction_flag = true
-and scc_inf.species_sub_code = 'SCC'
-and (result3.scc_previous_infraction_count = scc_inf.previous_infractions_count 
-     or 
-     (result3.scc_previous_infraction_count > scc_inf.previous_infractions_count
-     and scc_inf.max_previous_infractions_flag = true))
-left join infractions cry_inf
-on result3.cry_infraction_flag = true
-and cry_inf.species_sub_code = 'CRY'
-and (result3.cry_previous_infraction_count = cry_inf.previous_infractions_count 
-     or 
-     (result3.cry_previous_infraction_count > cry_inf.previous_infractions_count
-     and cry_inf.max_previous_infractions_flag = true))
-left join infractions ffa_inf
-on result3.ffa_infraction_flag = true
-and ffa_inf.species_sub_code = 'FFA'
-and (result3.spc1_previous_infraction_count = ffa_inf.previous_infractions_count 
-     or 
-     (result3.spc1_previous_infraction_count > ffa_inf.previous_infractions_count
-     and ffa_inf.max_previous_infractions_flag = true))
-left join infractions ih_inf
-on result3.ih_infraction_flag = true
-and ih_inf.species_sub_code = 'IH'
-and (result3.spc1_previous_infraction_count = ih_inf.previous_infractions_count 
-     or 
-     (result3.spc1_previous_infraction_count > ih_inf.previous_infractions_count
-     and ih_inf.max_previous_infractions_flag = true));
+
+CREATE OR REPLACE VIEW mal_licence_action_required_vw as 
+	select 
+	    lic.id licence_id,
+	    lic.licence_number,
+		lic.licence_type_id,
+	    lictyp.licence_type,
+		rgn.region_name site_region,
+	    licstat.code_name licence_status,
+	    lictyp.legislation licence_type_legislation,
+	    -- Consider the Company Name Override flag to determine the Licence Holder name.
+	    case 
+		  when lic.company_name_override and lic.company_name is not null 
+		  then lic.company_name
+		  else nullif(trim(concat(reg.first_name, ' ', reg.last_name)),'')
+		end derived_licence_holder_name,
+	    -- If the Company Name is null then use the First/Last Names
+	    coalesce(lic.company_name, nullif(concat(reg.first_name, ' ', reg.last_name),' ')) company_name,
+		-- Either, or both, of the First and Last Names may be null in the legacy data.
+		nullif(concat(reg.first_name, ' ', reg.last_name),' ') registrant_name,
+		case when reg.first_name is not null 
+		      and reg.last_name is not null then 
+	          	concat(reg.last_name, ', ', reg.first_name)
+             else 
+                  coalesce(reg.last_name, reg.first_name)
+        end registrant_last_first,	
+		trim(concat(site.address_line_1 , ' ', site.address_line_2)) site_address,
+		site.city site_city,
+		site.province site_province,
+		site.postal_code site_postal_code,
+		site.primary_phone site_primary_phone,
+		site.secondary_phone site_secondary_phone,
+		site.fax_number site_fax_number,
+		reg.email_address
+	from mal_licence lic
+	inner join mal_licence_type_lu lictyp 
+	on lic.licence_type_id = lictyp.id
+	inner join mal_status_code_lu licstat
+	on lic.status_code_id = licstat.id 
+	inner join mal_registrant reg 
+	on lic.primary_registrant_id = reg.id
+	left join mal_region_lu rgn 
+	on lic.region_id = rgn.id
+	left join mal_site site 
+	on lic.id = site.licence_id
+	where lic.action_required = true;
 
 --
 -- VIEW:  MAL_LICENCE_SUMMARY_VW
 --
 
 CREATE OR REPLACE VIEW mal_licence_summary_vw as 
-	with registrants as (
-	  select 
-	       x.licence_id 
-	      ,string_agg(distinct r.last_name, '~' order by r.last_name) last_name
-	      ,string_agg(distinct r.email_address, '~' order by r.email_address) email_address
-	  from mal_registrant r
-	  inner join mal_licence_registrant_xref x 
-	  on r.id=x.registrant_id
-	  group by x.licence_id)
-	--
-	--  MAIN QUERY
-	--
 	select 
 		 lic.id licence_id
 		,lic.licence_type_id
@@ -318,12 +507,17 @@ CREATE OR REPLACE VIEW mal_licence_summary_vw as
 		,lic.irma_number
 		,lictyp.licence_type
 		,reg.last_name
+		,reg.first_name
 	    ,lic.company_name
+	    ,lic.primary_phone
 	    ,reg.email_address
 		,stat.code_description licence_status
 		,lic.application_date
 		,lic.issue_date
 		,lic.expiry_date
+		,lic.reissue_date
+		,lic.fee_collected
+		,lic.bond_continuation_expiry_date
 		,rgn.region_name 
 		,dist.district_name
 		,lic.address_line_1
@@ -337,11 +531,31 @@ CREATE OR REPLACE VIEW mal_licence_summary_vw as
 		,lic.mail_city 
 		,lic.mail_province
 		,lic.mail_postal_code
-		,lic.mail_country 
+		,lic.mail_country
+	    ,case when lic.mail_address_line_1 is null
+	      then trim(concat(lic.address_line_1 , ' ', lic.address_line_2))
+	      else trim(concat(lic.mail_address_line_1 , ' ', lic.mail_address_line_2))
+	    end derived_mailing_address
+	    ,case when lic.mail_address_line_1 is null
+	      then lic.city
+	      else lic.mail_city
+	    end derived_mailing_city
+	    ,case when lic.mail_address_line_1 is null
+	      then lic.province
+	      else lic.mail_province
+	    end derived_mailing_province
+	    ,case when lic.mail_address_line_1 is null
+	      then concat(substr(lic.postal_code, 1, 3), ' ', substr(lic.postal_code, 4, 3))
+	      else concat(substr(lic.mail_postal_code, 1, 3), ' ', substr(lic.mail_postal_code, 4, 3))
+	    end derived_mailing_postal_code 
+		,sp.code_name licence_species_code
 		,lic.action_required
 		,lic.print_certificate 
 		,lic.print_renewal
+		,lic.print_dairy_infraction
 	from mal_licence lic
+	inner join mal_registrant reg
+	on lic.primary_registrant_id = reg.id
 	inner join mal_licence_type_lu lictyp 
 	on lic.licence_type_id = lictyp.id
 	inner join mals_app.mal_status_code_lu stat 
@@ -350,8 +564,113 @@ CREATE OR REPLACE VIEW mal_licence_summary_vw as
 	on lic.region_id = rgn.id 
 	left join mals_app.mal_regional_district_lu dist
 	on lic.regional_district_id = dist.id
-	left join registrants reg 
-	on lic.id = reg.licence_id;	
+	left join mal_licence_species_code_lu sp
+	on lic.species_code_id = sp.id;
+	
+--
+-- VIEW:  MAL_LICENCE_TYPE_SPECIES_VW
+--
+
+CREATE OR REPLACE VIEW mal_licence_type_species_vw as
+	with inventory_details as ( 
+		select licence_id, 
+			species_sub_code_id,
+			recorded_date,
+			recorded_value
+		from mal_fur_farm_inventory
+		union all
+		select licence_id, 
+			species_sub_code_id,
+			recorded_date,
+			recorded_value
+		from mal_game_farm_inventory),
+	  inventory_summary as ( 
+	    select licence_id,
+	    	sum(case sp_sub.code_name
+	    	  	  when 'FEMALE' 
+	    	  	  then dtl.recorded_value
+	    	  	  else 0
+	    		end) female_count,
+	    	sum(case sp_sub.code_name
+	    	  	  when 'MALE' then dtl.recorded_value
+	    	  	  else 0
+	    		end) male_count,
+	    	sum(case sp_sub.code_name
+	    	  	  when 'CALVES' then dtl.recorded_value
+	    	  	  else 0
+	    		end) calves_count,
+	    	sum(case sp_sub.code_name
+	    	  	  when 'SLAUGHTERED' then dtl.recorded_value
+	    	  	  else 0
+	    		end) slaughtered_count
+		from inventory_details dtl
+		inner join mal_licence_species_sub_code_lu sp_sub 
+		on dtl.species_sub_code_id = sp_sub.id
+		group by licence_id),
+	  licence_details as (   
+		select lic.id licence_id,
+		    lic.licence_number,
+		    typ.id licence_type_id,
+		    typ.licence_type,
+		    lic.issue_date,
+		    lic.expiry_date,
+		    reg.last_name,
+		    reg.first_name,
+		    case when lic.mail_address_line_1 is null
+		      then trim(concat(lic.address_line_1 , ' ', lic.address_line_2))
+		      else trim(concat(lic.mail_address_line_1 , ' ', lic.mail_address_line_2))
+		    end derived_mailing_address,
+		    case when lic.mail_address_line_1 is null
+		      then lic.city
+		      else lic.mail_city
+		    end derived_mailing_city,
+		    case when lic.mail_address_line_1 is null
+		      then lic.province
+		      else lic.mail_province
+		    end derived_mailing_province,
+		    case when lic.mail_address_line_1 is null
+		      then concat(substr(lic.postal_code, 1, 3), ' ', substr(lic.postal_code, 4, 3))
+		      else concat(substr(lic.mail_postal_code, 1, 3), ' ', substr(lic.mail_postal_code, 4, 3))
+		    end derived_mailing_postal_code, 
+		    reg.primary_phone,
+		    reg.email_address,
+		    lic.fee_collected,
+		    lic.bond_continuation_expiry_date,
+		    sp.code_name licence_species_name
+		from mal_licence lic
+		inner join mal_licence_type_lu typ 
+		on lic.licence_type_id = typ.id
+		left join mal_registrant reg 
+		on lic.primary_registrant_id = reg.id
+		left join mal_licence_species_code_lu sp
+		on lic.species_code_id = sp.id)
+	--
+	--  MAIN QUERY
+	--
+	select licdtl.licence_id,
+	    licdtl.licence_number,
+	    licdtl.licence_type_id,
+	    licdtl.licence_type,
+	    licdtl.issue_date,
+	    licdtl.expiry_date,
+	    licdtl.last_name,
+	    licdtl.first_name,
+	    licdtl.derived_mailing_address,
+	    licdtl.derived_mailing_city,
+	    licdtl.derived_mailing_province,
+	    licdtl.derived_mailing_postal_code, 
+	    licdtl.primary_phone,
+	    licdtl.email_address,
+	    licdtl.fee_collected,
+	    licdtl.bond_continuation_expiry_date,
+	    licdtl.licence_species_name,
+	    invsum.female_count,
+	    invsum.male_count,
+	    invsum.calves_count,
+	    invsum.slaughtered_count
+	 from licence_details licdtl
+	 left join inventory_summary invsum
+	 on licdtl.licence_id = invsum.licence_id;
 
 --
 -- VIEW:  MAL_PRINT_CARD_VW
@@ -426,131 +745,131 @@ CREATE OR REPLACE VIEW mal_print_card_vw as
 
 CREATE OR REPLACE VIEW mal_print_certificate_vw as 
 	with licence_base as (
-		    select 
-			    lic.id licence_id,
-			    lic.licence_number,
-			    prnt_lic.licence_number parent_licence_number,
-			    lictyp.licence_type,
-			    spec.code_name species_description,
-			    lictyp.legislation licence_type_legislation,
-			    licstat.code_name licence_status,
-			    reg.first_name registrant_first_name,
-			    reg.last_name registrant_last_name,
-			    -- If the Company Name is null then use the First/Last Names
-			    coalesce(lic.company_name, nullif(concat(reg.first_name, ' ', reg.last_name),' ')) company_name,
-				-- Either, or both, of the First and Last Names may be null in the legacy data.
-				nullif(concat(reg.first_name, ' ', reg.last_name),' ') registrant_name,
-				case when reg.first_name is not null 
-				      and reg.last_name is not null then 
-		          concat(reg.last_name, ', ', reg.first_name)
-		             else 
-		                  coalesce(reg.last_name, reg.first_name)
-		        end registrant_last_first,
-			    -- Consider the Company Name Override flag to determine the Licence Holder name.
-			    case 
-				  when lic.company_name_override and lic.company_name is not null 
-				  then lic.company_name
-				  else nullif(trim(concat(reg.first_name, ' ', reg.last_name)),'')
-				end derived_licence_holder_name,
-			    case 
-				  when prnt_lic.company_name_override and prnt_lic.company_name is not null 
-				  then prnt_lic.company_name
-				  else nullif(trim(concat(prnt_reg.first_name, ' ', prnt_reg.last_name)),'')
-				end derived_parent_licence_holder_name,
-			    -- Select the mailing address if it exists, otherwise select the main address.
-			    case when lic.mail_address_line_1 is null
-			      then trim(concat(lic.address_line_1 , ' ', lic.address_line_2))
-			      else trim(concat(lic.mail_address_line_1 , ' ', lic.mail_address_line_2))
-			    end derived_mailing_address,
-			    case when lic.mail_address_line_1 is null
-			      then lic.city
-			      else lic.mail_city
-			    end derived_mailing_city,
-			    case when lic.mail_address_line_1 is null
-			      then lic.province
-			      else lic.mail_province
-			    end derived_mailing_province,
-			    case when lic.mail_address_line_1 is null
-			      then concat(substr(lic.postal_code, 1, 3), ' ', substr(lic.postal_code, 4, 3))
-			      else concat(substr(lic.mail_postal_code, 1, 3), ' ', substr(lic.mail_postal_code, 4, 3))
-			    end derived_mailing_postal_code,
-			    lic.issue_date,
-			    to_char(lic.issue_date, 'FMMonth dd, yyyy') issue_date_display,
-			    lic.reissue_date,
-			    to_char(lic.reissue_date, 'FMMonth dd, yyyy') reissue_date_display,
-			    lic.expiry_date,
-			    to_char(lic.expiry_date, 'FMMonth dd, yyyy') expiry_date_display,
-			    lic.licence_details,
-				lic.bond_number,
-				lic.bond_value,
-				lic.bond_carrier_name,
-				lic.irma_number,
-				lic.total_hives,
-				reg.primary_phone,
-				reg.email_address,
-			    lic.print_certificate
-			from mal_licence lic
-			inner join mal_licence_type_lu lictyp 
-			on lic.licence_type_id = lictyp.id
-		    inner join mal_status_code_lu licstat
-		    on lic.status_code_id = licstat.id 
-			inner join mal_registrant reg 
-			on lic.primary_registrant_id = reg.id				
-			left join mal_licence_parent_child_xref xref 
-			on lic.id = xref.child_licence_id
-			left join mal_licence prnt_lic 
-			on xref.parent_licence_id = prnt_lic.id
-			left join mal_registrant prnt_reg 
-			on prnt_lic.primary_registrant_id = prnt_reg.id	
-			left join mal_licence_species_code_lu spec 
-			on lic.species_code_id = spec.id
-			left join mal_licence_type_lu sp_lt
-			on spec.licence_type_id = sp_lt.id	
-			where lic.print_certificate = true),
-		active_site as (
-			select s.id site_id,
-			    l.id licence_id,  
-			    l_t.licence_type,
-				apiary_site_id,
-			    concat(l.licence_number, '-', s.apiary_site_id) registration_number,
-			    trim(concat(s.address_line_1, ' ', s.address_line_2)) address,
-		        s.city,
-			    to_char(s.registration_date, 'yyyy/mm/dd') registration_date,
-			    s.legal_description,
-			    row_number() over (partition by s.licence_id order by s.create_timestamp) row_seq
-			from mal_licence l
-			inner join mal_site s
-			on l.id=s.licence_id
-			inner join mal_licence_type_lu l_t
-			on l.licence_type_id = l_t.id 
-			left join mal_status_code_lu stat
-			on s.status_code_id = stat.id
-			-- Print flag included to improve performance.
-			where l.print_certificate = true
-			and stat.code_name='ACT'),
-		apiary_site as (
-			-- All Active sites will be included in the repeating JSON group.
-			select licence_id, 		
-			     json_agg(json_build_object('RegistrationNum',  registration_number,
-			                                'Address',          address,
-			                                'City',             city,
-			                                'RegDate',          registration_date)
-			                                order by apiary_site_id) apiary_site_json
-			from active_site
-			where licence_type = 'APIARY'
-			group by licence_id),
-	    dairy_tank as (
-			-- Dairy Farms have only one site.
-			select ast.licence_id, 	
-		         json_agg(json_build_object('DairyTankCompany',          t.company_name,
-		                                    'DairyTankSN',               t.serial_number,
-		                                    'DairyTankCapacity',         t.tank_capacity,
-		                                    'DairyTankCalibrationDate',  to_char(t.calibration_date, 'yyyy/mm/dd'))
-	                                        order by t.serial_number, t.calibration_date) tank_json
-			from active_site ast 
-			inner join mal_dairy_farm_tank t 
-			on ast.site_id=t.site_id
-	        group by ast.licence_id)
+	    select 
+		    lic.id licence_id,
+		    lic.licence_number,
+		    prnt_lic.licence_number parent_licence_number,
+		    lictyp.licence_type,
+		    spec.code_name species_description,
+		    lictyp.legislation licence_type_legislation,
+		    licstat.code_name licence_status,
+		    reg.first_name registrant_first_name,
+		    reg.last_name registrant_last_name,
+		    -- If the Company Name is null then use the First/Last Names
+		    coalesce(lic.company_name, nullif(concat(reg.first_name, ' ', reg.last_name),' ')) company_name,
+			-- Either, or both, of the First and Last Names may be null in the legacy data.
+			nullif(concat(reg.first_name, ' ', reg.last_name),' ') registrant_name,
+			case when reg.first_name is not null 
+			      and reg.last_name is not null then 
+	          concat(reg.last_name, ', ', reg.first_name)
+	             else 
+	                  coalesce(reg.last_name, reg.first_name)
+	        end registrant_last_first,
+		    -- Consider the Company Name Override flag to determine the Licence Holder name.
+		    case 
+			  when lic.company_name_override and lic.company_name is not null 
+			  then lic.company_name
+			  else nullif(trim(concat(reg.first_name, ' ', reg.last_name)),'')
+			end derived_licence_holder_name,
+		    case 
+			  when prnt_lic.company_name_override and prnt_lic.company_name is not null 
+			  then prnt_lic.company_name
+			  else nullif(trim(concat(prnt_reg.first_name, ' ', prnt_reg.last_name)),'')
+			end derived_parent_licence_holder_name,
+		    -- Select the mailing address if it exists, otherwise select the main address.
+		    case when lic.mail_address_line_1 is null
+		      then trim(concat(lic.address_line_1 , ' ', lic.address_line_2))
+		      else trim(concat(lic.mail_address_line_1 , ' ', lic.mail_address_line_2))
+		    end derived_mailing_address,
+		    case when lic.mail_address_line_1 is null
+		      then lic.city
+		      else lic.mail_city
+		    end derived_mailing_city,
+		    case when lic.mail_address_line_1 is null
+		      then lic.province
+		      else lic.mail_province
+		    end derived_mailing_province,
+		    case when lic.mail_address_line_1 is null
+		      then concat(substr(lic.postal_code, 1, 3), ' ', substr(lic.postal_code, 4, 3))
+		      else concat(substr(lic.mail_postal_code, 1, 3), ' ', substr(lic.mail_postal_code, 4, 3))
+		    end derived_mailing_postal_code,
+		    lic.issue_date,
+		    to_char(lic.issue_date, 'FMMonth dd, yyyy') issue_date_display,
+		    lic.reissue_date,
+		    to_char(lic.reissue_date, 'FMMonth dd, yyyy') reissue_date_display,
+		    lic.expiry_date,
+		    to_char(lic.expiry_date, 'FMMonth dd, yyyy') expiry_date_display,
+		    lic.licence_details,
+			lic.bond_number,
+			lic.bond_value,
+			lic.bond_carrier_name,
+			lic.irma_number,
+			lic.total_hives,
+			reg.primary_phone,
+			reg.email_address,
+		    lic.print_certificate
+		from mal_licence lic
+		inner join mal_licence_type_lu lictyp 
+		on lic.licence_type_id = lictyp.id
+	    inner join mal_status_code_lu licstat
+	    on lic.status_code_id = licstat.id 
+		inner join mal_registrant reg 
+		on lic.primary_registrant_id = reg.id				
+		left join mal_licence_parent_child_xref xref 
+		on lic.id = xref.child_licence_id
+		left join mal_licence prnt_lic 
+		on xref.parent_licence_id = prnt_lic.id
+		left join mal_registrant prnt_reg 
+		on prnt_lic.primary_registrant_id = prnt_reg.id	
+		left join mal_licence_species_code_lu spec 
+		on lic.species_code_id = spec.id
+		left join mal_licence_type_lu sp_lt
+		on spec.licence_type_id = sp_lt.id	
+		where lic.print_certificate = true),
+	active_site as (
+		select s.id site_id,
+		    l.id licence_id,  
+		    l_t.licence_type,
+			apiary_site_id,
+		    concat(l.licence_number, '-', s.apiary_site_id) registration_number,
+		    trim(concat(s.address_line_1, ' ', s.address_line_2)) address,
+	        s.city,
+		    to_char(s.registration_date, 'yyyy/mm/dd') registration_date,
+		    s.legal_description,
+		    row_number() over (partition by s.licence_id order by s.create_timestamp) row_seq
+		from mal_licence l
+		inner join mal_site s
+		on l.id=s.licence_id
+		inner join mal_licence_type_lu l_t
+		on l.licence_type_id = l_t.id 
+		left join mal_status_code_lu stat
+		on s.status_code_id = stat.id
+		-- Print flag included to improve performance.
+		where l.print_certificate = true
+		and stat.code_name='ACT'),
+	apiary_site as (
+		-- All Active sites will be included in the repeating JSON group.
+		select licence_id, 		
+		     json_agg(json_build_object('RegistrationNum',  registration_number,
+		                                'Address',          address,
+		                                'City',             city,
+		                                'RegDate',          registration_date)
+		                                order by apiary_site_id) apiary_site_json
+		from active_site
+		where licence_type = 'APIARY'
+		group by licence_id),
+    dairy_tank as (
+		-- Dairy Farms have only one site.
+		select ast.licence_id, 	
+	         json_agg(json_build_object('DairyTankCompany',          t.company_name,
+	                                    'DairyTankSN',               t.serial_number,
+	                                    'DairyTankCapacity',         t.tank_capacity,
+	                                    'DairyTankCalibrationDate',  to_char(t.calibration_date, 'yyyy/mm/dd'))
+                                        order by t.serial_number, t.calibration_date) tank_json
+		from active_site ast 
+		inner join mal_dairy_farm_tank t 
+		on ast.site_id=t.site_id
+        group by ast.licence_id)
 	--
 	--  MAIN QUERY
 	--
@@ -783,7 +1102,7 @@ CREATE OR REPLACE VIEW mal_print_certificate_vw as
 -- VIEW:  MAL_PRINT_DAIRY_FARM_INFRACTION_VW
 --
 
-create or replace view mal_print_dairy_farm_infraction_vw as
+CREATE OR REPLACE VIEW mal_print_dairy_farm_infraction_vw as
 	with base as (   
 		select rslt.id dairy_farm_test_result_id,
 		    rslt.licence_id,
@@ -1031,12 +1350,17 @@ create or replace view mal_print_dairy_farm_infraction_vw as
 -- VIEW:  MAL_PRINT_DAIRY_FARM_TANK_RECHECK_VW
 --
 
-create or replace view mal_print_dairy_farm_tank_recheck_vw as
-with licence as (   
+CREATE OR REPLACE VIEW mal_print_dairy_farm_tank_recheck_vw as
+	with licence as (   
 		select lictyp.licence_type,
 		    lic.id licence_id,
 		    lic.licence_number,
 		    lic.irma_number,
+		    reg.last_name,
+		    rgn.region_name,
+		    dist.district_name,
+		    tank.id tank_id,
+		    tank.issue_date,
 			tank.recheck_year,
 		    coalesce(lic.company_name, nullif(concat(reg.first_name, ' ', reg.last_name),' ')) company_name,
 		    case when lic.mail_address_line_1 is null
@@ -1054,7 +1378,8 @@ with licence as (
 		    case when lic.mail_address_line_1 is null
 		      then concat(substr(lic.postal_code, 1, 3), ' ', substr(lic.postal_code, 4, 3))
 		      else concat(substr(lic.mail_postal_code, 1, 3), ' ', substr(lic.mail_postal_code, 4, 3))
-		    end derived_mailing_postal_code
+		    end derived_mailing_postal_code,
+		    print_recheck_notice
 		from mal_dairy_farm_tank tank 
 		inner join mal_site site 
 		on tank.site_id = site.id
@@ -1075,7 +1400,13 @@ with licence as (
 		licence_id,			
 		licence_number,	
 		irma_number,
+		last_name,
+		region_name,
+		district_name,
+		tank_id,
+		issue_date,
 		recheck_year,
+		print_recheck_notice,
 		json_build_object('CurrentDate',           to_char(current_date, 'fmMonth dd, yyyy'),
 						  'CurrentYear',           to_char(current_date, 'yyyy'),
 						  'IRMA_Num',              irma_number,
@@ -1083,8 +1414,56 @@ with licence as (
 	                      'MailingAddress',        derived_mailing_address,
 	                      'MailingCity',           derived_mailing_city,
 	                      'MailingProv',           derived_mailing_province,
-	                      'PostCode',              derived_mailing_postal_code)
+	                      'PostCode',              derived_mailing_postal_code) recheck_notice_json
 	from licence;
+
+--
+-- VIEW:  MAL_LICENCE_SPECIES_VW
+--
+
+CREATE OR REPLACE VIEW mal_licence_species_vw as 
+	with inventory_details as ( 
+		select licence_id, 
+			species_sub_code_id,
+			recorded_date,
+			recorded_value
+		from mal_fur_farm_inventory
+		union all
+		select licence_id, 
+			species_sub_code_id,
+			recorded_date,
+			recorded_value
+		from mal_game_farm_inventory)
+	--
+	--  MAIN QUERY
+	--
+    select licence_id,
+    	spec.code_name species_code,
+    	sum(case spec_sub.code_name
+    	  	  when 'FEMALE' 
+    	  	  then dtl.recorded_value
+    	  	  else 0
+    		end) female_count,
+    	sum(case spec_sub.code_name
+    	  	  when 'MALE' then dtl.recorded_value
+    	  	  else 0
+    		end) male_count,
+    	sum(case spec_sub.code_name
+    	  	  when 'CALVES' then dtl.recorded_value
+    	  	  else 0
+    		end) calves_count,
+    	sum(case spec_sub.code_name
+    	  	  when 'SLAUGHTERED' then dtl.recorded_value
+    	  	  else 0
+    		end) slaughtered_count
+	from inventory_details dtl
+	inner join mal_licence_species_sub_code_lu spec_sub 
+	on dtl.species_sub_code_id = spec_sub.id
+	inner join mal_licence_species_code_lu spec
+	on spec_sub.species_code_id = spec.id
+	group by licence_id,
+    	spec.code_name
+	order by 1;
 
 --
 -- VIEW:  MAL_PRINT_RENEWAL_VW
@@ -1092,164 +1471,164 @@ with licence as (
 
  CREATE OR REPLACE VIEW mal_print_renewal_vw as 
 	with licence_base as (
-		    select 
-			    lic.id licence_id,
-			    cast(lic.licence_number as varchar) licence_number,
-			    lictyp.id licence_type_id,
-			    lictyp.licence_type,
-			    spec.code_name species_description,
-			    licstat.code_name licence_status,
-			    reg.first_name registrant_first_name,
-			    reg.last_name registrant_last_name,
-			    -- If the Company Name is null then use the First/Last Names
-			    coalesce(lic.company_name, nullif(concat(reg.first_name, ' ', reg.last_name),' ')) company_name,
-				-- Either, or both, of the First and Last Names may be null in the legacy data.
-				nullif(trim(concat(reg.first_name, ' ', reg.last_name)),'') registrant_name,
-				case when reg.first_name is not null 
-				      and reg.last_name is not null then 
-		          		concat(reg.last_name, ', ', reg.first_name)
-		             else 
-		                  coalesce(reg.last_name, reg.first_name)
-		        end registrant_last_first,
-			    -- Consider the Company Name Override flag to determine the Licence Holder name.
-			    case 
-				  when lic.company_name_override and lic.company_name is not null 
-				  then lic.company_name
-				  else nullif(trim(concat(reg.first_name, ' ', reg.last_name)),'')
-				end derived_licence_holder_name,
-			    -- Select the mailing address if it exists, otherwise select the main address.
-			    case when lic.mail_address_line_1 is null
-			      then trim(concat(lic.address_line_1 , ' ', lic.address_line_2))
-			      else trim(concat(lic.mail_address_line_1 , ' ', lic.mail_address_line_2))
-			    end derived_address,
-			    case when lic.mail_address_line_1 is null
-			      then lic.city
-			      else lic.mail_city
-			    end derived_city,
-			    case when lic.mail_address_line_1 is null
-			      then lic.province
-			      else lic.mail_province
-			    end derived_province,
-			    case when lic.mail_address_line_1 is null
-			      then concat(substr(lic.postal_code, 1, 3), ' ', substr(lic.postal_code, 4, 3))
-			      else concat(substr(lic.mail_postal_code, 1, 3), ' ', substr(lic.mail_postal_code, 4, 3))
-			    end derived_postal_code,
-			    lic.expiry_date,
-			    to_char(lic.expiry_date, 'FMMonth dd, yyyy') expiry_date_display,
-			    lictyp.standard_issue_date,
-			    to_char(lictyp.standard_issue_date, 'FMMonth dd, yyyy') standard_issue_date_display,
-			    lictyp.standard_expiry_date,
-			    to_char(lictyp.standard_expiry_date, 'FMMonth dd, yyyy') standard_expiry_date_display,
-			    to_char(lictyp.standard_expiry_date, 'FMyyyy') standard_expiry_year_display,
-			    to_char(lictyp.standard_fee,'FM990.00') licence_fee_display,
-				lic.bond_carrier_name,
-				lic.bond_number,
-				to_char(lic.bond_value,'FM999,990.00') bond_value_display,
-			    case when reg.primary_phone is null 
-			    	then null
-				    else concat('(', substr(reg.primary_phone, 1, 3),
-								') ', substr(reg.primary_phone, 4, 3),
-								'-', substr(reg.primary_phone, 7, 4)) 
-				end registrant_primary_phone_display,
-				reg.email_address,
-				lic.total_hives
-			from mal_licence lic
-			inner join mal_licence_type_lu lictyp 
-			on lic.licence_type_id = lictyp.id 
-			-- Most licence types include a standard expiry date, APIARY does not.
-			and (   lictyp.licence_type = 'APIARY'
-			     or lic.expiry_date = lictyp.standard_expiry_date
-			    )
-		    inner join mal_status_code_lu licstat
-		    on lic.status_code_id = licstat.id 
-			inner join mal_registrant reg 
-			on lic.primary_registrant_id = reg.id				
-			left join mal_licence_parent_child_xref xref 
-			on lic.id = xref.child_licence_id
-			left join mal_licence prnt_lic 
-			on xref.parent_licence_id = prnt_lic.id
-			left join mal_licence_species_code_lu spec 
-			on lic.species_code_id = spec.id
-			left join mal_licence_type_lu sp_lt
-			on spec.licence_type_id = sp_lt.id	
-			where lic.print_renewal = true
-			),
-		active_site as (
-			select s.id site_id,
-			    l.id licence_id,  
-			    l_t.licence_type,
-				apiary_site_id,
-			    concat(l.licence_number, '-', s.apiary_site_id) registration_number,
-			    trim(concat(s.address_line_1, ' ', s.address_line_2)) address,
-		        s.city,
-			    to_char(s.registration_date, 'yyyy/mm/dd') registration_date,
-			    s.legal_description,
-			    -- Produce the site address only if it differs from the licence address.
-			    case when l.address_line_1 = s.address_line_1 
-			    	then null 
-			    	else s.address_line_1
-			    end derived_site_mailing_address,
-			    case when l.address_line_1 = s.address_line_1 
-			    	then null 
-			    	else s.city
-			    end derived_site_mailing_city,
-			    case when l.address_line_1 = s.address_line_1 
-			    	then null 
-			    	else s.province
-			    end derived_site_mailing_province,
-			    case when l.address_line_1 = s.address_line_1 
-			    	then null 
-			    	else concat(substr(s.postal_code, 1, 3), ' ', substr(s.postal_code, 4, 3))
-			    end derived_site_postal_code,
-			    row_number() over (partition by s.licence_id order by s.create_timestamp) row_seq
-			from mal_licence l
-			inner join mal_site s
-			on l.id=s.licence_id
-			inner join mal_licence_type_lu l_t
-			on l.licence_type_id = l_t.id 
-			left join mal_status_code_lu stat
-			on s.status_code_id = stat.id
-			-- Print flag included to improve performance.
-			where l.print_renewal = true
-			and stat.code_name='ACT'
-			and l_t.licence_type in ('APIARY', 'FUR FARM', 'GAME FARM')),
-		apiary_site as (
-			-- All Active sites will be included in the repeating JSON group.
-			select licence_id, 		
-			     json_agg(json_build_object('RegistrationNum',  registration_number,
-			                                'Address',          address,
-			                                'City',             city,
-			                                'RegDate',          registration_date)
-			                                order by apiary_site_id) apiary_site_json
-			from active_site
-			where licence_type = 'APIARY'
-			group by licence_id),
-		dispenser as (
-			select prnt_lic.id parent_licence_id,
-			     json_agg(json_build_object('DispLicenceHolderName', nullif(trim(concat(reg.first_name, ' ', reg.last_name)),''))
-			                                order by nullif(trim(concat(reg.first_name, ' ', reg.last_name)),'')) dispenser_json
-			from mal_licence prnt_lic
-			inner join mal_licence_parent_child_xref xref 
-			on xref.parent_licence_id = prnt_lic.id
-			inner join mal_licence disp
-			on xref.child_licence_id = disp.id
-			inner join mal_registrant reg 
-			on disp.primary_registrant_id = reg.id
-			inner join mal_licence_type_lu prnt_ltyp
-			on prnt_lic.licence_type_id = prnt_ltyp.id
-			inner join mal_licence_type_lu disp_ltyp
-			on disp.licence_type_id = disp_ltyp.id
-			where disp_ltyp.licence_type = 'DISPENSER'
-			group by prnt_lic.id),
-		licence_species as (
-			select ltyp.id licence_type_id, 
-			     json_agg(json_build_object('Species',  code_name)
-			                                order by code_name) species_json
-			from mal_licence_type_lu ltyp
-			inner join  mal_licence_species_code_lu spec 
-			on ltyp.id = spec.licence_type_id 
-			where spec.active_flag = true
-			group by ltyp.id)
+	    select 
+		    lic.id licence_id,
+		    cast(lic.licence_number as varchar) licence_number,
+		    lictyp.id licence_type_id,
+		    lictyp.licence_type,
+		    spec.code_name species_description,
+		    licstat.code_name licence_status,
+		    reg.first_name registrant_first_name,
+		    reg.last_name registrant_last_name,
+		    -- If the Company Name is null then use the First/Last Names
+		    coalesce(lic.company_name, nullif(concat(reg.first_name, ' ', reg.last_name),' ')) company_name,
+			-- Either, or both, of the First and Last Names may be null in the legacy data.
+			nullif(trim(concat(reg.first_name, ' ', reg.last_name)),'') registrant_name,
+			case when reg.first_name is not null 
+			      and reg.last_name is not null then 
+	          		concat(reg.last_name, ', ', reg.first_name)
+	             else 
+	                  coalesce(reg.last_name, reg.first_name)
+	        end registrant_last_first,
+		    -- Consider the Company Name Override flag to determine the Licence Holder name.
+		    case 
+			  when lic.company_name_override and lic.company_name is not null 
+			  then lic.company_name
+			  else nullif(trim(concat(reg.first_name, ' ', reg.last_name)),'')
+			end derived_licence_holder_name,
+		    -- Select the mailing address if it exists, otherwise select the main address.
+		    case when lic.mail_address_line_1 is null
+		      then trim(concat(lic.address_line_1 , ' ', lic.address_line_2))
+		      else trim(concat(lic.mail_address_line_1 , ' ', lic.mail_address_line_2))
+		    end derived_address,
+		    case when lic.mail_address_line_1 is null
+		      then lic.city
+		      else lic.mail_city
+		    end derived_city,
+		    case when lic.mail_address_line_1 is null
+		      then lic.province
+		      else lic.mail_province
+		    end derived_province,
+		    case when lic.mail_address_line_1 is null
+		      then concat(substr(lic.postal_code, 1, 3), ' ', substr(lic.postal_code, 4, 3))
+		      else concat(substr(lic.mail_postal_code, 1, 3), ' ', substr(lic.mail_postal_code, 4, 3))
+		    end derived_postal_code,
+		    lic.expiry_date,
+		    to_char(lic.expiry_date, 'FMMonth dd, yyyy') expiry_date_display,
+		    lictyp.standard_issue_date,
+		    to_char(lictyp.standard_issue_date, 'FMMonth dd, yyyy') standard_issue_date_display,
+		    lictyp.standard_expiry_date,
+		    to_char(lictyp.standard_expiry_date, 'FMMonth dd, yyyy') standard_expiry_date_display,
+		    to_char(lictyp.standard_expiry_date, 'FMyyyy') standard_expiry_year_display,
+		    to_char(lictyp.standard_fee,'FM990.00') licence_fee_display,
+			lic.bond_carrier_name,
+			lic.bond_number,
+			to_char(lic.bond_value,'FM999,990.00') bond_value_display,
+		    case when reg.primary_phone is null 
+		    	then null
+			    else concat('(', substr(reg.primary_phone, 1, 3),
+							') ', substr(reg.primary_phone, 4, 3),
+							'-', substr(reg.primary_phone, 7, 4)) 
+			end registrant_primary_phone_display,
+			reg.email_address,
+			lic.total_hives
+		from mal_licence lic
+		inner join mal_licence_type_lu lictyp 
+		on lic.licence_type_id = lictyp.id 
+		-- Most licence types include a standard expiry date, APIARY does not.
+		and (   lictyp.licence_type = 'APIARY'
+		     or lic.expiry_date = lictyp.standard_expiry_date
+		    )
+	    inner join mal_status_code_lu licstat
+	    on lic.status_code_id = licstat.id 
+		inner join mal_registrant reg 
+		on lic.primary_registrant_id = reg.id				
+		left join mal_licence_parent_child_xref xref 
+		on lic.id = xref.child_licence_id
+		left join mal_licence prnt_lic 
+		on xref.parent_licence_id = prnt_lic.id
+		left join mal_licence_species_code_lu spec 
+		on lic.species_code_id = spec.id
+		left join mal_licence_type_lu sp_lt
+		on spec.licence_type_id = sp_lt.id	
+		where lic.print_renewal = true
+		),
+	active_site as (
+		select s.id site_id,
+		    l.id licence_id,  
+		    l_t.licence_type,
+			apiary_site_id,
+		    concat(l.licence_number, '-', s.apiary_site_id) registration_number,
+		    trim(concat(s.address_line_1, ' ', s.address_line_2)) address,
+	        s.city,
+		    to_char(s.registration_date, 'yyyy/mm/dd') registration_date,
+		    s.legal_description,
+		    -- Produce the site address only if it differs from the licence address.
+		    case when l.address_line_1 = s.address_line_1 
+		    	then null 
+		    	else s.address_line_1
+		    end derived_site_mailing_address,
+		    case when l.address_line_1 = s.address_line_1 
+		    	then null 
+		    	else s.city
+		    end derived_site_mailing_city,
+		    case when l.address_line_1 = s.address_line_1 
+		    	then null 
+		    	else s.province
+		    end derived_site_mailing_province,
+		    case when l.address_line_1 = s.address_line_1 
+		    	then null 
+		    	else concat(substr(s.postal_code, 1, 3), ' ', substr(s.postal_code, 4, 3))
+		    end derived_site_postal_code,
+		    row_number() over (partition by s.licence_id order by s.create_timestamp) row_seq
+		from mal_licence l
+		inner join mal_site s
+		on l.id=s.licence_id
+		inner join mal_licence_type_lu l_t
+		on l.licence_type_id = l_t.id 
+		left join mal_status_code_lu stat
+		on s.status_code_id = stat.id
+		-- Print flag included to improve performance.
+		where l.print_renewal = true
+		and stat.code_name='ACT'
+		and l_t.licence_type in ('APIARY', 'FUR FARM', 'GAME FARM')),
+	apiary_site as (
+		-- All Active sites will be included in the repeating JSON group.
+		select licence_id, 		
+		     json_agg(json_build_object('RegistrationNum',  registration_number,
+		                                'Address',          address,
+		                                'City',             city,
+		                                'RegDate',          registration_date)
+		                                order by apiary_site_id) apiary_site_json
+		from active_site
+		where licence_type = 'APIARY'
+		group by licence_id),
+	dispenser as (
+		select prnt_lic.id parent_licence_id,
+		     json_agg(json_build_object('DispLicenceHolderName', nullif(trim(concat(reg.first_name, ' ', reg.last_name)),''))
+		                                order by nullif(trim(concat(reg.first_name, ' ', reg.last_name)),'')) dispenser_json
+		from mal_licence prnt_lic
+		inner join mal_licence_parent_child_xref xref 
+		on xref.parent_licence_id = prnt_lic.id
+		inner join mal_licence disp
+		on xref.child_licence_id = disp.id
+		inner join mal_registrant reg 
+		on disp.primary_registrant_id = reg.id
+		inner join mal_licence_type_lu prnt_ltyp
+		on prnt_lic.licence_type_id = prnt_ltyp.id
+		inner join mal_licence_type_lu disp_ltyp
+		on disp.licence_type_id = disp_ltyp.id
+		where disp_ltyp.licence_type = 'DISPENSER'
+		group by prnt_lic.id),
+	licence_species as (
+		select ltyp.id licence_type_id, 
+		     json_agg(json_build_object('Species',  code_name)
+		                                order by code_name) species_json
+		from mal_licence_type_lu ltyp
+		inner join  mal_licence_species_code_lu spec 
+		on ltyp.id = spec.licence_type_id 
+		where spec.active_flag = true
+		group by ltyp.id)
 	--
 	--  MAIN QUERY
 	--
