@@ -72,8 +72,8 @@
                   {
                     "name": "ENVIRONMENT_LABEL",
                     "value": "${ENVIRONMENT}"
-                  },				  
-                  {
+                  },
+				  {
                     "name": "DATABASE_URL",
                     "valueFrom": {
                       "secretKeyRef": {
