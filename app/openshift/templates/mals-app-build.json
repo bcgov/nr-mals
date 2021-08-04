@@ -52,6 +52,10 @@
               {
                 "name": "ENVIRONMENT_LABEL",
                 "value": "dev"
+              },
+              {
+                "name": "INLINE_RUNTIME_CHUNK",
+                "value": "false"
               }
             ]
           }
