@@ -62,6 +62,8 @@ function convertToLogicalModel(input) {
         }))
       : null,
 
+    inspections: [],
+
     createdBy: input.create_userid,
     createdOn: input.create_timestamp,
     updatedBy: input.update_userid,

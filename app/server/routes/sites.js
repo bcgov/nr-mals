@@ -7,6 +7,7 @@ const {
 const site = require("../models/site");
 const comment = require("../models/comment");
 const dairyTank = require("../models/dairyTank");
+const inspection = require("../models/inspection");
 const comments = require("./comments");
 const constants = require("../utilities/constants");
 
@@ -303,7 +304,7 @@ router.get("/:siteId(\\d+)", async (req, res, next) => {
   const siteId = parseInt(req.params.siteId, 10);
 
   await findSite(siteId)
-    .then((record) => {
+    .then(async (record) => {
       if (record === null) {
         return res.status(404).send({
           code: 404,
@@ -312,6 +313,21 @@ router.get("/:siteId(\\d+)", async (req, res, next) => {
       }
 
       const payload = site.convertToLogicalModel(record);
+
+      // Grab inspections since they aren't linked by FKs
+      if (payload.apiarySiteId !== null) {
+        const apiaryInspections = await prisma.mal_apiary_inspection.findMany({
+          where: {
+            site_id: payload.id,
+          },
+        });
+
+        payload.inspections = apiaryInspections.map((xref, index) => ({
+          ...inspection.convertApiaryInspectionToLogicalModel(xref),
+          key: index,
+        }));
+      }
+
       return res.send(payload);
     })
     .catch(next)
