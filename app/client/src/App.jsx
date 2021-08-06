@@ -38,6 +38,9 @@ import SiteResultsPage from "./features/search/SiteResultsPage";
 
 import ViewSitePage from "./features/sites/ViewSitePage";
 
+import CreateInspectionPage from "./features/inspections/CreateInspectionPage";
+import ViewInspectionPage from "./features/inspections/ViewInspectionPage";
+
 import Reports from "./features/reports/Reports";
 
 import AdminConfig from "./features/admin/AdminConfig";
@@ -131,8 +134,11 @@ function App() {
             <Route path={`${Constant.SEARCH_INSPECTIONS_PATHNAME}`}>
               <InspectionsSearch />
             </Route>
-            <Route path={`${Constant.CREATE_INSPECTIONS_PATHNAME}`}>
-              <InspectionsCreate />
+            <Route path={`${Constant.CREATE_INSPECTIONS_PATHNAME}/:id`}>
+              <CreateInspectionPage />
+            </Route>
+            <Route path={`${Constant.INSPECTIONS_PATHNAME}/:id`}>
+              <ViewInspectionPage />
             </Route>
             <Route path={`${Constant.REPORTS_PATHNAME}`}>
               <Reports />
@@ -219,10 +225,6 @@ function ContactsCreate() {
 
 function InspectionsSearch() {
   return <h2>Search Inspections</h2>;
-}
-
-function InspectionsCreate() {
-  return <h2>Create Inspection</h2>;
 }
 
 export default App;

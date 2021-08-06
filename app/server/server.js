@@ -26,6 +26,7 @@ const citiesRouter = require("./routes/cities");
 const adminRouter = require("./routes/admin");
 const dairyFarmTestThresholdsRouter = require("./routes/dairyFarmTestThresholds");
 const reportsRouter = require("./routes/reports");
+const inspectionsRouter = require("./routes/inspections");
 const constants = require("./utilities/constants");
 
 const roleValidation = require("./middleware/roleValidation");
@@ -215,6 +216,17 @@ app.use(
     constants.SYSTEM_ROLES.SYSTEM_ADMIN,
   ]),
   reportsRouter
+);
+app.use(
+  "/api/inspections",
+  keycloak.protect(),
+  roleValidation([
+    constants.SYSTEM_ROLES.READ_ONLY,
+    constants.SYSTEM_ROLES.USER,
+    constants.SYSTEM_ROLES.INSPECTOR,
+    constants.SYSTEM_ROLES.SYSTEM_ADMIN,
+  ]),
+  inspectionsRouter
 );
 app.use(
   "/api/admin",
