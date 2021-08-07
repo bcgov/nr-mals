@@ -1,21 +1,9 @@
-/* eslint-disable */
 import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { Link, useParams } from "react-router-dom";
-import {
-  Spinner,
-  Alert,
-  Container,
-  Table,
-  Row,
-  Col,
-  Button,
-} from "react-bootstrap";
+import { useParams } from "react-router-dom";
+import { Spinner, Alert, Container } from "react-bootstrap";
 
-import {
-  REQUEST_STATUS,
-  INSPECTIONS_PATHNAME,
-} from "../../utilities/constants";
+import { REQUEST_STATUS } from "../../utilities/constants";
 
 import PageHeading from "../../components/PageHeading";
 import SectionHeading from "../../components/SectionHeading";
@@ -31,8 +19,7 @@ import { fetchLicence, selectCurrentLicence } from "../licences/licencesSlice";
 import SiteHeader from "../sites/SiteHeader";
 import LicenceDetailsView from "../licences/LicenceDetailsView";
 import SiteDetailsView from "../sites/SiteDetailsView";
-
-import { LICENCE_TYPE_ID_APIARY } from "../licences/constants";
+import InspectionDetailsViewEdit from "./InspectionDetailsViewEdit";
 
 export default function ViewLicencePage() {
   const dispatch = useDispatch();
@@ -44,9 +31,9 @@ export default function ViewLicencePage() {
   useEffect(() => {
     dispatch(clearCreatedInspection());
 
-    dispatch(fetchApiaryInspection(id)).then((record) =>
-      dispatch(fetchSite(record.payload.siteId)).then((record) =>
-        dispatch(fetchLicence(record.payload.licenceId))
+    dispatch(fetchApiaryInspection(id)).then((apiaryRecord) =>
+      dispatch(fetchSite(apiaryRecord.payload.siteId)).then((siteRecord) =>
+        dispatch(fetchLicence(siteRecord.payload.licenceId))
       )
     );
   }, [dispatch, id]);
@@ -71,16 +58,13 @@ export default function ViewLicencePage() {
             />
           </Container>
         </section>
-        {/* <section>
-        <SectionHeading onEdit={onEdit} showEditButton>Inspection</SectionHeading>
-        <Container className="mt-3 mb-4">
-            <InspectionDetailsViewEdit
-            inspection={inspection.data}
-              site={site.data}
-              licenceTypeId={licence.data.licenceTypeId}
-            />
-          </Container>
-        </section> */}
+        <section>
+          <InspectionDetailsViewEdit
+            inspection={inspection}
+            site={site}
+            licence={licence}
+          />
+        </section>
       </>
     );
   } else if (

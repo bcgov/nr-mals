@@ -99,7 +99,7 @@ export default function CreateInspectionPage() {
   } = form;
 
   const onCancel = () => {
-    return <Redirect to={`${SITES_PATHNAME}/${id}`} />;
+    history.push(`${SITES_PATHNAME}/${id}`);
   };
 
   const { onSubmit } = submissionController(
