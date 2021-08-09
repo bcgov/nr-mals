@@ -2,25 +2,17 @@ import React, { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import PropTypes from "prop-types";
 import { Button, Form, Row, Col, InputGroup } from "react-bootstrap";
-import { startOfToday, add, set } from "date-fns";
 
 import CustomDatePicker from "../../components/CustomDatePicker";
 import SectionHeading from "../../components/SectionHeading";
 
-const today = startOfToday();
-const initialFormValues = {};
-
 export default function ApiaryInspectionDetailsEdit({
   form,
-  inspection,
+  initialValues,
   site,
 }) {
   const dispatch = useDispatch();
   const { watch, setValue, register, errors } = form;
-
-  useEffect(() => {
-    setValue("inspectionDate", today);
-  }, [dispatch]);
 
   const handleFieldChange = (field) => {
     return (value) => {
@@ -47,7 +39,7 @@ export default function ApiaryInspectionDetailsEdit({
             id="inspectionDate"
             label="Date Inspected"
             notifyOnChange={handleFieldChange("inspectionDate")}
-            defaultValue={new Date(inspection.inspectionDate)}
+            defaultValue={initialValues.inspectionDate}
             isInvalid={errors.inspectionDate}
           />
         </Col>
@@ -57,7 +49,7 @@ export default function ApiaryInspectionDetailsEdit({
             <Form.Control
               type="text"
               name="inspectorId"
-              defaultValue={inspection.inspectorId}
+              defaultValue={initialValues.inspectorId}
               ref={register}
               maxLength={10}
             />
@@ -69,7 +61,7 @@ export default function ApiaryInspectionDetailsEdit({
             <Form.Control
               type="text"
               name="inspectorName"
-              defaultValue={inspection.inspectorName}
+              defaultValue={initialValues.inspectorName}
               ref={register}
             />
           </Form.Group>
@@ -82,7 +74,7 @@ export default function ApiaryInspectionDetailsEdit({
             <Form.Control
               type="number"
               name="liveColonies"
-              defaultValue={inspection.liveColonies}
+              defaultValue={initialValues.liveColonies}
               ref={register}
             />
           </Form.Group>
@@ -93,7 +85,7 @@ export default function ApiaryInspectionDetailsEdit({
             <Form.Control
               type="number"
               name="coloniesTested"
-              defaultValue={inspection.coloniesTested}
+              defaultValue={initialValues.coloniesTested}
               ref={register}
             />
           </Form.Group>
@@ -104,7 +96,7 @@ export default function ApiaryInspectionDetailsEdit({
             <Form.Control
               type="number"
               name="broodTested"
-              defaultValue={inspection.broodTested}
+              defaultValue={initialValues.broodTested}
               ref={register}
             />
           </Form.Group>
@@ -115,7 +107,7 @@ export default function ApiaryInspectionDetailsEdit({
             <Form.Control
               type="number"
               name="varroaTested"
-              defaultValue={inspection.varroaTested}
+              defaultValue={initialValues.varroaTested}
               ref={register}
             />
           </Form.Group>
@@ -126,7 +118,7 @@ export default function ApiaryInspectionDetailsEdit({
             <Form.Control
               type="number"
               name="smallHiveBeetleTested"
-              defaultValue={inspection.smallHiveBeetleTested}
+              defaultValue={initialValues.smallHiveBeetleTested}
               ref={register}
             />
           </Form.Group>
@@ -144,7 +136,7 @@ export default function ApiaryInspectionDetailsEdit({
                 <Form.Control
                   type="number"
                   name="americanFoulbroodResult"
-                  defaultValue={inspection.americanFoulbroodResult}
+                  defaultValue={initialValues.americanFoulbroodResult}
                   ref={register}
                 />
               </Form.Group>
@@ -155,7 +147,7 @@ export default function ApiaryInspectionDetailsEdit({
                 <Form.Control
                   type="number"
                   name="europeanFoulbroodResult"
-                  defaultValue={inspection.europeanFoulbroodResult}
+                  defaultValue={initialValues.europeanFoulbroodResult}
                   ref={register}
                 />
               </Form.Group>
@@ -166,7 +158,7 @@ export default function ApiaryInspectionDetailsEdit({
                 <Form.Control
                   type="number"
                   name="smallHiveBeetleResult"
-                  defaultValue={inspection.smallHiveBeetleResult}
+                  defaultValue={initialValues.smallHiveBeetleResult}
                   ref={register}
                 />
               </Form.Group>
@@ -179,7 +171,7 @@ export default function ApiaryInspectionDetailsEdit({
                 <Form.Control
                   type="number"
                   name="chalkbroodResult"
-                  defaultValue={inspection.chalkbroodResult}
+                  defaultValue={initialValues.chalkbroodResult}
                   ref={register}
                 />
               </Form.Group>
@@ -190,7 +182,7 @@ export default function ApiaryInspectionDetailsEdit({
                 <Form.Control
                   type="number"
                   name="sacbroodResult"
-                  defaultValue={inspection.sacbroodResult}
+                  defaultValue={initialValues.sacbroodResult}
                   ref={register}
                 />
               </Form.Group>
@@ -201,7 +193,7 @@ export default function ApiaryInspectionDetailsEdit({
                 <Form.Control
                   type="number"
                   name="nosemaResult"
-                  defaultValue={inspection.nosemaResult}
+                  defaultValue={initialValues.nosemaResult}
                   ref={register}
                 />
               </Form.Group>
@@ -214,7 +206,7 @@ export default function ApiaryInspectionDetailsEdit({
                 <Form.Control
                   type="number"
                   name="varroaMiteResult"
-                  defaultValue={inspection.varroaMiteResult}
+                  defaultValue={initialValues.varroaMiteResult}
                   ref={register}
                 />
               </Form.Group>
@@ -225,7 +217,7 @@ export default function ApiaryInspectionDetailsEdit({
                 <Form.Control
                   type="number"
                   name="varroaMiteResultPercent"
-                  defaultValue={inspection.varroaMiteResultPercent}
+                  defaultValue={initialValues.varroaMiteResultPercent}
                   ref={register}
                 />
               </Form.Group>
@@ -239,7 +231,7 @@ export default function ApiaryInspectionDetailsEdit({
               as="textarea"
               rows={8}
               name="otherResultDescription"
-              defaultValue={inspection.otherResultDescription}
+              defaultValue={initialValues.otherResultDescription}
               ref={register}
               maxLength={240}
               className="mb-1"
@@ -255,7 +247,7 @@ export default function ApiaryInspectionDetailsEdit({
             <Form.Control
               type="number"
               name="supersInspected"
-              defaultValue={inspection.supersInspected}
+              defaultValue={initialValues.supersInspected}
               ref={register}
             />
           </Form.Group>
@@ -267,7 +259,7 @@ export default function ApiaryInspectionDetailsEdit({
             <Form.Control
               type="number"
               name="supersDestroyed"
-              defaultValue={inspection.supersDestroyed}
+              defaultValue={initialValues.supersDestroyed}
               ref={register}
             />
           </Form.Group>
@@ -282,7 +274,7 @@ export default function ApiaryInspectionDetailsEdit({
             rows={6}
             maxLength={2000}
             name="inspectionComment"
-            defaultValue={inspection.inspectionComment}
+            defaultValue={initialValues.inspectionComment}
             ref={register}
             className="mb-1"
           />
@@ -294,6 +286,6 @@ export default function ApiaryInspectionDetailsEdit({
 
 ApiaryInspectionDetailsEdit.propTypes = {
   form: PropTypes.object.isRequired,
-  inspection: PropTypes.object.isRequired,
+  initialValues: PropTypes.object.isRequired,
   site: PropTypes.object.isRequired,
 };

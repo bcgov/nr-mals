@@ -1,16 +1,11 @@
-/* eslint-disable */
 import React, { useEffect } from "react";
 import PropTypes from "prop-types";
-import { useDispatch, useSelector } from "react-redux";
-import { Redirect } from "react-router-dom";
+import { useDispatch } from "react-redux";
 import { useForm } from "react-hook-form";
 import { Container, Form } from "react-bootstrap";
+import { startOfToday } from "date-fns";
 
-import {
-  LICENCE_MODE,
-  REQUEST_STATUS,
-  LICENSES_PATHNAME,
-} from "../../utilities/constants";
+import { LICENCE_MODE, REQUEST_STATUS } from "../../utilities/constants";
 import { formatNumber } from "../../utilities/formatting.ts";
 import { parseAsInt, parseAsFloat, parseAsDate } from "../../utilities/parsing";
 
@@ -35,56 +30,86 @@ export default function InspectionDetailsViewEdit({
   licence,
 }) {
   const { status, error, mode } = inspection;
-  console.log(mode);
 
   const dispatch = useDispatch();
-
-  useEffect(() => {}, [dispatch]);
+  const today = startOfToday();
 
   const form = useForm({
     reValidateMode: "onBlur",
   });
   const { register, handleSubmit, setValue } = form;
 
-  const initialFormValues = {};
+  const initialFormValues = {
+    inspectionDate: inspection.data
+      ? parseAsDate(inspection.data.inspectionDate)
+      : today,
+    inspectorId: null,
+    coloniesTested: null,
+    broodTested: null,
+    varroaTested: null,
+    smallHiveBeetleTested: null,
+    americanFoulbroodResult: null,
+    europeanFoulbroodResult: null,
+    smallHiveBeetleResult: null,
+    chalkbroodResult: null,
+    sacbroodResult: null,
+    nosemaResult: null,
+    varroaMiteResult: null,
+    varroaMiteResultPercent: null,
+    otherResultDescription: null,
+    supersInspected: null,
+    supersDestroyed: null,
+    inspectionComment: null,
+  };
+
+  useEffect(() => {}, [dispatch]);
 
   useEffect(() => {
-    // setValue("region", formatNumber(site.data.regionId));
-    // setValue("regionalDistrict", formatNumber(site.data.regionalDistrictId));
-    // setValue("licenceStatus", site.data.siteStatusId);
-    // setValue("addressLine1", site.data.addressLine1);
-    // setValue("addressLine2", site.data.addressLine2);
-    // setValue("city", site.data.city);
-    // setValue("province", site.data.province);
-    // setValue("postalCode", site.data.postalCode);
-    // setValue("country", site.data.country);
-    // setValue("latitude", site.data.latitude);
-    // setValue("longitude", site.data.longitude);
-    // setValue("firstName", site.data.firstName);
-    // setValue("lastName", site.data.lastName);
-    // setValue("primaryPhone", site.data.primaryPhone);
-    // setValue("secondaryPhone", site.data.secondaryPhone);
-    // setValue("email", site.data.email);
-    // setValue("legalDescriptionText", site.data.legalDescriptionText);
+    setValue("inspectionDate", new Date(inspection.data.inspectionDate));
+    setValue("inspectorId", formatNumber(inspection.data.inspectorId));
+    setValue("coloniesTested", inspection.data.coloniesTested);
+    setValue("broodTested", inspection.data.broodTested);
+    setValue("varroaTested", inspection.data.varroaTested);
+    setValue("smallHiveBeetleTested", inspection.data.smallHiveBeetleTested);
+    setValue(
+      "americanFoulbroodResult",
+      inspection.data.americanFoulbroodResult
+    );
+    setValue(
+      "europeanFoulbroodResult",
+      inspection.data.europeanFoulbroodResult
+    );
+    setValue("chalkbroodResult", inspection.data.chalkbroodResult);
+    setValue("sacbroodResult", inspection.data.sacbroodResult);
+    setValue("nosemaResult", inspection.data.nosemaResult);
+    setValue("varroaMiteResult", inspection.data.varroaMiteResult);
+    setValue(
+      "varroaMiteResultPercent",
+      inspection.data.varroaMiteResultPercent
+    );
+    setValue("otherResultDescription", inspection.data.otherResultDescription);
+    setValue("supersInspected", inspection.data.supersInspected);
+    setValue("supersDestroyed", inspection.data.supersDestroyed);
+    setValue("inspectionComment", inspection.data.inspectionComment);
   }, [
-    // setValue,
-    // site.data.regionId,
-    // site.data.regionalDistrictId,
-    // site.data.siteStatusId,
-    // site.data.addressLine1,
-    // site.data.addressLine2,
-    // site.data.city,
-    // site.data.province,
-    // site.data.postalCode,
-    // site.data.country,
-    // site.data.latitude,
-    // site.data.longitude,
-    // site.data.firstName,
-    // site.data.lastName,
-    // site.data.primaryPhone,
-    // site.data.secondaryPhone,
-    // site.data.email,
-    // site.data.legalDescriptionText,
+    setValue,
+    inspection.data.inspectionDate,
+    inspection.data.inspectorId,
+    inspection.data.coloniesTested,
+    inspection.data.broodTested,
+    inspection.data.varroaTested,
+    inspection.data.smallHiveBeetleTested,
+    inspection.data.americanFoulbroodResult,
+    inspection.data.europeanFoulbroodResult,
+    inspection.data.chalkbroodResult,
+    inspection.data.sacbroodResult,
+    inspection.data.nosemaResult,
+    inspection.data.varroaMiteResult,
+    inspection.data.varroaMiteResultPercent,
+    inspection.data.otherResultDescription,
+    inspection.data.supersInspected,
+    inspection.data.supersDestroyed,
+    inspection.data.inspectionComment,
     mode,
   ]);
 
@@ -168,10 +193,8 @@ export default function InspectionDetailsViewEdit({
         <Container className="mt-3 mb-4">
           <ApiaryInspectionDetailsEdit
             form={form}
-            // initialValues={initialFormValues}
-            inspection={inspection.data}
+            initialValues={initialFormValues}
             site={site.data}
-            // mode={LICENCE_MODE.EDIT}
           />
           <SubmissionButtons
             submitButtonLabel={submissionLabel}
