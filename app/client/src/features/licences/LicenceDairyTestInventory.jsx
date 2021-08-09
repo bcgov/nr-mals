@@ -448,7 +448,7 @@ export default function LicenceDairyTestInventory({ licence }) {
     <>
       <SectionHeading>Dairy Test Inventory</SectionHeading>
       <Container className="mt-3 mb-4">
-        {inventory.length === 0 ? (
+        {initialInventory.length === 0 ? (
           <ErrorMessageRow
             variant="success"
             errorHeading={null}
@@ -480,7 +480,7 @@ export default function LicenceDairyTestInventory({ licence }) {
                   disabled={
                     submitting ||
                     filteredTestTypeOptions.length === 0 ||
-                    inventory.length === 0
+                    initialInventory.length === 0
                   }
                   block
                 >
@@ -509,7 +509,7 @@ export default function LicenceDairyTestInventory({ licence }) {
                   type="button"
                   variant="secondary"
                   onClick={() => {}}
-                  disabled={submitting || inventory.length === 0}
+                  disabled={submitting || initialInventory.length === 0}
                   block
                 >
                   Calculate
@@ -521,7 +521,7 @@ export default function LicenceDairyTestInventory({ licence }) {
                   type="button"
                   variant="secondary"
                   onClick={() => {}}
-                  disabled={submitting || inventory.length === 0}
+                  disabled={submitting || initialInventory.length === 0}
                   block
                 >
                   Generate
