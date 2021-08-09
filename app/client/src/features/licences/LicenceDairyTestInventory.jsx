@@ -9,6 +9,7 @@ import CustomDatePicker from "../../components/CustomDatePicker";
 import { parseAsDate, parseAsInt, parseAsFloat } from "../../utilities/parsing";
 
 import SectionHeading from "../../components/SectionHeading";
+import ErrorMessageRow from "../../components/ErrorMessageRow";
 
 import {
   selectDairyTestResults,
@@ -223,6 +224,7 @@ export default function LicenceDairyTestInventory({ licence }) {
 
     const payload = {
       ...update,
+      licenceId: licence.data.id,
     };
 
     dispatch(
@@ -528,15 +530,12 @@ export default function LicenceDairyTestInventory({ licence }) {
           </Row>
         </Form>
         {dairyTestResults.status === REQUEST_STATUS.REJECTED ? (
-          <Alert variant="danger">
-            <Alert.Heading>
-              An error was encountered while updating the licence.
-            </Alert.Heading>
-            <p>
-              {dairyTestResults.error.code}:{" "}
-              {dairyTestResults.error.description}
-            </p>
-          </Alert>
+          <ErrorMessageRow
+            errorHeading={
+              "An error was encountered while updating the licence."
+            }
+            errorMessage={`${dairyTestResults.error.code} ${dairyTestResults.error.description}`}
+          />
         ) : null}
       </Container>
     </>

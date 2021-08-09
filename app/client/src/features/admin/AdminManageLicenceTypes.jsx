@@ -90,9 +90,7 @@ export default function AdminManageLicenceTypes() {
           <span className="sr-only">Searching...</span>
         </Spinner>
       ) : null}
-      <div className="mt-3">
-        <ErrorMessageRow errorMessage={errorMessage} />
-      </div>
+      <ErrorMessageRow errorMessage={errorMessage} />
     </>
   );
 }

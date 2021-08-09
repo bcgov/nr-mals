@@ -8,7 +8,7 @@ const ErrorMessageRow = ({ errorMessage, errorHeading }) => {
   }
 
   return (
-    <Form.Row>
+    <Form.Row className="mt-3">
       <Col sm={12}>
         <Alert variant="danger">
           <Alert.Heading>{errorHeading}</Alert.Heading>
