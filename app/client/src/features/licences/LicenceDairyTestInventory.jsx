@@ -448,87 +448,99 @@ export default function LicenceDairyTestInventory({ licence }) {
     <>
       <SectionHeading>Dairy Test Inventory</SectionHeading>
       <Container className="mt-3 mb-4">
-        <Form onSubmit={handleSubmit(onSubmit)} noValidate>
-          <Row className="mb-3">
-            <Col className="font-weight-bold">Date</Col>
-            <Col className="font-weight-bold">Test Type</Col>
-            <Col className="font-weight-bold">Result</Col>
-            <Col className="font-weight-bold">Action</Col>
-            <Col className="font-weight-bold">Levy</Col>
-            <Col />
-          </Row>
-          {initialInventory.map((x, index) => {
-            return dairyResultRow(x, index);
-          })}
-          {inventory.map((x, index) => {
-            return dairyResultManualRow(x, index);
-          })}
-          <Row>
-            <Col lg={2}>
-              <Button
-                size="md"
-                type="button"
-                variant="secondary"
-                onClick={addInventoryOnClick}
-                disabled={submitting || filteredTestTypeOptions.length === 0}
-                block
-              >
-                Add a result
-              </Button>
-            </Col>
-          </Row>
-          <Row className="mt-3">
-            <Col lg={2}>
-              <Button
-                size="md"
-                type="button"
-                variant="secondary"
-                onClick={() => {
-                  dispatch(openDairyTestHistoryModal);
-                }}
-                disabled={submitting}
-                block
-              >
-                View History
-              </Button>
-            </Col>
-            <Col lg={2}>
-              <Button
-                size="md"
-                type="button"
-                variant="secondary"
-                onClick={() => {}}
-                disabled={submitting}
-                block
-              >
-                Calculate
-              </Button>
-            </Col>
-            <Col lg={2}>
-              <Button
-                size="md"
-                type="button"
-                variant="secondary"
-                onClick={() => {}}
-                disabled={submitting}
-                block
-              >
-                Generate
-              </Button>
-            </Col>
-            <Col lg={2}>
-              <Button
-                size="md"
-                type="submit"
-                variant="primary"
-                disabled={submitting || inventory.length === 0}
-                block
-              >
-                {submissionLabel}
-              </Button>
-            </Col>
-          </Row>
-        </Form>
+        {inventory.length === 0 ? (
+          <ErrorMessageRow
+            variant="success"
+            errorHeading={null}
+            errorMessage={"No dairy test data load information found."}
+          />
+        ) : (
+          <Form onSubmit={handleSubmit(onSubmit)} noValidate>
+            <Row className="mb-3">
+              <Col className="font-weight-bold">Date</Col>
+              <Col className="font-weight-bold">Test Type</Col>
+              <Col className="font-weight-bold">Result</Col>
+              <Col className="font-weight-bold">Action</Col>
+              <Col className="font-weight-bold">Levy</Col>
+              <Col />
+            </Row>
+            {initialInventory.map((x, index) => {
+              return dairyResultRow(x, index);
+            })}
+            {inventory.map((x, index) => {
+              return dairyResultManualRow(x, index);
+            })}
+            <Row>
+              <Col lg={2}>
+                <Button
+                  size="md"
+                  type="button"
+                  variant="secondary"
+                  onClick={addInventoryOnClick}
+                  disabled={
+                    submitting ||
+                    filteredTestTypeOptions.length === 0 ||
+                    inventory.length === 0
+                  }
+                  block
+                >
+                  Add a result
+                </Button>
+              </Col>
+            </Row>
+            <Row className="mt-3">
+              <Col lg={2}>
+                <Button
+                  size="md"
+                  type="button"
+                  variant="secondary"
+                  onClick={() => {
+                    dispatch(openDairyTestHistoryModal);
+                  }}
+                  disabled={submitting}
+                  block
+                >
+                  View History
+                </Button>
+              </Col>
+              <Col lg={2}>
+                <Button
+                  size="md"
+                  type="button"
+                  variant="secondary"
+                  onClick={() => {}}
+                  disabled={submitting || inventory.length === 0}
+                  block
+                >
+                  Calculate
+                </Button>
+              </Col>
+              <Col lg={2}>
+                <Button
+                  size="md"
+                  type="button"
+                  variant="secondary"
+                  onClick={() => {}}
+                  disabled={submitting || inventory.length === 0}
+                  block
+                >
+                  Generate
+                </Button>
+              </Col>
+              <Col lg={2}>
+                <Button
+                  size="md"
+                  type="submit"
+                  variant="primary"
+                  disabled={submitting || inventory.length === 0}
+                  block
+                >
+                  {submissionLabel}
+                </Button>
+              </Col>
+            </Row>
+          </Form>
+        )}
         {dairyTestResults.status === REQUEST_STATUS.REJECTED ? (
           <ErrorMessageRow
             errorHeading={

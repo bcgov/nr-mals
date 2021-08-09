@@ -35,6 +35,8 @@ import {
   PROVINCES,
 } from "../../utilities/constants";
 
+import ErrorMessageRow from "../../components/ErrorMessageRow";
+
 function formatResultRow(result) {
   const url = `${SITES_PATHNAME}/${result.siteId}`;
   return (
@@ -137,14 +139,12 @@ export default function LicenceSites({ licence }) {
   ) {
     control = (
       <>
-        <Row className="mt-3">
-          <Col lg={6}>
-            <Alert variant="success" className="mt-3">
-              <div>There are no sites associated with this licence.</div>
-            </Alert>
-          </Col>
-        </Row>
-        <Row className="mt-3">
+        <ErrorMessageRow
+          variant="success"
+          errorHeading={null}
+          errorMessage={"There are no sites associated with this licence."}
+        />
+        <Row>
           <Col lg={2}>{addSiteButton}</Col>
         </Row>
       </>
