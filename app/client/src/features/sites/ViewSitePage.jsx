@@ -1,7 +1,7 @@
 /* eslint-disable */
 import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useHistory } from "react-router-dom";
 import {
   Spinner,
   Alert,
@@ -14,6 +14,7 @@ import {
 
 import {
   REQUEST_STATUS,
+  CREATE_INSPECTIONS_PATHNAME,
   INSPECTIONS_PATHNAME,
 } from "../../utilities/constants";
 
@@ -39,6 +40,7 @@ import {
 } from "../licences/constants";
 
 export default function ViewLicencePage() {
+  const history = useHistory();
   const dispatch = useDispatch();
   const { id } = useParams();
   const site = useSelector(selectCurrentSite);
@@ -65,6 +67,22 @@ export default function ViewLicencePage() {
     );
   }
 
+  function addInspectionOnClick() {
+    history.push(`${CREATE_INSPECTIONS_PATHNAME}/${id}`);
+  }
+
+  const addInspectionButton = (
+    <Button
+      size="md"
+      type="button"
+      variant="primary"
+      onClick={addInspectionOnClick}
+      block
+    >
+      Create Inspection
+    </Button>
+  );
+
   let content;
   if (site.data && licence.data) {
     content = (
@@ -86,25 +104,45 @@ export default function ViewLicencePage() {
             <SectionHeading>Inspections</SectionHeading>
             <Container className="mt-3 mb-4">
               {site.data.inspections?.length > 0 ? (
-                <Table striped size="sm" responsive className="mt-3 mb-0" hover>
-                  <thead className="thead-dark">
-                    <tr>
-                      <th className="text-nowrap">Inspection Date</th>
-                      <th className="text-nowrap">Inspector ID</th>
-                      <th />
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {site.data.inspections.map((result) =>
-                      formatInspectionsResultRow(result)
-                    )}
-                  </tbody>
-                </Table>
+                <>
+                  <Table
+                    striped
+                    size="sm"
+                    responsive
+                    className="mt-3 mb-0"
+                    hover
+                  >
+                    <thead className="thead-dark">
+                      <tr>
+                        <th className="text-nowrap">Inspection Date</th>
+                        <th className="text-nowrap">Inspector ID</th>
+                        <th />
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {site.data.inspections.map((result) =>
+                        formatInspectionsResultRow(result)
+                      )}
+                    </tbody>
+                  </Table>
+                  <Row className="mt-3">
+                    <Col lg={3}>{addInspectionButton}</Col>
+                  </Row>
+                </>
               ) : (
                 <>
-                  <Alert variant="success" className="mt-3">
-                    <div>No inspections found for this site.</div>
-                  </Alert>
+                  <Row className="mt-3">
+                    <Col>
+                      <Alert variant="success" className="mt-3">
+                        <div>
+                          There are no inspections associated with this site.
+                        </div>
+                      </Alert>
+                    </Col>
+                  </Row>
+                  <Row className="mt-3">
+                    <Col lg={3}>{addInspectionButton}</Col>
+                  </Row>
                 </>
               )}
             </Container>

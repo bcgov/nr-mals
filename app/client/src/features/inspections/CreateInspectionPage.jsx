@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { Link, Redirect, useHistory, useParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { Alert, Button, Col, Container, Form } from "react-bootstrap";
-import { startOfToday, add, set } from "date-fns";
+import { startOfToday } from "date-fns";
 
 import { REQUEST_STATUS, SITES_PATHNAME } from "../../utilities/constants";
 import { parseAsInt, parseAsFloat } from "../../utilities/parsing";
@@ -68,6 +68,28 @@ function submissionController(licence, site, setError, clearErrors, dispatch) {
   return { onSubmit };
 }
 
+const today = startOfToday();
+const initialFormValues = {
+  inspectionDate: today,
+  inspectorId: null,
+  coloniesTested: null,
+  broodTested: null,
+  varroaTested: null,
+  smallHiveBeetleTested: null,
+  americanFoulbroodResult: null,
+  europeanFoulbroodResult: null,
+  smallHiveBeetleResult: null,
+  chalkbroodResult: null,
+  sacbroodResult: null,
+  nosemaResult: null,
+  varroaMiteResult: null,
+  varroaMiteResultPercent: null,
+  otherResultDescription: null,
+  supersInspected: null,
+  supersDestroyed: null,
+  inspectionComment: null,
+};
+
 export default function CreateInspectionPage() {
   const history = useHistory();
   const dispatch = useDispatch();
@@ -77,14 +99,6 @@ export default function CreateInspectionPage() {
   const site = useSelector(selectCurrentSite);
   const licence = useSelector(selectCurrentLicence);
   const inspection = useSelector(selectCreatedInspection);
-
-  useEffect(() => {
-    dispatch(clearCreatedInspection());
-
-    dispatch(fetchSite(id)).then((s) => {
-      dispatch(fetchLicence(s.payload.licenceId));
-    });
-  }, [dispatch]);
 
   const form = useForm({
     reValidateMode: "onBlur",
@@ -98,8 +112,18 @@ export default function CreateInspectionPage() {
     clearErrors,
   } = form;
 
+  useEffect(() => {
+    setValue("inspectionDate", today);
+
+    dispatch(clearCreatedInspection());
+
+    dispatch(fetchSite(id)).then((s) => {
+      dispatch(fetchLicence(s.payload.licenceId));
+    });
+  }, [dispatch]);
+
   const onCancel = () => {
-    return <Redirect to={`${SITES_PATHNAME}/${id}`} />;
+    history.push(`${SITES_PATHNAME}/${id}`);
   };
 
   const { onSubmit } = submissionController(
@@ -156,7 +180,11 @@ export default function CreateInspectionPage() {
           <SectionHeading>Inspection Details</SectionHeading>
           <Container className="mt-3 mb-4">
             <Form onSubmit={handleSubmit(onSubmit)} noValidate>
-              <ApiaryInspectionDetailsEdit form={form} site={site.data} />
+              <ApiaryInspectionDetailsEdit
+                form={form}
+                initialValues={initialFormValues}
+                site={site.data}
+              />
               <section className="mt-3">
                 <SubmissionButtons
                   submitButtonLabel={submissionLabel}

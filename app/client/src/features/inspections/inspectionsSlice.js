@@ -109,7 +109,6 @@ export const inspectionsSlice = createSlice({
       state.currentInspection.error = undefined;
       state.currentInspection.status = REQUEST_STATUS.FULFILLED;
       state.currentInspection.mode = LICENCE_MODE.VIEW;
-      state.currentInspection.registrantMode = REGISTRANT_MODE.VIEW;
     },
     [fetchApiaryInspection.rejected]: (state, action) => {
       state.currentInspection.data = undefined;
