@@ -34,14 +34,14 @@ const roleValidation = require("./middleware/roleValidation");
 const app = express();
 app.disable("x-powered-by");
 
-app.use(helmet());
+// app.use(helmet());
 
-// app.use(
-//   helmet.contentSecurityPolicy({
-//     useDefaults: true,
-//     reportOnly: true,
-//   })
-// );
+app.use(
+  helmet.contentSecurityPolicy({
+    useDefaults: true,
+    reportOnly: true,
+  })
+);
 
 // app.use(
 //   helmet({
