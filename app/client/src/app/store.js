@@ -13,6 +13,7 @@ import dairyNoticesReducer from "../features/documents/dairyNoticesSlice";
 import dairyTankNoticesReducer from "../features/documents/dairyTankNoticesSlice";
 import adminReducer from "../features/admin/adminSlice";
 import reportsReducer from "../features/reports/reportsSlice";
+import inspectionsReducer from "../features/inspections/inspectionsSlice";
 
 const reducer = {
   admin: adminReducer,
@@ -22,6 +23,7 @@ const reducer = {
   dairyNotices: dairyNoticesReducer,
   dairyTankNotices: dairyTankNoticesReducer,
   comments: commentsReducer,
+  inspections: inspectionsReducer,
   licences: licencesReducer,
   lookups: lookupsReducer,
   reports: reportsReducer,
