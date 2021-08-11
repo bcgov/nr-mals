@@ -112,7 +112,7 @@ export default function ApiaryInspectionDetailsView({ inspection, site }) {
           <Form.Group controlId="otherResultDescription">
             <Form.Label>Other</Form.Label>
             <Form.Control
-              readonly
+              disabled
               value={inspection.otherResultDescription}
               as="textarea"
               rows={8}
@@ -144,7 +144,7 @@ export default function ApiaryInspectionDetailsView({ inspection, site }) {
       <Row>
         <Col lg={12}>
           <Form.Control
-            readonly
+            disabled
             value={inspection.inspectionComment}
             as="textarea"
             rows={6}

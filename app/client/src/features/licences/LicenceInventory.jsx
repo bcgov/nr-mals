@@ -17,12 +17,19 @@ import { selectCurrentLicence, updateLicenceInventory } from "./licencesSlice";
 import Species from "../lookups/Species";
 import SubSpecies from "../lookups/SubSpecies";
 
-import { REQUEST_STATUS, SPECIES_SUBCODES } from "../../utilities/constants";
+import {
+  REQUEST_STATUS,
+  SPECIES_SUBCODES,
+  SYSTEM_ROLES,
+} from "../../utilities/constants";
 import { formatDate } from "../../utilities/formatting.ts";
+
+import { selectCurrentUser } from "../../app/appSlice";
 
 export default function LicenceInventory({ licence }) {
   const dispatch = useDispatch();
   const currentLicence = useSelector(selectCurrentLicence);
+  const currentUser = useSelector(selectCurrentUser);
 
   const licenceSpecies = useSelector(selectLicenceSpecies);
 
@@ -316,7 +323,11 @@ export default function LicenceInventory({ licence }) {
                 type="button"
                 variant="secondary"
                 onClick={addInventoryOnClick}
-                disabled={submitting || licence.data.speciesCodeId === null}
+                disabled={
+                  submitting ||
+                  licence.data.speciesCodeId === null ||
+                  currentUser.data.roleId === SYSTEM_ROLES.READ_ONLY
+                }
                 block
               >
                 Add Inventory
@@ -329,7 +340,10 @@ export default function LicenceInventory({ licence }) {
                 type="button"
                 variant="secondary"
                 onClick={resetInventoryOnClick}
-                disabled={submitting}
+                disabled={
+                  submitting ||
+                  currentUser.data.roleId === SYSTEM_ROLES.READ_ONLY
+                }
                 block
               >
                 Reset
@@ -340,7 +354,11 @@ export default function LicenceInventory({ licence }) {
                 size="md"
                 type="submit"
                 variant="primary"
-                disabled={submitting || inventory.length === 0}
+                disabled={
+                  submitting ||
+                  inventory.length === 0 ||
+                  currentUser.data.roleId === SYSTEM_ROLES.READ_ONLY
+                }
                 block
               >
                 {submissionLabel}

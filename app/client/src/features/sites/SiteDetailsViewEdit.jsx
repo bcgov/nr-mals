@@ -1,18 +1,16 @@
-/* eslint-disable */
 import React, { useEffect } from "react";
 import PropTypes from "prop-types";
 import { useDispatch, useSelector } from "react-redux";
-import { Redirect } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { Container, Form } from "react-bootstrap";
 
 import {
   LICENCE_MODE,
   REQUEST_STATUS,
-  LICENSES_PATHNAME,
+  SYSTEM_ROLES,
 } from "../../utilities/constants";
 import { formatNumber } from "../../utilities/formatting.ts";
-import { parseAsInt, parseAsFloat, parseAsDate } from "../../utilities/parsing";
+import { parseAsInt } from "../../utilities/parsing";
 
 import ErrorMessageRow from "../../components/ErrorMessageRow";
 import SectionHeading from "../../components/SectionHeading";
@@ -31,10 +29,14 @@ import SiteDetailsView from "./SiteDetailsView";
 
 import { fetchCities } from "../lookups/citiesSlice";
 
+import { selectCurrentUser } from "../../app/appSlice";
+
 export default function SiteDetailsViewEdit({ site, licence }) {
   const { status, error, mode } = site;
 
   const dispatch = useDispatch();
+
+  const currentUser = useSelector(selectCurrentUser);
 
   useEffect(() => {
     dispatch(fetchRegions());
@@ -113,7 +115,10 @@ export default function SiteDetailsViewEdit({ site, licence }) {
     };
     return (
       <section>
-        <SectionHeading onEdit={onEdit} showEditButton>
+        <SectionHeading
+          onEdit={onEdit}
+          showEditButton={currentUser.data.roleId !== SYSTEM_ROLES.READ_ONLY}
+        >
           Site Details
         </SectionHeading>
         <Container className="mt-3 mb-4">
