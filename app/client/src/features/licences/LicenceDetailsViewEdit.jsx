@@ -234,7 +234,9 @@ export default function LicenceDetailsViewEdit({ licence }) {
             ref={register}
             onChange={onLicenceDetailsCheckboxChange}
             disabled={
-              submitting || currentUser.data.roleId === SYSTEM_ROLES.READ_ONLY
+              submitting ||
+              currentUser.data.roleId === SYSTEM_ROLES.READ_ONLY ||
+              currentUser.data.roleId === SYSTEM_ROLES.INSPECTOR
             }
           />
         </Form.Group>
@@ -247,7 +249,9 @@ export default function LicenceDetailsViewEdit({ licence }) {
             ref={register}
             onChange={onLicenceDetailsCheckboxChange}
             disabled={
-              submitting || currentUser.data.roleId === SYSTEM_ROLES.READ_ONLY
+              submitting ||
+              currentUser.data.roleId === SYSTEM_ROLES.READ_ONLY ||
+              currentUser.data.roleId === SYSTEM_ROLES.INSPECTOR
             }
           />
         </Form.Group>
@@ -260,7 +264,9 @@ export default function LicenceDetailsViewEdit({ licence }) {
             ref={register}
             onChange={onLicenceDetailsCheckboxChange}
             disabled={
-              submitting || currentUser.data.roleId === SYSTEM_ROLES.READ_ONLY
+              submitting ||
+              currentUser.data.roleId === SYSTEM_ROLES.READ_ONLY ||
+              currentUser.data.roleId === SYSTEM_ROLES.INSPECTOR
             }
           />
         </Form.Group>
@@ -276,7 +282,10 @@ export default function LicenceDetailsViewEdit({ licence }) {
       <section>
         <SectionHeading
           onEdit={onEdit}
-          showEditButton={currentUser.data.roleId !== SYSTEM_ROLES.READ_ONLY}
+          showEditButton={
+            currentUser.data.roleId !== SYSTEM_ROLES.READ_ONLY &&
+            currentUser.data.roleId !== SYSTEM_ROLES.INSPECTOR
+          }
         >
           License Details
         </SectionHeading>
@@ -293,7 +302,8 @@ export default function LicenceDetailsViewEdit({ licence }) {
           </>
         ) : null}
         <Container className="mt-3 mb-4">
-          {currentUser.data.roleId !== SYSTEM_ROLES.READ_ONLY ? (
+          {currentUser.data.roleId !== SYSTEM_ROLES.READ_ONLY &&
+          currentUser.data.roleId !== SYSTEM_ROLES.INSPECTOR ? (
             <Form.Row className="mt-3 mb-3">
               <Col sm={2}>
                 <Button

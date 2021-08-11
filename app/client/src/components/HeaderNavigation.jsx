@@ -80,7 +80,6 @@ function HeaderNavigation() {
                 <RenderOnRole
                   roles={[
                     Constant.SYSTEM_ROLES.USER,
-                    Constant.SYSTEM_ROLES.INSPECTOR,
                     Constant.SYSTEM_ROLES.SYSTEM_ADMIN,
                   ]}
                 >
@@ -107,7 +106,6 @@ function HeaderNavigation() {
                 <RenderOnRole
                   roles={[
                     Constant.SYSTEM_ROLES.USER,
-                    Constant.SYSTEM_ROLES.INSPECTOR,
                     Constant.SYSTEM_ROLES.SYSTEM_ADMIN,
                   ]}
                 >

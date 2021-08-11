@@ -326,7 +326,8 @@ export default function LicenceInventory({ licence }) {
                 disabled={
                   submitting ||
                   licence.data.speciesCodeId === null ||
-                  currentUser.data.roleId === SYSTEM_ROLES.READ_ONLY
+                  currentUser.data.roleId === SYSTEM_ROLES.READ_ONLY ||
+                  currentUser.data.roleId === SYSTEM_ROLES.INSPECTOR
                 }
                 block
               >
@@ -342,7 +343,8 @@ export default function LicenceInventory({ licence }) {
                 onClick={resetInventoryOnClick}
                 disabled={
                   submitting ||
-                  currentUser.data.roleId === SYSTEM_ROLES.READ_ONLY
+                  currentUser.data.roleId === SYSTEM_ROLES.READ_ONLY ||
+                  currentUser.data.roleId === SYSTEM_ROLES.INSPECTOR
                 }
                 block
               >
@@ -357,7 +359,8 @@ export default function LicenceInventory({ licence }) {
                 disabled={
                   submitting ||
                   inventory.length === 0 ||
-                  currentUser.data.roleId === SYSTEM_ROLES.READ_ONLY
+                  currentUser.data.roleId === SYSTEM_ROLES.READ_ONLY ||
+                  currentUser.data.roleId === SYSTEM_ROLES.INSPECTOR
                 }
                 block
               >

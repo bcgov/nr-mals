@@ -88,13 +88,7 @@ export default function Comments({ licence }) {
     <Form onSubmit={handleSubmit(onSubmit)} noValidate>
       <SectionHeading>Comments</SectionHeading>
       <Container className="mt-3 mb-4">
-        <RenderOnRole
-          roles={[
-            SYSTEM_ROLES.USER,
-            SYSTEM_ROLES.INSPECTOR,
-            SYSTEM_ROLES.SYSTEM_ADMIN,
-          ]}
-        >
+        <RenderOnRole roles={[SYSTEM_ROLES.USER, SYSTEM_ROLES.SYSTEM_ADMIN]}>
           <Form.Control
             as="textarea"
             rows={6}
@@ -128,11 +122,7 @@ export default function Comments({ licence }) {
                         {comment.create_userid}
                       </Col>
                       <RenderOnRole
-                        roles={[
-                          SYSTEM_ROLES.USER,
-                          SYSTEM_ROLES.INSPECTOR,
-                          SYSTEM_ROLES.SYSTEM_ADMIN,
-                        ]}
+                        roles={[SYSTEM_ROLES.USER, SYSTEM_ROLES.SYSTEM_ADMIN]}
                       >
                         <Col lg={1}>
                           <Button
@@ -170,7 +160,9 @@ export default function Comments({ licence }) {
                           </Button>
                         </Col>
                       </RenderOnRole>
-                      <RenderOnRole roles={[SYSTEM_ROLES.READ_ONLY]}>
+                      <RenderOnRole
+                        roles={[SYSTEM_ROLES.READ_ONLY, SYSTEM_ROLES.INSPECTOR]}
+                      >
                         <Col lg={2} />
                       </RenderOnRole>
                       <Col lg={2} className="comment-date">

@@ -117,7 +117,10 @@ export default function SiteDetailsViewEdit({ site, licence }) {
       <section>
         <SectionHeading
           onEdit={onEdit}
-          showEditButton={currentUser.data.roleId !== SYSTEM_ROLES.READ_ONLY}
+          showEditButton={
+            currentUser.data.roleId !== SYSTEM_ROLES.READ_ONLY &&
+            currentUser.data.roleId !== SYSTEM_ROLES.INSPECTOR
+          }
         >
           Site Details
         </SectionHeading>

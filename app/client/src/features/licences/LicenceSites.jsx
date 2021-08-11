@@ -148,7 +148,8 @@ export default function LicenceSites({ licence }) {
           errorHeading={null}
           errorMessage={"There are no sites associated with this licence."}
         />
-        {currentUser.data.roleId !== SYSTEM_ROLES.READ_ONLY ? (
+        {currentUser.data.roleId !== SYSTEM_ROLES.READ_ONLY &&
+        currentUser.data.roleId !== SYSTEM_ROLES.INSPECTOR ? (
           <Row>
             <Col lg={2}>{addSiteButton}</Col>
           </Row>
@@ -173,7 +174,8 @@ export default function LicenceSites({ licence }) {
           <tbody>{results.data.map((result) => formatResultRow(result))}</tbody>
         </Table>
         <Row className="mt-3">
-          {currentUser.data.roleId !== SYSTEM_ROLES.READ_ONLY ? (
+          {currentUser.data.roleId !== SYSTEM_ROLES.READ_ONLY &&
+          currentUser.data.roleId !== SYSTEM_ROLES.INSPECTOR ? (
             <Col md="3">{addSiteButton}</Col>
           ) : null}
           <Col className="d-flex justify-content-center">

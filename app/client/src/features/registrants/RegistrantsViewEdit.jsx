@@ -78,7 +78,10 @@ export default function RegistrantsViewEdit({ licence }) {
       <section>
         <SectionHeading
           onEdit={onEdit}
-          showEditButton={currentUser.data.roleId !== SYSTEM_ROLES.READ_ONLY}
+          showEditButton={
+            currentUser.data.roleId !== SYSTEM_ROLES.READ_ONLY &&
+            currentUser.data.roleId !== SYSTEM_ROLES.INSPECTOR
+          }
         >
           Registrant Details
         </SectionHeading>
