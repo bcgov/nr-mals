@@ -1,11 +1,15 @@
 import React, { useEffect } from "react";
 import PropTypes from "prop-types";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useForm } from "react-hook-form";
 import { Container, Form } from "react-bootstrap";
 import { startOfToday } from "date-fns";
 
-import { LICENCE_MODE, REQUEST_STATUS } from "../../utilities/constants";
+import {
+  LICENCE_MODE,
+  REQUEST_STATUS,
+  SYSTEM_ROLES,
+} from "../../utilities/constants";
 import { formatNumber } from "../../utilities/formatting.ts";
 import { parseAsInt, parseAsFloat, parseAsDate } from "../../utilities/parsing";
 
@@ -24,6 +28,8 @@ import ApiaryInspectionDetailsView from "./ApiaryInspectionDetailsView";
 
 import * as LicenceTypeConstants from "../licences/constants";
 
+import { selectCurrentUser } from "../../app/appSlice";
+
 export default function InspectionDetailsViewEdit({
   inspection,
   site,
@@ -32,6 +38,9 @@ export default function InspectionDetailsViewEdit({
   const { status, error, mode } = inspection;
 
   const dispatch = useDispatch();
+
+  const currentUser = useSelector(selectCurrentUser);
+
   const today = startOfToday();
 
   const form = useForm({
@@ -119,7 +128,10 @@ export default function InspectionDetailsViewEdit({
     };
     return (
       <section>
-        <SectionHeading onEdit={onEdit} showEditButton>
+        <SectionHeading
+          onEdit={onEdit}
+          showEditButton={currentUser.data.roleId !== SYSTEM_ROLES.READ_ONLY}
+        >
           Inspection Details
         </SectionHeading>
         <Container className="mt-3 mb-4">

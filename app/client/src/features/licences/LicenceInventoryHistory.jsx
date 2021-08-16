@@ -258,7 +258,7 @@ export default function LicenceInventoryHistory({ licence }) {
     control = (
       <>
         <Row className="mt-3">
-          <Col lg={6}>
+          <Col sm={12}>
             <Alert variant="success" className="mt-3">
               <div>There is no inventory associated with this licence.</div>
             </Alert>

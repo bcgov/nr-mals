@@ -1,11 +1,15 @@
 import React, { useEffect } from "react";
 import PropTypes from "prop-types";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useForm } from "react-hook-form";
 import { Button, Container, Form, Row, Col } from "react-bootstrap";
 import { startOfToday, add, set } from "date-fns";
 
-import { LICENCE_MODE, REQUEST_STATUS } from "../../utilities/constants";
+import {
+  LICENCE_MODE,
+  REQUEST_STATUS,
+  SYSTEM_ROLES,
+} from "../../utilities/constants";
 import {
   LICENCE_TYPE_ID_LIVESTOCK_DEALER,
   LICENCE_TYPE_ID_PUBLIC_SALE_YARD_OPERATOR,
@@ -39,7 +43,7 @@ import LicenceDetailsView from "./LicenceDetailsView";
 import BondInformationEdit from "./BondInformationEdit";
 import BondInformationView from "./BondInformationView";
 
-import { openModal } from "../../app/appSlice";
+import { openModal, selectCurrentUser } from "../../app/appSlice";
 
 import { CONFIRMATION } from "../../modals/ConfirmationModal";
 
@@ -47,6 +51,8 @@ export default function LicenceDetailsViewEdit({ licence }) {
   const { status, error, mode } = licence;
 
   const dispatch = useDispatch();
+
+  const currentUser = useSelector(selectCurrentUser);
 
   useEffect(() => {
     dispatch(fetchRegions());
@@ -227,7 +233,11 @@ export default function LicenceDetailsViewEdit({ licence }) {
             label="Action Required"
             ref={register}
             onChange={onLicenceDetailsCheckboxChange}
-            disabled={submitting}
+            disabled={
+              submitting ||
+              currentUser.data.roleId === SYSTEM_ROLES.READ_ONLY ||
+              currentUser.data.roleId === SYSTEM_ROLES.INSPECTOR
+            }
           />
         </Form.Group>
       </Col>
@@ -238,7 +248,11 @@ export default function LicenceDetailsViewEdit({ licence }) {
             label="Print Licence"
             ref={register}
             onChange={onLicenceDetailsCheckboxChange}
-            disabled={submitting}
+            disabled={
+              submitting ||
+              currentUser.data.roleId === SYSTEM_ROLES.READ_ONLY ||
+              currentUser.data.roleId === SYSTEM_ROLES.INSPECTOR
+            }
           />
         </Form.Group>
       </Col>
@@ -249,7 +263,11 @@ export default function LicenceDetailsViewEdit({ licence }) {
             label="Renewal Notice"
             ref={register}
             onChange={onLicenceDetailsCheckboxChange}
-            disabled={submitting}
+            disabled={
+              submitting ||
+              currentUser.data.roleId === SYSTEM_ROLES.READ_ONLY ||
+              currentUser.data.roleId === SYSTEM_ROLES.INSPECTOR
+            }
           />
         </Form.Group>
       </Col>
@@ -262,7 +280,13 @@ export default function LicenceDetailsViewEdit({ licence }) {
     };
     return (
       <section>
-        <SectionHeading onEdit={onEdit} showEditButton>
+        <SectionHeading
+          onEdit={onEdit}
+          showEditButton={
+            currentUser.data.roleId !== SYSTEM_ROLES.READ_ONLY &&
+            currentUser.data.roleId !== SYSTEM_ROLES.INSPECTOR
+          }
+        >
           License Details
         </SectionHeading>
         <Container className="mt-3 mb-4">
@@ -278,19 +302,22 @@ export default function LicenceDetailsViewEdit({ licence }) {
           </>
         ) : null}
         <Container className="mt-3 mb-4">
-          <Form.Row className="mt-3 mb-3">
-            <Col sm={2}>
-              <Button
-                type="button"
-                onClick={onRenew}
-                disabled={submitting}
-                variant="secondary"
-                block
-              >
-                Renew Licence
-              </Button>
-            </Col>
-          </Form.Row>
+          {currentUser.data.roleId !== SYSTEM_ROLES.READ_ONLY &&
+          currentUser.data.roleId !== SYSTEM_ROLES.INSPECTOR ? (
+            <Form.Row className="mt-3 mb-3">
+              <Col sm={2}>
+                <Button
+                  type="button"
+                  onClick={onRenew}
+                  disabled={submitting}
+                  variant="secondary"
+                  block
+                >
+                  Renew Licence
+                </Button>
+              </Col>
+            </Form.Row>
+          ) : null}
           <ErrorMessageRow errorMessage={errorMessage} />
         </Container>
       </section>

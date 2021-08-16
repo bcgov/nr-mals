@@ -46,7 +46,23 @@ module.exports = Object.freeze({
     READ_ONLY: 4,
   },
 
-  // System Roles
+  // Front end page access levels
+  ACCESS_LEVEL: {
+    CREATE: "CREATE",
+    EDIT: "EDIT",
+    VIEW: "VIEW",
+    NONE: "NONE",
+  },
+
+  USER_ACTION_TYPES: {
+    SEARCH_VIEW_LICENCES: "SEARCH_VIEW_LICENCES",
+    SEARCH_VIEW_SITES: "SEARCH_VIEW_SITES",
+
+    DATA_IMPORTS: "DATA_IMPORTS",
+    RUN_REPORTS: "RUN_REPORTS",
+    ADMINISTRATION: "ADMINISTRATION",
+  },
+
   DAIRY_TEST_SUBSPECIES: {
     SPC1: "SPC1",
     SCC: "SCC",
@@ -71,5 +87,6 @@ module.exports = Object.freeze({
     APIARY_PRODUCER_DISTRICT: "APIARY_PRODUCER_DISTRICT",
     APIARY_PRODUCER_CITY: "APIARY_PRODUCER_CITY",
     DAIRY_FARM_QUALITY: "DAIRY_FARM_QUALITY",
+    LICENCE_LOCATION: "LICENCE_LOCATION",
   },
 });

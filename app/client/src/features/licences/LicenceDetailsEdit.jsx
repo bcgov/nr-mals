@@ -484,35 +484,6 @@ export default function LicenceDetailsEdit({
           </Col>
         </Form.Row>
       )}
-      {/* <Form.Row>
-        <Col lg={4}>
-          <Form.Group controlId="actionRequired">
-            <CustomCheckBox
-              id="actionRequired"
-              label="Action Required"
-              ref={register}
-            />
-          </Form.Group>
-        </Col>
-        <Col lg={4}>
-          <Form.Group controlId="printLicence">
-            <CustomCheckBox
-              id="printLicence"
-              label="Print Licence"
-              ref={register}
-            />
-          </Form.Group>
-        </Col>
-        <Col lg={4}>
-          <Form.Group controlId="renewalNotice">
-            <CustomCheckBox
-              id="renewalNotice"
-              label="Renewal Notice"
-              ref={register}
-            />
-          </Form.Group>
-        </Col>
-      </Form.Row> */}
     </>
   );
 }

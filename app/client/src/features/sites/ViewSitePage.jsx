@@ -1,4 +1,3 @@
-/* eslint-disable */
 import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Link, useParams, useHistory } from "react-router-dom";
@@ -16,8 +15,10 @@ import {
   REQUEST_STATUS,
   CREATE_INSPECTIONS_PATHNAME,
   INSPECTIONS_PATHNAME,
+  SYSTEM_ROLES,
 } from "../../utilities/constants";
 
+import RenderOnRole from "../../components/RenderOnRole";
 import PageHeading from "../../components/PageHeading";
 import SectionHeading from "../../components/SectionHeading";
 
@@ -27,8 +28,6 @@ import { fetchLicence, selectCurrentLicence } from "../licences/licencesSlice";
 import SiteHeader from "./SiteHeader";
 import LicenceDetailsView from "../licences/LicenceDetailsView";
 import SiteDetailsViewEdit from "./SiteDetailsViewEdit";
-
-import DairyTanksTab from "./dairytanks/DairyTanksTab";
 
 import Comments from "../comments/Comments";
 
@@ -45,12 +44,11 @@ export default function ViewLicencePage() {
   const { id } = useParams();
   const site = useSelector(selectCurrentSite);
   const licence = useSelector(selectCurrentLicence);
-
   useEffect(() => {
     dispatch(clearCreatedSite());
 
-    dispatch(fetchSite(id)).then((site) => {
-      dispatch(fetchLicence(site.payload.licenceId));
+    dispatch(fetchSite(id)).then((record) => {
+      dispatch(fetchLicence(record.payload.licenceId));
     });
   }, [dispatch, id]);
 
@@ -61,7 +59,7 @@ export default function ViewLicencePage() {
         <td className="text-nowrap">{result.inspectionDate}</td>
         <td className="text-nowrap">{result.inspectorId}</td>
         <td className="text-nowrap">
-          <Link to={url}>Edit</Link>
+          <Link to={url}>View</Link>
         </td>
       </tr>
     );
@@ -125,9 +123,17 @@ export default function ViewLicencePage() {
                       )}
                     </tbody>
                   </Table>
-                  <Row className="mt-3">
-                    <Col lg={3}>{addInspectionButton}</Col>
-                  </Row>
+                  <RenderOnRole
+                    roles={[
+                      SYSTEM_ROLES.USER,
+                      SYSTEM_ROLES.INSPECTOR,
+                      SYSTEM_ROLES.SYSTEM_ADMIN,
+                    ]}
+                  >
+                    <Row className="mt-3">
+                      <Col lg={3}>{addInspectionButton}</Col>
+                    </Row>
+                  </RenderOnRole>
                 </>
               ) : (
                 <>
@@ -140,9 +146,17 @@ export default function ViewLicencePage() {
                       </Alert>
                     </Col>
                   </Row>
-                  <Row className="mt-3">
-                    <Col lg={3}>{addInspectionButton}</Col>
-                  </Row>
+                  <RenderOnRole
+                    roles={[
+                      SYSTEM_ROLES.USER,
+                      SYSTEM_ROLES.INSPECTOR,
+                      SYSTEM_ROLES.SYSTEM_ADMIN,
+                    ]}
+                  >
+                    <Row className="mt-3">
+                      <Col lg={3}>{addInspectionButton}</Col>
+                    </Row>
+                  </RenderOnRole>
                 </>
               )}
             </Container>
