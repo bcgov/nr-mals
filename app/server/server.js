@@ -49,9 +49,9 @@ app.use(
       directives: {
         ...helmet.contentSecurityPolicy.getDefaultDirectives(),
         "default-src": [
-          "'self'",
-          "'https://*.silver.devops.gov.bc.ca/'",
-          "'https://dev.oidc.gov.bc.ca/'",
+          "self",
+          "https://*.silver.devops.gov.bc.ca/",
+          "https://dev.oidc.gov.bc.ca/",
         ],
       },
     },
