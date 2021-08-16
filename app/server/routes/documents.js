@@ -21,6 +21,7 @@ const {
   getReportsTemplateName,
 } = require("../utilities/documents");
 const { formatDate } = require("../utilities/formatting");
+const { parseAsInt } = require("../utilities/parsing");
 
 const prisma = new PrismaClient();
 const router = express.Router();
@@ -634,7 +635,7 @@ async function startProducersAnalysisDistrictJob() {
 async function startProducersAnalysisCityJob(city, minHives, maxHives) {
   const [procedureResult] = await prisma.$transaction([
     prisma.$queryRaw(
-      `CALL mals_app.pr_generate_print_json_apiary_producer_city('${city}', '${minHives}', '${maxHives}', NULL)`
+      `CALL mals_app.pr_generate_print_json_apiary_producer_city('${city}', ${minHives}, ${maxHives}, NULL)`
     ),
   ]);
 
@@ -647,6 +648,20 @@ async function startProvincialFarmQualityJob(startDate, endDate) {
   const [procedureResult] = await prisma.$transaction([
     prisma.$queryRaw(
       `CALL mals_app.pr_generate_print_json_dairy_farm_quality('${startDate}', '${endDate}', NULL)`
+    ),
+  ]);
+
+  const jobId = procedureResult[0].iop_print_job_id;
+
+  const documents = await getPendingDocuments(jobId);
+
+  return { jobId, documents };
+}
+
+async function startLicenceTypeLocationJob(licenceTypeId) {
+  const [procedureResult] = await prisma.$transaction([
+    prisma.$queryRaw(
+      `CALL mals_app.pr_generate_print_json_licence_location(${licenceTypeId}, NULL)`
     ),
   ]);
 
@@ -1229,6 +1244,17 @@ router.post(
       .finally(async () => prisma.$disconnect());
   }
 );
+
+router.post("/reports/startJob/licenceTypeLocation", async (req, res, next) => {
+  const licenceTypeId = parseAsInt(req.body.licenceTypeId);
+
+  await startLicenceTypeLocationJob(licenceTypeId)
+    .then(({ jobId, documents }) => {
+      return res.send({ jobId, documents });
+    })
+    .catch(next)
+    .finally(async () => prisma.$disconnect());
+});
 
 router.post("/reports/generate/:documentId(\\d+)", async (req, res, next) => {
   const documentId = parseInt(req.params.documentId, 10);

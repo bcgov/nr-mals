@@ -33,9 +33,12 @@ import {
   SITES_PATHNAME,
   COUNTRIES,
   PROVINCES,
+  SYSTEM_ROLES,
 } from "../../utilities/constants";
 
 import ErrorMessageRow from "../../components/ErrorMessageRow";
+
+import { selectCurrentUser } from "../../app/appSlice";
 
 function formatResultRow(result) {
   const url = `${SITES_PATHNAME}/${result.siteId}`;
@@ -68,6 +71,7 @@ export default function LicenceSites({ licence }) {
   const licenceStatuses = useSelector(selectLicenceStatuses);
   const results = useSelector(selectSiteResults);
   const createdSite = useSelector(selectCreatedSite);
+  const currentUser = useSelector(selectCurrentUser);
 
   useEffect(() => {
     dispatch(clearSiteParameters());
@@ -144,9 +148,12 @@ export default function LicenceSites({ licence }) {
           errorHeading={null}
           errorMessage={"There are no sites associated with this licence."}
         />
-        <Row>
-          <Col lg={2}>{addSiteButton}</Col>
-        </Row>
+        {currentUser.data.roleId !== SYSTEM_ROLES.READ_ONLY &&
+        currentUser.data.roleId !== SYSTEM_ROLES.INSPECTOR ? (
+          <Row>
+            <Col lg={2}>{addSiteButton}</Col>
+          </Row>
+        ) : null}
       </>
     );
   } else if (results.status === REQUEST_STATUS.FULFILLED && results.count > 0) {
@@ -167,7 +174,10 @@ export default function LicenceSites({ licence }) {
           <tbody>{results.data.map((result) => formatResultRow(result))}</tbody>
         </Table>
         <Row className="mt-3">
-          <Col md="3">{addSiteButton}</Col>
+          {currentUser.data.roleId !== SYSTEM_ROLES.READ_ONLY &&
+          currentUser.data.roleId !== SYSTEM_ROLES.INSPECTOR ? (
+            <Col md="3">{addSiteButton}</Col>
+          ) : null}
           <Col className="d-flex justify-content-center">
             Showing {results.data.length} of {results.count} entries
           </Col>

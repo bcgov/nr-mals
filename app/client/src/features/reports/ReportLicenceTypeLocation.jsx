@@ -3,13 +3,10 @@ import { useForm } from "react-hook-form";
 import { useSelector, useDispatch } from "react-redux";
 import { Row, Col, Form, Button } from "react-bootstrap";
 
-import { startOfToday, add } from "date-fns";
-
-import CustomDatePicker from "../../components/CustomDatePicker";
 import DocGenDownloadBar from "../../components/DocGenDownloadBar";
 
 import {
-  startProvincialFarmQualityJob,
+  startLicenceTypeLocationJob,
   generateReport,
   fetchReportJob,
   selectReportsJob,
@@ -17,7 +14,12 @@ import {
   completeReportJob,
 } from "./reportsSlice";
 
-export default function ReportProvincialFarmQuality() {
+import {
+  LICENCE_TYPE_ID_GAME_FARM,
+  LICENCE_TYPE_ID_FUR_FARM,
+} from "../licences/constants";
+
+export default function ReportLicenceTypeLocation() {
   const dispatch = useDispatch();
 
   const job = useSelector(selectReportsJob);
@@ -28,16 +30,10 @@ export default function ReportProvincialFarmQuality() {
   });
   const { register, setValue, watch } = form;
 
-  const startDate = startOfToday();
-  const endDate = add(startOfToday(), { days: 15 });
-  const watchStartDate = watch("startDate", startDate);
-  const watchEndDate = watch("endDate", endDate);
+  const watchLicenceType = watch("licenceTypeId", 1);
 
   useEffect(() => {
     dispatch(clearReportsJob());
-
-    setValue("startDate", startDate);
-    setValue("endDate", endDate);
   }, [dispatch]);
 
   useEffect(() => {
@@ -52,17 +48,10 @@ export default function ReportProvincialFarmQuality() {
     }
   }, [pendingDocuments]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const handleFieldChange = (field) => {
-    return (value) => {
-      setValue(field, value);
-    };
-  };
-
   const onGenerateReport = () => {
     dispatch(
-      startProvincialFarmQualityJob({
-        startDate: watchStartDate,
-        endDate: watchEndDate,
+      startLicenceTypeLocationJob({
+        licenceTypeId: watchLicenceType,
       })
     );
   };
@@ -71,20 +60,27 @@ export default function ReportProvincialFarmQuality() {
     <>
       <Row>
         <Col lg={3}>
-          <CustomDatePicker
-            id="startDate"
-            label="Start Date"
-            notifyOnChange={handleFieldChange("startDate")}
-            defaultValue={startDate}
-          />
-        </Col>
-        <Col lg={3}>
-          <CustomDatePicker
-            id="endDate"
-            label="End Date"
-            notifyOnChange={handleFieldChange("endDate")}
-            defaultValue={endDate}
-          />
+          <Form.Label>Licence Type</Form.Label>
+          <Form.Control
+            as="select"
+            name="licenceTypeId"
+            defaultValue={LICENCE_TYPE_ID_GAME_FARM}
+            ref={register}
+            custom
+          >
+            <option
+              key={LICENCE_TYPE_ID_GAME_FARM}
+              value={LICENCE_TYPE_ID_GAME_FARM}
+            >
+              GAME FARM
+            </option>
+            <option
+              key={LICENCE_TYPE_ID_FUR_FARM}
+              value={LICENCE_TYPE_ID_FUR_FARM}
+            >
+              FUR FARM
+            </option>
+          </Form.Control>
         </Col>
         <Col sm={2}>
           <Form.Label>&nbsp;</Form.Label>
@@ -105,4 +101,4 @@ export default function ReportProvincialFarmQuality() {
   );
 }
 
-ReportProvincialFarmQuality.propTypes = {};
+ReportLicenceTypeLocation.propTypes = {};
