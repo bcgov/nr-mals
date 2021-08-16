@@ -3,23 +3,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import Api, { ApiError } from "../../utilities/api.ts";
 import { REQUEST_STATUS } from "../../utilities/constants";
 
-export const selectQueuedReports = (state) => state.reports.queued;
 export const selectReportsJob = (state) => state.reports.job;
-
-export const fetchActionRequired = createAsyncThunk(
-  "reports/fetchActionRequired",
-  async (licenceTypeId, thunkApi) => {
-    try {
-      const response = await Api.get(`reports/actionRequired/${licenceTypeId}`);
-      return response.data;
-    } catch (error) {
-      if (error instanceof ApiError) {
-        return thunkApi.rejectWithValue(error.serialize());
-      }
-      return thunkApi.rejectWithValue({ code: -1, description: error.message });
-    }
-  }
-);
 
 export const startActionRequiredJob = createAsyncThunk(
   "reports/startActionRequiredJob",
@@ -38,45 +22,12 @@ export const startActionRequiredJob = createAsyncThunk(
   }
 );
 
-export const fetchApiaryHiveInspection = createAsyncThunk(
-  "reports/fetchApiaryHiveInspection",
-  async (payload, thunkApi) => {
-    try {
-      const response = await Api.post(`reports/apiaryHiveInspection`, payload);
-      return response.data;
-    } catch (error) {
-      if (error instanceof ApiError) {
-        return thunkApi.rejectWithValue(error.serialize());
-      }
-      return thunkApi.rejectWithValue({ code: -1, description: error.message });
-    }
-  }
-);
-
 export const startApiaryHiveInspectionJob = createAsyncThunk(
   "reports/startApiaryHiveInspection",
   async (payload, thunkApi) => {
     try {
       const response = await Api.post(
         `documents/reports/startJob/apiaryHiveInspection`,
-        payload
-      );
-      return response.data;
-    } catch (error) {
-      if (error instanceof ApiError) {
-        return thunkApi.rejectWithValue(error.serialize());
-      }
-      return thunkApi.rejectWithValue({ code: -1, description: error.message });
-    }
-  }
-);
-
-export const fetchProducersAnalysisRegion = createAsyncThunk(
-  "reports/fetchProducersAnalysisRegion",
-  async (payload, thunkApi) => {
-    try {
-      const response = await Api.post(
-        `reports/producersAnalysisRegion`,
         payload
       );
       return response.data;
@@ -123,21 +74,6 @@ export const startProducersAnalysisDistrictJob = createAsyncThunk(
   }
 );
 
-export const fetchProducersAnalysisCity = createAsyncThunk(
-  "reports/fetchProducersAnalysisCity",
-  async (payload, thunkApi) => {
-    try {
-      const response = await Api.post(`reports/producersAnalysisCity`, payload);
-      return response.data;
-    } catch (error) {
-      if (error instanceof ApiError) {
-        return thunkApi.rejectWithValue(error.serialize());
-      }
-      return thunkApi.rejectWithValue({ code: -1, description: error.message });
-    }
-  }
-);
-
 export const startProducersAnalysisCityJob = createAsyncThunk(
   "reports/startProducersAnalysisCityJob",
   async (_, thunkApi) => {
@@ -155,11 +91,14 @@ export const startProducersAnalysisCityJob = createAsyncThunk(
   }
 );
 
-export const fetchProvincialFarmQuality = createAsyncThunk(
-  "reports/fetchProvincialFarmQuality",
+export const startProvincialFarmQualityJob = createAsyncThunk(
+  "reports/startProvincialFarmQuality",
   async (payload, thunkApi) => {
     try {
-      const response = await Api.post(`reports/provincialFarmQuality`, payload);
+      const response = await Api.post(
+        `documents/reports/startJob/provincialFarmQuality`,
+        payload
+      );
       return response.data;
     } catch (error) {
       if (error instanceof ApiError) {
@@ -170,12 +109,12 @@ export const fetchProvincialFarmQuality = createAsyncThunk(
   }
 );
 
-export const startProvincialFarmQualityJob = createAsyncThunk(
-  "reports/startProvincialFarmQuality",
+export const startLicenceTypeLocationJob = createAsyncThunk(
+  "reports/startLicenceTypeLocationJob",
   async (payload, thunkApi) => {
     try {
       const response = await Api.post(
-        `documents/reports/startJob/provincialFarmQuality`,
+        `documents/reports/startJob/licenceTypeLocation`,
         payload
       );
       return response.data;
@@ -236,23 +175,6 @@ export const completeReportJob = createAsyncThunk(
   }
 );
 
-const pendingFetchReducer = (state, { payload }) => {
-  state.queued.error = undefined;
-  state.queued.status = REQUEST_STATUS.PENDING;
-};
-
-const fulfilledFetchReducer = (state, { payload }) => {
-  state.queued.data = payload;
-  state.queued.error = undefined;
-  state.queued.status = REQUEST_STATUS.FULFILLED;
-};
-
-const rejectionFetchReducer = (state, { payload }) => {
-  state.queued.data = undefined;
-  state.queued.error = payload;
-  state.queued.status = REQUEST_STATUS.REJECTED;
-};
-
 const pendingStartJobReducer = (state, { payload }) => {
   state.job.status = REQUEST_STATUS.PENDING;
 };
@@ -272,11 +194,6 @@ const rejectionStartJobReducer = (state, { payload }) => {
 export const reportsSlice = createSlice({
   name: "reports",
   initialState: {
-    queued: {
-      data: undefined,
-      error: undefined,
-      status: REQUEST_STATUS.IDLE,
-    },
     job: {
       id: undefined,
       details: undefined,
@@ -299,39 +216,27 @@ export const reportsSlice = createSlice({
     },
   },
   extraReducers: {
-    [fetchActionRequired.pending]: pendingFetchReducer,
-    [fetchActionRequired.fulfilled]: fulfilledFetchReducer,
-    [fetchActionRequired.rejected]: rejectionFetchReducer,
     [startActionRequiredJob.pending]: pendingStartJobReducer,
     [startActionRequiredJob.fulfilled]: fulfilledStartJobReducer,
     [startActionRequiredJob.rejected]: rejectionStartJobReducer,
-    [fetchApiaryHiveInspection.pending]: pendingFetchReducer,
-    [fetchApiaryHiveInspection.fulfilled]: fulfilledFetchReducer,
-    [fetchApiaryHiveInspection.rejected]: rejectionFetchReducer,
     [startApiaryHiveInspectionJob.pending]: pendingStartJobReducer,
     [startApiaryHiveInspectionJob.fulfilled]: fulfilledStartJobReducer,
     [startApiaryHiveInspectionJob.rejected]: rejectionStartJobReducer,
-    [fetchProducersAnalysisRegion.pending]: pendingFetchReducer,
-    [fetchProducersAnalysisRegion.fulfilled]: fulfilledFetchReducer,
-    [fetchProducersAnalysisRegion.rejected]: rejectionFetchReducer,
     [startProducersAnalysisRegionJob.pending]: pendingStartJobReducer,
     [startProducersAnalysisRegionJob.fulfilled]: fulfilledStartJobReducer,
     [startProducersAnalysisRegionJob.rejected]: rejectionStartJobReducer,
     [startProducersAnalysisDistrictJob.pending]: pendingStartJobReducer,
     [startProducersAnalysisDistrictJob.fulfilled]: fulfilledStartJobReducer,
     [startProducersAnalysisDistrictJob.rejected]: rejectionStartJobReducer,
-    [fetchProducersAnalysisCity.pending]: pendingFetchReducer,
-    [fetchProducersAnalysisCity.fulfilled]: fulfilledFetchReducer,
-    [fetchProducersAnalysisCity.rejected]: rejectionFetchReducer,
     [startProducersAnalysisCityJob.pending]: pendingStartJobReducer,
     [startProducersAnalysisCityJob.fulfilled]: fulfilledStartJobReducer,
     [startProducersAnalysisCityJob.rejected]: rejectionStartJobReducer,
-    [fetchProvincialFarmQuality.pending]: pendingFetchReducer,
-    [fetchProvincialFarmQuality.fulfilled]: fulfilledFetchReducer,
-    [fetchProvincialFarmQuality.rejected]: rejectionFetchReducer,
     [startProvincialFarmQualityJob.pending]: pendingStartJobReducer,
     [startProvincialFarmQualityJob.fulfilled]: fulfilledStartJobReducer,
     [startProvincialFarmQualityJob.rejected]: rejectionStartJobReducer,
+    [startLicenceTypeLocationJob.pending]: pendingStartJobReducer,
+    [startLicenceTypeLocationJob.fulfilled]: fulfilledStartJobReducer,
+    [startLicenceTypeLocationJob.rejected]: rejectionStartJobReducer,
 
     [fetchReportJob.pending]: (state) => {
       state.job.status = REQUEST_STATUS.PENDING;
@@ -369,6 +274,6 @@ export const reportsSlice = createSlice({
 
 const { actions, reducer } = reportsSlice;
 
-export const { clearQueuedReport, clearReportsJob } = actions;
+export const { clearReportsJob } = actions;
 
 export default reducer;
