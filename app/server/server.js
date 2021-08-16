@@ -54,9 +54,9 @@ app.use(
           "https://dev.oidc.gov.bc.ca/",
         ],
         "script-src": [
-          "self",
-          "https://*.silver.devops.gov.bc.ca/",
-          "https://dev.oidc.gov.bc.ca/",
+          "'self'",
+          "*.silver.devops.gov.bc.ca",
+          "https://dev.oidc.gov.bc.ca",
         ],
       },
     },
