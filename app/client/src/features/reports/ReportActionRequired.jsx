@@ -1,13 +1,8 @@
 import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useSelector, useDispatch } from "react-redux";
-import { Alert, Spinner, Table, Row, Col, Form, Button } from "react-bootstrap";
+import { Row, Col, Form, Button } from "react-bootstrap";
 
-import { REQUEST_STATUS } from "../../utilities/constants";
-import {
-  formatPhoneNumber,
-  formatListShorten,
-} from "../../utilities/formatting.ts";
 import LicenceTypes from "../lookups/LicenceTypes";
 
 import DocGenDownloadBar from "../../components/DocGenDownloadBar";
@@ -17,11 +12,10 @@ import {
   generateReport,
   fetchReportJob,
   selectReportsJob,
-  clearReportsJob,
   completeReportJob,
 } from "./reportsSlice";
 
-import { isNullOrEmpty } from "../../utilities/parsing";
+import { REPORTS } from "../../utilities/constants";
 
 export default function ReportActionRequired() {
   const dispatch = useDispatch();
@@ -37,11 +31,8 @@ export default function ReportActionRequired() {
   const selectedLicenceType = watch("licenceType", null);
 
   useEffect(() => {
-    dispatch(clearReportsJob());
-  }, [dispatch]);
-
-  useEffect(() => {
-    if (job.id) {
+    if (job.id && job.type === REPORTS.ACTION_REQUIRED) {
+      console.log(job);
       dispatch(fetchReportJob());
 
       if (pendingDocuments?.length > 0) {
