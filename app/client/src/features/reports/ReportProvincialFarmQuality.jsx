@@ -13,9 +13,10 @@ import {
   generateReport,
   fetchReportJob,
   selectReportsJob,
-  clearReportsJob,
   completeReportJob,
 } from "./reportsSlice";
+
+import { REPORTS } from "../../utilities/constants";
 
 export default function ReportProvincialFarmQuality() {
   const dispatch = useDispatch();
@@ -34,14 +35,12 @@ export default function ReportProvincialFarmQuality() {
   const watchEndDate = watch("endDate", endDate);
 
   useEffect(() => {
-    dispatch(clearReportsJob());
-
     setValue("startDate", startDate);
     setValue("endDate", endDate);
   }, [dispatch]);
 
   useEffect(() => {
-    if (job.id) {
+    if (job.id && job.type === REPORTS.DAIRY_FARM_QUALITY) {
       dispatch(fetchReportJob());
 
       if (pendingDocuments?.length > 0) {

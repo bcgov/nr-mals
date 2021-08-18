@@ -62,7 +62,7 @@ function DocGenDownloadBar({ job }) {
         </p>
       </Alert>
     );
-  } else {
+  } else if (job.status !== REQUEST_STATUS.IDLE) {
     const tenPercent = jobDetails?.totalDocumentCount * 0.1;
     const percentage =
       jobDetails?.totalDocumentCount > 0

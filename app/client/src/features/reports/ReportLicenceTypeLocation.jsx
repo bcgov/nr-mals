@@ -10,7 +10,6 @@ import {
   generateReport,
   fetchReportJob,
   selectReportsJob,
-  clearReportsJob,
   completeReportJob,
 } from "./reportsSlice";
 
@@ -18,6 +17,8 @@ import {
   LICENCE_TYPE_ID_GAME_FARM,
   LICENCE_TYPE_ID_FUR_FARM,
 } from "../licences/constants";
+
+import { REPORTS } from "../../utilities/constants";
 
 export default function ReportLicenceTypeLocation() {
   const dispatch = useDispatch();
@@ -33,11 +34,7 @@ export default function ReportLicenceTypeLocation() {
   const watchLicenceType = watch("licenceTypeId", 1);
 
   useEffect(() => {
-    dispatch(clearReportsJob());
-  }, [dispatch]);
-
-  useEffect(() => {
-    if (job.id) {
+    if (job.id && job.type === REPORTS.LICENCE_LOCATION) {
       dispatch(fetchReportJob());
 
       if (pendingDocuments?.length > 0) {
