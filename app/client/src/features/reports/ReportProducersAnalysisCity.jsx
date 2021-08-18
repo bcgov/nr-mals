@@ -13,9 +13,10 @@ import {
   generateReport,
   fetchReportJob,
   selectReportsJob,
-  clearReportsJob,
   completeReportJob,
 } from "./reportsSlice";
+
+import { REPORTS } from "../../utilities/constants";
 
 export default function ReportProducersAnalysisCity() {
   const dispatch = useDispatch();
@@ -35,12 +36,11 @@ export default function ReportProducersAnalysisCity() {
   const watchMaxHives = watch("maxHives", 0);
 
   useEffect(() => {
-    dispatch(clearReportsJob());
     dispatch(fetchCities());
   }, [dispatch]);
 
   useEffect(() => {
-    if (job.id) {
+    if (job.id && job.type === REPORTS.PRODUCERS_ANALYSIS_CITY) {
       dispatch(fetchReportJob());
 
       if (pendingDocuments?.length > 0) {

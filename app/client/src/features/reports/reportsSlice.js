@@ -181,6 +181,7 @@ const pendingStartJobReducer = (state, { payload }) => {
 
 const fulfilledStartJobReducer = (state, { payload }) => {
   state.job.id = payload.jobId;
+  state.job.type = payload.type;
   state.job.pendingDocuments = payload.documents;
   state.job.error = undefined;
   state.job.status = REQUEST_STATUS.FULFILLED;
@@ -196,6 +197,7 @@ export const reportsSlice = createSlice({
   initialState: {
     job: {
       id: undefined,
+      type: undefined,
       details: undefined,
       pendingDocuments: undefined,
       error: undefined,
@@ -203,13 +205,9 @@ export const reportsSlice = createSlice({
     },
   },
   reducers: {
-    clearQueuedReport: (state) => {
-      state.queued.details = undefined;
-      state.queued.error = undefined;
-      state.queued.status = REQUEST_STATUS.IDLE;
-    },
     clearReportsJob: (state) => {
       state.job.id = undefined;
+      state.job.type = undefined;
       state.job.details = undefined;
       state.job.error = undefined;
       state.job.status = REQUEST_STATUS.IDLE;
