@@ -9,9 +9,10 @@ import {
   generateReport,
   fetchReportJob,
   selectReportsJob,
-  clearReportsJob,
   completeReportJob,
 } from "./reportsSlice";
+
+import { REPORTS } from "../../utilities/constants";
 
 export default function ReportProducersAnalysisRegion() {
   const dispatch = useDispatch();
@@ -20,11 +21,7 @@ export default function ReportProducersAnalysisRegion() {
   const { pendingDocuments } = job;
 
   useEffect(() => {
-    dispatch(clearReportsJob());
-  }, [dispatch]);
-
-  useEffect(() => {
-    if (job.id) {
+    if (job.id && job.type === REPORTS.PRODUCERS_ANALYSIS_REGION) {
       dispatch(fetchReportJob());
 
       if (pendingDocuments?.length > 0) {

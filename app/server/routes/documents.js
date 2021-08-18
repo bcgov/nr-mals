@@ -22,6 +22,7 @@ const {
 } = require("../utilities/documents");
 const { formatDate } = require("../utilities/formatting");
 const { parseAsInt } = require("../utilities/parsing");
+const { REPORTS } = require("../utilities/constants");
 
 const prisma = new PrismaClient();
 const router = express.Router();
@@ -1168,7 +1169,7 @@ router.post(
 
     await startActionRequiredJob(licenceTypeId)
       .then(({ jobId, documents }) => {
-        return res.send({ jobId, documents });
+        return res.send({ jobId, documents, type: REPORTS.ACTION_REQUIRED });
       })
       .catch(next)
       .finally(async () => prisma.$disconnect());
@@ -1183,7 +1184,7 @@ router.post(
 
     await startApiaryHiveInspectionJob(startDate, endDate)
       .then(({ jobId, documents }) => {
-        return res.send({ jobId, documents });
+        return res.send({ jobId, documents, type: REPORTS.APIARY_INSPECTION });
       })
       .catch(next)
       .finally(async () => prisma.$disconnect());
@@ -1195,7 +1196,11 @@ router.post(
   async (req, res, next) => {
     await startProducersAnalysisRegionJob()
       .then(({ jobId, documents }) => {
-        return res.send({ jobId, documents });
+        return res.send({
+          jobId,
+          documents,
+          type: REPORTS.APIARY_PRODUCER_REGION,
+        });
       })
       .catch(next)
       .finally(async () => prisma.$disconnect());
@@ -1207,7 +1212,11 @@ router.post(
   async (req, res, next) => {
     await startProducersAnalysisDistrictJob()
       .then(({ jobId, documents }) => {
-        return res.send({ jobId, documents });
+        return res.send({
+          jobId,
+          documents,
+          type: REPORTS.APIARY_PRODUCER_DISTRICT,
+        });
       })
       .catch(next)
       .finally(async () => prisma.$disconnect());
@@ -1223,7 +1232,11 @@ router.post(
 
     await startProducersAnalysisCityJob(city, minHives, maxHives)
       .then(({ jobId, documents }) => {
-        return res.send({ jobId, documents });
+        return res.send({
+          jobId,
+          documents,
+          type: REPORTS.APIARY_PRODUCER_CITY,
+        });
       })
       .catch(next)
       .finally(async () => prisma.$disconnect());
@@ -1238,7 +1251,7 @@ router.post(
 
     await startProvincialFarmQualityJob(startDate, endDate)
       .then(({ jobId, documents }) => {
-        return res.send({ jobId, documents });
+        return res.send({ jobId, documents, type: REPORTS.DAIRY_FARM_QUALITY });
       })
       .catch(next)
       .finally(async () => prisma.$disconnect());
@@ -1250,7 +1263,7 @@ router.post("/reports/startJob/licenceTypeLocation", async (req, res, next) => {
 
   await startLicenceTypeLocationJob(licenceTypeId)
     .then(({ jobId, documents }) => {
-      return res.send({ jobId, documents });
+      return res.send({ jobId, documents, type: REPORTS.LICENCE_LOCATION });
     })
     .catch(next)
     .finally(async () => prisma.$disconnect());

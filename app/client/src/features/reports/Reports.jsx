@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { useDispatch } from "react-redux";
 import { Container, Form, Row, Col } from "react-bootstrap";
 
 import PageHeading from "../../components/PageHeading";
@@ -13,13 +14,21 @@ import ReportProducersAnalysisCity from "./ReportProducersAnalysisCity";
 import ReportProvincialFarmQuality from "./ReportProvincialFarmQuality";
 import ReportLicenceTypeLocation from "./ReportLicenceTypeLocation";
 
+import { clearReportsJob } from "./reportsSlice";
+
 export default function Reports() {
+  const dispatch = useDispatch();
+
   const form = useForm({
     reValidateMode: "onBlur",
   });
   const { register, watch } = form;
 
   const selectedConfig = watch("selectedConfig", null);
+
+  useEffect(() => {
+    dispatch(clearReportsJob());
+  }, [selectedConfig]);
 
   let control = null;
   switch (selectedConfig) {
