@@ -42,6 +42,7 @@ async function findLicence(licenceId) {
       },
       mal_licence_parent_child_xref_mal_licenceTomal_licence_parent_child_xref_parent_licence_id: {
         select: {
+          create_timestamp: true,
           mal_licence_mal_licenceTomal_licence_parent_child_xref_child_licence_id: {
             include: {
               mal_licence_type_lu: true,
