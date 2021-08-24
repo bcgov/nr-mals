@@ -3,13 +3,14 @@ import { useForm } from "react-hook-form";
 import { useSelector, useDispatch } from "react-redux";
 import { Row, Col, Form, Button } from "react-bootstrap";
 
-import { selectCities, fetchCities } from "../lookups/citiesSlice";
-import Cities from "../lookups/Cities";
+import { startOfToday, getYear } from "date-fns";
 
 import DocGenDownloadBar from "../../components/DocGenDownloadBar";
 
+import { parseAsInt } from "../../utilities/parsing";
+
 import {
-  startProducersAnalysisCityJob,
+  startDairyTankRecheckJob,
   generateReport,
   fetchReportJob,
   selectReportsJob,
@@ -18,10 +19,8 @@ import {
 
 import { REPORTS } from "../../utilities/constants";
 
-export default function ReportProducersAnalysisCity() {
+export default function ReportDairyTankRecheck() {
   const dispatch = useDispatch();
-
-  const cities = useSelector(selectCities);
 
   const job = useSelector(selectReportsJob);
   const { pendingDocuments } = job;
@@ -29,18 +28,16 @@ export default function ReportProducersAnalysisCity() {
   const form = useForm({
     reValidateMode: "onBlur",
   });
-  const { register, watch, getValues } = form;
+  const { setValue, watch } = form;
 
-  const watchCity = watch("city", null);
-  const watchMinHives = watch("minHives", 0);
-  const watchMaxHives = watch("maxHives", 0);
+  const today = startOfToday();
+  const initialYear = getYear(today) + 1;
+  const watchRecheckYear = watch("recheckYear", initialYear);
 
-  useEffect(() => {
-    dispatch(fetchCities());
-  }, [dispatch]);
+  useEffect(() => {}, [dispatch]);
 
   useEffect(() => {
-    if (job.id && job.type === REPORTS.APIARY_PRODUCER_CITY) {
+    if (job.id && job.type === REPORTS.DAIRY_FARM_TANK) {
       dispatch(fetchReportJob());
 
       if (pendingDocuments?.length > 0) {
@@ -53,10 +50,8 @@ export default function ReportProducersAnalysisCity() {
 
   const onGenerateReport = () => {
     dispatch(
-      startProducersAnalysisCityJob({
-        city: watchCity,
-        minHives: watchMinHives,
-        maxHives: watchMaxHives,
+      startDairyTankRecheckJob({
+        recheckYear: watchRecheckYear,
       })
     );
   };
@@ -64,26 +59,15 @@ export default function ReportProducersAnalysisCity() {
   return (
     <>
       <Row>
-        <Col sm={3}>
-          <Cities cities={cities} ref={register} defaultValue={null} />
-        </Col>
-        <Col sm={2}>
-          <Form.Label>Min Hives</Form.Label>
-          <Form.Control
-            type="number"
-            name="minHives"
-            defaultValue={0}
-            ref={register}
-          />
-        </Col>
-        <Col sm={2}>
-          <Form.Label>Max Hives</Form.Label>
-          <Form.Control
-            type="number"
-            name="maxHives"
-            defaultValue={0}
-            ref={register}
-          />
+        <Col lg={3}>
+          <Form.Group controlId="recheckYear">
+            <Form.Label>Re-check Year</Form.Label>
+            <Form.Control
+              type="number"
+              name="recheckYear"
+              defaultValue={initialYear}
+            />
+          </Form.Group>
         </Col>
         <Col sm={2}>
           <Form.Label>&nbsp;</Form.Label>
@@ -104,4 +88,4 @@ export default function ReportProducersAnalysisCity() {
   );
 }
 
-ReportProducersAnalysisCity.propTypes = {};
+ReportDairyTankRecheck.propTypes = {};
