@@ -57,23 +57,6 @@ export const startProducersAnalysisRegionJob = createAsyncThunk(
   }
 );
 
-export const startProducersAnalysisDistrictJob = createAsyncThunk(
-  "reports/startProducersAnalysisDistrictJob",
-  async (_, thunkApi) => {
-    try {
-      const response = await Api.post(
-        `documents/reports/startJob/producersAnalysisDistrict`
-      );
-      return response.data;
-    } catch (error) {
-      if (error instanceof ApiError) {
-        return thunkApi.rejectWithValue(error.serialize());
-      }
-      return thunkApi.rejectWithValue({ code: -1, description: error.message });
-    }
-  }
-);
-
 export const startProducersAnalysisCityJob = createAsyncThunk(
   "reports/startProducersAnalysisCityJob",
   async (_, thunkApi) => {
@@ -97,6 +80,42 @@ export const startProvincialFarmQualityJob = createAsyncThunk(
     try {
       const response = await Api.post(
         `documents/reports/startJob/provincialFarmQuality`,
+        payload
+      );
+      return response.data;
+    } catch (error) {
+      if (error instanceof ApiError) {
+        return thunkApi.rejectWithValue(error.serialize());
+      }
+      return thunkApi.rejectWithValue({ code: -1, description: error.message });
+    }
+  }
+);
+
+export const startDairyThresholdJob = createAsyncThunk(
+  "reports/startDairyThresholdJob",
+  async (payload, thunkApi) => {
+    try {
+      const response = await Api.post(
+        `documents/reports/startJob/dairyThreshold`,
+        payload
+      );
+      return response.data;
+    } catch (error) {
+      if (error instanceof ApiError) {
+        return thunkApi.rejectWithValue(error.serialize());
+      }
+      return thunkApi.rejectWithValue({ code: -1, description: error.message });
+    }
+  }
+);
+
+export const startDairyTankRecheckJob = createAsyncThunk(
+  "reports/startDairyTankRecheckJob",
+  async (payload, thunkApi) => {
+    try {
+      const response = await Api.post(
+        `documents/reports/startJob/dairyTankRecheck`,
         payload
       );
       return response.data;
@@ -223,15 +242,18 @@ export const reportsSlice = createSlice({
     [startProducersAnalysisRegionJob.pending]: pendingStartJobReducer,
     [startProducersAnalysisRegionJob.fulfilled]: fulfilledStartJobReducer,
     [startProducersAnalysisRegionJob.rejected]: rejectionStartJobReducer,
-    [startProducersAnalysisDistrictJob.pending]: pendingStartJobReducer,
-    [startProducersAnalysisDistrictJob.fulfilled]: fulfilledStartJobReducer,
-    [startProducersAnalysisDistrictJob.rejected]: rejectionStartJobReducer,
     [startProducersAnalysisCityJob.pending]: pendingStartJobReducer,
     [startProducersAnalysisCityJob.fulfilled]: fulfilledStartJobReducer,
     [startProducersAnalysisCityJob.rejected]: rejectionStartJobReducer,
     [startProvincialFarmQualityJob.pending]: pendingStartJobReducer,
     [startProvincialFarmQualityJob.fulfilled]: fulfilledStartJobReducer,
     [startProvincialFarmQualityJob.rejected]: rejectionStartJobReducer,
+    [startDairyTankRecheckJob.pending]: pendingStartJobReducer,
+    [startDairyTankRecheckJob.fulfilled]: fulfilledStartJobReducer,
+    [startDairyTankRecheckJob.rejected]: rejectionStartJobReducer,
+    [startDairyThresholdJob.pending]: pendingStartJobReducer,
+    [startDairyThresholdJob.fulfilled]: fulfilledStartJobReducer,
+    [startDairyThresholdJob.rejected]: rejectionStartJobReducer,
     [startLicenceTypeLocationJob.pending]: pendingStartJobReducer,
     [startLicenceTypeLocationJob.fulfilled]: fulfilledStartJobReducer,
     [startLicenceTypeLocationJob.rejected]: rejectionStartJobReducer,

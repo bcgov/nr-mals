@@ -659,6 +659,34 @@ async function startProvincialFarmQualityJob(startDate, endDate) {
   return { jobId, documents };
 }
 
+async function startDairyThresholdJob(startDate, endDate) {
+  const [procedureResult] = await prisma.$transaction([
+    prisma.$queryRaw(
+      `CALL mals_app.pr_generate_print_json_dairy_farm_test_threshold('${startDate}', '${endDate}', NULL)`
+    ),
+  ]);
+
+  const jobId = procedureResult[0].iop_print_job_id;
+
+  const documents = await getPendingDocuments(jobId);
+
+  return { jobId, documents };
+}
+
+async function startDairyTankRecheckJob(recheckYear) {
+  const [procedureResult] = await prisma.$transaction([
+    prisma.$queryRaw(
+      `CALL mals_app.pr_generate_print_json_dairy_farm_tank_recheck('${recheckYear}', NULL)`
+    ),
+  ]);
+
+  const jobId = procedureResult[0].iop_print_job_id;
+
+  const documents = await getPendingDocuments(jobId);
+
+  return { jobId, documents };
+}
+
 async function startLicenceTypeLocationJob(licenceTypeId) {
   const [procedureResult] = await prisma.$transaction([
     prisma.$queryRaw(
@@ -1208,22 +1236,6 @@ router.post(
 );
 
 router.post(
-  "/reports/startJob/producersAnalysisDistrict",
-  async (req, res, next) => {
-    await startProducersAnalysisDistrictJob()
-      .then(({ jobId, documents }) => {
-        return res.send({
-          jobId,
-          documents,
-          type: REPORTS.APIARY_PRODUCER_DISTRICT,
-        });
-      })
-      .catch(next)
-      .finally(async () => prisma.$disconnect());
-  }
-);
-
-router.post(
   "/reports/startJob/producersAnalysisCity",
   async (req, res, next) => {
     const city = req.body.city;
@@ -1257,6 +1269,27 @@ router.post(
       .finally(async () => prisma.$disconnect());
   }
 );
+
+router.post("/reports/startJob/dairyThreshold", async (req, res, next) => {
+  const startDate = formatDate(new Date(req.body.startDate));
+  const endDate = formatDate(new Date(req.body.endDate));
+
+  await startDairyThresholdJob(startDate, endDate)
+    .then(({ jobId, documents }) => {
+      return res.send({ jobId, documents, type: REPORTS.DAIRY_TEST_THRESHOLD });
+    })
+    .catch(next)
+    .finally(async () => prisma.$disconnect());
+});
+
+router.post("/reports/startJob/dairyTankRecheck", async (req, res, next) => {
+  await startDairyTankRecheckJob(req.body.recheckYear)
+    .then(({ jobId, documents }) => {
+      return res.send({ jobId, documents, type: REPORTS.DAIRY_FARM_TANK });
+    })
+    .catch(next)
+    .finally(async () => prisma.$disconnect());
+});
 
 router.post("/reports/startJob/licenceTypeLocation", async (req, res, next) => {
   const licenceTypeId = parseAsInt(req.body.licenceTypeId);
