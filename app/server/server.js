@@ -67,8 +67,10 @@ if (process.env.ENVIRONMENT_LABEL === "dev") {
 var corsOptions = {
   origin: function (origin, callback) {
     if (!origin || corsWhitelist.indexOf(origin) !== -1) {
+      console.log(`${origin} allowed`);
       callback(null, true);
     } else {
+      console.log(`${origin} nope`);
       callback(new Error("Not allowed by CORS"));
     }
   },
