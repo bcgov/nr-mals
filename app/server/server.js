@@ -54,14 +54,18 @@ app.use(
   })
 );
 
-var corsWhitelist = [
-  "https://*.silver.devops.gov.bc.ca/",
-  "https://dev.oidc.gov.bc.ca/",
-];
+var corsWhitelist = ["https://dev.oidc.gov.bc.ca/"];
 
 if (process.env.ENVIRONMENT_LABEL === "dev") {
+  corsWhitelist.push("https://mals-app-dev.apps.silver.devops.gov.bc.ca");
   corsWhitelist.push("http://127.0.0.1:3000/");
   corsWhitelist.push("http://127.0.0.1:3001/");
+} else if (process.env.ENVIRONMENT_LABEL === "test") {
+  corsWhitelist.push("https://mals-app-test.apps.silver.devops.gov.bc.ca");
+} else if (process.env.ENVIRONMENT_LABEL === "uat") {
+  corsWhitelist.push("https://mals-app-uat.apps.silver.devops.gov.bc.ca");
+} else if (process.env.ENVIRONMENT_LABEL === "prod") {
+  corsWhitelist.push("https://mals-app-prod.apps.silver.devops.gov.bc.ca");
 }
 
 var corsOptions = {
