@@ -21,7 +21,7 @@ export default function ReportProducersAnalysisRegion() {
   const { pendingDocuments } = job;
 
   useEffect(() => {
-    if (job.id && job.type === REPORTS.PRODUCERS_ANALYSIS_REGION) {
+    if (job.id && job.type === REPORTS.APIARY_PRODUCER_REGION) {
       dispatch(fetchReportJob());
 
       if (pendingDocuments?.length > 0) {

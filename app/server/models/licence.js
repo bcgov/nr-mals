@@ -61,9 +61,10 @@ function convertToLogicalModel(input) {
     })),
     associatedLicences: input.mal_licence_parent_child_xref_mal_licenceTomal_licence_parent_child_xref_parent_licence_id.map(
       (xref, index) => ({
-        ...convertAssociatdLicenceToLogicalModel(
-          xref.mal_licence_mal_licenceTomal_licence_parent_child_xref_child_licence_id
-        ),
+        ...convertAssociatdLicenceToLogicalModel({
+          ...xref.create_timestamp,
+          ...xref.mal_licence_mal_licenceTomal_licence_parent_child_xref_child_licence_id,
+        }),
         key: index,
       })
     ),
@@ -224,6 +225,8 @@ function convertAssociatdLicenceToLogicalModel(input) {
       ...registrant.convertToLogicalModel(xref.mal_registrant),
       key: index,
     })),
+    associatedOnDate: formatDate(input.create_timestamp),
+    companyName: input.company_name,
   };
 
   return output;

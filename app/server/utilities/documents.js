@@ -178,6 +178,11 @@ function getReportsTemplateName(documentType) {
       return "Apiary_Producer_Report_City_Template";
     case constants.REPORTS.DAIRY_FARM_QUALITY:
       return "Dairy_Provincial_Producer_Farm_Quality_Template";
+    case constants.REPORTS.DAIRY_FARM_TANK:
+      return "Tank_Recheck_Report_Template";
+    case constants.REPORTS.DAIRY_TEST_THRESHOLD:
+      return "Dairy_Test_Threshold_Template";
+
     case constants.REPORTS.LICENCE_LOCATION:
       return "LicenceType_Location_Template";
     default:

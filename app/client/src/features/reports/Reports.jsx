@@ -12,6 +12,8 @@ import ReportApiaryHiveInspection from "./ReportApiaryHiveInspection";
 import ReportProducersAnalysisRegion from "./ReportProducersAnalysisRegion";
 import ReportProducersAnalysisCity from "./ReportProducersAnalysisCity";
 import ReportProvincialFarmQuality from "./ReportProvincialFarmQuality";
+import ReportDairyThreshold from "./ReportDairyThreshold";
+import ReportDairyTankRecheck from "./ReportDairyTankRecheck";
 import ReportLicenceTypeLocation from "./ReportLicenceTypeLocation";
 
 import { clearReportsJob } from "./reportsSlice";
@@ -38,15 +40,22 @@ export default function Reports() {
     case REPORTS.APIARY_INSPECTION:
       control = <ReportApiaryHiveInspection />;
       break;
-    case REPORTS.PRODUCERS_ANALYSIS_REGION:
+    case REPORTS.APIARY_PRODUCER_REGION:
       control = <ReportProducersAnalysisRegion />;
       break;
-    case REPORTS.PRODUCERS_ANALYSIS_CITY:
+    case REPORTS.APIARY_PRODUCER_CITY:
       control = <ReportProducersAnalysisCity />;
       break;
     case REPORTS.DAIRY_FARM_QUALITY:
       control = <ReportProvincialFarmQuality />;
       break;
+    case REPORTS.DAIRY_FARM_TANK:
+      control = <ReportDairyTankRecheck />;
+      break;
+    case REPORTS.DAIRY_TEST_THRESHOLD:
+      control = <ReportDairyThreshold />;
+      break;
+
     case REPORTS.LICENCE_LOCATION:
       control = <ReportLicenceTypeLocation />;
       break;
@@ -72,15 +81,22 @@ export default function Reports() {
               <option value={REPORTS.APIARY_INSPECTION}>
                 Apiary Hive Inspection
               </option>
-              <option value={REPORTS.PRODUCERS_ANALYSIS_REGION}>
+              <option value={REPORTS.APIARY_PRODUCER_REGION}>
                 Producer&apos;s Analysis Report by Region
               </option>
-              <option value={REPORTS.PRODUCERS_ANALYSIS_CITY}>
+              <option value={REPORTS.APIARY_PRODUCER_CITY}>
                 Producer City &amp; Municipality
               </option>
               <option value={REPORTS.DAIRY_FARM_QUALITY}>
                 Provincial Farm Quality
               </option>
+              <option value={REPORTS.DAIRY_FARM_TANK}>
+                Dairy Tank Recheck
+              </option>
+              <option value={REPORTS.DAIRY_TEST_THRESHOLD}>
+                Dairy Test Threshold
+              </option>
+
               <option value={REPORTS.LICENCE_LOCATION}>Licence Location</option>
             </Form.Control>
           </Col>
