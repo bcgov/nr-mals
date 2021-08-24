@@ -33,15 +33,6 @@ const roleValidation = require("./middleware/roleValidation");
 const app = express();
 app.disable("x-powered-by");
 
-// app.use(helmet());
-
-// app.use(
-//   helmet.contentSecurityPolicy({
-//     useDefaults: true,
-//     reportOnly: true,
-//   })
-// );
-
 app.use(
   helmet({
     contentSecurityPolicy: {
@@ -63,8 +54,27 @@ app.use(
   })
 );
 
-app.use(cors());
-// app.options("*", cors()); // enable for all pre-flight requests
+var corsWhitelist = [
+  "https://*.silver.devops.gov.bc.ca/",
+  "https://dev.oidc.gov.bc.ca/",
+];
+
+if (process.env.ENVIRONMENT_LABEL === "dev") {
+  corsWhitelist.push("http://127.0.0.1:3000/");
+  corsWhitelist.push("http://127.0.0.1:3001/");
+}
+
+var corsOptions = {
+  origin: function (origin, callback) {
+    if (!origin || corsWhitelist.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+};
+
+app.use(cors(corsOptions));
 
 app.use(keycloak.middleware({}));
 app.use(logger("dev"));
