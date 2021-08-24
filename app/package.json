@@ -9,7 +9,7 @@
     "start-server": "node server/bin/www",
     "debug-server": "nodemon --inspect server/bin/www",
     "start-client": "npm run start --prefix client",
-    "build-client": "set \"INLINE_RUNTIME_CHUNK=false\" && npm run build --prefix client",
+    "build-client": "npm run build --prefix client",
     "lint": "npm run lint-server && npm run lint-client",
     "lint:fix": "npm run lint-server:fix && npm run lint-client:fix",
     "format": "npm run format-server && npm run format-client",
@@ -78,6 +78,7 @@
   },
   "devDependencies": {
     "concurrently": "^5.2.0",
+    "cross-env": "^7.0.3",
     "eslint": "7.21.0",
     "eslint-config-airbnb-base": "^14.2.0",
     "eslint-config-prettier": "^6.11.0",

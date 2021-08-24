@@ -120,6 +120,10 @@
               {
                 "name": "ENVIRONMENT_LABEL",
                 "value": "test"
+              },
+              {
+                "name": "INLINE_RUNTIME_CHUNK",
+                "value": "false"
               }
             ]
           }
@@ -184,6 +188,10 @@
               {
                 "name": "ENVIRONMENT_LABEL",
                 "value": "uat"
+              },
+              {
+                "name": "INLINE_RUNTIME_CHUNK",
+                "value": "false"
               }
             ]
           }
@@ -248,6 +256,10 @@
               {
                 "name": "ENVIRONMENT_LABEL",
                 "value": "prod"
+              },
+              {
+                "name": "INLINE_RUNTIME_CHUNK",
+                "value": "false"
               }
             ]
           }
@@ -382,6 +394,12 @@
       "displayName": "npm run",
       "description": "Select an alternate / custom runtime mode, defined in your package.json file's scripts section",
       "value": "start:production"
+    },
+    {
+      "name": "INLINE_RUNTIME_CHUNK",
+      "displayName": "Inline Runtime Chunk",
+      "description": "Set whether Reacts runtime script chunk is inline or bundled into its own file",
+      "value": "false"
     }
   ]
 }

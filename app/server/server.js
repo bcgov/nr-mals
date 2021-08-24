@@ -33,15 +33,6 @@ const roleValidation = require("./middleware/roleValidation");
 const app = express();
 app.disable("x-powered-by");
 
-// app.use(helmet());
-
-// app.use(
-//   helmet.contentSecurityPolicy({
-//     useDefaults: true,
-//     reportOnly: true,
-//   })
-// );
-
 app.use(
   helmet({
     contentSecurityPolicy: {
@@ -63,8 +54,33 @@ app.use(
   })
 );
 
-app.use(cors());
-// app.options("*", cors()); // enable for all pre-flight requests
+var corsWhitelist = ["https://dev.oidc.gov.bc.ca/"];
+
+if (process.env.ENVIRONMENT_LABEL === "dev") {
+  corsWhitelist.push("https://mals-app-dev.apps.silver.devops.gov.bc.ca");
+  corsWhitelist.push("http://127.0.0.1:3000/");
+  corsWhitelist.push("http://127.0.0.1:3001/");
+} else if (process.env.ENVIRONMENT_LABEL === "test") {
+  corsWhitelist.push("https://mals-app-test.apps.silver.devops.gov.bc.ca");
+} else if (process.env.ENVIRONMENT_LABEL === "uat") {
+  corsWhitelist.push("https://mals-app-uat.apps.silver.devops.gov.bc.ca");
+} else if (process.env.ENVIRONMENT_LABEL === "prod") {
+  corsWhitelist.push("https://mals-app-prod.apps.silver.devops.gov.bc.ca");
+}
+
+var corsOptions = {
+  origin: function (origin, callback) {
+    if (!origin || corsWhitelist.indexOf(origin) !== -1) {
+      console.log(`${origin} allowed`);
+      callback(null, true);
+    } else {
+      console.log(`${origin} nope`);
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+};
+
+app.use(cors(corsOptions));
 
 app.use(keycloak.middleware({}));
 app.use(logger("dev"));
