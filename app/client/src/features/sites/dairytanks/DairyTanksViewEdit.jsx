@@ -1,10 +1,14 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useForm } from "react-hook-form";
 import { Container, Form, Row, Col, Alert } from "react-bootstrap";
 
-import { DAIRY_TANK_MODE, REQUEST_STATUS } from "../../../utilities/constants";
+import {
+  DAIRY_TANK_MODE,
+  REQUEST_STATUS,
+  SYSTEM_ROLES,
+} from "../../../utilities/constants";
 
 import ErrorMessageRow from "../../../components/ErrorMessageRow";
 import SectionHeading from "../../../components/SectionHeading";
@@ -19,6 +23,8 @@ import {
 import { validateDairyTanks, formatDairyTanks } from "./dairyTankUtility";
 
 import DairyTanksTab from "./DairyTanksTab";
+
+import { selectCurrentUser } from "../../../app/appSlice";
 
 function submissionController(setError, clearErrors, dispatch, siteId) {
   const onSubmit = async (data) => {
@@ -52,6 +58,8 @@ export default function DairyTanksViewEdit({ site }) {
 
   const dispatch = useDispatch();
 
+  const currentUser = useSelector(selectCurrentUser);
+
   const form = useForm({
     reValidateMode: "onBlur",
   });
@@ -71,7 +79,13 @@ export default function DairyTanksViewEdit({ site }) {
     };
     return (
       <section>
-        <SectionHeading onEdit={onEdit} showEditButton>
+        <SectionHeading
+          onEdit={onEdit}
+          showEditButton={
+            currentUser.data.roleId !== SYSTEM_ROLES.READ_ONLY &&
+            currentUser.data.roleId !== SYSTEM_ROLES.INSPECTOR
+          }
+        >
           Dairy Tank Details
         </SectionHeading>
         {dairyTanks === undefined ||

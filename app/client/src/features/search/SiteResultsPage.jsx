@@ -43,7 +43,6 @@ import {
 } from "./searchSlice";
 
 function formatResultRow(result) {
-  console.log(result);
   const url = `${SITES_PATHNAME}/${result.siteId}`;
   const licenceUrl = `${LICENSES_PATHNAME}/${result.licenceId}`;
   return (

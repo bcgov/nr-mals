@@ -19,7 +19,7 @@ export const fetchCurrentUser = createAsyncThunk(
   "app/fetchCurrentUser",
   async ({ data }, thunkApi) => {
     try {
-      const response = await Api.get(`user/currentUser`, data);
+      const response = await Api.post(`user/currentUser`, data);
       return response.data;
     } catch (error) {
       if (error instanceof ApiError) {

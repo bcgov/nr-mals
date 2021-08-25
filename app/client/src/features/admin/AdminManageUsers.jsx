@@ -178,10 +178,8 @@ export default function AdminManageUsers() {
           <span className="float-right">{createUserButton}</span>
         </Col>
       </Row>
-      <div className="mt-3">
-        <ErrorMessageRow errorMessage={usersErrorMessage} />
-        <ErrorMessageRow errorMessage={rolesErrorMessage} />
-      </div>
+      <ErrorMessageRow errorMessage={usersErrorMessage} />
+      <ErrorMessageRow errorMessage={rolesErrorMessage} />
     </>
   );
 }

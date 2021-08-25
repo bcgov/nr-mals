@@ -39,7 +39,7 @@ function HeaderNavigation() {
                   Search Licenses
                 </DropdownNavLink>
               </HeaderDropdown>
-              <HeaderDropdown
+              {/* <HeaderDropdown
                 id="registrants-dropdown"
                 title="Registrants"
                 pathPrefix={Constant.REGISTRANTS_PATHNAME}
@@ -47,7 +47,7 @@ function HeaderNavigation() {
                 <DropdownNavLink to={Constant.SEARCH_REGISTRANTS_PATHNAME}>
                   Search Registrants
                 </DropdownNavLink>
-              </HeaderDropdown>
+              </HeaderDropdown> */}
               <HeaderDropdown
                 id="sites-and-contacts-dropdown"
                 title="Sites"
@@ -60,7 +60,7 @@ function HeaderNavigation() {
                   Search Sites
                 </DropdownNavLink>
               </HeaderDropdown>
-              <HeaderDropdown
+              {/* <HeaderDropdown
                 id="inspections-dropdown"
                 title="Inspections"
                 pathPrefix={Constant.INSPECTIONS_PATHNAME}
@@ -71,21 +71,48 @@ function HeaderNavigation() {
                 <DropdownNavLink to={Constant.CREATE_INSPECTIONS_PATHNAME}>
                   Create Inspection
                 </DropdownNavLink>
-              </HeaderDropdown>
+              </HeaderDropdown> */}
               <HeaderDropdown
                 id="document-generation-dropdown"
                 title="Document Generation"
                 pathPrefix={Constant.DOCUMENT_GENERATION_PATHNAME}
               >
-                <DropdownNavLink to={Constant.SELECT_NOTICES_PATHNAME}>
-                  Notices
-                </DropdownNavLink>
+                <RenderOnRole
+                  roles={[
+                    Constant.SYSTEM_ROLES.USER,
+                    Constant.SYSTEM_ROLES.SYSTEM_ADMIN,
+                  ]}
+                >
+                  <DropdownNavLink to={Constant.SELECT_RENEWALS_PATHNAME}>
+                    Renewals
+                  </DropdownNavLink>
+                  <DropdownNavLink
+                    to={Constant.SELECT_RENEWALS_APIARY_PATHNAME}
+                  >
+                    Renewals - Apiary
+                  </DropdownNavLink>
+                  <DropdownNavLink to={Constant.SELECT_DAIRYNOTICES_PATHNAME}>
+                    Dairy Infractions
+                  </DropdownNavLink>
+                  <DropdownNavLink
+                    to={Constant.SELECT_DAIRYTANKNOTICES_PATHNAME}
+                  >
+                    Dairy Tank ReCheck Notices
+                  </DropdownNavLink>
+                </RenderOnRole>
                 <DropdownNavLink to={Constant.REPORTS_PATHNAME}>
                   Reports
                 </DropdownNavLink>
-                <DropdownNavLink to={Constant.SELECT_CERTIFICATES_PATHNAME}>
-                  Certificates
-                </DropdownNavLink>
+                <RenderOnRole
+                  roles={[
+                    Constant.SYSTEM_ROLES.USER,
+                    Constant.SYSTEM_ROLES.SYSTEM_ADMIN,
+                  ]}
+                >
+                  <DropdownNavLink to={Constant.SELECT_CERTIFICATES_PATHNAME}>
+                    Certificates
+                  </DropdownNavLink>
+                </RenderOnRole>
               </HeaderDropdown>
               <RenderOnRole roles={[Constant.SYSTEM_ROLES.SYSTEM_ADMIN]}>
                 <HeaderDropdown

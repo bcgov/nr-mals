@@ -3,10 +3,11 @@
 # Component: .
 # YAML Template File: other-templates/Patroni/deployment-prereq.yaml
 #=========================================================
-SUFFIX="-test"
+#
+NAME                    =patroni
 #
 # Parameter Defaults
-# NAME                          value:    patroni
+# 
 # PATRONI_SUPERUSER_USERNAME    value:    postgres
 # PATRONI_SUPERUSER_PASSWORD    generate: expression from: '[a-zA-Z0-9]{32}'
 # PATRONI_REPLICATION_USERNAME  value:    replication
@@ -16,3 +17,7 @@ SUFFIX="-test"
 # APP_DB_OWNER_PASSWORD         generate: expression from: '[a-zA-Z0-9]{32}'
 # APP_PROXY_USERNAME            value:    app_proxy_user
 # APP_PROXY_PASSWORD            generate: expression from: '[a-zA-Z0-9]{32}'
+#
+#  Parameters Removed from yaml template
+#
+# SUFFIX="-test"

@@ -6,6 +6,7 @@ const cookieParser = require("cookie-parser");
 const logger = require("morgan");
 const session = require("express-session");
 const cors = require("cors");
+const helmet = require("helmet");
 
 const keycloak = require("./keycloak");
 
@@ -19,21 +20,66 @@ const regionsRouter = require("./routes/regions");
 const statusRouter = require("./routes/status");
 const commentsRouter = require("./routes/comments");
 const licenceSpeciesRouter = require("./routes/licenceSpecies");
+const slaughterhouseSpeciesRouter = require("./routes/slaughterhouseSpecies");
 const documentsRouter = require("./routes/documents");
 const citiesRouter = require("./routes/cities");
 const adminRouter = require("./routes/admin");
 const dairyFarmTestThresholdsRouter = require("./routes/dairyFarmTestThresholds");
+const inspectionsRouter = require("./routes/inspections");
 const constants = require("./utilities/constants");
 
 const roleValidation = require("./middleware/roleValidation");
 
 const app = express();
+app.disable("x-powered-by");
 
-app.use(cors());
-app.options("*", cors()); // enable for all pre-flight requests
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+        "default-src": [
+          "self",
+          "https://*.silver.devops.gov.bc.ca/",
+          "https://dev.oidc.gov.bc.ca/",
+        ],
+        "script-src": [
+          "'self'",
+          "*.silver.devops.gov.bc.ca",
+          "https://dev.oidc.gov.bc.ca",
+        ],
+      },
+    },
+  })
+);
+
+var corsWhitelist = ["https://dev.oidc.gov.bc.ca/"];
+
+if (process.env.ENVIRONMENT_LABEL === "dev") {
+  corsWhitelist.push("https://mals-app-dev.apps.silver.devops.gov.bc.ca");
+  corsWhitelist.push("http://127.0.0.1:3000/");
+  corsWhitelist.push("http://127.0.0.1:3001/");
+} else if (process.env.ENVIRONMENT_LABEL === "test") {
+  corsWhitelist.push("https://mals-app-test.apps.silver.devops.gov.bc.ca");
+} else if (process.env.ENVIRONMENT_LABEL === "uat") {
+  corsWhitelist.push("https://mals-app-uat.apps.silver.devops.gov.bc.ca");
+} else if (process.env.ENVIRONMENT_LABEL === "prod") {
+  corsWhitelist.push("https://mals-app-prod.apps.silver.devops.gov.bc.ca");
+}
+
+var corsOptions = {
+  origin: function (origin, callback) {
+    if (!origin || corsWhitelist.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+};
+
+app.use(cors(corsOptions));
 
 app.use(keycloak.middleware({}));
-
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -130,6 +176,17 @@ app.use(
   licenceSpeciesRouter
 );
 app.use(
+  "/api/slaughterhouse-species",
+  keycloak.protect(),
+  roleValidation([
+    constants.SYSTEM_ROLES.READ_ONLY,
+    constants.SYSTEM_ROLES.USER,
+    constants.SYSTEM_ROLES.INSPECTOR,
+    constants.SYSTEM_ROLES.SYSTEM_ADMIN,
+  ]),
+  slaughterhouseSpeciesRouter
+);
+app.use(
   "/api/documents",
   keycloak.protect(),
   roleValidation([
@@ -161,6 +218,17 @@ app.use(
     constants.SYSTEM_ROLES.SYSTEM_ADMIN,
   ]),
   dairyFarmTestThresholdsRouter
+);
+app.use(
+  "/api/inspections",
+  keycloak.protect(),
+  roleValidation([
+    constants.SYSTEM_ROLES.READ_ONLY,
+    constants.SYSTEM_ROLES.USER,
+    constants.SYSTEM_ROLES.INSPECTOR,
+    constants.SYSTEM_ROLES.SYSTEM_ADMIN,
+  ]),
+  inspectionsRouter
 );
 app.use(
   "/api/admin",

@@ -20,8 +20,16 @@ export const REPORTS_PATHNAME = "/documents/reports";
 export const SELECT_CERTIFICATES_PATHNAME = "/documents/certificates";
 export const DOWNLOAD_CERTIFICATES_PATHNAME =
   "/documents/certificates/download";
-export const SELECT_NOTICES_PATHNAME = "/documents/notices";
-export const DOWNLOAD_NOTICES_PATHNAME = "/documents/notices/download";
+export const SELECT_RENEWALS_PATHNAME = "/documents/renewals";
+export const SELECT_RENEWALS_APIARY_PATHNAME = "/documents/renewals/apiary";
+export const DOWNLOAD_RENEWALS_PATHNAME = "/documents/renewals/download";
+export const SELECT_DAIRYNOTICES_PATHNAME = "/documents/dairynotices";
+export const DOWNLOAD_DAIRYNOTICES_PATHNAME =
+  "/documents/dairynotices/download";
+export const SELECT_DAIRYTANKNOTICES_PATHNAME = "/documents/dairytanknotices";
+export const DOWNLOAD_DAIRYTANKNOTICES_PATHNAME =
+  "/documents/dairytanknotices/download";
+
 export const ADMIN_PATHNAME = "/admin";
 export const ADMIN_CONFIG_PATHNAME = "/admin/config";
 export const ADMIN_DAIRY_TEST_RESULTS_PATHNAME = "/admin/dairytestresults";
@@ -114,6 +122,21 @@ export const SPECIES_SUBCODES = {
 export const ADMIN_CONFIG_OPTIONS = {
   MANAGE_USERS: "ManageUsers",
   MANAGE_DAIRY_THRESHOLDS: "ManageDairyThresholds",
+  MANAGE_LICENCE_TYPES: "ManageLicenceTypes",
+  MANAGE_FUR_SPECIES: "ManageFurSpecies",
+  MANAGE_GAME_SPECIES: "ManageGameSpecies",
+  MANAGE_SLAUGHTER_SPECIES: "ManageSlaughterSpecies",
+};
+
+export const REPORTS = {
+  ACTION_REQUIRED: "ACTION_REQUIRED",
+  APIARY_INSPECTION: "APIARY_INSPECTION",
+  APIARY_PRODUCER_REGION: "APIARY_PRODUCER_REGION",
+  APIARY_PRODUCER_CITY: "APIARY_PRODUCER_CITY",
+  DAIRY_FARM_QUALITY: "DAIRY_FARM_QUALITY",
+  DAIRY_FARM_TANK: "DAIRY_FARM_TANK",
+  DAIRY_TEST_THRESHOLD: "DAIRY_TEST_THRESHOLD",
+  LICENCE_LOCATION: "LICENCE_LOCATION",
 };
 
 export const SYSTEM_ROLES = {
@@ -127,6 +150,6 @@ export const DAIRY_TEST_THRESHOLD_IDS = {
   WATER: 1, // CRY
   IH: 2,
   SCC: 3,
-  IBC: 4, // SCP1
+  IBC: 4, // SPC1
   FFA: 5,
 };

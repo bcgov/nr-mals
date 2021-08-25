@@ -1,5 +1,6 @@
 /* eslint-disable */
-import React from "react";
+import React, { useEffect } from "react";
+import { useDispatch } from "react-redux";
 import PropTypes from "prop-types";
 import { Controller } from "react-hook-form";
 import NumberFormat from "react-number-format";
@@ -9,12 +10,21 @@ import CustomDatePicker from "../../../components/CustomDatePicker";
 import { parseAsDate } from "../../../utilities/parsing";
 
 export default function DairyTankDetailsEdit({ form, dairyTank }) {
+  const dispatch = useDispatch();
   const { register, errors, setValue, getValues, clearErrors } = form;
   const fieldName = `dairyTanks[${dairyTank.key}]`;
   const fieldName2 = `dairyTankDates[${dairyTank.key}]`;
   const dairyTankErrors = errors.dairyTanks
     ? errors.dairyTanks[dairyTank.key]
     : undefined;
+
+  useEffect(() => {
+    setValue(
+      `${fieldName2}.calibrationDate`,
+      parseAsDate(dairyTank.calibrationDate)
+    );
+    setValue(`${fieldName2}.issueDate`, parseAsDate(dairyTank.issueDate));
+  }, [dispatch]);
 
   const handleFieldChange = (field) => {
     return (value) => {
