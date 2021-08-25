@@ -5,7 +5,7 @@ import { Container, Form, Row, Col } from "react-bootstrap";
 
 import PageHeading from "../../components/PageHeading";
 
-import { REPORTS } from "../../utilities/constants";
+import { REPORTS, SYSTEM_ROLES } from "../../utilities/constants";
 
 import ReportActionRequired from "./ReportActionRequired";
 import ReportApiaryHiveInspection from "./ReportApiaryHiveInspection";
@@ -17,6 +17,7 @@ import ReportDairyTankRecheck from "./ReportDairyTankRecheck";
 import ReportLicenceTypeLocation from "./ReportLicenceTypeLocation";
 
 import { clearReportsJob } from "./reportsSlice";
+import RenderOnRole from "../../components/RenderOnRole";
 
 export default function Reports() {
   const dispatch = useDispatch();
@@ -77,27 +78,47 @@ export default function Reports() {
               defaultValue={null}
             >
               <option value={null} />
-              <option value={REPORTS.ACTION_REQUIRED}>Action Required</option>
-              <option value={REPORTS.APIARY_INSPECTION}>
-                Apiary Hive Inspection
-              </option>
-              <option value={REPORTS.APIARY_PRODUCER_REGION}>
-                Producer&apos;s Analysis Report by Region
-              </option>
-              <option value={REPORTS.APIARY_PRODUCER_CITY}>
-                Producer City &amp; Municipality
-              </option>
-              <option value={REPORTS.DAIRY_FARM_QUALITY}>
-                Provincial Farm Quality
-              </option>
-              <option value={REPORTS.DAIRY_FARM_TANK}>
-                Dairy Tank Recheck
-              </option>
-              <option value={REPORTS.DAIRY_TEST_THRESHOLD}>
-                Dairy Test Threshold
-              </option>
 
-              <option value={REPORTS.LICENCE_LOCATION}>Licence Location</option>
+              <RenderOnRole
+                roles={[
+                  SYSTEM_ROLES.USER,
+                  SYSTEM_ROLES.INSPECTOR,
+                  SYSTEM_ROLES.SYSTEM_ADMIN,
+                ]}
+              >
+                <option value={REPORTS.ACTION_REQUIRED}>Action Required</option>
+                {/* TODO: Dairy Client Details Report */}
+                <option value={REPORTS.DAIRY_TEST_THRESHOLD}>
+                  Dairy Test Threshold
+                </option>
+                <option value={REPORTS.APIARY_INSPECTION}>
+                  Apiary Hive Inspection
+                </option>
+                <option value={REPORTS.APIARY_PRODUCER_REGION}>
+                  Producer&apos;s Analysis Report by Region
+                </option>
+                <option value={REPORTS.APIARY_PRODUCER_CITY}>
+                  Producer City &amp; Municipality
+                </option>
+                {/* TODO: Site Report */}
+              </RenderOnRole>
+
+              <RenderOnRole
+                roles={[SYSTEM_ROLES.USER, SYSTEM_ROLES.SYSTEM_ADMIN]}
+              >
+                <option value={REPORTS.DAIRY_FARM_QUALITY}>
+                  Provincial Farm Quality
+                </option>
+                <option value={REPORTS.DAIRY_FARM_TANK}>
+                  Dairy Tank Recheck
+                </option>
+                <option value={REPORTS.DAIRY_TEST_THRESHOLD}>
+                  Dairy Test Threshold
+                </option>
+                <option value={REPORTS.LICENCE_LOCATION}>
+                  Licence Location
+                </option>
+              </RenderOnRole>
             </Form.Control>
           </Col>
         </Row>
