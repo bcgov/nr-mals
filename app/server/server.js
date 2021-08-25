@@ -36,7 +36,6 @@ app.disable("x-powered-by");
 app.use(
   helmet({
     contentSecurityPolicy: {
-      reportOnly: true,
       directives: {
         ...helmet.contentSecurityPolicy.getDefaultDirectives(),
         "default-src": [
