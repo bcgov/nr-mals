@@ -114,6 +114,7 @@ export default function RegistrantsViewEdit({ licence }) {
             initialRegistrants={registrants}
             mode={mode}
             form={form}
+            submitting={submitting}
           />
           <SubmissionButtons
             submitButtonLabel={submissionLabel}

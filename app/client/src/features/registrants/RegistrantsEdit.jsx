@@ -79,6 +79,7 @@ export default function RegistrantsEdit({
   registrants,
   setRegistrants,
   setSelectedRegistrant,
+  submitting,
 }) {
   const { clearErrors } = form;
   const { addRegistrant, removeRegistrant } = useRegistrantController(
@@ -117,7 +118,11 @@ export default function RegistrantsEdit({
             eventKey={registrant.key}
             className={`${hidden ? "d-none" : null}`}
           >
-            <RegistrantDetailsEdit registrant={registrant} form={form} />
+            <RegistrantDetailsEdit
+              registrant={registrant}
+              form={form}
+              submitting={submitting}
+            />
             <Button
               onClick={() => removeRegistrant(registrant.key)}
               variant="danger"
@@ -140,4 +145,5 @@ RegistrantsEdit.propTypes = {
   registrants: PropTypes.arrayOf(PropTypes.object).isRequired,
   setRegistrants: PropTypes.func.isRequired,
   setSelectedRegistrant: PropTypes.func.isRequired,
+  submitting: PropTypes.bool.isRequired,
 };

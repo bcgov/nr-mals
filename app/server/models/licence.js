@@ -75,6 +75,7 @@ function convertToLogicalModel(input) {
   );
   if (primaryRegistrant !== undefined) {
     primaryRegistrant.companyName = output.companyName;
+    primaryRegistrant.companyNameOverride = output.companyNameOverride;
   }
 
   switch (input.licence_type_id) {
