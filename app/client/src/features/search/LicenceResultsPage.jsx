@@ -115,13 +115,7 @@ export default function LicenceResultsPage() {
             search term.
           </div>
         </Alert>
-        <RenderOnRole
-          roles={[
-            SYSTEM_ROLES.USER,
-            SYSTEM_ROLES.INSPECTOR,
-            SYSTEM_ROLES.SYSTEM_ADMIN,
-          ]}
-        >
+        <RenderOnRole roles={[SYSTEM_ROLES.USER, SYSTEM_ROLES.SYSTEM_ADMIN]}>
           <Row className="mt-3">
             <Col md="3">{createLicenceButton}</Col>
           </Row>
@@ -148,13 +142,7 @@ export default function LicenceResultsPage() {
           <tbody>{results.data.map((result) => formatResultRow(result))}</tbody>
         </Table>
         <Row className="mt-3">
-          <RenderOnRole
-            roles={[
-              SYSTEM_ROLES.USER,
-              SYSTEM_ROLES.INSPECTOR,
-              SYSTEM_ROLES.SYSTEM_ADMIN,
-            ]}
-          >
+          <RenderOnRole roles={[SYSTEM_ROLES.USER, SYSTEM_ROLES.SYSTEM_ADMIN]}>
             <Col md="3">{createLicenceButton}</Col>
           </RenderOnRole>
           <Col className="d-flex justify-content-center">
