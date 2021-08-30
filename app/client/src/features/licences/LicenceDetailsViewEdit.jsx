@@ -11,6 +11,8 @@ import {
   SYSTEM_ROLES,
 } from "../../utilities/constants";
 import {
+  LICENCE_TYPE_ID_DAIRY_FARM,
+  LICENCE_TYPE_ID_DAIRY_TANK_TRUCK,
   LICENCE_TYPE_ID_LIVESTOCK_DEALER,
   LICENCE_TYPE_ID_PUBLIC_SALE_YARD_OPERATOR,
   LICENCE_TYPE_ID_PURCHASE_LIVE_POULTRY,
@@ -266,7 +268,9 @@ export default function LicenceDetailsViewEdit({ licence }) {
             disabled={
               submitting ||
               currentUser.data.roleId === SYSTEM_ROLES.READ_ONLY ||
-              currentUser.data.roleId === SYSTEM_ROLES.INSPECTOR
+              currentUser.data.roleId === SYSTEM_ROLES.INSPECTOR ||
+              licence.data.licenceTypeId === LICENCE_TYPE_ID_DAIRY_FARM ||
+              licence.data.licenceTypeId === LICENCE_TYPE_ID_DAIRY_TANK_TRUCK
             }
           />
         </Form.Group>
