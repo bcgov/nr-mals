@@ -9,12 +9,16 @@ import { REPORTS, SYSTEM_ROLES } from "../../utilities/constants";
 
 import ReportActionRequired from "./ReportActionRequired";
 import ReportApiaryHiveInspection from "./ReportApiaryHiveInspection";
+import ReportApiarySite from "./ReportApiarySite";
 import ReportProducersAnalysisRegion from "./ReportProducersAnalysisRegion";
 import ReportProducersAnalysisCity from "./ReportProducersAnalysisCity";
 import ReportProvincialFarmQuality from "./ReportProvincialFarmQuality";
+import ReportClientDetails from "./ReportClientDetails";
+import ReportDairyClientDetails from "./ReportDairyClientDetails";
 import ReportDairyThreshold from "./ReportDairyThreshold";
 import ReportDairyTankRecheck from "./ReportDairyTankRecheck";
 import ReportLicenceTypeLocation from "./ReportLicenceTypeLocation";
+import ReportLicenceExpiry from "./ReportLicenceExpiry";
 
 import { clearReportsJob } from "./reportsSlice";
 import RenderOnRole from "../../components/RenderOnRole";
@@ -47,6 +51,15 @@ export default function Reports() {
     case REPORTS.APIARY_PRODUCER_CITY:
       control = <ReportProducersAnalysisCity />;
       break;
+    case REPORTS.APIARY_SITE:
+      control = <ReportApiarySite />;
+      break;
+    case REPORTS.CLIENT_DETAILS:
+      control = <ReportClientDetails />;
+      break;
+    case REPORTS.DAIRY_FARM_DETAIL:
+      control = <ReportDairyClientDetails />;
+      break;
     case REPORTS.DAIRY_FARM_QUALITY:
       control = <ReportProvincialFarmQuality />;
       break;
@@ -56,9 +69,11 @@ export default function Reports() {
     case REPORTS.DAIRY_TEST_THRESHOLD:
       control = <ReportDairyThreshold />;
       break;
-
     case REPORTS.LICENCE_LOCATION:
       control = <ReportLicenceTypeLocation />;
+      break;
+    case REPORTS.LICENCE_EXPIRY:
+      control = <ReportLicenceExpiry />;
       break;
     default:
       break;
@@ -81,13 +96,16 @@ export default function Reports() {
 
               <RenderOnRole
                 roles={[
+                  SYSTEM_ROLES.READ_ONLY,
                   SYSTEM_ROLES.USER,
                   SYSTEM_ROLES.INSPECTOR,
                   SYSTEM_ROLES.SYSTEM_ADMIN,
                 ]}
               >
                 <option value={REPORTS.ACTION_REQUIRED}>Action Required</option>
-                {/* TODO: Dairy Client Details Report */}
+                <option value={REPORTS.DAIRY_FARM_DETAIL}>
+                  Dairy Client Details
+                </option>
                 <option value={REPORTS.DAIRY_TEST_THRESHOLD}>
                   Dairy Test Threshold
                 </option>
@@ -100,11 +118,15 @@ export default function Reports() {
                 <option value={REPORTS.APIARY_PRODUCER_CITY}>
                   Producer City &amp; Municipality
                 </option>
-                {/* TODO: Site Report */}
+                <option value={REPORTS.APIARY_SITE}>Apiary Site</option>
               </RenderOnRole>
 
               <RenderOnRole
-                roles={[SYSTEM_ROLES.USER, SYSTEM_ROLES.SYSTEM_ADMIN]}
+                roles={[
+                  SYSTEM_ROLES.READ_ONLY,
+                  SYSTEM_ROLES.USER,
+                  SYSTEM_ROLES.SYSTEM_ADMIN,
+                ]}
               >
                 <option value={REPORTS.DAIRY_FARM_QUALITY}>
                   Provincial Farm Quality
@@ -118,6 +140,8 @@ export default function Reports() {
                 <option value={REPORTS.LICENCE_LOCATION}>
                   Licence Location
                 </option>
+                <option value={REPORTS.CLIENT_DETAILS}>Client Details</option>
+                <option value={REPORTS.LICENCE_EXPIRY}>Licence Expiry</option>
               </RenderOnRole>
             </Form.Control>
           </Col>

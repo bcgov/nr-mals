@@ -50,8 +50,14 @@ app.use(
         ],
       },
     },
+    xssFilter: false,
   })
 );
+
+app.use(function (req, res, next) {
+  res.setHeader("X-XSS-Protection", "1");
+  next();
+});
 
 var corsWhitelist = ["https://dev.oidc.gov.bc.ca/"];
 

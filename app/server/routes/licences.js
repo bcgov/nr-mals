@@ -1208,6 +1208,10 @@ router.put("/:licenceId(\\d+)/registrants", async (req, res, next) => {
         fromBodyPrimaryRegistrant !== undefined
           ? fromBodyPrimaryRegistrant.companyName
           : undefined;
+      updatedRecordLogical.companyNameOverride =
+        fromBodyPrimaryRegistrant !== undefined
+          ? fromBodyPrimaryRegistrant.companyNameOverride
+          : false;
 
       const updatedLicencePayload = licence.convertToPhysicalModel(
         populateAuditColumnsUpdate(updatedRecordLogical, now, now),
