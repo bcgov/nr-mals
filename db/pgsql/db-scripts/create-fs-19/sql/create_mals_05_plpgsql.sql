@@ -15,11 +15,13 @@ SET client_min_messages = warning;
 -- PROCEDURE:  PR_GENERATE_PRINT_JSON_APIARY_PRODUCER_DISTRICT
 -- PROCEDURE:  PR_GENERATE_PRINT_JSON_APIARY_PRODUCER_REGION
 -- PROCEDURE:  PR_GENERATE_PRINT_JSON_APIARY_SITE
--- PROCEDURE:  PR_GENERATE_PRINT_JSON_CLIENT_DETAILS
+-- PROCEDURE:  PR_GENERATE_PRINT_JSON_DAIRY_FARM_DETAILS
 -- PROCEDURE:  PR_GENERATE_PRINT_JSON_DAIRY_FARM_QUALITY
 -- PROCEDURE:  PR_GENERATE_PRINT_JSON_DAIRY_FARM_TANK_RECHECK
 -- PROCEDURE:  PR_GENERATE_PRINT_JSON_DAIRY_FARM_TEST_THRESHOLD
+-- PROCEDURE:  PR_GENERATE_PRINT_JSON_LICENCE_EXPIRY
 -- PROCEDURE:  PR_GENERATE_PRINT_JSON_LICENCE_LOCATION
+-- PROCEDURE:  PR_GENERATE_PRINT_JSON_VETERINARY_DRUG_DETAILS
 -- PROCEDURE:  PR_START_DAIRY_FARM_TEST_JOB
 -- PROCEDURE:  PR_START_PRINT_JOB
 -- PROCEDURE:  PR_UPDATE_DAIRY_FARM_TEST_RESULTS
@@ -33,12 +35,12 @@ returns trigger as $$
 	begin
 	if TG_OP = 'UPDATE' then
 		NEW.update_userid     = coalesce(NEW.update_userid, current_user);
-		NEW.update_timestamp  = current_timestamp;
+		NEW.update_timestamp  = localtimestamp;
 	elsif TG_OP = 'INSERT' then
 		NEW.create_userid     = coalesce(NEW.create_userid, current_user);
-		NEW.create_timestamp  = current_timestamp;
+		NEW.create_timestamp  = localtimestamp;
 		NEW.update_userid     = coalesce(NEW.update_userid, current_user);
-		NEW.update_timestamp  = current_timestamp;
+		NEW.update_timestamp  = localtimestamp;
 	end if;
 	return NEW;
 	end;
@@ -94,9 +96,9 @@ AS $procedure$
 			certificate_json,
 			null,
 			current_user,
-			current_timestamp,
+			localtimestamp,
 			current_user,
-			current_timestamp
+			localtimestamp
 		from mal_print_certificate_vw;
 		GET DIAGNOSTICS l_certificate_json_count = ROW_COUNT;
 		 --
@@ -121,9 +123,9 @@ AS $procedure$
 			envelope_json,
 			null,
 			current_user,
-			current_timestamp,
+			localtimestamp,
 			current_user,
-			current_timestamp
+			localtimestamp
 		from mal_print_certificate_vw;
 		GET DIAGNOSTICS l_envelope_json_count = ROW_COUNT;
 		 --
@@ -148,9 +150,9 @@ AS $procedure$
 			card_json,
 			null,
 			current_user,
-			current_timestamp,
+			localtimestamp,
 			current_user,
-			current_timestamp
+			localtimestamp
 		from mal_print_card_vw;
 		GET DIAGNOSTICS l_card_json_count = ROW_COUNT;
 	end if;
@@ -176,9 +178,9 @@ AS $procedure$
 			renewal_json,
 			null,
 			current_user,
-			current_timestamp,
+			localtimestamp,
 			current_user,
-			current_timestamp
+			localtimestamp
 		from mal_print_renewal_vw;
 		GET DIAGNOSTICS l_renewal_json_count = ROW_COUNT;
 	end if;
@@ -204,9 +206,9 @@ AS $procedure$
 			infraction_json,
 			null,
 			current_user,
-			current_timestamp,
+			localtimestamp,
 			current_user,
-			current_timestamp
+			localtimestamp
 		from mal_print_dairy_farm_infraction_vw
 		where print_dairy_infraction = true
 	and recorded_date between ip_start_date and ip_end_date;
@@ -234,9 +236,9 @@ AS $procedure$
 			recheck_notice_json,
 			null,
 			current_user,
-			current_timestamp,
+			localtimestamp,
 			current_user,
-			current_timestamp
+			localtimestamp
 		from mal_print_dairy_farm_tank_recheck_vw
 		where print_recheck_notice = true;
 		GET DIAGNOSTICS l_recheck_notice_json_count = ROW_COUNT;
@@ -245,7 +247,7 @@ AS $procedure$
 	-- Update the Print Job table.	 
 	update mal_print_job set
 		job_status                    = 'COMPLETE',
-		json_end_time                 = current_timestamp,
+		json_end_time                 = localtimestamp,
 		certificate_json_count        = l_certificate_json_count,
 		envelope_json_count           = l_envelope_json_count,
 		card_json_count               = l_card_json_count,
@@ -253,7 +255,7 @@ AS $procedure$
 		dairy_infraction_json_count   = l_dairy_infraction_json_count,
 		recheck_notice_json_count     = l_recheck_notice_json_count,
 		update_userid                 = current_user,
-		update_timestamp              = current_timestamp
+		update_timestamp              = localtimestamp
 	where id = iop_print_job_id;
 end; 
 $procedure$
@@ -315,15 +317,15 @@ AS $procedure$
 		licence_type,
 		null,
 		'ACTION_REQUIRED',
-		json_build_object('DateTime',       to_char(current_timestamp, 'fmyyyy-mm-dd hh24mi'),
+		json_build_object('DateTime',       to_char(localtimestamp AT TIME ZONE 'Canada/Pacific',, 'fmyyyy-mm-dd hh24mi'),
 						  'Licence_Type',   licence_type,
 						  'Licence',        licence_json,
 						  'RowCount',       num_rows) report_json,
 		null,
 		current_user,
-		current_timestamp,
+		localtimestamp,
 		current_user,
-		current_timestamp
+		localtimestamp
 	from licence_type_summary;
 	--
 	GET DIAGNOSTICS l_report_json_count = ROW_COUNT;	
@@ -331,10 +333,10 @@ AS $procedure$
 	-- Update the Print Job table.	 
 	update mal_print_job set
 		job_status                    = 'COMPLETE',
-		json_end_time                 = current_timestamp,
+		json_end_time                 = localtimestamp,
 		report_json_count             = l_report_json_count,
 		update_userid                 = current_user,
-		update_timestamp              = current_timestamp
+		update_timestamp              = localtimestamp
 	where id = iop_print_job_id;
 end; 
 $procedure$
@@ -479,7 +481,7 @@ AS $procedure$
 		'APIARY',
 		null,
 		'APIARY_INSPECTION',
-		   json_build_object('DateTime',                     to_char(current_timestamp, 'fmyyyy-mm-dd hh12mi'),
+		   json_build_object('DateTime',                     to_char(localtimestamp AT TIME ZONE 'Canada/Pacific', 'fmyyyy-mm-dd hh24mi'),
 							 'DateRangeStart',               to_char(ip_start_date, 'fmyyyy-mm-dd hh24mi'),
 							 'DateRangeEnd',                 to_char(ip_end_date, 'fmyyyy-mm-dd hh24mi'),
 							 'Licence',                      lic_sum.licence_json,		
@@ -498,9 +500,9 @@ AS $procedure$
 						     'Tot_SupersDestroyed',          rpt_sum.tot_supers_destroyed) report_json,
 		null,
 		current_user,
-		current_timestamp,
+		localtimestamp,
 		current_user,
-		current_timestamp
+		localtimestamp
 	from licence_summary lic_sum
 	cross join region_summary rgn_sum
 	cross join report_summary rpt_sum;
@@ -510,10 +512,10 @@ AS $procedure$
 	-- Update the Print Job table.	 
 	update mal_print_job set
 		job_status                    = 'COMPLETE',
-		json_end_time                 = current_timestamp,
+		json_end_time                 = localtimestamp,
 		report_json_count             = l_report_json_count,
 		update_userid                 = current_user,
-		update_timestamp              = current_timestamp
+		update_timestamp              = localtimestamp
 	where id = iop_print_job_id;
 end; 
 $procedure$
@@ -577,7 +579,7 @@ AS $procedure$
 		'APIARY',
 		null,
 		'APIARY_PRODUCER_CITY',
-		json_build_object('DateTime',           to_char(current_timestamp, 'fmyyyy-mm-dd hh12mi'),
+		json_build_object('DateTime',           to_char(localtimestamp AT TIME ZONE 'Canada/Pacific', 'fmyyyy-mm-dd hh24mi'),
 						  'NumColoniesBegin',   ip_min_hives,
 						  'NumColoniesEnd',     ip_max_hives,
 						  'Reg',                licence_json,
@@ -585,9 +587,9 @@ AS $procedure$
 						  'Tot_Hives',          num_hives) report_json,
 		null,
 		current_user,
-		current_timestamp,
+		localtimestamp,
 		current_user,
-		current_timestamp
+		localtimestamp
 	from site_summary;
 	--
 	GET DIAGNOSTICS l_report_json_count = ROW_COUNT;	
@@ -595,10 +597,10 @@ AS $procedure$
 	-- Update the Print Job table.	 
 	update mal_print_job set
 		job_status                    = 'COMPLETE',
-		json_end_time                 = current_timestamp,
+		json_end_time                 = localtimestamp,
 		report_json_count             = l_report_json_count,
 		update_userid                 = current_user,
-		update_timestamp              = current_timestamp
+		update_timestamp              = localtimestamp
 	where id = iop_print_job_id;
 end; 
 $procedure$
@@ -694,7 +696,7 @@ AS $procedure$
 		'APIARY',
 		null,
 		'APIARY_PRODUCER_DISTRICT',
-		json_build_object('DateTime',                  to_char(current_timestamp, 'fmyyyy-mm-dd hh12mi'),
+		json_build_object('DateTime',                  to_char(localtimestamp AT TIME ZONE 'Canada/Pacific', 'fmyyyy-mm-dd hh24mi'),
 						  'District',                  district_json,
 						  'TotalProducers1To9',        total_sites_1To9,
 						  'TotalProducers10Plus',      total_sites_10Plus,
@@ -709,9 +711,9 @@ AS $procedure$
 						  'ProducersWithNoColonies',   total_producers_hives_0) report_json,
 		null,
 		current_user,
-		current_timestamp,
+		localtimestamp,
 		current_user,
-		current_timestamp
+		localtimestamp
 	from report_summary;  
 	--
 	GET DIAGNOSTICS l_report_json_count = ROW_COUNT;	
@@ -719,10 +721,10 @@ AS $procedure$
 	-- Update the Print Job table.	 
 	update mal_print_job set
 		job_status                    = 'COMPLETE',
-		json_end_time                 = current_timestamp,
+		json_end_time                 = localtimestamp,
 		report_json_count             = l_report_json_count,
 		update_userid                 = current_user,
-		update_timestamp              = current_timestamp
+		update_timestamp              = localtimestamp
 	where id = iop_print_job_id;
 end; 
 $procedure$
@@ -818,7 +820,7 @@ AS $procedure$
 		'APIARY',
 		null,
 		'APIARY_PRODUCER_REGION',
-		json_build_object('DateTime',                  to_char(current_timestamp, 'fmyyyy-mm-dd hh12mi'),
+		json_build_object('DateTime',                  to_char(localtimestamp AT TIME ZONE 'Canada/Pacific', 'fmyyyy-mm-dd hh24mi'),
 						  'Region',                    region_json,
 						  'TotalProducers1To9',        total_sites_1To9,
 						  'TotalProducers10Plus',      total_sites_10Plus,
@@ -833,9 +835,9 @@ AS $procedure$
 						  'ProducersWithNoColonies',   total_producers_hives_0) report_json,
 		null,
 		current_user,
-		current_timestamp,
+		localtimestamp,
 		current_user,
-		current_timestamp
+		localtimestamp
 	from report_summary;  
 	--
 	GET DIAGNOSTICS l_report_json_count = ROW_COUNT;	
@@ -843,10 +845,10 @@ AS $procedure$
 	-- Update the Print Job table.	 
 	update mal_print_job set
 		job_status                    = 'COMPLETE',
-		json_end_time                 = current_timestamp,
+		json_end_time                 = localtimestamp,
 		report_json_count             = l_report_json_count,
 		update_userid                 = current_user,
-		update_timestamp              = current_timestamp
+		update_timestamp              = localtimestamp
 	where id = iop_print_job_id;
 end; 
 $procedure$
@@ -857,6 +859,7 @@ $procedure$
 --
 
 CREATE OR REPLACE PROCEDURE pr_generate_print_json_apiary_site(
+    IN    ip_region_name character varying,
     INOUT iop_print_job_id integer)
  LANGUAGE plpgsql
 AS $procedure$
@@ -880,15 +883,522 @@ AS $procedure$
 										   'FirstName',           registrant_first_name,
 										   'PrimaryPhone',        registrant_primary_phone,
 										   'Email',               registrant_email_address,
-										   'Num_Colonies',        '####################',
+										   'Num_Colonies',        site_hive_count,
 										   'Address',             site_address,
 										   'City',                site_city,
 										   'Registration_Date',   registration_date,										   
-										   'Num_Hives',           hive_count)
+										   'Num_Hives',           licence_hive_count)
 			                                order by licence_number) licence_json,
-				count(licence_number) num_producers,
-				sum(hive_count) num_hives
-			from mal_apiary_producer_vw)
+				count(licence_number) total_producers,
+				sum(licence_hive_count) total_hives
+			from mal_apiary_producer_vw
+			where site_region_name = ip_region_name)
+	--
+	--  MAIN QUERY
+	--
+	insert into mal_print_job_output(
+		print_job_id,
+		licence_type,
+		licence_number,
+		document_type,
+		document_json,
+		document_binary,
+		create_userid,
+		create_timestamp,
+		update_userid,
+		update_timestamp)
+	select 
+		iop_print_job_id,
+		'APIARY',
+		null,
+		'APIARY_SITE', 
+		json_build_object('DateTime',           to_char(localtimestamp AT TIME ZONE 'Canada/Pacific', 'fmyyyy-mm-dd hh24mi'),
+						  'Reg',                licence_json,
+						  'Tot_Producers',      total_producers,
+						  'Tot_Hives',          total_hives) report_json,
+		null,
+		current_user,
+		localtimestamp,
+		current_user,
+		localtimestamp
+	from site_summary;
+	--
+	GET DIAGNOSTICS l_report_json_count = ROW_COUNT;	
+	--
+	-- Update the Print Job table.	 
+	update mal_print_job set
+		job_status                    = 'COMPLETE',
+		json_end_time                 = localtimestamp,
+		report_json_count             = l_report_json_count,
+		update_userid                 = current_user,
+		update_timestamp              = localtimestamp
+	where id = iop_print_job_id;
+end; 
+$procedure$
+;
+
+--
+-- PROCEDURE:  PR_GENERATE_PRINT_JSON_DAIRY_FARM_DETAILS
+--
+
+CREATE OR REPLACE PROCEDURE pr_generate_print_json_dairy_farm_details(
+    IN    ip_irma_number character varying,
+    IN    ip_start_date date,
+    IN    ip_end_date date,
+    INOUT iop_print_job_id integer)
+ LANGUAGE plpgsql
+AS $procedure$
+  declare  
+	l_report_json_count       integer default 0;  
+  begin	  	  
+	--
+	-- Start a row in the mal_print_job table
+	call pr_start_print_job(
+			ip_print_category   => 'REPORT', 
+			iop_print_job_id    => iop_print_job_id
+			);
+	--
+	--  Insert the JSON into the output table
+	with tank_details as (
+		select licence_id,
+			json_agg(json_build_object('Date',  to_char(greatest(spc1_date,scc_date,cry_date,ffa_date,ih_date), 'fmyyyy-mm-dd'),
+									   'IBC',   spc1_value,
+									   'SCC',   scc_value,
+									   'CRY',   cry_value,
+									   'FFA',   ffa_value,
+									   'IH',    ih_value)
+		                                order by greatest(spc1_date,scc_date,cry_date,ffa_date,ih_date)) test_json,
+		    avg(spc1_value) average_spc1,
+		    avg(scc_value) average_scc,
+		    avg(cry_value) average_cry,
+		    avg(ffa_value) average_ffa,
+		    avg(ih_value) average_ih
+		from mal_dairy_farm_test_result
+		where irma_number = ip_irma_number
+		and greatest(spc1_date,scc_date,cry_date,ffa_date,ih_date) 
+			between ip_start_date and ip_end_date  
+		group by licence_id
+		),
+	licence_details as (
+		select 
+			json_agg(json_build_object('IRMA_Num',               tank.irma_number,
+										'Status',                tank.licence_status,
+										'LicenceHolderCompany',  tank.company_name,
+										'LastnameFirstName',     tank.registrant_last_first,
+										'Address',               tank.address,
+										'City',                  tank.city,
+										'Province',              tank.province,
+										'Postcode',              tank.postal_code,
+										'Phone',                 tank.registrant_primary_phone,
+										'Fax',                   tank.registrant_fax_number,
+										'Cell',                  tank.registrant_secondary_phone,
+										'Email',                 tank.registrant_email_address,
+										'IssueDate',             tank.issue_date_display,
+										'SiteAddress',           tank.site_address,
+										'SiteCity',              tank.site_city,
+										'SiteProvince',          tank.site_province,
+										'TankCompany',           tank.tank_company_name,
+										'TankModel',             tank.tank_model_number,
+										'TankSerial',            tank.tank_serial_number,
+										'TankCapacity',          tank.tank_capacity,
+										'LastInspectionDate',    to_char(tank.inspection_date, 'fmyyyy-mm-dd hh24mi'),
+										'LastInspector',         tank.inspector_name,
+										'Insp',                  dtl.test_json,
+										'Avg_IBC',               to_char(dtl.average_spc1,'fm9999990.0'),
+										'Avg_SCC',               to_char(dtl.average_scc,'fm9999990.0'),
+										'Avg_CRY',               to_char(dtl.average_cry,'fm9999990.0'),
+										'Avg_FFA',               to_char(dtl.average_ffa,'fm9999990.0'),
+										'Avg_IH',                to_char(dtl.average_ih,'fm9999990.0'))
+		                                order by licence_number) licence_json
+		from mal_dairy_farm_tank_vw tank
+		left join tank_details dtl
+		on tank.licence_id = dtl.licence_id
+		where tank.irma_number = ip_irma_number
+		)
+	--
+	--  MAIN QUERY
+	--
+	insert into mal_print_job_output(
+		print_job_id,
+		licence_type,
+		licence_number,
+		document_type,
+		document_json,
+		document_binary,
+		create_userid,
+		create_timestamp,
+		update_userid,
+		update_timestamp)
+	select 
+		iop_print_job_id,
+		'DAIRY FARM',
+		null,
+		'DAIRY_FARM_DETAIL',
+		json_build_object('DateTime',            to_char(localtimestamp AT TIME ZONE 'Canada/Pacific', 'fmyyyy-mm-dd hh24mi'),
+						  'DateRangeStart',      to_char(ip_start_date, 'fmyyyy-mm-dd'),
+						  'DateRangeEnd',        to_char(ip_end_date, 'fmyyyy-mm-dd'),
+						  'Client',              licence_json) report_json,
+		null,
+		current_user,
+		localtimestamp,
+		current_user,
+		localtimestamp
+	from licence_details;
+	--
+	GET DIAGNOSTICS l_report_json_count = ROW_COUNT;	
+	--
+	-- Update the Print Job table.	 
+	update mal_print_job set
+		job_status                    = 'COMPLETE',
+		json_end_time                 = localtimestamp,
+		report_json_count             = l_report_json_count,
+		update_userid                 = current_user,
+		update_timestamp              = localtimestamp
+	where id = iop_print_job_id;
+end; 
+$procedure$
+;
+
+--
+-- PROCEDURE:  PR_GENERATE_PRINT_JSON_DAIRY_FARM_QUALITY
+--
+
+CREATE OR REPLACE PROCEDURE pr_generate_print_json_dairy_farm_quality(
+    IN    ip_start_date date,
+    IN    ip_end_date date,
+    INOUT iop_print_job_id integer)
+ LANGUAGE plpgsql
+AS $procedure$
+  declare  
+	l_report_json_count       integer default 0;  
+  begin	  	  
+	--
+	-- Start a row in the mal_print_job table
+	call pr_start_print_job(
+			ip_print_category   => 'REPORT', 
+			iop_print_job_id    => iop_print_job_id
+			);
+	--
+	--  Insert the JSON into the output table
+	with licence_summary as (
+		select licence_id,
+			irma_number,	
+		    derived_licence_holder_name,
+			registrant_last_name,
+			sum(scc_value) sum_scc_value,
+			count(scc_value) num_scc_results,
+			case when coalesce(count(scc_value), 0) >0 
+				 then sum(scc_value)/count(scc_value)
+				 else null
+			end scc_average,
+			sum(spc1_value) sum_spc1_value,
+			count(spc1_value) num_spc1_results,
+			case when coalesce(count(spc1_value), 0) >0 
+				 then sum(spc1_value)/count(spc1_value)
+				 else null
+			end spc1_average
+		from mal_dairy_farm_quality_vw
+		where spc1_date between ip_start_date and ip_end_date
+		or    scc_date  between ip_start_date and ip_end_date
+		group by licence_id,
+			irma_number,
+		    derived_licence_holder_name,
+			registrant_last_name),
+		json_summary as (
+			select 
+				json_agg(json_build_object('IRMA_Num',              irma_number,
+										   'LicenceHolderCompany',  derived_licence_holder_name,
+										   'Lastname',              registrant_last_name,
+										   'SCC_Average',           scc_average,
+										   'IBC_Average',           spc1_average)
+										   order by irma_number) licence_json,
+				--  SCC
+				sum(sum_scc_value) tot_scc_value,
+				sum(num_scc_results) num_scc_results,
+				case when coalesce(sum(num_scc_results), 0) >0 
+					 then sum(sum_scc_value)/sum(num_scc_results)
+					 else null
+				end report_scc_average,
+				--  SPC1
+				sum(sum_spc1_value) tot_spc1_value,
+				sum(num_spc1_results) num_spc1_results,
+				case when coalesce(sum(num_spc1_results), 0) >0 
+					 then sum(sum_spc1_value)/sum(num_spc1_results)
+					 else null
+				end report_spc1_average
+			from licence_summary)
+		--
+		--  MAIN QUERY
+		-- 
+		insert into mal_print_job_output(
+			print_job_id,
+			licence_type,
+			licence_number,
+			document_type,
+			document_json,
+			document_binary,
+			create_userid,
+			create_timestamp,
+			update_userid,
+			update_timestamp)
+		select
+			iop_print_job_id,
+			'DAIRY FARM',
+			null,
+			'DAIRY_FARM_QUALITY',
+			json_build_object('DateTime',         to_char(localtimestamp AT TIME ZONE 'Canada/Pacific', 'fmyyyy-mm-dd hh24mi'),
+							  'DateRangeStart',   to_char(ip_start_date, 'fmyyyy-mm-dd hh24mi'),
+							  'DateRangeEnd',     to_char(ip_end_date, 'fmyyyy-mm-dd hh24mi'),
+							  'Reg',              json_summary.licence_json,		
+							  'SCC_Report_Avg',   report_scc_average,
+							  'IBC_Report_Avg',   report_spc1_average) report_json,
+			null,
+			current_user,
+			localtimestamp,
+			current_user,
+			localtimestamp
+		from json_summary;
+	--
+	GET DIAGNOSTICS l_report_json_count = ROW_COUNT;	
+	--
+	-- Update the Print Job table.	 
+	update mal_print_job set
+		job_status                    = 'COMPLETE',
+		json_end_time                 = localtimestamp,
+		report_json_count             = l_report_json_count,
+		update_userid                 = current_user,
+		update_timestamp              = localtimestamp
+	where id = iop_print_job_id;
+end; 
+$procedure$
+;
+  
+--
+-- PROCEDURE:  PR_GENERATE_PRINT_JSON_DAIRY_FARM_TANK_RECHECK
+--
+
+CREATE OR REPLACE PROCEDURE pr_generate_print_json_dairy_farm_tank_recheck(
+    IN    ip_recheck_year character varying,
+    INOUT iop_print_job_id integer)
+ LANGUAGE plpgsql
+AS $procedure$
+  declare  
+	l_report_json_count       integer default 0;  
+  begin	  	  
+	--
+	-- Start a row in the mal_print_job table
+	call pr_start_print_job(
+			ip_print_category   => 'REPORT', 
+			iop_print_job_id    => iop_print_job_id
+			);
+	--
+	--  Insert the JSON into the output table
+	with tank_details as (
+		select 
+			json_agg(json_build_object('IRMA_Num',                irma_number,
+									   'LicenceHolderCompany',    derived_licence_holder_name,
+									   'YearToCheck',             recheck_year,
+									   'TankCalibrationDate',     calibration_date_display,
+									   'TankCompany',             tank_company_name,
+									   'TankModel',               tank_model_number,
+									   'TankSerialNo',            tank_serial_number,
+									   'TankCapacity',            tank_capacity)) tank_json,
+			count(*) num_tanks
+		from mal_dairy_farm_tank_vw
+		where recheck_year = ip_recheck_year)
+	--
+	--  MAIN QUERY
+	--
+	insert into mal_print_job_output(
+		print_job_id,
+		licence_type,
+		licence_number,
+		document_type,
+		document_json,
+		document_binary,
+		create_userid,
+		create_timestamp,
+		update_userid,
+		update_timestamp)
+	select 
+		iop_print_job_id,
+		'DAIRY FARM',
+		null,
+		'DAIRY_FARM_TANK',
+		json_build_object('DateTime',            to_char(localtimestamp AT TIME ZONE 'Canada/Pacific', 'fmyyyy-mm-dd hh24mi'),
+						  'RecheckYear',         ip_recheck_year,
+						  'Reg',                 tank_json,
+						  'Total_Num_Tanks',   num_tanks) report_json,
+		null,
+		current_user,
+		localtimestamp,
+		current_user,
+		localtimestamp
+	from tank_details;
+	--
+	GET DIAGNOSTICS l_report_json_count = ROW_COUNT;	
+	--
+	-- Update the Print Job table.	 
+	update mal_print_job set
+		job_status                    = 'COMPLETE',
+		json_end_time                 = localtimestamp,
+		report_json_count             = l_report_json_count,
+		update_userid                 = current_user,
+		update_timestamp              = localtimestamp
+	where id = iop_print_job_id;
+end; 
+$procedure$
+;
+
+--
+-- PROCEDURE:  PR_GENERATE_PRINT_JSON_DAIRY_FARM_TEST_THRESHOLD
+--
+
+CREATE OR REPLACE PROCEDURE pr_generate_print_json_dairy_farm_test_threshold(
+    IN    ip_start_date date,
+    IN    ip_end_date date,
+    INOUT iop_print_job_id integer)
+ LANGUAGE plpgsql
+AS $procedure$
+  declare  
+	l_report_json_count       integer default 0;  
+  begin	  	  
+	--
+	-- Start a row in the mal_print_job table
+	call pr_start_print_job(
+			ip_print_category   => 'REPORT', 
+			iop_print_job_id    => iop_print_job_id
+			);
+	--
+	--  Insert the JSON into the output table
+	with result_base as (
+		select lic.id licence_id,
+			rslt.irma_number,			
+		    coalesce(lic.company_name, nullif(trim(concat(reg.first_name, ' ', reg.last_name)),'')) derived_licence_holder_name,
+		    coalesce(spc1_date, scc_date, cry_date, ffa_date, ih_date) derived_test_date,
+		    rslt.spc1_value,
+		    rslt.spc1_infraction_flag,
+		    rslt.scc_value,
+		    rslt.scc_infraction_flag,
+		    rslt.cry_value,
+		    rslt.cry_infraction_flag,
+		    rslt.ffa_value,
+		    rslt.ffa_infraction_flag,
+		    rslt.ih_value,
+		    rslt.ih_infraction_flag
+		from mal_licence lic
+		inner join mal_registrant reg
+		on lic.primary_registrant_id = reg.id
+		inner join mal_dairy_farm_test_result rslt
+		on lic.id = rslt.licence_id
+		where coalesce(spc1_date, scc_date, cry_date, ffa_date, ih_date) 
+			between ip_start_date and ip_end_date),
+	licence_list as (
+		select json_agg(json_build_object('IRMA_Num',               irma_number,
+										  'LicenceHolderCompany',   derived_licence_holder_name,
+										  'TestDate',               derived_test_date,
+										  'IBC_Result',             spc1_value,
+										  'SCC_Result',             scc_value,
+										  'CRY_Result',             cry_value,
+										  'FFA_Result',             ffa_value,
+										  'IH_Result',              ih_value)
+						order by irma_number) licence_json
+		from result_base),
+	result_summary as (
+		select licence_id,
+			count(case when spc1_infraction_flag then 1 else null end) num_spc1_infractions,
+			count(case when scc_infraction_flag then 1 else null end) num_scc_infractions,
+			count(case when cry_infraction_flag then 1 else null end) num_cry_infractions,
+			count(case when ffa_infraction_flag then 1 else null end) num_ffa_infractions,
+			count(case when ih_infraction_flag then 1 else null end) num_ih_infractions
+		from result_base
+		group by licence_id)
+	--
+	--  MAIN QUERY
+	--
+	insert into mal_print_job_output(
+		print_job_id,
+		licence_type,
+		licence_number,
+		document_type,
+		document_json,
+		document_binary,
+		create_userid,
+		create_timestamp,
+		update_userid,
+		update_timestamp)
+	select 
+		iop_print_job_id,
+		'DAIRY FARM',
+		null,
+		'DAIRY_TEST_THRESHOLD',
+		json_build_object('DateTime',          to_char(localtimestamp AT TIME ZONE 'Canada/Pacific', 'fmyyyy-mm-dd hh24:mi'),
+						  'DateRangeStart',    to_char(ip_start_date, 'fmMonth dd, yyyy'),
+						  'DateRangeEnd',      to_char(ip_end_date, 'fmMonth dd, yyyy'),
+						  'Reg',               list.licence_json,
+						  'Tot_IBC_Count',     smry.num_spc1_infractions,
+						  'Tot_SCC_Count',     smry.num_scc_infractions,
+						  'Tot_CRY_Count',     smry.num_cry_infractions,
+						  'Tot_FFA_Count',     smry.num_ffa_infractions,
+						  'Tot_IH_Count',      smry.num_ih_infractions) report_json,
+		null,
+		current_user,
+		localtimestamp,
+		current_user,
+		localtimestamp
+	from licence_list list
+	cross join result_summary smry;
+	--
+	GET DIAGNOSTICS l_report_json_count = ROW_COUNT;	
+	--
+	-- Update the Print Job table.	 
+	update mal_print_job set
+		job_status                    = 'COMPLETE',
+		json_end_time                 = localtimestamp,
+		report_json_count             = l_report_json_count,
+		update_userid                 = current_user,
+		update_timestamp              = localtimestamp
+	where id = iop_print_job_id;
+end; 
+$procedure$
+;
+
+--
+-- PROCEDURE:  PR_GENERATE_PRINT_JSON_LICENCE_EXPIRY
+--
+
+CREATE OR REPLACE PROCEDURE pr_generate_print_json_licence_expiry(
+    IN    ip_start_date date,
+    IN    ip_end_date date,
+    INOUT iop_print_job_id integer)
+ LANGUAGE plpgsql
+AS $procedure$
+  declare  
+	l_report_json_count       integer default 0;  
+  begin	  	  
+	--
+	-- Start a row in the mal_print_job table
+	call pr_start_print_job(
+			ip_print_category   => 'REPORT', 
+			iop_print_job_id    => iop_print_job_id
+			);
+	--
+	--  Insert the JSON into the output table
+	with licence_details as (
+		select 
+			json_agg(json_build_object('LicenceNumber',          licence_number,
+										'Lastname',              last_name,
+										'FirstName',             first_name,
+										'LicenceHolderCompany',  company_name,
+										'PrimaryPhone',          primary_phone,
+										'Email',                 email_address,
+										'LicenceType',           licence_type,
+										'IssueDate',             to_char(issue_date, 'fmyyyy-mm-dd'),
+										'ExpiryDate',            to_char(expiry_date, 'fmyyyy-mm-dd'))
+		                                order by licence_number) licence_json
+		from mals_app.mal_licence_summary_vw
+		where expiry_date between ip_start_date and ip_end_date
+		)
 	--
 	--  MAIN QUERY
 	--
@@ -907,37 +1417,128 @@ AS $procedure$
 		iop_print_job_id,
 		null,
 		null,
-		'APIARY_SITE', 
-		json_build_object('DateTime',           to_char(current_timestamp, 'fmyyyy-mm-dd hh12mi'),
-						  'Reg',                licence_json,
-						  'Tot_Producers',      num_producers,
-						  'Tot_Hives',          num_hives) report_json,
+		'LICENCE_EXPIRY',
+		json_build_object('DateTime',        to_char(localtimestamp, 'fmyyyy-mm-dd hh12mi'),
+						  'DateRangeStart',  to_char(ip_start_date, 'fmyyyy-mm-dd'),
+						  'DateRangeEnd',    to_char(ip_end_date, 'fmyyyy-mm-dd'),
+						  'Reg',             licence_json) report_json,
 		null,
 		current_user,
-		current_timestamp,
+		localtimestamp,
 		current_user,
-		current_timestamp
-	from site_summary;
+		localtimestamp
+	from licence_details;
 	--
 	GET DIAGNOSTICS l_report_json_count = ROW_COUNT;	
 	--
 	-- Update the Print Job table.	 
 	update mal_print_job set
 		job_status                    = 'COMPLETE',
-		json_end_time                 = current_timestamp,
+		json_end_time                 = localtimestamp,
 		report_json_count             = l_report_json_count,
 		update_userid                 = current_user,
-		update_timestamp              = current_timestamp
+		update_timestamp              = localtimestamp
 	where id = iop_print_job_id;
 end; 
 $procedure$
 ;
 
 --
--- PROCEDURE:  PR_GENERATE_PRINT_JSON_CLIENT_DETAILS
+-- PROCEDURE:  PR_GENERATE_PRINT_JSON_LICENCE_LOCATION
 --
 
-CREATE OR REPLACE PROCEDURE pr_generate_print_json_client_details(
+CREATE OR REPLACE PROCEDURE pr_generate_print_json_licence_location(
+    IN    ip_licence_type_id integer,
+    INOUT iop_print_job_id integer)
+ LANGUAGE plpgsql
+AS $procedure$
+  declare  
+	l_report_json_count       integer default 0;  
+  begin	  	  
+	--
+	-- Start a row in the mal_print_job table
+	call pr_start_print_job(
+			ip_print_category   => 'REPORT', 
+			iop_print_job_id    => iop_print_job_id
+			);
+	--
+	--  Insert the JSON into the output table
+	with licence_summary as (
+		select 
+			lic.licence_type,
+			json_agg(json_build_object('LicenceNumber',               lic.licence_number,
+				                       'IssueDate',                   issue_date,     
+				                       'ExpiryDate',                  lic.expiry_date,      
+				                       'Lastname',                    lic.last_name,
+				                       'Firstname',                   lic.first_name,
+				                       'MailingAddress',              lic.derived_mailing_address,
+				                       'MailingCity',                 lic.derived_mailing_city,
+				                       'MailingProv',                 lic.derived_mailing_province,
+				                       'PostCode',                    lic.derived_mailing_postal_code,
+				                       'Phone',                       lic.primary_phone,
+				                       'Email',                       lic.email_address,	
+				                       'FeeCollected',                lic.fee_collected,
+				                       'BondContinuationExpiryDate',  lic.bond_continuation_expiry_date,                     
+				                       'SpeciesType',                 spec.species_code,
+				                       'SpeciesMale',                 spec.male_count,
+				                       'SpeciesFemale',               spec.female_count)
+				                       order by lic.licence_number, spec.species_code) licence_json,
+			count(*) num_rows
+		from mal_licence_summary_vw lic
+		--  MALE and FEMALE accounts are relevant for FUR FARM and GAME FARM
+		left join mal_licence_species_vw spec
+		on lic.licence_id = spec.licence_id
+		where lic.licence_type_id = ip_licence_type_id
+		group by lic.licence_type)
+	--
+	--  MAIN QUERY
+	--
+	insert into mal_print_job_output(
+		print_job_id,
+		licence_type,
+		licence_number,
+		document_type,
+		document_json,
+		document_binary,
+		create_userid,
+		create_timestamp,
+		update_userid,
+		update_timestamp)
+	select 
+		iop_print_job_id,
+		licence_type,
+		null,
+		'LICENCE_LOCATION',
+		json_build_object('DateTime',       to_char(localtimestamp AT TIME ZONE 'Canada/Pacific', 'fmyyyy-mm-dd hh24mi'),
+						  'Licence_Type',   licence_type,
+						  'Licence',        licence_json,
+						  'RowCount',       num_rows) report_json,
+		null,
+		current_user,
+		localtimestamp,
+		current_user,
+		localtimestamp
+	from licence_summary;
+	--
+	GET DIAGNOSTICS l_report_json_count = ROW_COUNT;	
+	--
+	-- Update the Print Job table.	 
+	update mal_print_job set
+		job_status                    = 'COMPLETE',
+		json_end_time                 = localtimestamp,
+		report_json_count             = l_report_json_count,
+		update_userid                 = current_user,
+		update_timestamp              = localtimestamp
+	where id = iop_print_job_id;
+end; 
+$procedure$
+;		
+
+--
+-- PROCEDURE:  PR_GENERATE_PRINT_JSON_VETERINARY_DRUG_DETAILS
+--
+
+CREATE OR REPLACE PROCEDURE pr_generate_print_json_veterinary_drug_details(
     INOUT iop_print_job_id integer)
  LANGUAGE plpgsql
 AS $procedure$
@@ -1031,7 +1632,59 @@ AS $procedure$
 									   'DispExpiryDate',   expiry_date_display)
 									   order by licence_number)  licence_json
 		from chld_lic
-		group by parent_licence_id)
+		group by parent_licence_id),
+	vet_drug_site as (
+		select s.id site_id,
+		    l.id licence_id,  
+		    s.inspector_name,
+		    s.inspection_date,
+		    -- There should exist only 1 site per Veterinary Drug licence
+		    row_number() over (partition by s.licence_id order by s.create_timestamp) row_seq
+		from mal_licence l
+		inner join mal_site s
+		on l.id=s.licence_id
+		inner join mal_licence_type_lu l_t
+		on l.licence_type_id = l_t.id 
+		left join mal_status_code_lu stat
+		on s.status_code_id = stat.id
+		-- Print flag included to improve performance.
+		where stat.code_name='ACT'
+		and l_t.licence_type = 'VETERINARY DRUG'
+		),
+	licence_summary as (
+		select 
+			prnt_lic.licence_type,
+			json_agg(json_build_object('LicenceNumber',             prnt_lic.licence_number,
+									   'Status',                    prnt_lic.licence_status,
+									   'LicenceHolderCompany',      prnt_lic.company_name,
+									   'Address',                   prnt_lic.address,
+									   'City',                      prnt_lic.city,
+									   'Province',                  prnt_lic.province,
+									   'PostCode',                  prnt_lic.postal_code,
+									   'Phone',                     prnt_lic.primary_phone_display,
+									   'Fax',                       prnt_lic.secondary_phone_display,
+									   'Call',                      prnt_lic.fax_number_display,	                      
+									   'Email',                     prnt_lic.email_address,
+									   'IssueDate',                 prnt_lic.issue_date_display,
+									   'ExpiryDate',                prnt_lic.expiry_date_display,
+									   'Fee',                       prnt_lic.fee_collected_display,
+									   'SiteInspectionDate',        site.inspection_date,
+									   'SiteInspector',             site.inspector_name,
+									   'DispenserAddress',          chld_lic.address,
+									   'DispenserCity',             chld_lic.city,
+									   'DispenserProvince',         chld_lic.province,
+									   'DispenserPostcode',         chld_lic.postal_code,
+									   'Disp',                      chld_smry.licence_json)
+									   order by prnt_lic.licence_number) licence_json
+	from prnt_lic 
+	left join chld_lic
+	on prnt_lic.licence_id = chld_lic.parent_licence_id
+	and row_seq = 1
+	left join chld_smry
+	on prnt_lic.licence_id = chld_smry.parent_licence_id
+	left join vet_drug_site site
+	on prnt_lic.licence_id = site.licence_id
+	group by prnt_lic.licence_type)
 	--
 	--  MAIN QUERY
 	--
@@ -1050,435 +1703,15 @@ AS $procedure$
 		iop_print_job_id,
 		'VETERINARY DRUG',
 		null,
-		'CLIENT_DETAILS',	
-		json_build_object('DateTime',       to_char(current_date, 'fmMonth dd, yyyy'),
-						  'Licence_Type',   prnt_lic.licence_type,
-						  'Client',         json_build_object('LicenceNumber',             to_char(current_date, 'fmMonth dd, yyyy'),
-															  'Status',                    prnt_lic.licence_status,
-															  'LicenceHolderCompany',      prnt_lic.company_name,
-															  'Address',                   prnt_lic.address,
-															  'City',                      prnt_lic.city,
-															  'Province',                  prnt_lic.province,
-															  'PostCode',                  prnt_lic.postal_code,
-															  'Phone',                     prnt_lic.primary_phone_display,
-															  'Fax',                       prnt_lic.secondary_phone_display,
-															  'Call',                      prnt_lic.fax_number_display,	                      
-															  'Email',                     prnt_lic.email_address,
-															  'IssueDate',                 prnt_lic.issue_date_display,
-															  'ExpiryDate',                prnt_lic.expiry_date_display,
-															  'Fee',                       prnt_lic.fee_collected_display,
-															  'DispenserAddress',          chld_lic.address,
-															  'DispenserCity',             chld_lic.city,
-															  'DispenserProvince',         chld_lic.province,
-															  'DispenserPostcode',         chld_lic.postal_code,
-															  'DispenserInspectionDate',   'XXXXXXXXXXXXXXXXXXXXX',
-															  'DispenserInspector',        'XXXXXXXXXXXXXXXXXXXXX',
-															  'Disp',                      chld_smry.licence_json)) report_json,
-		null,
-		current_user,
-		current_timestamp,
-		current_user,
-		current_timestamp
-	from prnt_lic 
-	left join chld_lic
-	on prnt_lic.licence_id = chld_lic.parent_licence_id
-	and row_seq = 1
-	left join chld_smry
-	on prnt_lic.licence_id = chld_smry.parent_licence_id;
-	--
-	GET DIAGNOSTICS l_report_json_count = ROW_COUNT;	
-	--
-	-- Update the Print Job table.	 
-	update mal_print_job set
-		job_status                    = 'COMPLETE',
-		json_end_time                 = current_timestamp,
-		report_json_count             = l_report_json_count,
-		update_userid                 = current_user,
-		update_timestamp              = current_timestamp
-	where id = iop_print_job_id;
-end; 
-$procedure$
-;
-
---
--- PROCEDURE:  PR_GENERATE_PRINT_JSON_DAIRY_FARM_QUALITY
---
-
-CREATE OR REPLACE PROCEDURE pr_generate_print_json_dairy_farm_quality(
-    IN    ip_start_date date,
-    IN    ip_end_date date,
-    INOUT iop_print_job_id integer)
- LANGUAGE plpgsql
-AS $procedure$
-  declare  
-	l_report_json_count       integer default 0;  
-  begin	  	  
-	--
-	-- Start a row in the mal_print_job table
-	call pr_start_print_job(
-			ip_print_category   => 'REPORT', 
-			iop_print_job_id    => iop_print_job_id
-			);
-	--
-	--  Insert the JSON into the output table
-	with licence_summary as (
-		select licence_id,
-			irma_number,	
-		    derived_licence_holder_name,
-			registrant_last_name,
-			sum(scc_value) sum_scc_value,
-			count(scc_value) num_scc_results,
-			case when coalesce(count(scc_value), 0) >0 
-				 then sum(scc_value)/count(scc_value)
-				 else null
-			end scc_average,
-			sum(spc1_value) sum_spc1_value,
-			count(spc1_value) num_spc1_results,
-			case when coalesce(count(spc1_value), 0) >0 
-				 then sum(spc1_value)/count(spc1_value)
-				 else null
-			end spc1_average
-		from mal_dairy_farm_quality_vw
-		where spc1_date between ip_start_date and ip_end_date
-		or    scc_date  between ip_start_date and ip_end_date
-		group by licence_id,
-			irma_number,
-		    derived_licence_holder_name,
-			registrant_last_name),
-		json_summary as (
-			select 
-				json_agg(json_build_object('IRMA_Num',              irma_number,
-										   'LicenceHolderCompany',  derived_licence_holder_name,
-										   'Lastname',              registrant_last_name,
-										   'SCC_Average',           scc_average,
-										   'IBC_Average',           spc1_average)
-										   order by irma_number) licence_json,
-				--  SCC
-				sum(sum_scc_value) tot_scc_value,
-				sum(num_scc_results) num_scc_results,
-				case when coalesce(sum(num_scc_results), 0) >0 
-					 then sum(sum_scc_value)/sum(num_scc_results)
-					 else null
-				end report_scc_average,
-				--  SPC1
-				sum(sum_spc1_value) tot_spc1_value,
-				sum(num_spc1_results) num_spc1_results,
-				case when coalesce(sum(num_spc1_results), 0) >0 
-					 then sum(sum_spc1_value)/sum(num_spc1_results)
-					 else null
-				end report_spc1_average
-			from licence_summary)
-		--
-		--  MAIN QUERY
-		-- 
-		insert into mal_print_job_output(
-			print_job_id,
-			licence_type,
-			licence_number,
-			document_type,
-			document_json,
-			document_binary,
-			create_userid,
-			create_timestamp,
-			update_userid,
-			update_timestamp)
-		select
-			iop_print_job_id,
-			'DAIRY FARM',
-			null,
-			'DAIRY_FARM_QUALITY',
-			json_build_object('DateTime',         to_char(current_timestamp, 'fmyyyy-mm-dd hh12mi'),
-							  'DateRangeStart',   to_char(ip_start_date, 'fmyyyy-mm-dd hh24mi'),
-							  'DateRangeEnd',     to_char(ip_end_date, 'fmyyyy-mm-dd hh24mi'),
-							  'Reg',              json_summary.licence_json,		
-							  'SCC_Report_Avg',   report_scc_average,
-							  'IBC_Report_Avg',   report_spc1_average) report_json,
-			null,
-			current_user,
-			current_timestamp,
-			current_user,
-			current_timestamp
-		from json_summary;
-	--
-	GET DIAGNOSTICS l_report_json_count = ROW_COUNT;	
-	--
-	-- Update the Print Job table.	 
-	update mal_print_job set
-		job_status                    = 'COMPLETE',
-		json_end_time                 = current_timestamp,
-		report_json_count             = l_report_json_count,
-		update_userid                 = current_user,
-		update_timestamp              = current_timestamp
-	where id = iop_print_job_id;
-end; 
-$procedure$
-;
-  
---
--- PROCEDURE:  PR_GENERATE_PRINT_JSON_DAIRY_FARM_TANK_RECHECK
---
-
-CREATE OR REPLACE PROCEDURE pr_generate_print_json_dairy_farm_tank_recheck(
-    IN    ip_recheck_year character varying,
-    INOUT iop_print_job_id integer)
- LANGUAGE plpgsql
-AS $procedure$
-  declare  
-	l_report_json_count       integer default 0;  
-  begin	  	  
-	--
-	-- Start a row in the mal_print_job table
-	call pr_start_print_job(
-			ip_print_category   => 'REPORT', 
-			iop_print_job_id    => iop_print_job_id
-			);
-	--
-	--  Insert the JSON into the output table
-	with tank_details as (
-		select 
-			json_agg(json_build_object('IRMA_Num',                irma_number,
-									   'LicenceHolderCompany',    derived_licence_holder_name,
-									   'YearToCheck',             recheck_year,
-									   'TankCalibrationDate',     calibration_date,
-									   'TankCompany',             company_name,
-									   'TankModel',               model_number,
-									   'TankSerialNo',            serial_number,
-									   'TankCapacity',            tank_capacity)) tank_json,
-			count(*) num_tanks
-		from mal_dairy_farm_tank_vw
-		where recheck_year = ip_recheck_year)
-	--
-	--  MAIN QUERY
-	--
-	insert into mal_print_job_output(
-		print_job_id,
-		licence_type,
-		licence_number,
-		document_type,
-		document_json,
-		document_binary,
-		create_userid,
-		create_timestamp,
-		update_userid,
-		update_timestamp)
-	select 
-		iop_print_job_id,
-		'DAIRY FARM',
-		null,
-		'DAIRY_FARM_TANK',
-		json_build_object('DateTime',            to_char(current_timestamp, 'fmyyyy-mm-dd hh12mi'),
-						  'RecheckYear',         ip_recheck_year,
-						  'Reg',                 tank_json,
-						  'Total_Num_Tanks',   num_tanks) report_json,
-		null,
-		current_user,
-		current_timestamp,
-		current_user,
-		current_timestamp
-	from tank_details;
-	--
-	GET DIAGNOSTICS l_report_json_count = ROW_COUNT;	
-	--
-	-- Update the Print Job table.	 
-	update mal_print_job set
-		job_status                    = 'COMPLETE',
-		json_end_time                 = current_timestamp,
-		report_json_count             = l_report_json_count,
-		update_userid                 = current_user,
-		update_timestamp              = current_timestamp
-	where id = iop_print_job_id;
-end; 
-$procedure$
-;
-
---
--- PROCEDURE:  PR_GENERATE_PRINT_JSON_DAIRY_FARM_TEST_THRESHOLD
---
-
-CREATE OR REPLACE PROCEDURE pr_generate_print_json_dairy_farm_test_threshold(
-    IN    ip_start_date date,
-    IN    ip_end_date date,
-    INOUT iop_print_job_id integer)
- LANGUAGE plpgsql
-AS $procedure$
-  declare  
-	l_report_json_count       integer default 0;  
-  begin	  	  
-	--
-	-- Start a row in the mal_print_job table
-	call pr_start_print_job(
-			ip_print_category   => 'REPORT', 
-			iop_print_job_id    => iop_print_job_id
-			);
-	--
-	--  Insert the JSON into the output table
-	with result_base as (
-		select lic.id licence_id,
-			rslt.irma_number,			
-		    coalesce(lic.company_name, nullif(trim(concat(reg.first_name, ' ', reg.last_name)),'')) derived_licence_holder_name,
-		    coalesce(spc1_date, scc_date, cry_date, ffa_date, ih_date) derived_test_date,
-		    rslt.spc1_value,
-		    rslt.spc1_infraction_flag,
-		    rslt.scc_value,
-		    rslt.scc_infraction_flag,
-		    rslt.cry_value,
-		    rslt.cry_infraction_flag,
-		    rslt.ffa_value,
-		    rslt.ffa_infraction_flag,
-		    rslt.ih_value,
-		    rslt.ih_infraction_flag
-		from mal_licence lic
-		inner join mal_registrant reg
-		on lic.primary_registrant_id = reg.id
-		inner join mal_dairy_farm_test_result rslt
-		on lic.id = rslt.licence_id
-		where coalesce(spc1_date, scc_date, cry_date, ffa_date, ih_date) 
-			between ip_start_date and ip_end_date),
-	licence_list as (
-		select json_agg(json_build_object('IRMA_Num',               irma_number,
-										  'LicenceHolderCompany',   derived_licence_holder_name,
-										  'TestDate',               derived_test_date,
-										  'IBC_Result',             spc1_value,
-										  'SCC_Result',             scc_value,
-										  'CRY_Result',             cry_value,
-										  'FFA_Result',             ffa_value,
-										  'IH_Result',              ih_value)
-						order by irma_number) licence_json
-		from result_base),
-	result_summary as (
-		select licence_id,
-			count(case when spc1_infraction_flag then 1 else null end) num_spc1_infractions,
-			count(case when scc_infraction_flag then 1 else null end) num_scc_infractions,
-			count(case when cry_infraction_flag then 1 else null end) num_cry_infractions,
-			count(case when ffa_infraction_flag then 1 else null end) num_ffa_infractions,
-			count(case when ih_infraction_flag then 1 else null end) num_ih_infractions
-		from result_base
-		group by licence_id)
-	--
-	--  MAIN QUERY
-	--
-	insert into mal_print_job_output(
-		print_job_id,
-		licence_type,
-		licence_number,
-		document_type,
-		document_json,
-		document_binary,
-		create_userid,
-		create_timestamp,
-		update_userid,
-		update_timestamp)
-	select 
-		iop_print_job_id,
-		'DAIRY FARM',
-		null,
-		'DAIRY_TEST_THRESHOLD',
-		json_build_object('DateTime',          to_char(current_date, 'fmyyyy-mm-dd hh24:mi'),
-						  'DateRangeStart',    to_char(current_date, 'fmMonth dd, yyyy'),
-						  'DateRangeEnd',      to_char(current_date, 'fmMonth dd, yyyy'),
-						  'Reg',               list.licence_json,
-						  'Tot_IBC_Count',     smry.num_spc1_infractions,
-						  'Tot_SCC_Count',     smry.num_scc_infractions,
-						  'Tot_CRY_Count',     smry.num_cry_infractions,
-						  'Tot_FFA_Count',     smry.num_ffa_infractions,
-						  'Tot_IH_Count',      smry.num_ih_infractions) report_json,
-		null,
-		current_user,
-		current_timestamp,
-		current_user,
-		current_timestamp
-	from licence_list list
-	cross join result_summary smry;
-	--
-	GET DIAGNOSTICS l_report_json_count = ROW_COUNT;	
-	--
-	-- Update the Print Job table.	 
-	update mal_print_job set
-		job_status                    = 'COMPLETE',
-		json_end_time                 = current_timestamp,
-		report_json_count             = l_report_json_count,
-		update_userid                 = current_user,
-		update_timestamp              = current_timestamp
-	where id = iop_print_job_id;
-end; 
-$procedure$
-;
-
---
--- PROCEDURE:  PR_GENERATE_PRINT_JSON_LICENCE_LOCATION
---
-
-CREATE OR REPLACE PROCEDURE pr_generate_print_json_licence_location(
-    IN    ip_licence_type_id integer,
-    INOUT iop_print_job_id integer)
- LANGUAGE plpgsql
-AS $procedure$
-  declare  
-	l_report_json_count       integer default 0;  
-  begin	  	  
-	--
-	-- Start a row in the mal_print_job table
-	call pr_start_print_job(
-			ip_print_category   => 'REPORT', 
-			iop_print_job_id    => iop_print_job_id
-			);
-	--
-	--  Insert the JSON into the output table
-	with licence_summary as (
-		select 
-			lic.licence_type,
-			json_agg(json_build_object('LicenceNumber',               lic.licence_number,
-				                       'IssueDate',                   issue_date,     
-				                       'ExpiryDate',                  lic.expiry_date,      
-				                       'Lastname',                    lic.last_name,
-				                       'Firstname',                   lic.first_name,
-				                       'MailingAddress',              lic.derived_mailing_address,
-				                       'MailingCity',                 lic.derived_mailing_city,
-				                       'MailingProv',                 lic.derived_mailing_province,
-				                       'PostCode',                    lic.derived_mailing_postal_code,
-				                       'Phone',                       lic.primary_phone,
-				                       'Email',                       lic.email_address,	
-				                       'FeeCollected',                lic.fee_collected,
-				                       'BondContinuationExpiryDate',  lic.bond_continuation_expiry_date,                     
-				                       'SpeciesType',                 spec.species_code,
-				                       'SpeciesMale',                 spec.male_count,
-				                       'SpeciesFemale',               spec.female_count)
-				                       order by lic.licence_number, spec.species_code) licence_json,
-			count(*) num_rows
-		from mal_licence_summary_vw lic
-		--  MALE and FEMALE accounts are relevant for FUR FARM and GAME FARM
-		left join mal_licence_species_vw spec
-		on lic.licence_id = spec.licence_id
-		where lic.licence_type_id = ip_licence_type_id
-		group by lic.licence_type)
-	--
-	--  MAIN QUERY
-	--
-	insert into mal_print_job_output(
-		print_job_id,
-		licence_type,
-		licence_number,
-		document_type,
-		document_json,
-		document_binary,
-		create_userid,
-		create_timestamp,
-		update_userid,
-		update_timestamp)
-	select 
-		iop_print_job_id,
-		licence_type,
-		null,
-		'LICENCE_LOCATION',
-		json_build_object('DateTime',       to_char(current_timestamp, 'fmyyyy-mm-dd hh24mi'),
+		'VETERINARY_DRUG_DETAILS',	
+		json_build_object('DateTime',       to_char(localtimestamp AT TIME ZONE 'Canada/Pacific', 'fmMonth dd, yyyy'),
 						  'Licence_Type',   licence_type,
-						  'Licence',        licence_json,
-						  'RowCount',       num_rows) report_json,
+						  'Client',         licence_json) report_json,
 		null,
 		current_user,
-		current_timestamp,
+		localtimestamp,
 		current_user,
-		current_timestamp
+		localtimestamp
 	from licence_summary;
 	--
 	GET DIAGNOSTICS l_report_json_count = ROW_COUNT;	
@@ -1486,10 +1719,10 @@ AS $procedure$
 	-- Update the Print Job table.	 
 	update mal_print_job set
 		job_status                    = 'COMPLETE',
-		json_end_time                 = current_timestamp,
+		json_end_time                 = localtimestamp,
 		report_json_count             = l_report_json_count,
 		update_userid                 = current_user,
-		update_timestamp              = current_timestamp
+		update_timestamp              = localtimestamp
 	where id = iop_print_job_id;
 end; 
 $procedure$
@@ -1521,15 +1754,15 @@ AS $procedure$
 	values(
 		ip_job_type,
 		'RUNNING',
-		current_timestamp, 
+		localtimestamp, 
 		null,
 		null,
 		null,
 		null,
 		current_user,
-		current_timestamp,
+		localtimestamp,
 		current_user,
-		current_timestamp)
+		localtimestamp)
 	returning id into iop_job_id;
 end; 
 $procedure$
@@ -1565,7 +1798,7 @@ AS $procedure$
 	values(
 		'RUNNING',
 		ip_print_category,
-		current_timestamp, 
+		localtimestamp, 
 		null,
 		null,
 		0,
@@ -1575,9 +1808,9 @@ AS $procedure$
 		0,
 		0,
 		current_user,
-		current_timestamp,
+		localtimestamp,
 		current_user,
-		current_timestamp)
+		localtimestamp)
 	returning id into iop_print_job_id;
 end; 
 $procedure$
@@ -1659,10 +1892,10 @@ AS $procedure$
 	update mal_dairy_farm_test_job 
 		set
 			job_status              = iop_job_status,
-			execution_end_time      = current_timestamp,
+			execution_end_time      = localtimestamp,
 			target_update_count     = l_target_update_count,
 			update_userid           = current_user,
-			update_timestamp        = current_timestamp
+			update_timestamp        = localtimestamp
 		where id = ip_job_id;
 end; 
 $procedure$
