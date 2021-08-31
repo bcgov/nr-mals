@@ -18,6 +18,7 @@ import ReportDairyClientDetails from "./ReportDairyClientDetails";
 import ReportDairyThreshold from "./ReportDairyThreshold";
 import ReportDairyTankRecheck from "./ReportDairyTankRecheck";
 import ReportLicenceTypeLocation from "./ReportLicenceTypeLocation";
+import ReportLicenceExpiry from "./ReportLicenceExpiry";
 
 import { clearReportsJob } from "./reportsSlice";
 import RenderOnRole from "../../components/RenderOnRole";
@@ -70,6 +71,9 @@ export default function Reports() {
       break;
     case REPORTS.LICENCE_LOCATION:
       control = <ReportLicenceTypeLocation />;
+      break;
+    case REPORTS.LICENCE_EXPIRY:
+      control = <ReportLicenceExpiry />;
       break;
     default:
       break;
@@ -137,6 +141,7 @@ export default function Reports() {
                   Licence Location
                 </option>
                 <option value={REPORTS.CLIENT_DETAILS}>Client Details</option>
+                <option value={REPORTS.LICENCE_EXPIRY}>Licence Expiry</option>
               </RenderOnRole>
             </Form.Control>
           </Col>

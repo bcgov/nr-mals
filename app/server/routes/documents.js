@@ -725,6 +725,20 @@ async function startLicenceTypeLocationJob(licenceTypeId) {
   return { jobId, documents };
 }
 
+async function startLicenceExpiryJob(startDate, endDate) {
+  const [procedureResult] = await prisma.$transaction([
+    prisma.$queryRaw(
+      `CALL mals_app.pr_generate_print_json_licence_expiry('${startDate}', '${endDate}', NULL)`
+    ),
+  ]);
+
+  const jobId = procedureResult[0].iop_print_job_id;
+
+  const documents = await getPendingDocuments(jobId);
+
+  return { jobId, documents };
+}
+
 async function generateReport(documentId) {
   const document = await getDocument(documentId);
 
@@ -1366,6 +1380,18 @@ router.post("/reports/startJob/licenceTypeLocation", async (req, res, next) => {
   await startLicenceTypeLocationJob(licenceTypeId)
     .then(({ jobId, documents }) => {
       return res.send({ jobId, documents, type: REPORTS.LICENCE_LOCATION });
+    })
+    .catch(next)
+    .finally(async () => prisma.$disconnect());
+});
+
+router.post("/reports/startJob/licenceExpiry", async (req, res, next) => {
+  const startDate = formatDate(new Date(req.body.startDate));
+  const endDate = formatDate(new Date(req.body.endDate));
+
+  await startLicenceExpiryJob(startDate, endDate)
+    .then(({ jobId, documents }) => {
+      return res.send({ jobId, documents, type: REPORTS.LICENCE_EXPIRY });
     })
     .catch(next)
     .finally(async () => prisma.$disconnect());

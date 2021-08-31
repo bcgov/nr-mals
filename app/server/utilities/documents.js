@@ -190,6 +190,8 @@ function getReportsTemplateName(documentType) {
       return "Dairy_Test_Threshold_Template";
     case constants.REPORTS.LICENCE_LOCATION:
       return "LicenceType_Location_Template";
+    case constants.REPORTS.LICENCE_EXPIRY:
+      return "Licence_Expiry_Species_NoSpecies_Template";
     default:
       return null;
   }
