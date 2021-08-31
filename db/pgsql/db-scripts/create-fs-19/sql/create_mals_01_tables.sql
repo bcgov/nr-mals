@@ -10,6 +10,9 @@ SET client_min_messages = warning;
 -- DROP:  ALL TABLES
 --
 
+DROP TABLE IF EXISTS mal_licence_parent_child_xref       CASCADE;
+DROP TABLE IF EXISTS mal_licence_registrant_xref         CASCADE;
+
 DROP TABLE IF EXISTS mal_add_reason_code_lu              CASCADE;
 DROP TABLE IF EXISTS mal_apiary_inspection               CASCADE;
 DROP TABLE IF EXISTS mal_application_role                CASCADE;
@@ -28,6 +31,8 @@ DROP TABLE IF EXISTS mal_licence_species_sub_code_lu     CASCADE;
 DROP TABLE IF EXISTS mal_city_lu                         CASCADE;
 DROP TABLE IF EXISTS mal_dairy_farm_test_infraction_lu   CASCADE;
 DROP TABLE IF EXISTS mal_dairy_farm_test_threshold_lu    CASCADE;
+DROP TABLE IF EXISTS mal_sale_yard_species_code_lu       CASCADE;
+DROP TABLE IF EXISTS mal_sale_yard_species_sub_code_lu   CASCADE;
 
 DROP TABLE IF EXISTS mal_dairy_farm_test_result          CASCADE;
 DROP TABLE IF EXISTS mal_dairy_farm_test_job             CASCADE;
@@ -36,8 +41,6 @@ DROP TABLE IF EXISTS mal_fur_farm_inventory              CASCADE;
 DROP TABLE IF EXISTS mal_game_farm_inventory             CASCADE;
 DROP TABLE IF EXISTS mal_sale_yard_inventory             CASCADE;
 DROP TABLE IF EXISTS mal_licence_comment                 CASCADE;
-DROP TABLE IF EXISTS mal_licence_parent_child_xref       CASCADE;
-DROP TABLE IF EXISTS mal_licence_registrant_xref         CASCADE;
 DROP TABLE IF EXISTS mal_registrant                      CASCADE;
 DROP TABLE IF EXISTS mal_site                            CASCADE;
 DROP TABLE IF EXISTS mal_licence                         CASCADE;
@@ -783,6 +786,8 @@ CREATE TABLE mal_site (
 	status_code_id integer,
 	registration_date timestamp,
 	deactivation_date timestamp,
+	inspector_name  varchar(200),
+	inspection_date timestamp,
 	next_inspection_date timestamp,
 	hive_count integer,
 	contact_name varchar(50),

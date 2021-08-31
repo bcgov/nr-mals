@@ -1,3 +1,4 @@
+
 -- Source & Credit
 
 	Source code copied from https://github.com/BCDevOps/platform-services/tree/master/apps/pgsql/patroni
@@ -12,12 +13,12 @@
 	
 		Split APP_DB_USERNAME into APP_DB_OWNER_USERNAME and APP_PROXY_USERNAME in order to separate the owner DDL and application DML responsibilities. 
 
--- The following role bindings permit the patroni service accounts to pull the patroni build from the tools namespace.
+-- The following role bindings permit the patroni service accounts to pull the patroni build from the tools namespace. 
 
-	oc policy add-role-to-user system:image-puller system:serviceaccount:30245e-dev:patroni-dev   -n 30245e-tools --rolebinding-name="system:image-puller-patroni-dev"
-	oc policy add-role-to-user system:image-puller system:serviceaccount:30245e-test:patroni-test -n 30245e-tools --rolebinding-name="system:image-puller-patroni-test"
-	oc policy add-role-to-user system:image-puller system:serviceaccount:30245e-uat:patroni-uat   -n 30245e-tools --rolebinding-name="system:image-puller-patroni-uat"
-	oc policy add-role-to-user system:image-puller system:serviceaccount:30245e-prod:patroni-prod -n 30245e-tools --rolebinding-name="system:image-puller-patroni-prod"
+	oc policy add-role-to-user system:image-puller system:serviceaccount:30245e-dev:patroni      -n 30245e-tools
+	oc policy add-role-to-user system:image-puller system:serviceaccount:30245e-test:patroni     -n 30245e-tools
+	oc policy add-role-to-user system:image-puller system:serviceaccount:30245e-uat:patroni-uat  -n 30245e-tools
+	oc policy add-role-to-user system:image-puller system:serviceaccount:30245e-prod:patroni     -n 30245e-tools
 
 -- For OCP4 the Kubernetes Network Policy (KNP) replaces Aporeto Network Security Policy (NSP) and must be configured to alllow the pods to talk to each other.
 
@@ -54,3 +55,15 @@
 		echo WAIT ~3 MINUTES for the 3 pods to complete
 
 		echo End of Script
+		
+-- Backup and recovery templates
+
+	Was not able to get these templates to deploy successfully; https://github.com/BCDevOps/backup-container
+	
+	Used the following templates; https://github.com/bcgov/orgbook-configurations
+	
+	Related issue; https://github.com/BCDevOps/backup-container/issues/83
+	
+	Updated the templates to work with Roles, as the base templates support only a single database user.
+	
+		
