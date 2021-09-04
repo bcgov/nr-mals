@@ -317,7 +317,7 @@ AS $procedure$
 		licence_type,
 		null,
 		'ACTION_REQUIRED',
-		json_build_object('DateTime',       to_char(localtimestamp AT TIME ZONE 'Canada/Pacific',, 'fmyyyy-mm-dd hh24mi'),
+		json_build_object('DateTime',       to_char(localtimestamp AT TIME ZONE 'Canada/Pacific', 'fmyyyy-mm-dd hh24mi'),
 						  'Licence_Type',   licence_type,
 						  'Licence',        licence_json,
 						  'RowCount',       num_rows) report_json,
@@ -553,13 +553,13 @@ AS $procedure$
 										   'Address',               site_address,
 										   'City',                  site_city,
 										   'Registration_Date',     registration_date,										   
-										   'Num_Hives',             hive_count)
+										   'Num_Hives',             site_hive_count)
 			                                order by licence_number) licence_json,
 				count(licence_number) num_producers,
-				sum(hive_count) num_hives
+				sum(site_hive_count) num_hives
 			from mal_apiary_producer_vw
 			where site_city = ip_city
-			and hive_count between ip_min_hives and ip_max_hives)
+			and site_hive_count between ip_min_hives and ip_max_hives)
 	--
 	--  MAIN QUERY
 	--
@@ -629,8 +629,8 @@ AS $procedure$
 			select licence_id,
 				site_regional_district_id,
 				count(*) num_sites,
-				sum(hive_count) num_hives,
-				count(case when hive_count = 0 then 1 else null end) num_producers_hives_0
+				sum(site_hive_count) num_hives,
+				count(case when site_hive_count = 0 then 1 else null end) num_producers_hives_0
 			from mals_app.mal_apiary_producer_vw 
 			group by licence_id,
 				site_regional_district_id),
@@ -753,8 +753,8 @@ AS $procedure$
 			select licence_id,
 				site_region_id,
 				count(*) num_sites,
-				sum(hive_count) num_hives,
-				count(case when hive_count = 0 then 1 else null end) num_producers_hives_0
+				sum(site_hive_count) num_hives,
+				count(case when site_hive_count = 0 then 1 else null end) num_producers_hives_0
 			from mals_app.mal_apiary_producer_vw 
 			group by licence_id,
 				site_region_id),
