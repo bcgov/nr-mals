@@ -188,7 +188,8 @@
         "labels": {
           "app": "${APP_NAME}",
           "role": "application",
-          "env": "${ENVIRONMENT}"
+          "env": "${ENVIRONMENT}",
+		  "certbot-managed": "true"
         },
         "name": "${NAME}",
         "annotations": {
