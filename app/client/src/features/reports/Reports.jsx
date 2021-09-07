@@ -92,6 +92,7 @@ export default function Reports() {
               ref={register}
               defaultValue={null}
             >
+              {/* Reports to be ordered alphabetically */}
               <option value={null} />
 
               <RenderOnRole
@@ -103,22 +104,125 @@ export default function Reports() {
                 ]}
               >
                 <option value={REPORTS.ACTION_REQUIRED}>Action Required</option>
-                <option value={REPORTS.DAIRY_FARM_DETAIL}>
-                  Dairy Client Details
-                </option>
-                <option value={REPORTS.DAIRY_TEST_THRESHOLD}>
-                  Dairy Test Threshold
-                </option>
+              </RenderOnRole>
+
+              <RenderOnRole
+                roles={[
+                  SYSTEM_ROLES.READ_ONLY,
+                  SYSTEM_ROLES.USER,
+                  SYSTEM_ROLES.INSPECTOR,
+                  SYSTEM_ROLES.SYSTEM_ADMIN,
+                ]}
+              >
                 <option value={REPORTS.APIARY_INSPECTION}>
                   Apiary Hive Inspection
                 </option>
+              </RenderOnRole>
+
+              <RenderOnRole
+                roles={[
+                  SYSTEM_ROLES.READ_ONLY,
+                  SYSTEM_ROLES.USER,
+                  SYSTEM_ROLES.INSPECTOR,
+                  SYSTEM_ROLES.SYSTEM_ADMIN,
+                ]}
+              >
+                <option value={REPORTS.APIARY_SITE}>Apiary Site</option>
+              </RenderOnRole>
+
+              <RenderOnRole
+                roles={[
+                  SYSTEM_ROLES.READ_ONLY,
+                  SYSTEM_ROLES.USER,
+                  SYSTEM_ROLES.SYSTEM_ADMIN,
+                ]}
+              >
+                <option value={REPORTS.CLIENT_DETAILS}>Client Details</option>
+              </RenderOnRole>
+
+              <RenderOnRole
+                roles={[
+                  SYSTEM_ROLES.READ_ONLY,
+                  SYSTEM_ROLES.USER,
+                  SYSTEM_ROLES.INSPECTOR,
+                  SYSTEM_ROLES.SYSTEM_ADMIN,
+                ]}
+              >
+                <option value={REPORTS.DAIRY_FARM_DETAIL}>
+                  Dairy Client Details
+                </option>
+              </RenderOnRole>
+
+              <RenderOnRole
+                roles={[
+                  SYSTEM_ROLES.READ_ONLY,
+                  SYSTEM_ROLES.USER,
+                  SYSTEM_ROLES.SYSTEM_ADMIN,
+                ]}
+              >
+                <option value={REPORTS.DAIRY_FARM_TANK}>
+                  Dairy Tank Recheck
+                </option>
+              </RenderOnRole>
+
+              <RenderOnRole
+                roles={[
+                  SYSTEM_ROLES.READ_ONLY,
+                  SYSTEM_ROLES.USER,
+                  SYSTEM_ROLES.SYSTEM_ADMIN,
+                ]}
+              >
+                <option value={REPORTS.DAIRY_TEST_THRESHOLD}>
+                  Dairy Test Threshold
+                </option>
+              </RenderOnRole>
+
+              <RenderOnRole
+                roles={[
+                  SYSTEM_ROLES.READ_ONLY,
+                  SYSTEM_ROLES.USER,
+                  SYSTEM_ROLES.SYSTEM_ADMIN,
+                ]}
+              >
+                <option value={REPORTS.LICENCE_EXPIRY}>Licence Expiry</option>
+              </RenderOnRole>
+
+              <RenderOnRole
+                roles={[
+                  SYSTEM_ROLES.READ_ONLY,
+                  SYSTEM_ROLES.USER,
+                  SYSTEM_ROLES.SYSTEM_ADMIN,
+                ]}
+              >
+                <option value={REPORTS.LICENCE_LOCATION}>
+                  Licence Location
+                </option>
+              </RenderOnRole>
+
+              <RenderOnRole
+                roles={[
+                  SYSTEM_ROLES.READ_ONLY,
+                  SYSTEM_ROLES.USER,
+                  SYSTEM_ROLES.INSPECTOR,
+                  SYSTEM_ROLES.SYSTEM_ADMIN,
+                ]}
+              >
                 <option value={REPORTS.APIARY_PRODUCER_REGION}>
                   Producer&apos;s Analysis Report by Region
                 </option>
+              </RenderOnRole>
+
+              <RenderOnRole
+                roles={[
+                  SYSTEM_ROLES.READ_ONLY,
+                  SYSTEM_ROLES.USER,
+                  SYSTEM_ROLES.INSPECTOR,
+                  SYSTEM_ROLES.SYSTEM_ADMIN,
+                ]}
+              >
                 <option value={REPORTS.APIARY_PRODUCER_CITY}>
                   Producer City &amp; Municipality
                 </option>
-                <option value={REPORTS.APIARY_SITE}>Apiary Site</option>
               </RenderOnRole>
 
               <RenderOnRole
@@ -131,17 +235,6 @@ export default function Reports() {
                 <option value={REPORTS.DAIRY_FARM_QUALITY}>
                   Provincial Farm Quality
                 </option>
-                <option value={REPORTS.DAIRY_FARM_TANK}>
-                  Dairy Tank Recheck
-                </option>
-                <option value={REPORTS.DAIRY_TEST_THRESHOLD}>
-                  Dairy Test Threshold
-                </option>
-                <option value={REPORTS.LICENCE_LOCATION}>
-                  Licence Location
-                </option>
-                <option value={REPORTS.CLIENT_DETAILS}>Client Details</option>
-                <option value={REPORTS.LICENCE_EXPIRY}>Licence Expiry</option>
               </RenderOnRole>
             </Form.Control>
           </Col>
