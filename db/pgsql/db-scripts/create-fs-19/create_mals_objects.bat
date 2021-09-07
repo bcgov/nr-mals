@@ -26,4 +26,7 @@ psql -h localhost -U mals -d mals -p %2 -a -q -f .\sql\create_mals_06_before_tri
 ECHO Create mals_app Grants
 psql -h localhost -U mals -d mals -p %2 -a -q -f .\sql\create_mals_07_grants.sql >> create_mals_objects_log.txt
 
+ECHO Create mals_app Comments
+psql -h localhost -U mals -d mals -p %2 -a -q -f .\sql\create_mals_08_comments.sql >> create_mals_objects_log.txt
+
 pause

@@ -24,10 +24,10 @@ Talend job execution requires invocation of port-forward using the Openshift Com
 	Using different local ports for each environment helps to prevent accidentally updating the wrong database.
 	Sample calls to match the above port numbers. Any available port can be used.
 
-	DEV:  oc port-forward patroni-dev-0  5440:5432
-	TEST: oc port-forward patroni-test-0 5450:5432
-	UAT:  oc port-forward patroni-uat-0  5460:5432
-	PROD: oc port-forward patroni-prod-0 5470:5432
+	DEV:  oc port-forward patroni-0      5441:5432
+	TEST: oc port-forward patroni-0      5451:5432
+	UAT:  oc port-forward patroni-uat-0  5461:5432
+	PROD: oc port-forward patroni-0      5471:5432
 
 Sample talend DEV connection with runtime connection parameters;
 
@@ -39,7 +39,7 @@ Sample talend DEV connection with runtime connection parameters;
 	MALS_Oracle_Password                    : <<mals@malsdlvr password>>
 	MALS_Oracle_AdditionalParams  (Default) : 
 
-	MALS_PostgreSQL_Port                    : 5440
+	MALS_PostgreSQL_Port                    : 5441
 	MALS_PostgreSQL_Database      (Default) : mals     
 	MALS_PostgreSQL_Password                : <<app-db-owner-password from patroni-dev secret>>
 	MALS_PostgreSQL_Schema        (Default) : mals_app 

@@ -4,7 +4,12 @@ import { Button, Modal, Form, Col } from "react-bootstrap";
 import { useForm } from "react-hook-form";
 
 import CustomDatePicker from "../components/CustomDatePicker";
-import { parseAsDate, parseAsInt, parseAsFloat } from "../utilities/parsing";
+import {
+  parseAsDate,
+  parseAsInt,
+  parseAsFloat,
+  isNullOrEmpty,
+} from "../utilities/parsing";
 import { formatDateString } from "../utilities/formatting.ts";
 
 export const LICENCE_TYPE = "LICENCE_TYPE";
@@ -29,10 +34,14 @@ export default function LicenceTypeModal({ licenceType, closeModal, submit }) {
       licenceType: data.licenceType,
       standardFee: parseAsFloat(data.standardFee),
       licenceTerm: parseAsInt(data.licenceTerm),
-      standardIssueDate: new Date(data.standardIssueDate),
-      standardExpiryDate: new Date(data.standardExpiryDate),
+      standardIssueDate: isNullOrEmpty(data.standardIssueDate)
+        ? null
+        : new Date(data.standardIssueDate),
+      standardExpiryDate: isNullOrEmpty(data.standardExpiryDate)
+        ? null
+        : new Date(data.standardExpiryDate),
       renewalNotice: parseAsInt(data.renewalNotice),
-      legislation: data.legislation,
+      legislation: data.applicableAct,
       regulation: data.regulation,
     };
 

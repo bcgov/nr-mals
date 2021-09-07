@@ -28,7 +28,7 @@ export default function ReportDairyTankRecheck() {
   const form = useForm({
     reValidateMode: "onBlur",
   });
-  const { setValue, watch } = form;
+  const { register, watch } = form;
 
   const today = startOfToday();
   const initialYear = getYear(today) + 1;
@@ -66,6 +66,7 @@ export default function ReportDairyTankRecheck() {
               type="number"
               name="recheckYear"
               defaultValue={initialYear}
+              ref={register}
             />
           </Form.Group>
         </Col>
