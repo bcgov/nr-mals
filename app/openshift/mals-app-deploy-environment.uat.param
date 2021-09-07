@@ -13,6 +13,6 @@ CPU_LIMIT=500m
 MEMORY_LIMIT=2Gi
 CPU_REQUEST=100m
 MEMORY_REQUEST=2Gi
-APPLICATION_DOMAIN=mals-app-uat.apps.silver.devops.gov.bc.ca
+APPLICATION_DOMAIN=uat-mals.nrs.gov.bc.ca
 APP_SECRETS=mals-app-uat
 IP_WHITELIST=142.34.44.0/24

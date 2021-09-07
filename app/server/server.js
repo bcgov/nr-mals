@@ -40,11 +40,15 @@ app.use(
         ...helmet.contentSecurityPolicy.getDefaultDirectives(),
         "default-src": [
           "self",
+          "https://mals.nrs.gov.bc.ca/",
+          "https://uat-mals.nrs.gov.bc.ca/",
           "https://*.silver.devops.gov.bc.ca/",
           "https://dev.oidc.gov.bc.ca/",
         ],
         "script-src": [
           "'self'",
+          "mals.nrs.gov.bc.ca",
+          "uat-mals.nrs.gov.bc.ca",
           "*.silver.devops.gov.bc.ca",
           "https://dev.oidc.gov.bc.ca",
         ],
@@ -69,8 +73,10 @@ if (process.env.ENVIRONMENT_LABEL === "dev") {
   corsWhitelist.push("https://mals-app-test.apps.silver.devops.gov.bc.ca");
 } else if (process.env.ENVIRONMENT_LABEL === "uat") {
   corsWhitelist.push("https://mals-app-uat.apps.silver.devops.gov.bc.ca");
+  corsWhitelist.push("https://uat-mals.nrs.gov.bc.ca");
 } else if (process.env.ENVIRONMENT_LABEL === "prod") {
   corsWhitelist.push("https://mals-app-prod.apps.silver.devops.gov.bc.ca");
+  corsWhitelist.push("https://mals.nrs.gov.bc.ca");
 }
 
 var corsOptions = {
