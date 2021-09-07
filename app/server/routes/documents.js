@@ -621,10 +621,10 @@ async function startProducersAnalysisRegionJob() {
   return { jobId, documents };
 }
 
-async function startProducersAnalysisDistrictJob() {
+async function startProducersAnalysisCityJob(city, minHives, maxHives) {
   const [procedureResult] = await prisma.$transaction([
     prisma.$queryRaw(
-      `CALL mals_app.pr_generate_print_json_apiary_producer_district(NULL)`
+      `CALL mals_app.pr_generate_print_json_apiary_producer_city('${city}', ${minHives}, ${maxHives}, NULL)`
     ),
   ]);
 
@@ -633,10 +633,34 @@ async function startProducersAnalysisDistrictJob() {
   return { jobId, documents };
 }
 
-async function startProducersAnalysisCityJob(city, minHives, maxHives) {
+async function startApiarySiteJob(region) {
   const [procedureResult] = await prisma.$transaction([
     prisma.$queryRaw(
-      `CALL mals_app.pr_generate_print_json_apiary_producer_city('${city}', ${minHives}, ${maxHives}, NULL)`
+      `CALL mals_app.pr_generate_print_json_apiary_site('${region}', NULL)`
+    ),
+  ]);
+
+  const jobId = procedureResult[0].iop_print_job_id;
+  const documents = await getPendingDocuments(jobId);
+  return { jobId, documents };
+}
+
+async function startClientDetailsJob() {
+  const [procedureResult] = await prisma.$transaction([
+    prisma.$queryRaw(
+      `CALL mals_app.pr_generate_print_json_veterinary_drug_details(NULL)`
+    ),
+  ]);
+
+  const jobId = procedureResult[0].iop_print_job_id;
+  const documents = await getPendingDocuments(jobId);
+  return { jobId, documents };
+}
+
+async function startDairyClientDetailsJob(irmaNumber, startDate, endDate) {
+  const [procedureResult] = await prisma.$transaction([
+    prisma.$queryRaw(
+      `CALL mals_app.pr_generate_print_json_dairy_farm_details('${irmaNumber}', '${startDate}', '${endDate}', NULL)`
     ),
   ]);
 
@@ -691,6 +715,20 @@ async function startLicenceTypeLocationJob(licenceTypeId) {
   const [procedureResult] = await prisma.$transaction([
     prisma.$queryRaw(
       `CALL mals_app.pr_generate_print_json_licence_location(${licenceTypeId}, NULL)`
+    ),
+  ]);
+
+  const jobId = procedureResult[0].iop_print_job_id;
+
+  const documents = await getPendingDocuments(jobId);
+
+  return { jobId, documents };
+}
+
+async function startLicenceExpiryJob(startDate, endDate) {
+  const [procedureResult] = await prisma.$transaction([
+    prisma.$queryRaw(
+      `CALL mals_app.pr_generate_print_json_licence_expiry('${startDate}', '${endDate}', NULL)`
     ),
   ]);
 
@@ -1255,6 +1293,51 @@ router.post(
   }
 );
 
+router.post("/reports/startJob/apiarySite", async (req, res, next) => {
+  const region = req.body.region;
+
+  await startApiarySiteJob(region)
+    .then(({ jobId, documents }) => {
+      return res.send({
+        jobId,
+        documents,
+        type: REPORTS.APIARY_SITE,
+      });
+    })
+    .catch(next)
+    .finally(async () => prisma.$disconnect());
+});
+
+router.post("/reports/startJob/clientDetails", async (req, res, next) => {
+  await startClientDetailsJob()
+    .then(({ jobId, documents }) => {
+      return res.send({
+        jobId,
+        documents,
+        type: REPORTS.CLIENT_DETAILS,
+      });
+    })
+    .catch(next)
+    .finally(async () => prisma.$disconnect());
+});
+
+router.post("/reports/startJob/dairyClientDetails", async (req, res, next) => {
+  const irmaNumber = req.body.irmaNumber;
+  const startDate = formatDate(new Date(req.body.startDate));
+  const endDate = formatDate(new Date(req.body.endDate));
+
+  await startDairyClientDetailsJob(irmaNumber, startDate, endDate)
+    .then(({ jobId, documents }) => {
+      return res.send({
+        jobId,
+        documents,
+        type: REPORTS.DAIRY_FARM_DETAIL,
+      });
+    })
+    .catch(next)
+    .finally(async () => prisma.$disconnect());
+});
+
 router.post(
   "/reports/startJob/provincialFarmQuality",
   async (req, res, next) => {
@@ -1297,6 +1380,18 @@ router.post("/reports/startJob/licenceTypeLocation", async (req, res, next) => {
   await startLicenceTypeLocationJob(licenceTypeId)
     .then(({ jobId, documents }) => {
       return res.send({ jobId, documents, type: REPORTS.LICENCE_LOCATION });
+    })
+    .catch(next)
+    .finally(async () => prisma.$disconnect());
+});
+
+router.post("/reports/startJob/licenceExpiry", async (req, res, next) => {
+  const startDate = formatDate(new Date(req.body.startDate));
+  const endDate = formatDate(new Date(req.body.endDate));
+
+  await startLicenceExpiryJob(startDate, endDate)
+    .then(({ jobId, documents }) => {
+      return res.send({ jobId, documents, type: REPORTS.LICENCE_EXPIRY });
     })
     .catch(next)
     .finally(async () => prisma.$disconnect());

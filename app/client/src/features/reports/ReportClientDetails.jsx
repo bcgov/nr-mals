@@ -1,16 +1,11 @@
 import React, { useEffect } from "react";
-import { useForm } from "react-hook-form";
 import { useSelector, useDispatch } from "react-redux";
 import { Row, Col, Form, Button } from "react-bootstrap";
 
-import { startOfToday, getYear } from "date-fns";
-
 import DocGenDownloadBar from "../../components/DocGenDownloadBar";
 
-import { parseAsInt } from "../../utilities/parsing";
-
 import {
-  startDairyTankRecheckJob,
+  startClientDetailsJob,
   generateReport,
   fetchReportJob,
   selectReportsJob,
@@ -19,25 +14,14 @@ import {
 
 import { REPORTS } from "../../utilities/constants";
 
-export default function ReportDairyTankRecheck() {
+export default function ReportClientDetails() {
   const dispatch = useDispatch();
 
   const job = useSelector(selectReportsJob);
   const { pendingDocuments } = job;
 
-  const form = useForm({
-    reValidateMode: "onBlur",
-  });
-  const { register, watch } = form;
-
-  const today = startOfToday();
-  const initialYear = getYear(today) + 1;
-  const watchRecheckYear = watch("recheckYear", initialYear);
-
-  useEffect(() => {}, [dispatch]);
-
   useEffect(() => {
-    if (job.id && job.type === REPORTS.DAIRY_FARM_TANK) {
+    if (job.id && job.type === REPORTS.CLIENT_DETAILS) {
       dispatch(fetchReportJob());
 
       if (pendingDocuments?.length > 0) {
@@ -48,34 +32,19 @@ export default function ReportDairyTankRecheck() {
     }
   }, [pendingDocuments]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const onGenerateReport = () => {
-    dispatch(
-      startDairyTankRecheckJob({
-        recheckYear: watchRecheckYear,
-      })
-    );
+  const onGenerateRegionReport = () => {
+    dispatch(startClientDetailsJob());
   };
 
   return (
     <>
       <Row>
-        <Col lg={3}>
-          <Form.Group controlId="recheckYear">
-            <Form.Label>Re-check Year</Form.Label>
-            <Form.Control
-              type="number"
-              name="recheckYear"
-              defaultValue={initialYear}
-              ref={register}
-            />
-          </Form.Group>
-        </Col>
         <Col sm={2}>
           <Form.Label>&nbsp;</Form.Label>
           <Button
             variant="primary"
             type="button"
-            onClick={() => onGenerateReport()}
+            onClick={() => onGenerateRegionReport()}
             block
           >
             Generate Report
@@ -89,4 +58,4 @@ export default function ReportDairyTankRecheck() {
   );
 }
 
-ReportDairyTankRecheck.propTypes = {};
+ReportClientDetails.propTypes = {};

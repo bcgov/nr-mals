@@ -3,14 +3,15 @@ import { useForm } from "react-hook-form";
 import { useSelector, useDispatch } from "react-redux";
 import { Row, Col, Form, Button } from "react-bootstrap";
 
-import { startOfToday, getYear } from "date-fns";
-
-import DocGenDownloadBar from "../../components/DocGenDownloadBar";
+import { selectRegions, fetchRegions } from "../lookups/regionsSlice";
+import Regions from "../lookups/Regions";
 
 import { parseAsInt } from "../../utilities/parsing";
 
+import DocGenDownloadBar from "../../components/DocGenDownloadBar";
+
 import {
-  startDairyTankRecheckJob,
+  startApiarySiteJob,
   generateReport,
   fetchReportJob,
   selectReportsJob,
@@ -19,8 +20,10 @@ import {
 
 import { REPORTS } from "../../utilities/constants";
 
-export default function ReportDairyTankRecheck() {
+export default function ReportApiarySite() {
   const dispatch = useDispatch();
+
+  const regions = useSelector(selectRegions);
 
   const job = useSelector(selectReportsJob);
   const { pendingDocuments } = job;
@@ -28,16 +31,16 @@ export default function ReportDairyTankRecheck() {
   const form = useForm({
     reValidateMode: "onBlur",
   });
-  const { register, watch } = form;
+  const { register, watch, getValues } = form;
 
-  const today = startOfToday();
-  const initialYear = getYear(today) + 1;
-  const watchRecheckYear = watch("recheckYear", initialYear);
-
-  useEffect(() => {}, [dispatch]);
+  const watchRegion = watch("region", null);
 
   useEffect(() => {
-    if (job.id && job.type === REPORTS.DAIRY_FARM_TANK) {
+    dispatch(fetchRegions());
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (job.id && job.type === REPORTS.APIARY_SITE) {
       dispatch(fetchReportJob());
 
       if (pendingDocuments?.length > 0) {
@@ -50,8 +53,10 @@ export default function ReportDairyTankRecheck() {
 
   const onGenerateReport = () => {
     dispatch(
-      startDairyTankRecheckJob({
-        recheckYear: watchRecheckYear,
+      startApiarySiteJob({
+        region: regions.data.regions.find(
+          (x) => x.id === parseAsInt(watchRegion)
+        ).region_name,
       })
     );
   };
@@ -59,16 +64,8 @@ export default function ReportDairyTankRecheck() {
   return (
     <>
       <Row>
-        <Col lg={3}>
-          <Form.Group controlId="recheckYear">
-            <Form.Label>Re-check Year</Form.Label>
-            <Form.Control
-              type="number"
-              name="recheckYear"
-              defaultValue={initialYear}
-              ref={register}
-            />
-          </Form.Group>
+        <Col sm={3}>
+          <Regions regions={regions} ref={register} defaultValue={null} />
         </Col>
         <Col sm={2}>
           <Form.Label>&nbsp;</Form.Label>
@@ -89,4 +86,4 @@ export default function ReportDairyTankRecheck() {
   );
 }
 
-ReportDairyTankRecheck.propTypes = {};
+ReportApiarySite.propTypes = {};

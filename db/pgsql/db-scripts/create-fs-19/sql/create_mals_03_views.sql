@@ -14,9 +14,11 @@ DROP VIEW IF EXISTS mal_apiary_inspection_vw                     CASCADE;
 DROP VIEW IF EXISTS mal_apiary_producer_vw                       CASCADE;
 DROP VIEW IF EXISTS mal_dairy_farm_test_infraction_vw            CASCADE;
 DROP VIEW IF EXISTS mal_dairy_farm_quality_vw                    CASCADE;
+DROP VIEW IF EXISTS mal_dairy_farm_tank_vw                       CASCADE;
 DROP VIEW IF EXISTS mal_licence_action_required_vw               CASCADE;
-DROP VIEW IF EXISTS mal_licence_summary_vw                       CASCADE;
 DROP VIEW IF EXISTS mal_licence_species_vw                       CASCADE;
+DROP VIEW IF EXISTS mal_licence_summary_vw                       CASCADE;
+DROP VIEW IF EXISTS mal_licence_type_species_vw                  CASCADE;
 DROP VIEW IF EXISTS mal_print_card_vw                            CASCADE;
 DROP VIEW IF EXISTS mal_print_certificate_vw                     CASCADE;
 DROP VIEW IF EXISTS mal_print_dairy_farm_infraction_vw           CASCADE;
@@ -90,7 +92,8 @@ CREATE OR REPLACE VIEW mal_apiary_producer_vw as
 		site.city site_city,
 		site.primary_phone site_primary_phone,
 		site.registration_date,
-		site.hive_count
+	    lic.total_hives licence_hive_count,
+	    site.hive_count site_hive_count
 	from mals_app.mal_licence lic
 	inner join mal_registrant reg
 	on lic.primary_registrant_id = reg.id
@@ -150,27 +153,57 @@ CREATE OR REPLACE VIEW mal_dairy_farm_tank_vw as
 		lic.id licence_id,
 		lic.licence_number,
 		lic.irma_number,
+		licstat.code_name licence_status,
+		lic.company_name,
 	    -- Consider the Company Name Override flag to determine the Licence Holder name.
 	    case 
 		  when lic.company_name_override and lic.company_name is not null 
 		  then lic.company_name
 		  else nullif(trim(concat(reg.first_name, ' ', reg.last_name)),'')
 		end derived_licence_holder_name,
-		dft.recheck_year,
+			case when reg.first_name is not null 
+		      and reg.last_name is not null then 
+	          	concat(reg.last_name, ', ', reg.first_name)
+             else 
+                  coalesce(reg.last_name, reg.first_name)
+        end registrant_last_first,        
+		trim(concat(lic.address_line_1 , ' ', lic.address_line_2)) address,
+		lic.city,
+		lic.province,
+		lic.postal_code,
+		reg.primary_phone registrant_primary_phone,
+		reg.secondary_phone registrant_secondary_phone,
+		reg.fax_number registrant_fax_number,	
+		reg.email_address registrant_email_address,	
+		lic.issue_date,
+		to_char(lic.issue_date, 'FMMonth dd, yyyy') issue_date_display,
+		sitestat.code_name site_status,
+		trim(concat(site.address_line_1 , ' ', site.address_line_2)) site_address,
+		site.city site_city,
+		site.province site_province,
+		site.postal_code site_postal_code,
+		site.inspector_name,
+		site.inspection_date,
 		dft.calibration_date,
-		dft.issue_date,
-		dft.company_name,
-		dft.model_number,
-		dft.serial_number,
+		to_char(dft.calibration_date, 'FMMonth dd, yyyy') calibration_date_display,
+		dft.company_name tank_company_name,
+		dft.model_number tank_model_number,
+		dft.serial_number tank_serial_number,
 		dft.tank_capacity,
-		dft.print_recheck_notice
+		dft.recheck_year
 	from mal_licence lic
+	inner join mal_licence_type_lu lictyp
+	on lic.licence_type_id = lictyp.id
+	inner join mal_status_code_lu licstat
+	on lic.status_code_id = licstat.id 
 	inner join mal_registrant reg
 	on lic.primary_registrant_id = reg.id
 	inner join mal_site site 
 	on lic.id = site.licence_id
 	inner join mal_dairy_farm_tank dft
-	on site.id = dft.site_id;
+	on site.id = dft.site_id
+	inner join mal_status_code_lu sitestat
+	on lic.status_code_id = sitestat.id ;
 	
 --
 -- VIEW:  MAL_DAIRY_FARM_TEST_INFRACTION_VW
@@ -484,6 +517,55 @@ CREATE OR REPLACE VIEW mal_licence_action_required_vw as
 	where lic.action_required = true;
 
 --
+-- VIEW:  MAL_LICENCE_SPECIES_VW
+--
+
+CREATE OR REPLACE VIEW mal_licence_species_vw as 
+	with inventory_details as ( 
+		select licence_id, 
+			species_sub_code_id,
+			recorded_date,
+			recorded_value
+		from mal_fur_farm_inventory
+		union all
+		select licence_id, 
+			species_sub_code_id,
+			recorded_date,
+			recorded_value
+		from mal_game_farm_inventory)
+	--
+	--  MAIN QUERY
+	--
+    select licence_id,
+    	spec.id species_code_id,
+    	spec.code_name species_code,
+    	sum(case spec_sub.code_name
+    	  	  when 'FEMALE' 
+    	  	  then dtl.recorded_value
+    	  	  else 0
+    		end) female_count,
+    	sum(case spec_sub.code_name
+    	  	  when 'MALE' then dtl.recorded_value
+    	  	  else 0
+    		end) male_count,
+    	sum(case spec_sub.code_name
+    	  	  when 'CALVES' then dtl.recorded_value
+    	  	  else 0
+    		end) calves_count,
+    	sum(case spec_sub.code_name
+    	  	  when 'SLAUGHTERED' then dtl.recorded_value
+    	  	  else 0
+    		end) slaughtered_count
+	from inventory_details dtl
+	inner join mal_licence_species_sub_code_lu spec_sub 
+	on dtl.species_sub_code_id = spec_sub.id
+	inner join mal_licence_species_code_lu spec
+	on spec_sub.species_code_id = spec.id
+	group by licence_id,
+    	spec.id,
+    	spec.code_name;
+
+--
 -- VIEW:  MAL_LICENCE_SUMMARY_VW
 --
 
@@ -734,6 +816,7 @@ CREATE OR REPLACE VIEW mal_print_card_vw as
 	from licence_base 
 	where licence_type in ('BULK TANK MILK GRADER', 'LIVESTOCK DEALER AGENT', 'LIVESTOCK DEALER')
 	group by licence_type;
+
 --
 -- VIEW:  MAL_PRINT_CERTIFICATE_VW
 --
@@ -827,7 +910,8 @@ CREATE OR REPLACE VIEW mal_print_certificate_vw as
 		    l_t.licence_type,
 			apiary_site_id,
 		    concat(l.licence_number, '-', s.apiary_site_id) registration_number,
-		    trim(concat(s.address_line_1, ' ', s.address_line_2)) address,
+		    trim(concat(s.address_line_1, ' ', s.address_line_2)) address_1_2,
+		    trim(concat(s.address_line_1, ' ', s.address_line_2, ' ', s.city, ' ', s.province, ' ', s.postal_code)) full_address,
 	        s.city,
 		    to_char(s.registration_date, 'yyyy/mm/dd') registration_date,
 		    s.legal_description,
@@ -841,20 +925,22 @@ CREATE OR REPLACE VIEW mal_print_certificate_vw as
 		left join mal_status_code_lu stat
 		on s.status_code_id = stat.id
 		-- Print flag included to improve performance.
-		where l.print_certificate = true
-		and stat.code_name='ACT'),
+		where stat.code_name='ACT'
+		and l.print_certificate = true
+		),
 	apiary_site as (
 		-- All Active sites will be included in the repeating JSON group.
 		select licence_id, 		
 		     json_agg(json_build_object('RegistrationNum',  registration_number,
-		                                'Address',          address,
+		                                'Address',          address_1_2,
 		                                'City',             city,
 		                                'RegDate',          registration_date)
 		                                order by apiary_site_id) apiary_site_json
 		from active_site
 		where licence_type = 'APIARY'
 		group by licence_id),
-    dairy_tank as (
+    	-- The 
+		dairy_tank as (
 		-- Dairy Farms have only one site.
 		select ast.licence_id, 	
 	         json_agg(json_build_object('DairyTankCompany',          t.company_name,
@@ -911,7 +997,7 @@ CREATE OR REPLACE VIEW mal_print_certificate_vw as
 			                       'LicenceNumber',           base.licence_number,
 			                       'IssueDate',               base.issue_date_display,
 			                       'ReIssueDate',             base.reissue_date_display,
-			                       'SiteDetails',             site.site_details,
+			                       'SiteDetails',             site.full_address,
 			                       'SiteInformation',         tank.tank_json,
 			                       'IRMA_Num',                base.irma_number)
 		    when 'FUR FARM' then
@@ -1035,9 +1121,9 @@ CREATE OR REPLACE VIEW mal_print_certificate_vw as
 			                       'BondValue',               base.bond_value,
 			                       'BondCarrier',             base.bond_carrier_name,
 			                       'BusinessAddressLocation', case 
-																  when base.derived_mailing_address = site.address
+																  when base.derived_mailing_address = site.address_1_2
 																  then null 
-															  	  else site.address
+															  	  else site.address_1_2
 															  end)
 		    when 'SLAUGHTERHOUSE' then
 				 json_build_object('ActsAndRegs',             base.licence_type_legislation,
@@ -1412,55 +1498,6 @@ CREATE OR REPLACE VIEW mal_print_dairy_farm_tank_recheck_vw as
 	                      'MailingProv',           derived_mailing_province,
 	                      'PostCode',              derived_mailing_postal_code) recheck_notice_json
 	from licence;
-
---
--- VIEW:  MAL_LICENCE_SPECIES_VW
---
-
-CREATE OR REPLACE VIEW mal_licence_species_vw as 
-	with inventory_details as ( 
-		select licence_id, 
-			species_sub_code_id,
-			recorded_date,
-			recorded_value
-		from mal_fur_farm_inventory
-		union all
-		select licence_id, 
-			species_sub_code_id,
-			recorded_date,
-			recorded_value
-		from mal_game_farm_inventory)
-	--
-	--  MAIN QUERY
-	--
-    select licence_id,
-    	spec.id species_code_id,
-    	spec.code_name species_code,
-    	sum(case spec_sub.code_name
-    	  	  when 'FEMALE' 
-    	  	  then dtl.recorded_value
-    	  	  else 0
-    		end) female_count,
-    	sum(case spec_sub.code_name
-    	  	  when 'MALE' then dtl.recorded_value
-    	  	  else 0
-    		end) male_count,
-    	sum(case spec_sub.code_name
-    	  	  when 'CALVES' then dtl.recorded_value
-    	  	  else 0
-    		end) calves_count,
-    	sum(case spec_sub.code_name
-    	  	  when 'SLAUGHTERED' then dtl.recorded_value
-    	  	  else 0
-    		end) slaughtered_count
-	from inventory_details dtl
-	inner join mal_licence_species_sub_code_lu spec_sub 
-	on dtl.species_sub_code_id = spec_sub.id
-	inner join mal_licence_species_code_lu spec
-	on spec_sub.species_code_id = spec.id
-	group by licence_id,
-    	spec.id,
-    	spec.code_name;
 
 --
 -- VIEW:  MAL_PRINT_RENEWAL_VW

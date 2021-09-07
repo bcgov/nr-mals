@@ -9,7 +9,12 @@ import { REGISTRANT_MODE, REGISTRANT_STATUS } from "../../utilities/constants";
 import RegistrantsEdit from "./RegistrantsEdit";
 import RegistrantsView from "./RegistrantsView";
 
-export default function RegistrantsTab({ initialRegistrants, mode, form }) {
+export default function RegistrantsTab({
+  initialRegistrants,
+  mode,
+  form,
+  submitting,
+}) {
   let errors;
   if (form) {
     errors = form.errors;
@@ -42,6 +47,7 @@ export default function RegistrantsTab({ initialRegistrants, mode, form }) {
           registrants={registrants}
           setRegistrants={setRegistrants}
           setSelectedRegistrant={setSelectedTabKey}
+          submitting={submitting}
         />
       );
       break;
@@ -126,9 +132,11 @@ RegistrantsTab.propTypes = {
   initialRegistrants: PropTypes.arrayOf(PropTypes.object),
   mode: PropTypes.string.isRequired,
   form: PropTypes.object,
+  submitting: PropTypes.bool,
 };
 
 RegistrantsTab.defaultProps = {
   initialRegistrants: [],
   form: null,
+  submitting: false,
 };

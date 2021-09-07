@@ -41,7 +41,7 @@ import {
 function getSelectedLicences(licences) {
   return licences
     .filter((licence) => licence.selected === "true")
-    .map((licence) => licence.id);
+    .map((licence) => licence.licenceId);
 }
 
 let licences = [];
@@ -216,9 +216,9 @@ export default function SelectApiaryRenewalsPage() {
           </thead>
           <tbody>
             {licences.map((item, index) => {
-              const url = `${LICENSES_PATHNAME}/${item.id}`;
+              const url = `${LICENSES_PATHNAME}/${item.licenceId}`;
               return (
-                <tr key={item.id}>
+                <tr key={item.licenceId}>
                   <td>
                     <Form.Check
                       name={`licences[${index}].selected`}
@@ -229,9 +229,9 @@ export default function SelectApiaryRenewalsPage() {
                     />
                     <input
                       hidden
-                      name={`licences[${index}].id`}
+                      name={`licences[${index}].licenceId`}
                       ref={register()}
-                      defaultValue={item.id}
+                      defaultValue={item.licenceId}
                     />
                   </td>
                   <td className="text-nowrap">

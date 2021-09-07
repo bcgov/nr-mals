@@ -3,14 +3,13 @@ import { useForm } from "react-hook-form";
 import { useSelector, useDispatch } from "react-redux";
 import { Row, Col, Form, Button } from "react-bootstrap";
 
-import { startOfToday, getYear } from "date-fns";
+import { startOfToday, add } from "date-fns";
 
+import CustomDatePicker from "../../components/CustomDatePicker";
 import DocGenDownloadBar from "../../components/DocGenDownloadBar";
 
-import { parseAsInt } from "../../utilities/parsing";
-
 import {
-  startDairyTankRecheckJob,
+  startLicenceExpiryJob,
   generateReport,
   fetchReportJob,
   selectReportsJob,
@@ -19,7 +18,7 @@ import {
 
 import { REPORTS } from "../../utilities/constants";
 
-export default function ReportDairyTankRecheck() {
+export default function ReportLicenceExpiry() {
   const dispatch = useDispatch();
 
   const job = useSelector(selectReportsJob);
@@ -28,16 +27,20 @@ export default function ReportDairyTankRecheck() {
   const form = useForm({
     reValidateMode: "onBlur",
   });
-  const { register, watch } = form;
+  const { setValue, watch } = form;
 
-  const today = startOfToday();
-  const initialYear = getYear(today) + 1;
-  const watchRecheckYear = watch("recheckYear", initialYear);
-
-  useEffect(() => {}, [dispatch]);
+  const startDate = startOfToday();
+  const endDate = add(startOfToday(), { days: 15 });
+  const watchStartDate = watch("startDate", startDate);
+  const watchEndDate = watch("endDate", endDate);
 
   useEffect(() => {
-    if (job.id && job.type === REPORTS.DAIRY_FARM_TANK) {
+    setValue("startDate", startDate);
+    setValue("endDate", endDate);
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (job.id && job.type === REPORTS.LICENCE_EXPIRY) {
       dispatch(fetchReportJob());
 
       if (pendingDocuments?.length > 0) {
@@ -48,10 +51,17 @@ export default function ReportDairyTankRecheck() {
     }
   }, [pendingDocuments]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const handleFieldChange = (field) => {
+    return (value) => {
+      setValue(field, value);
+    };
+  };
+
   const onGenerateReport = () => {
     dispatch(
-      startDairyTankRecheckJob({
-        recheckYear: watchRecheckYear,
+      startLicenceExpiryJob({
+        startDate: watchStartDate,
+        endDate: watchEndDate,
       })
     );
   };
@@ -60,15 +70,20 @@ export default function ReportDairyTankRecheck() {
     <>
       <Row>
         <Col lg={3}>
-          <Form.Group controlId="recheckYear">
-            <Form.Label>Re-check Year</Form.Label>
-            <Form.Control
-              type="number"
-              name="recheckYear"
-              defaultValue={initialYear}
-              ref={register}
-            />
-          </Form.Group>
+          <CustomDatePicker
+            id="startDate"
+            label="Start Date"
+            notifyOnChange={handleFieldChange("startDate")}
+            defaultValue={startDate}
+          />
+        </Col>
+        <Col lg={3}>
+          <CustomDatePicker
+            id="endDate"
+            label="End Date"
+            notifyOnChange={handleFieldChange("endDate")}
+            defaultValue={endDate}
+          />
         </Col>
         <Col sm={2}>
           <Form.Label>&nbsp;</Form.Label>
@@ -89,4 +104,4 @@ export default function ReportDairyTankRecheck() {
   );
 }
 
-ReportDairyTankRecheck.propTypes = {};
+ReportLicenceExpiry.propTypes = {};

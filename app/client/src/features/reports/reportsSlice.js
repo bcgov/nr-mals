@@ -59,10 +59,64 @@ export const startProducersAnalysisRegionJob = createAsyncThunk(
 
 export const startProducersAnalysisCityJob = createAsyncThunk(
   "reports/startProducersAnalysisCityJob",
+  async (payload, thunkApi) => {
+    try {
+      const response = await Api.post(
+        `documents/reports/startJob/producersAnalysisCity`,
+        payload
+      );
+      return response.data;
+    } catch (error) {
+      if (error instanceof ApiError) {
+        return thunkApi.rejectWithValue(error.serialize());
+      }
+      return thunkApi.rejectWithValue({ code: -1, description: error.message });
+    }
+  }
+);
+
+export const startApiarySiteJob = createAsyncThunk(
+  "reports/startApiarySiteJob",
+  async (payload, thunkApi) => {
+    try {
+      const response = await Api.post(
+        `documents/reports/startJob/apiarySite`,
+        payload
+      );
+      return response.data;
+    } catch (error) {
+      if (error instanceof ApiError) {
+        return thunkApi.rejectWithValue(error.serialize());
+      }
+      return thunkApi.rejectWithValue({ code: -1, description: error.message });
+    }
+  }
+);
+
+export const startClientDetailsJob = createAsyncThunk(
+  "reports/startClientDetailsJob",
   async (_, thunkApi) => {
     try {
       const response = await Api.post(
-        `documents/reports/startJob/producersAnalysisCity`
+        `documents/reports/startJob/clientDetails`
+      );
+      return response.data;
+    } catch (error) {
+      if (error instanceof ApiError) {
+        return thunkApi.rejectWithValue(error.serialize());
+      }
+      return thunkApi.rejectWithValue({ code: -1, description: error.message });
+    }
+  }
+);
+
+export const startDairyClientDetailsJob = createAsyncThunk(
+  "reports/startDairyClientDetailsJob",
+  async (payload, thunkApi) => {
+    try {
+      const response = await Api.post(
+        `documents/reports/startJob/dairyClientDetails`,
+        payload
       );
       return response.data;
     } catch (error) {
@@ -134,6 +188,24 @@ export const startLicenceTypeLocationJob = createAsyncThunk(
     try {
       const response = await Api.post(
         `documents/reports/startJob/licenceTypeLocation`,
+        payload
+      );
+      return response.data;
+    } catch (error) {
+      if (error instanceof ApiError) {
+        return thunkApi.rejectWithValue(error.serialize());
+      }
+      return thunkApi.rejectWithValue({ code: -1, description: error.message });
+    }
+  }
+);
+
+export const startLicenceExpiryJob = createAsyncThunk(
+  "reports/startLicenceExpiryJob",
+  async (payload, thunkApi) => {
+    try {
+      const response = await Api.post(
+        `documents/reports/startJob/licenceExpiry`,
         payload
       );
       return response.data;
@@ -245,6 +317,15 @@ export const reportsSlice = createSlice({
     [startProducersAnalysisCityJob.pending]: pendingStartJobReducer,
     [startProducersAnalysisCityJob.fulfilled]: fulfilledStartJobReducer,
     [startProducersAnalysisCityJob.rejected]: rejectionStartJobReducer,
+    [startApiarySiteJob.pending]: pendingStartJobReducer,
+    [startApiarySiteJob.fulfilled]: fulfilledStartJobReducer,
+    [startApiarySiteJob.rejected]: rejectionStartJobReducer,
+    [startClientDetailsJob.pending]: pendingStartJobReducer,
+    [startClientDetailsJob.fulfilled]: fulfilledStartJobReducer,
+    [startClientDetailsJob.rejected]: rejectionStartJobReducer,
+    [startDairyClientDetailsJob.pending]: pendingStartJobReducer,
+    [startDairyClientDetailsJob.fulfilled]: fulfilledStartJobReducer,
+    [startDairyClientDetailsJob.rejected]: rejectionStartJobReducer,
     [startProvincialFarmQualityJob.pending]: pendingStartJobReducer,
     [startProvincialFarmQualityJob.fulfilled]: fulfilledStartJobReducer,
     [startProvincialFarmQualityJob.rejected]: rejectionStartJobReducer,
@@ -257,6 +338,9 @@ export const reportsSlice = createSlice({
     [startLicenceTypeLocationJob.pending]: pendingStartJobReducer,
     [startLicenceTypeLocationJob.fulfilled]: fulfilledStartJobReducer,
     [startLicenceTypeLocationJob.rejected]: rejectionStartJobReducer,
+    [startLicenceExpiryJob.pending]: pendingStartJobReducer,
+    [startLicenceExpiryJob.fulfilled]: fulfilledStartJobReducer,
+    [startLicenceExpiryJob.rejected]: rejectionStartJobReducer,
 
     [fetchReportJob.pending]: (state) => {
       state.job.status = REQUEST_STATUS.PENDING;
