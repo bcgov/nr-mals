@@ -69,6 +69,7 @@ grant select on mal_site_detail_vw                       to mals_app_role;
 --
 --  PLPGSQL
 --
+--     pr_generate_print_json_licence_expiry is missing from fs-19
 
 grant execute on procedure pr_generate_print_json                            to mals_app_role;
 grant execute on procedure pr_generate_print_json_action_required            to mals_app_role;
@@ -77,12 +78,13 @@ grant execute on procedure pr_generate_print_json_apiary_producer_city       to 
 grant execute on procedure pr_generate_print_json_apiary_producer_district   to mals_app_role;
 grant execute on procedure pr_generate_print_json_apiary_producer_region     to mals_app_role;
 grant execute on procedure pr_generate_print_json_apiary_site                to mals_app_role;
-grant execute on procedure pr_generate_print_json_client_details             to mals_app_role;
 grant execute on procedure pr_generate_print_json_dairy_farm_details         to mals_app_role;
 grant execute on procedure pr_generate_print_json_dairy_farm_quality         to mals_app_role;
 grant execute on procedure pr_generate_print_json_dairy_farm_tank_recheck    to mals_app_role;
 grant execute on procedure pr_generate_print_json_dairy_farm_test_threshold  to mals_app_role;
+grant execute on procedure pr_generate_print_json_licence_expiry             to mals_app_role;
 grant execute on procedure pr_generate_print_json_licence_location           to mals_app_role;
 grant execute on procedure pr_generate_print_json_veterinary_drug_details    to mals_app_role;
 grant execute on procedure pr_start_dairy_farm_test_job                      to mals_app_role;
 grant execute on procedure pr_update_dairy_farm_test_results                 to mals_app_role;
+
