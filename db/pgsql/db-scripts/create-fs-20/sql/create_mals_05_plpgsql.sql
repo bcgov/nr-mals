@@ -35,12 +35,12 @@ returns trigger as $$
 	begin
 	if TG_OP = 'UPDATE' then
 		NEW.update_userid     = coalesce(NEW.update_userid, current_user);
-		NEW.update_timestamp  = localtimestamp;
+		NEW.update_timestamp  = current_timestamp;
 	elsif TG_OP = 'INSERT' then
 		NEW.create_userid     = coalesce(NEW.create_userid, current_user);
-		NEW.create_timestamp  = localtimestamp;
+		NEW.create_timestamp  = current_timestamp;
 		NEW.update_userid     = coalesce(NEW.update_userid, current_user);
-		NEW.update_timestamp  = localtimestamp;
+		NEW.update_timestamp  = current_timestamp;
 	end if;
 	return NEW;
 	end;
@@ -96,9 +96,9 @@ AS $procedure$
 			certificate_json,
 			null,
 			current_user,
-			localtimestamp,
+			current_timestamp,
 			current_user,
-			localtimestamp
+			current_timestamp
 		from mal_print_certificate_vw;
 		GET DIAGNOSTICS l_certificate_json_count = ROW_COUNT;
 		 --
@@ -123,9 +123,9 @@ AS $procedure$
 			envelope_json,
 			null,
 			current_user,
-			localtimestamp,
+			current_timestamp,
 			current_user,
-			localtimestamp
+			current_timestamp
 		from mal_print_certificate_vw;
 		GET DIAGNOSTICS l_envelope_json_count = ROW_COUNT;
 		 --
@@ -150,9 +150,9 @@ AS $procedure$
 			card_json,
 			null,
 			current_user,
-			localtimestamp,
+			current_timestamp,
 			current_user,
-			localtimestamp
+			current_timestamp
 		from mal_print_card_vw;
 		GET DIAGNOSTICS l_card_json_count = ROW_COUNT;
 	end if;
@@ -178,9 +178,9 @@ AS $procedure$
 			renewal_json,
 			null,
 			current_user,
-			localtimestamp,
+			current_timestamp,
 			current_user,
-			localtimestamp
+			current_timestamp
 		from mal_print_renewal_vw;
 		GET DIAGNOSTICS l_renewal_json_count = ROW_COUNT;
 	end if;
@@ -206,9 +206,9 @@ AS $procedure$
 			infraction_json,
 			null,
 			current_user,
-			localtimestamp,
+			current_timestamp,
 			current_user,
-			localtimestamp
+			current_timestamp
 		from mal_print_dairy_farm_infraction_vw
 		where print_dairy_infraction = true
 	and recorded_date between ip_start_date and ip_end_date;
@@ -236,9 +236,9 @@ AS $procedure$
 			recheck_notice_json,
 			null,
 			current_user,
-			localtimestamp,
+			current_timestamp,
 			current_user,
-			localtimestamp
+			current_timestamp
 		from mal_print_dairy_farm_tank_recheck_vw
 		where print_recheck_notice = true;
 		GET DIAGNOSTICS l_recheck_notice_json_count = ROW_COUNT;
@@ -247,7 +247,7 @@ AS $procedure$
 	-- Update the Print Job table.	 
 	update mal_print_job set
 		job_status                    = 'COMPLETE',
-		json_end_time                 = localtimestamp,
+		json_end_time                 = current_timestamp,
 		certificate_json_count        = l_certificate_json_count,
 		envelope_json_count           = l_envelope_json_count,
 		card_json_count               = l_card_json_count,
@@ -255,7 +255,7 @@ AS $procedure$
 		dairy_infraction_json_count   = l_dairy_infraction_json_count,
 		recheck_notice_json_count     = l_recheck_notice_json_count,
 		update_userid                 = current_user,
-		update_timestamp              = localtimestamp
+		update_timestamp              = current_timestamp
 	where id = iop_print_job_id;
 end; 
 $procedure$
@@ -317,15 +317,15 @@ AS $procedure$
 		licence_type,
 		null,
 		'ACTION_REQUIRED',
-		json_build_object('DateTime',       to_char(localtimestamp AT TIME ZONE 'Canada/Pacific', 'fmyyyy-mm-dd hh24mi'),
+		json_build_object('DateTime',       to_char(current_timestamp, 'fmyyyy-mm-dd hh24mi'),
 						  'Licence_Type',   licence_type,
 						  'Licence',        licence_json,
 						  'RowCount',       num_rows) report_json,
 		null,
 		current_user,
-		localtimestamp,
+		current_timestamp,
 		current_user,
-		localtimestamp
+		current_timestamp
 	from licence_type_summary;
 	--
 	GET DIAGNOSTICS l_report_json_count = ROW_COUNT;	
@@ -333,10 +333,10 @@ AS $procedure$
 	-- Update the Print Job table.	 
 	update mal_print_job set
 		job_status                    = 'COMPLETE',
-		json_end_time                 = localtimestamp,
+		json_end_time                 = current_timestamp,
 		report_json_count             = l_report_json_count,
 		update_userid                 = current_user,
-		update_timestamp              = localtimestamp
+		update_timestamp              = current_timestamp
 	where id = iop_print_job_id;
 end; 
 $procedure$
@@ -481,7 +481,7 @@ AS $procedure$
 		'APIARY',
 		null,
 		'APIARY_INSPECTION',
-		   json_build_object('DateTime',                     to_char(localtimestamp AT TIME ZONE 'Canada/Pacific', 'fmyyyy-mm-dd hh24mi'),
+		   json_build_object('DateTime',                     to_char(current_timestamp, 'fmyyyy-mm-dd hh24mi'),
 							 'DateRangeStart',               to_char(ip_start_date, 'fmyyyy-mm-dd hh24mi'),
 							 'DateRangeEnd',                 to_char(ip_end_date, 'fmyyyy-mm-dd hh24mi'),
 							 'Licence',                      lic_sum.licence_json,		
@@ -500,9 +500,9 @@ AS $procedure$
 						     'Tot_SupersDestroyed',          rpt_sum.tot_supers_destroyed) report_json,
 		null,
 		current_user,
-		localtimestamp,
+		current_timestamp,
 		current_user,
-		localtimestamp
+		current_timestamp
 	from licence_summary lic_sum
 	cross join region_summary rgn_sum
 	cross join report_summary rpt_sum;
@@ -512,10 +512,10 @@ AS $procedure$
 	-- Update the Print Job table.	 
 	update mal_print_job set
 		job_status                    = 'COMPLETE',
-		json_end_time                 = localtimestamp,
+		json_end_time                 = current_timestamp,
 		report_json_count             = l_report_json_count,
 		update_userid                 = current_user,
-		update_timestamp              = localtimestamp
+		update_timestamp              = current_timestamp
 	where id = iop_print_job_id;
 end; 
 $procedure$
@@ -579,7 +579,7 @@ AS $procedure$
 		'APIARY',
 		null,
 		'APIARY_PRODUCER_CITY',
-		json_build_object('DateTime',           to_char(localtimestamp AT TIME ZONE 'Canada/Pacific', 'fmyyyy-mm-dd hh24mi'),
+		json_build_object('DateTime',           to_char(current_timestamp, 'fmyyyy-mm-dd hh24mi'),
 						  'NumColoniesBegin',   ip_min_hives,
 						  'NumColoniesEnd',     ip_max_hives,
 						  'Reg',                licence_json,
@@ -587,9 +587,9 @@ AS $procedure$
 						  'Tot_Hives',          num_hives) report_json,
 		null,
 		current_user,
-		localtimestamp,
+		current_timestamp,
 		current_user,
-		localtimestamp
+		current_timestamp
 	from site_summary;
 	--
 	GET DIAGNOSTICS l_report_json_count = ROW_COUNT;	
@@ -597,10 +597,10 @@ AS $procedure$
 	-- Update the Print Job table.	 
 	update mal_print_job set
 		job_status                    = 'COMPLETE',
-		json_end_time                 = localtimestamp,
+		json_end_time                 = current_timestamp,
 		report_json_count             = l_report_json_count,
 		update_userid                 = current_user,
-		update_timestamp              = localtimestamp
+		update_timestamp              = current_timestamp
 	where id = iop_print_job_id;
 end; 
 $procedure$
@@ -696,7 +696,7 @@ AS $procedure$
 		'APIARY',
 		null,
 		'APIARY_PRODUCER_DISTRICT',
-		json_build_object('DateTime',                  to_char(localtimestamp AT TIME ZONE 'Canada/Pacific', 'fmyyyy-mm-dd hh24mi'),
+		json_build_object('DateTime',                  to_char(current_timestamp, 'fmyyyy-mm-dd hh24mi'),
 						  'District',                  district_json,
 						  'TotalProducers1To9',        total_sites_1To9,
 						  'TotalProducers10Plus',      total_sites_10Plus,
@@ -711,9 +711,9 @@ AS $procedure$
 						  'ProducersWithNoColonies',   total_producers_hives_0) report_json,
 		null,
 		current_user,
-		localtimestamp,
+		current_timestamp,
 		current_user,
-		localtimestamp
+		current_timestamp
 	from report_summary;  
 	--
 	GET DIAGNOSTICS l_report_json_count = ROW_COUNT;	
@@ -721,10 +721,10 @@ AS $procedure$
 	-- Update the Print Job table.	 
 	update mal_print_job set
 		job_status                    = 'COMPLETE',
-		json_end_time                 = localtimestamp,
+		json_end_time                 = current_timestamp,
 		report_json_count             = l_report_json_count,
 		update_userid                 = current_user,
-		update_timestamp              = localtimestamp
+		update_timestamp              = current_timestamp
 	where id = iop_print_job_id;
 end; 
 $procedure$
@@ -820,7 +820,7 @@ AS $procedure$
 		'APIARY',
 		null,
 		'APIARY_PRODUCER_REGION',
-		json_build_object('DateTime',                  to_char(localtimestamp AT TIME ZONE 'Canada/Pacific', 'fmyyyy-mm-dd hh24mi'),
+		json_build_object('DateTime',                  to_char(current_timestamp, 'fmyyyy-mm-dd hh24mi'),
 						  'Region',                    region_json,
 						  'TotalProducers1To9',        total_sites_1To9,
 						  'TotalProducers10Plus',      total_sites_10Plus,
@@ -835,9 +835,9 @@ AS $procedure$
 						  'ProducersWithNoColonies',   total_producers_hives_0) report_json,
 		null,
 		current_user,
-		localtimestamp,
+		current_timestamp,
 		current_user,
-		localtimestamp
+		current_timestamp
 	from report_summary;  
 	--
 	GET DIAGNOSTICS l_report_json_count = ROW_COUNT;	
@@ -845,10 +845,10 @@ AS $procedure$
 	-- Update the Print Job table.	 
 	update mal_print_job set
 		job_status                    = 'COMPLETE',
-		json_end_time                 = localtimestamp,
+		json_end_time                 = current_timestamp,
 		report_json_count             = l_report_json_count,
 		update_userid                 = current_user,
-		update_timestamp              = localtimestamp
+		update_timestamp              = current_timestamp
 	where id = iop_print_job_id;
 end; 
 $procedure$
@@ -912,15 +912,15 @@ AS $procedure$
 		'APIARY',
 		null,
 		'APIARY_SITE', 
-		json_build_object('DateTime',           to_char(localtimestamp AT TIME ZONE 'Canada/Pacific', 'fmyyyy-mm-dd hh24mi'),
+		json_build_object('DateTime',           to_char(current_timestamp, 'fmyyyy-mm-dd hh24mi'),
 						  'Reg',                licence_json,
 						  'Tot_Producers',      total_producers,
 						  'Tot_Hives',          total_hives) report_json,
 		null,
 		current_user,
-		localtimestamp,
+		current_timestamp,
 		current_user,
-		localtimestamp
+		current_timestamp
 	from site_summary;
 	--
 	GET DIAGNOSTICS l_report_json_count = ROW_COUNT;	
@@ -928,10 +928,10 @@ AS $procedure$
 	-- Update the Print Job table.	 
 	update mal_print_job set
 		job_status                    = 'COMPLETE',
-		json_end_time                 = localtimestamp,
+		json_end_time                 = current_timestamp,
 		report_json_count             = l_report_json_count,
 		update_userid                 = current_user,
-		update_timestamp              = localtimestamp
+		update_timestamp              = current_timestamp
 	where id = iop_print_job_id;
 end; 
 $procedure$
@@ -981,7 +981,7 @@ AS $procedure$
 		),
 	licence_details as (
 		select 
-			json_agg(json_build_object('IRMA_Num',               tank.irma_number,
+			json_agg(json_build_object('IRMA_NUM',               tank.irma_number,
 										'Status',                tank.licence_status,
 										'LicenceHolderCompany',  tank.company_name,
 										'LastnameFirstName',     tank.registrant_last_first,
@@ -1034,15 +1034,15 @@ AS $procedure$
 		'DAIRY FARM',
 		null,
 		'DAIRY_FARM_DETAIL',
-		json_build_object('DateTime',            to_char(localtimestamp AT TIME ZONE 'Canada/Pacific', 'fmyyyy-mm-dd hh24mi'),
+		json_build_object('DateTime',            to_char(current_timestamp, 'fmyyyy-mm-dd hh24mi'),
 						  'DateRangeStart',      to_char(ip_start_date, 'fmyyyy-mm-dd'),
 						  'DateRangeEnd',        to_char(ip_end_date, 'fmyyyy-mm-dd'),
 						  'Client',              licence_json) report_json,
 		null,
 		current_user,
-		localtimestamp,
+		current_timestamp,
 		current_user,
-		localtimestamp
+		current_timestamp
 	from licence_details;
 	--
 	GET DIAGNOSTICS l_report_json_count = ROW_COUNT;	
@@ -1050,10 +1050,10 @@ AS $procedure$
 	-- Update the Print Job table.	 
 	update mal_print_job set
 		job_status                    = 'COMPLETE',
-		json_end_time                 = localtimestamp,
+		json_end_time                 = current_timestamp,
 		report_json_count             = l_report_json_count,
 		update_userid                 = current_user,
-		update_timestamp              = localtimestamp
+		update_timestamp              = current_timestamp
 	where id = iop_print_job_id;
 end; 
 $procedure$
@@ -1146,7 +1146,7 @@ AS $procedure$
 			'DAIRY FARM',
 			null,
 			'DAIRY_FARM_QUALITY',
-			json_build_object('DateTime',         to_char(localtimestamp AT TIME ZONE 'Canada/Pacific', 'fmyyyy-mm-dd hh24mi'),
+			json_build_object('DateTime',         to_char(current_timestamp, 'fmyyyy-mm-dd hh24mi'),
 							  'DateRangeStart',   to_char(ip_start_date, 'fmyyyy-mm-dd hh24mi'),
 							  'DateRangeEnd',     to_char(ip_end_date, 'fmyyyy-mm-dd hh24mi'),
 							  'Reg',              json_summary.licence_json,		
@@ -1154,9 +1154,9 @@ AS $procedure$
 							  'IBC_Report_Avg',   report_spc1_average) report_json,
 			null,
 			current_user,
-			localtimestamp,
+			current_timestamp,
 			current_user,
-			localtimestamp
+			current_timestamp
 		from json_summary;
 	--
 	GET DIAGNOSTICS l_report_json_count = ROW_COUNT;	
@@ -1164,10 +1164,10 @@ AS $procedure$
 	-- Update the Print Job table.	 
 	update mal_print_job set
 		job_status                    = 'COMPLETE',
-		json_end_time                 = localtimestamp,
+		json_end_time                 = current_timestamp,
 		report_json_count             = l_report_json_count,
 		update_userid                 = current_user,
-		update_timestamp              = localtimestamp
+		update_timestamp              = current_timestamp
 	where id = iop_print_job_id;
 end; 
 $procedure$
@@ -1225,15 +1225,15 @@ AS $procedure$
 		'DAIRY FARM',
 		null,
 		'DAIRY_FARM_TANK',
-		json_build_object('DateTime',            to_char(localtimestamp AT TIME ZONE 'Canada/Pacific', 'fmyyyy-mm-dd hh24mi'),
+		json_build_object('DateTime',            to_char(current_timestamp, 'fmyyyy-mm-dd hh24mi'),
 						  'RecheckYear',         ip_recheck_year,
 						  'Reg',                 tank_json,
 						  'Total_Num_Tanks',   num_tanks) report_json,
 		null,
 		current_user,
-		localtimestamp,
+		current_timestamp,
 		current_user,
-		localtimestamp
+		current_timestamp
 	from tank_details;
 	--
 	GET DIAGNOSTICS l_report_json_count = ROW_COUNT;	
@@ -1241,10 +1241,10 @@ AS $procedure$
 	-- Update the Print Job table.	 
 	update mal_print_job set
 		job_status                    = 'COMPLETE',
-		json_end_time                 = localtimestamp,
+		json_end_time                 = current_timestamp,
 		report_json_count             = l_report_json_count,
 		update_userid                 = current_user,
-		update_timestamp              = localtimestamp
+		update_timestamp              = current_timestamp
 	where id = iop_print_job_id;
 end; 
 $procedure$
@@ -1332,7 +1332,7 @@ AS $procedure$
 		'DAIRY FARM',
 		null,
 		'DAIRY_TEST_THRESHOLD',
-		json_build_object('DateTime',          to_char(localtimestamp AT TIME ZONE 'Canada/Pacific', 'fmyyyy-mm-dd hh24:mi'),
+		json_build_object('DateTime',          to_char(current_timestamp, 'fmyyyy-mm-dd hh24:mi'),
 						  'DateRangeStart',    to_char(ip_start_date, 'fmMonth dd, yyyy'),
 						  'DateRangeEnd',      to_char(ip_end_date, 'fmMonth dd, yyyy'),
 						  'Reg',               list.licence_json,
@@ -1343,9 +1343,9 @@ AS $procedure$
 						  'Tot_IH_Count',      smry.num_ih_infractions) report_json,
 		null,
 		current_user,
-		localtimestamp,
+		current_timestamp,
 		current_user,
-		localtimestamp
+		current_timestamp
 	from licence_list list
 	cross join result_summary smry;
 	--
@@ -1354,10 +1354,10 @@ AS $procedure$
 	-- Update the Print Job table.	 
 	update mal_print_job set
 		job_status                    = 'COMPLETE',
-		json_end_time                 = localtimestamp,
+		json_end_time                 = current_timestamp,
 		report_json_count             = l_report_json_count,
 		update_userid                 = current_user,
-		update_timestamp              = localtimestamp
+		update_timestamp              = current_timestamp
 	where id = iop_print_job_id;
 end; 
 $procedure$
@@ -1418,15 +1418,15 @@ AS $procedure$
 		null,
 		null,
 		'LICENCE_EXPIRY',
-		json_build_object('DateTime',        to_char(localtimestamp, 'fmyyyy-mm-dd hh12mi'),
+		json_build_object('DateTime',        to_char(current_timestamp, 'fmyyyy-mm-dd hh12mi'),
 						  'DateRangeStart',  to_char(ip_start_date, 'fmyyyy-mm-dd'),
 						  'DateRangeEnd',    to_char(ip_end_date, 'fmyyyy-mm-dd'),
 						  'Reg',             licence_json) report_json,
 		null,
 		current_user,
-		localtimestamp,
+		current_timestamp,
 		current_user,
-		localtimestamp
+		current_timestamp
 	from licence_details;
 	--
 	GET DIAGNOSTICS l_report_json_count = ROW_COUNT;	
@@ -1434,10 +1434,10 @@ AS $procedure$
 	-- Update the Print Job table.	 
 	update mal_print_job set
 		job_status                    = 'COMPLETE',
-		json_end_time                 = localtimestamp,
+		json_end_time                 = current_timestamp,
 		report_json_count             = l_report_json_count,
 		update_userid                 = current_user,
-		update_timestamp              = localtimestamp
+		update_timestamp              = current_timestamp
 	where id = iop_print_job_id;
 end; 
 $procedure$
@@ -1509,15 +1509,15 @@ AS $procedure$
 		licence_type,
 		null,
 		'LICENCE_LOCATION',
-		json_build_object('DateTime',       to_char(localtimestamp AT TIME ZONE 'Canada/Pacific', 'fmyyyy-mm-dd hh24mi'),
+		json_build_object('DateTime',       to_char(current_timestamp, 'fmyyyy-mm-dd hh24mi'),
 						  'Licence_Type',   licence_type,
 						  'Licence',        licence_json,
 						  'RowCount',       num_rows) report_json,
 		null,
 		current_user,
-		localtimestamp,
+		current_timestamp,
 		current_user,
-		localtimestamp
+		current_timestamp
 	from licence_summary;
 	--
 	GET DIAGNOSTICS l_report_json_count = ROW_COUNT;	
@@ -1525,10 +1525,10 @@ AS $procedure$
 	-- Update the Print Job table.	 
 	update mal_print_job set
 		job_status                    = 'COMPLETE',
-		json_end_time                 = localtimestamp,
+		json_end_time                 = current_timestamp,
 		report_json_count             = l_report_json_count,
 		update_userid                 = current_user,
-		update_timestamp              = localtimestamp
+		update_timestamp              = current_timestamp
 	where id = iop_print_job_id;
 end; 
 $procedure$
@@ -1704,14 +1704,14 @@ AS $procedure$
 		'VETERINARY DRUG',
 		null,
 		'VETERINARY_DRUG_DETAILS',	
-		json_build_object('DateTime',       to_char(localtimestamp AT TIME ZONE 'Canada/Pacific', 'fmMonth dd, yyyy'),
+		json_build_object('DateTime',       to_char(current_timestamp, 'fmMonth dd, yyyy'),
 						  'Licence_Type',   licence_type,
 						  'Client',         licence_json) report_json,
 		null,
 		current_user,
-		localtimestamp,
+		current_timestamp,
 		current_user,
-		localtimestamp
+		current_timestamp
 	from licence_summary;
 	--
 	GET DIAGNOSTICS l_report_json_count = ROW_COUNT;	
@@ -1719,10 +1719,10 @@ AS $procedure$
 	-- Update the Print Job table.	 
 	update mal_print_job set
 		job_status                    = 'COMPLETE',
-		json_end_time                 = localtimestamp,
+		json_end_time                 = current_timestamp,
 		report_json_count             = l_report_json_count,
 		update_userid                 = current_user,
-		update_timestamp              = localtimestamp
+		update_timestamp              = current_timestamp
 	where id = iop_print_job_id;
 end; 
 $procedure$
@@ -1754,15 +1754,15 @@ AS $procedure$
 	values(
 		ip_job_type,
 		'RUNNING',
-		localtimestamp, 
+		current_timestamp, 
 		null,
 		null,
 		null,
 		null,
 		current_user,
-		localtimestamp,
+		current_timestamp,
 		current_user,
-		localtimestamp)
+		current_timestamp)
 	returning id into iop_job_id;
 end; 
 $procedure$
@@ -1798,7 +1798,7 @@ AS $procedure$
 	values(
 		'RUNNING',
 		ip_print_category,
-		localtimestamp, 
+		current_timestamp, 
 		null,
 		null,
 		0,
@@ -1808,9 +1808,9 @@ AS $procedure$
 		0,
 		0,
 		current_user,
-		localtimestamp,
+		current_timestamp,
 		current_user,
-		localtimestamp)
+		current_timestamp)
 	returning id into iop_print_job_id;
 end; 
 $procedure$
@@ -1892,10 +1892,10 @@ AS $procedure$
 	update mal_dairy_farm_test_job 
 		set
 			job_status              = iop_job_status,
-			execution_end_time      = localtimestamp,
+			execution_end_time      = current_timestamp,
 			target_update_count     = l_target_update_count,
 			update_userid           = current_user,
-			update_timestamp        = localtimestamp
+			update_timestamp        = current_timestamp
 		where id = ip_job_id;
 end; 
 $procedure$
