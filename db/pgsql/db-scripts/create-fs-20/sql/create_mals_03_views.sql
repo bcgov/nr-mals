@@ -1671,7 +1671,7 @@ CREATE OR REPLACE VIEW mal_print_dairy_farm_tank_recheck_vw as
 		--  maintenance and to avoid producing elements which will be ignored in the Renewals.
 		case base.licence_type
 		    when 'APIARY' then
-				 json_build_object('LastFirstName',         base.registrant_last_name,
+				 json_build_object('LastFirstName',         base.registrant_last_first,
 			                       'LicenceHolderCompany',  base.company_name,
 			                       'MailingAddress',        base.derived_address,
 			                       'MailingCity',           base.derived_city,
@@ -1687,7 +1687,7 @@ CREATE OR REPLACE VIEW mal_print_dairy_farm_tank_recheck_vw as
 		    when 'BULK TANK MILK GRADER' then
 				 json_build_object('LicenceYear',           base.standard_expiry_year_display,
 			                       'LicenceHolderCompany',  base.company_name,
-			                       'LastFirstName',         base.registrant_last_name,
+			                       'LastFirstName',         base.registrant_last_first,
 			                       'MailingAddress',        base.derived_address,
 			                       'MailingCity',           base.derived_city,
 			                       'MailingProv',           base.derived_province,
