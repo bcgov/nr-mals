@@ -4,14 +4,14 @@ function GetKeycloakConfig() {
   let kcConfig = null;
 
   console.log(process.env.ENVIRONMENT_LABEL);
-  if (process.env.ENVIRONMENT_LABEL === "development") {
+  if (process.env.ENVIRONMENT_LABEL === "dev") {
     kcConfig = "/keycloak_dev.json";
   } else if (
     process.env.ENVIRONMENT_LABEL === "test" ||
     process.env.ENVIRONMENT_LABEL === "uat"
   ) {
     kcConfig = "/keycloak_test.json";
-  } else if (process.env.ENVIRONMENT_LABEL === "production") {
+  } else if (process.env.ENVIRONMENT_LABEL === "prod") {
     kcConfig = "/keycloak_prod.json";
   }
 
