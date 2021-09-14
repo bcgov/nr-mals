@@ -4,6 +4,8 @@ import PropTypes from "prop-types";
 import NumberFormat from "react-number-format";
 import { Row, Col } from "react-bootstrap";
 
+import { parseAsInt } from "../../utilities/parsing";
+
 import {
   formatDateString,
   formatMoney,
@@ -178,7 +180,7 @@ export default function LicenceDetailsView({ licence }) {
             <Col lg={4}>
               <VerticalField
                 label="Fee Paid Amount"
-                value={formatMoney(licence.feePaidAmount)}
+                value={formatMoney(parseAsInt(licence.feePaidAmount))}
               />
             </Col>
           )}
