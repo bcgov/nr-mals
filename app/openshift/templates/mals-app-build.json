@@ -47,7 +47,7 @@
             "env": [
               {
                 "name": "NPM_RUN",
-                "value": "${NPM_RUN}"
+                "value": "${NPM_RUN_DEV}"
               },
               {
                 "name": "ENVIRONMENT_LABEL",
@@ -115,7 +115,7 @@
             "env": [
               {
                 "name": "NPM_RUN",
-                "value": "${NPM_RUN}"
+                "value": "${NPM_RUN_TEST}"
               },
               {
                 "name": "ENVIRONMENT_LABEL",
@@ -183,7 +183,7 @@
             "env": [
               {
                 "name": "NPM_RUN",
-                "value": "${NPM_RUN}"
+                "value": "${NPM_RUN_TEST}"
               },
               {
                 "name": "ENVIRONMENT_LABEL",
@@ -251,7 +251,7 @@
             "env": [
               {
                 "name": "NPM_RUN",
-                "value": "${NPM_RUN}"
+                "value": "${NPM_RUN_PROD}"
               },
               {
                 "name": "ENVIRONMENT_LABEL",
@@ -390,8 +390,20 @@
       "value": "4Gi"
     },
     {
-      "name": "NPM_RUN",
-      "displayName": "npm run",
+      "name": "NPM_RUN_DEV",
+      "displayName": "npm run dev",
+      "description": "Select an alternate / custom runtime mode, defined in your package.json file's scripts section",
+      "value": "start:dev"
+    },
+	{
+      "name": "NPM_RUN_TEST",
+      "displayName": "npm run test",
+      "description": "Select an alternate / custom runtime mode, defined in your package.json file's scripts section",
+      "value": "start:test"
+    },
+	{
+      "name": "NPM_RUN_PROD",
+      "displayName": "npm run prod",
       "description": "Select an alternate / custom runtime mode, defined in your package.json file's scripts section",
       "value": "start:production"
     },
