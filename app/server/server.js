@@ -63,7 +63,11 @@ app.use(function (req, res, next) {
   next();
 });
 
-var corsWhitelist = ["https://dev.oidc.gov.bc.ca/"];
+var corsWhitelist = [
+  "https://dev.oidc.gov.bc.ca/",
+  "https://test.oidc.gov.bc.ca/",
+  "https://oidc.gov.bc.ca/",
+];
 
 if (process.env.ENVIRONMENT_LABEL === "dev") {
   corsWhitelist.push("https://mals-app-dev.apps.silver.devops.gov.bc.ca");
