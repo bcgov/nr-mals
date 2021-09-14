@@ -4,13 +4,11 @@ const getKeycloakConfig = () => {
   if (process.env.ENVIRONMENT_LABEL === "dev") {
     return {
       realm: "ichqx89w",
-      "auth-server-url": "https://dev.oidc.gov.bc.ca/auth/",
-      "ssl-required": "external",
+      authServerUrl: "https://dev.oidc.gov.bc.ca/auth/",
+      sslRequired: "external",
       resource: "mals",
-      "public-client": true,
-      "verify-token-audience": true,
-      "use-resource-role-mappings": true,
-      "confidential-port": 0,
+      publicClient: true,
+      confidentialPort: 0,
     };
   } else if (
     process.env.ENVIRONMENT_LABEL === "test" ||
@@ -18,24 +16,20 @@ const getKeycloakConfig = () => {
   ) {
     return {
       realm: "ichqx89w",
-      "auth-server-url": "https://test.oidc.gov.bc.ca/auth/",
-      "ssl-required": "external",
+      authServerUrl: "https://test.oidc.gov.bc.ca/auth/",
+      sslRequired: "external",
       resource: "mals",
-      "public-client": true,
-      "verify-token-audience": true,
-      "use-resource-role-mappings": true,
-      "confidential-port": 0,
+      publicClient: true,
+      confidentialPort: 0,
     };
   } else if (process.env.ENVIRONMENT_LABEL === "prod") {
     return {
       realm: "ichqx89w",
-      "auth-server-url": "https://oidc.gov.bc.ca/auth/",
-      "ssl-required": "external",
+      authServerUrl: "https://oidc.gov.bc.ca/auth/",
+      sslRequired: "external",
       resource: "mals",
-      "public-client": true,
-      "verify-token-audience": true,
-      "use-resource-role-mappings": true,
-      "confidential-port": 0,
+      publicClient: true,
+      confidentialPort: 0,
     };
   }
 };
