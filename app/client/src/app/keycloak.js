@@ -1,6 +1,24 @@
 import Keycloak from "keycloak-js";
 
-const kc = new Keycloak(`/keycloak.json`);
+const getKeycloakConfig = () => {
+  let kcConfig = null;
+
+  console.log(process.env.NODE_ENV);
+  if (process.env.NODE_ENV === "development") {
+    kcConfig = "/keycloak_dev.json";
+  } else if (
+    process.env.ENVIRONMENT_LABEL === "test" ||
+    process.env.ENVIRONMENT_LABEL === "uat"
+  ) {
+    kcConfig = "/keycloak_test.json";
+  } else if (process.env.ENVIRONMENT_LABEL === "production") {
+    kcConfig = "/keycloak_prod.json";
+  }
+
+  return kcConfig;
+};
+
+const kc = new Keycloak(getKeycloakConfig());
 
 const doLogin = kc.login;
 const doLogout = kc.logout;
