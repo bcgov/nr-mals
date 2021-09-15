@@ -1,9 +1,1 @@
-{
-  "realm": "ichqx89w",
-  "auth-server-url": "https://dev.oidc.gov.bc.ca/auth/",
-  "ssl-required": "external",
-  "resource": "mals",
-  "public-client": true,
-  "use-resource-role-mappings": true,
-  "confidential-port": 0
-}
+{}
