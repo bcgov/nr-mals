@@ -883,6 +883,12 @@ CREATE OR REPLACE VIEW mal_print_certificate_vw as
 			lic.irma_number,
 			lic.total_hives,
 			reg.primary_phone,
+		    case when reg.primary_phone is null 
+		    	then null
+			    else concat('(', substr(reg.primary_phone, 1, 3),
+							') ', substr(reg.primary_phone, 4, 3),
+							'-', substr(reg.primary_phone, 7, 4)) 
+			end registrant_primary_phone_display,
 			reg.email_address,
 		    lic.print_certificate
 		from mal_licence lic
@@ -970,7 +976,7 @@ CREATE OR REPLACE VIEW mal_print_certificate_vw as
 			                       'MailingProv',             base.derived_mailing_province,
 			                       'PostCode',                base.derived_mailing_postal_code,
 			                       'BeeKeeperID',             base.licence_number,
-			                       'Phone',                   base.primary_phone,
+			                       'Phone',                   base.registrant_primary_phone_display,
 			                       'Email',                   base.email_address,
 			                       'TotalColonies',           base.total_hives,
 			                       'ApiarySites',             apiary.apiary_site_json)
@@ -1671,7 +1677,7 @@ CREATE OR REPLACE VIEW mal_print_dairy_farm_tank_recheck_vw as
 		--  maintenance and to avoid producing elements which will be ignored in the Renewals.
 		case base.licence_type
 		    when 'APIARY' then
-				 json_build_object('LastFirstName',         base.registrant_last_name,
+				 json_build_object('LastFirstName',         base.registrant_last_first,
 			                       'LicenceHolderCompany',  base.company_name,
 			                       'MailingAddress',        base.derived_address,
 			                       'MailingCity',           base.derived_city,
@@ -1687,7 +1693,7 @@ CREATE OR REPLACE VIEW mal_print_dairy_farm_tank_recheck_vw as
 		    when 'BULK TANK MILK GRADER' then
 				 json_build_object('LicenceYear',           base.standard_expiry_year_display,
 			                       'LicenceHolderCompany',  base.company_name,
-			                       'LastFirstName',         base.registrant_last_name,
+			                       'LastFirstName',         base.registrant_last_first,
 			                       'MailingAddress',        base.derived_address,
 			                       'MailingCity',           base.derived_city,
 			                       'MailingProv',           base.derived_province,
