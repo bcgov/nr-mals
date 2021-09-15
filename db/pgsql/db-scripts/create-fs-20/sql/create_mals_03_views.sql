@@ -483,7 +483,7 @@ CREATE OR REPLACE VIEW mal_licence_action_required_vw as
 	    lic.licence_number,
 		lic.licence_type_id,
 	    lictyp.licence_type,
-		rgn.region_name site_region,
+		rgn.region_name,
 	    licstat.code_name licence_status,
 	    lictyp.legislation licence_type_legislation,
 	    lic.company_name,
@@ -495,13 +495,13 @@ CREATE OR REPLACE VIEW mal_licence_action_required_vw as
              else 
                   coalesce(reg.last_name, reg.first_name)
         end registrant_last_first,	
-		trim(concat(site.address_line_1 , ' ', site.address_line_2)) site_address,
-		site.city site_city,
-		site.province site_province,
-		site.postal_code site_postal_code,
-		site.primary_phone site_primary_phone,
-		site.secondary_phone site_secondary_phone,
-		site.fax_number site_fax_number,
+		trim(concat(lic.address_line_1 , ' ', lic.address_line_2)) licence_address,
+		lic.city licence_city,
+		lic.province licence_province,
+		lic.postal_code licence_postal_code,
+		lic.primary_phone licence_primary_phone,
+		lic.secondary_phone licence_secondary_phone,
+		lic.fax_number licence_fax_number,
 		reg.email_address
 	from mal_licence lic
 	inner join mal_licence_type_lu lictyp 
@@ -512,8 +512,6 @@ CREATE OR REPLACE VIEW mal_licence_action_required_vw as
 	on lic.primary_registrant_id = reg.id
 	left join mal_region_lu rgn 
 	on lic.region_id = rgn.id
-	left join mal_site site 
-	on lic.id = site.licence_id
 	where lic.action_required = true;
 
 --
