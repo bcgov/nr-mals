@@ -47,10 +47,14 @@
             "env": [
               {
                 "name": "NPM_RUN",
-                "value": "${NPM_RUN_DEV}"
+                "value": "${NPM_RUN}"
               },
               {
                 "name": "ENVIRONMENT_LABEL",
+                "value": "dev"
+              },
+			  {
+                "name": "REACT_APP_ENVIRONMENT_LABEL",
                 "value": "dev"
               },
               {
@@ -115,10 +119,14 @@
             "env": [
               {
                 "name": "NPM_RUN",
-                "value": "${NPM_RUN_TEST}"
+                "value": "${NPM_RUN}"
               },
               {
                 "name": "ENVIRONMENT_LABEL",
+                "value": "test"
+              },
+			  {
+                "name": "REACT_APP_ENVIRONMENT_LABEL",
                 "value": "test"
               },
               {
@@ -183,10 +191,14 @@
             "env": [
               {
                 "name": "NPM_RUN",
-                "value": "${NPM_RUN_TEST}"
+                "value": "${NPM_RUN}"
               },
               {
                 "name": "ENVIRONMENT_LABEL",
+                "value": "uat"
+              },
+			  {
+                "name": "REACT_APP_ENVIRONMENT_LABEL",
                 "value": "uat"
               },
               {
@@ -251,10 +263,14 @@
             "env": [
               {
                 "name": "NPM_RUN",
-                "value": "${NPM_RUN_PROD}"
+                "value": "${NPM_RUN}"
               },
               {
                 "name": "ENVIRONMENT_LABEL",
+                "value": "prod"
+              },
+			  {
+                "name": "REACT_APP_ENVIRONMENT_LABEL",
                 "value": "prod"
               },
               {
@@ -390,20 +406,8 @@
       "value": "4Gi"
     },
     {
-      "name": "NPM_RUN_DEV",
-      "displayName": "npm run dev",
-      "description": "Select an alternate / custom runtime mode, defined in your package.json file's scripts section",
-      "value": "start:dev"
-    },
-	{
-      "name": "NPM_RUN_TEST",
-      "displayName": "npm run test",
-      "description": "Select an alternate / custom runtime mode, defined in your package.json file's scripts section",
-      "value": "start:test"
-    },
-	{
-      "name": "NPM_RUN_PROD",
-      "displayName": "npm run prod",
+      "name": "NPM_RUN",
+      "displayName": "npm run",
       "description": "Select an alternate / custom runtime mode, defined in your package.json file's scripts section",
       "value": "start:production"
     },

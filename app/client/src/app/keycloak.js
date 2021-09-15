@@ -3,15 +3,15 @@ import Keycloak from "keycloak-js";
 function GetKeycloakConfig() {
   let kcConfig = null;
 
-  console.log(process.env.NODE_ENV);
-  if (process.env.NODE_ENV === "development") {
+  console.log(process.env.REACT_APP_ENVIRONMENT_LABEL);
+  if (process.env.REACT_APP_ENVIRONMENT_LABEL === "dev") {
     kcConfig = "/keycloak_dev.json";
   } else if (
-    process.env.NODE_ENV === "test" ||
-    process.env.NODE_ENV === "uat"
+    process.env.REACT_APP_ENVIRONMENT_LABEL === "test" ||
+    process.env.REACT_APP_ENVIRONMENT_LABEL === "uat"
   ) {
     kcConfig = "/keycloak_test.json";
-  } else if (process.env.NODE_ENV === "production") {
+  } else if (process.env.REACT_APP_ENVIRONMENT_LABEL === "prod") {
     kcConfig = "/keycloak_prod.json";
   }
 

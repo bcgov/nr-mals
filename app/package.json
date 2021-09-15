@@ -5,13 +5,10 @@
   "scripts": {
     "postinstall": "cd client && npm install",
     "start": "concurrently \"npm run start-client\" \"npm run debug-server\"",
-    "start:development": "npm run start-client && npm run start-server",
-    "start:test": "npm run test-client && npm run start-server",
     "start:production": "npm run build-client && npm run start-server",
     "start-server": "node server/bin/www",
     "debug-server": "nodemon --inspect server/bin/www",
     "start-client": "npm run start --prefix client",
-    "test-client": "npm run test --prefix client",
     "build-client": "npm run build --prefix client",
     "lint": "npm run lint-server && npm run lint-client",
     "lint:fix": "npm run lint-server:fix && npm run lint-client:fix",
