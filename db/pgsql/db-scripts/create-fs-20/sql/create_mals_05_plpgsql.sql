@@ -1704,7 +1704,7 @@ AS $procedure$
 		'VETERINARY DRUG',
 		null,
 		'VETERINARY_DRUG_DETAILS',	
-		json_build_object('DateTime',       to_char(current_timestamp, 'fmMonth dd, yyyy'),
+		json_build_object('DateTime',       to_char(current_timestamp, 'fmyyyy-mm-dd hh24mi'),
 						  'Licence_Type',   licence_type,
 						  'Client',         licence_json) report_json,
 		null,
