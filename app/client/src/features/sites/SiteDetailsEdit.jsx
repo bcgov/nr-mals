@@ -127,7 +127,7 @@ export default function SiteDetailsEdit({
               type="text"
               name="addressLine1"
               defaultValue={initialValues.addressLine1}
-              ref={register({ required: true })}
+              ref={register}
               isInvalid={errors.addressLine1}
             />
             <Form.Control.Feedback type="invalid">
@@ -158,9 +158,7 @@ export default function SiteDetailsEdit({
                   type="text"
                   name="city"
                   defaultValue={initialValues.city ?? null}
-                  ref={register({
-                    required: true,
-                  })}
+                  ref={register}
                   isInvalid={errors.city}
                 />
                 <Form.Control.Feedback type="invalid">
@@ -170,7 +168,7 @@ export default function SiteDetailsEdit({
             ) : (
               <Cities
                 cities={cities}
-                ref={register({ required: true })}
+                ref={register}
                 defaultValue={initialValues.city ?? "BC"}
                 isInvalid={errors.city}
               />
