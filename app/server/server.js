@@ -43,14 +43,16 @@ app.use(
           "https://mals.nrs.gov.bc.ca/",
           "https://uat-mals.nrs.gov.bc.ca/",
           "https://*.silver.devops.gov.bc.ca/",
-          "https://dev.oidc.gov.bc.ca/",
+          "https://*.oidc.gov.bc.ca/",
+          "https://oidc.gov.bc.ca/",
         ],
         "script-src": [
           "'self'",
           "mals.nrs.gov.bc.ca",
           "uat-mals.nrs.gov.bc.ca",
           "*.silver.devops.gov.bc.ca",
-          "https://dev.oidc.gov.bc.ca",
+          "*.oidc.gov.bc.ca",
+          "oidc.gov.bc.ca",
         ],
       },
     },
@@ -63,7 +65,11 @@ app.use(function (req, res, next) {
   next();
 });
 
-var corsWhitelist = ["https://dev.oidc.gov.bc.ca/"];
+var corsWhitelist = [
+  "https://dev.oidc.gov.bc.ca/",
+  "https://test.oidc.gov.bc.ca/",
+  "https://oidc.gov.bc.ca/",
+];
 
 if (process.env.ENVIRONMENT_LABEL === "dev") {
   corsWhitelist.push("https://mals-app-dev.apps.silver.devops.gov.bc.ca");

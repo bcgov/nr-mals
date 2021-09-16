@@ -292,6 +292,7 @@ async function findAssociatedLicences(params, skip, take) {
     skip,
     take,
     select: {
+      create_timestamp: true,
       mal_licence_mal_licenceTomal_licence_parent_child_xref_child_licence_id: {
         include: {
           mal_licence_type_lu: true,
@@ -794,9 +795,10 @@ router.get("/associated", async (req, res, next) => {
       }
 
       const results = records.map((record) =>
-        licence.convertAssociatdLicenceToLogicalModel(
-          record.mal_licence_mal_licenceTomal_licence_parent_child_xref_child_licence_id
-        )
+        licence.convertAssociatdLicenceToLogicalModel({
+          associatedOnDate: record.create_timestamp,
+          ...record.mal_licence_mal_licenceTomal_licence_parent_child_xref_child_licence_id,
+        })
       );
 
       const count = await countAssociatedLicences(params);
