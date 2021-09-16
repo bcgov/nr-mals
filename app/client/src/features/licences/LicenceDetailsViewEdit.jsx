@@ -354,7 +354,7 @@ export default function LicenceDetailsViewEdit({ licence }) {
       bondValue: data.bondValue ? parseAsFloat(data.bondValue) : undefined,
       bondCarrierPhoneNumber: data.bondCarrierPhoneNumber
         ? data.bondCarrierPhoneNumber.replace(/\D/g, "")
-        : undefined,
+        : null,
       licenceType: parseAsInt(licence.data.licenceTypeId),
       licenceStatus: parseAsInt(data.licenceStatus),
       region: parseAsInt(data.region),

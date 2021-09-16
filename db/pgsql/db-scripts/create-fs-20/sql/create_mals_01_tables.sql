@@ -202,7 +202,7 @@ CREATE TABLE mal_dairy_farm_tank (
 	model_number varchar(30),
 	tank_capacity varchar(30),
 	recheck_year varchar(4),
-	print_recheck_notice boolean,
+	print_recheck_notice boolean DEFAULT false,
 	create_userid varchar(30) NOT NULL,
 	create_timestamp timestamp NOT NULL,
 	update_userid varchar(30) NOT NULL,

@@ -153,15 +153,13 @@ export default function SiteDetailsViewEdit({ site, licence }) {
       originalRegion: site.data.regionId,
       originalRegionalDistrict: site.data.regionalDistrictId,
       hiveCount: parseAsInt(data.hiveCount),
-      postalCode: data.postalCode
-        ? data.postalCode.replace(" ", "")
-        : undefined,
+      postalCode: data.postalCode ? data.postalCode.replace(" ", "") : null,
       primaryPhone: data.primaryPhone
         ? data.primaryPhone.replace(/\D/g, "")
-        : undefined,
+        : null,
       secondaryPhone: data.secondaryPhone
         ? data.secondaryPhone.replace(/\D/g, "")
-        : undefined,
+        : null,
     };
 
     dispatch(updateSite({ site: payload, id: site.data.id }));
