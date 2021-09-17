@@ -44,6 +44,7 @@ CREATE OR REPLACE VIEW mal_apiary_inspection_vw as
 		reg.first_name,
 		insp.inspection_date,
 		insp.colonies_tested,
+		insp.brood_tested,
 		insp.american_foulbrood_result,
 		insp.european_foulbrood_result,
 		insp.nosema_result,
@@ -841,6 +842,7 @@ CREATE OR REPLACE VIEW mal_print_certificate_vw as
 	             else 
 	                  coalesce(reg.last_name, reg.first_name)
 	        end registrant_last_first,
+	        reg.official_title,
 		    -- Consider the Company Name Override flag to determine the Licence Holder name.
 		    case 
 			  when lic.company_name_override and lic.company_name is not null 
@@ -969,6 +971,7 @@ CREATE OR REPLACE VIEW mal_print_certificate_vw as
 		    when 'APIARY' then
 				 json_build_object('LicenceHolderCompany',    base.company_name,
 			                       'LicenceHolderName',       base.registrant_name,
+			                       'LicenceHolderTitle',      base.official_title,
 			                       'MailingAddress',          base.derived_mailing_address,
 			                       'MailingCity',             base.derived_mailing_city,
 			                       'MailingProv',             base.derived_mailing_province,
@@ -981,6 +984,7 @@ CREATE OR REPLACE VIEW mal_print_certificate_vw as
 		    when 'BULK TANK MILK GRADER' then
 				 json_build_object('ActsAndRegs',             base.licence_type_legislation,
 			                       'LicenceHolderName',       base.derived_licence_holder_name,
+			                       'LicenceHolderTitle',      base.official_title,
 			                       'MailingAddress',          base.derived_mailing_address,
 			                       'MailingCity',             base.derived_mailing_city,
 			                       'MailingProv',             base.derived_mailing_province,
@@ -993,6 +997,7 @@ CREATE OR REPLACE VIEW mal_print_certificate_vw as
 				 json_build_object('ActsAndRegs',             base.licence_type_legislation,
 			                       'LicenceHolderCompany',    base.company_name,
 			                       'LicenceHolderName',       base.registrant_name,
+			                       'LicenceHolderTitle',      base.official_title,
 			                       'MailingAddress',          base.derived_mailing_address,
 			                       'MailingCity',             base.derived_mailing_city,
 			                       'MailingProv',             base.derived_mailing_province,
@@ -1007,6 +1012,7 @@ CREATE OR REPLACE VIEW mal_print_certificate_vw as
 		    when 'FUR FARM' then
 				 json_build_object('ActsAndRegs',             base.licence_type_legislation,
 			                       'LicenceHolderName',       base.derived_licence_holder_name,
+			                       'LicenceHolderTitle',      base.official_title,
 			                       'MailingAddress',          base.derived_mailing_address,
 			                       'MailingCity',             base.derived_mailing_city,
 			                       'MailingProv',             base.derived_mailing_province,
@@ -1020,6 +1026,7 @@ CREATE OR REPLACE VIEW mal_print_certificate_vw as
 		    when 'GAME FARM' then
 				 json_build_object('ActsAndRegs',             base.licence_type_legislation,
 			                       'LicenceHolderName',       base.derived_licence_holder_name,
+			                       'LicenceHolderTitle',      base.official_title,
 			                       'MailingAddress',          base.derived_mailing_address,
 			                       'MailingCity',             base.derived_mailing_city,
 			                       'MailingProv',             base.derived_mailing_province,
@@ -1033,6 +1040,7 @@ CREATE OR REPLACE VIEW mal_print_certificate_vw as
 		    when 'HIDE DEALER' then
 				 json_build_object('ActsAndRegs',             base.licence_type_legislation,
 			                       'LicenceHolderName',       base.derived_licence_holder_name,
+			                       'LicenceHolderTitle',      base.official_title,
 			                       'MailingAddress',          base.derived_mailing_address,
 			                       'MailingCity',             base.derived_mailing_city,
 			                       'MailingProv',             base.derived_mailing_province,
@@ -1045,6 +1053,7 @@ CREATE OR REPLACE VIEW mal_print_certificate_vw as
 				 json_build_object('ActsAndRegs',             base.licence_type_legislation,
 			                       'LicenceHolderCompany',    base.company_name,
 			                       'LicenceHolderName',       base.registrant_name,
+			                       'LicenceHolderTitle',      base.official_title,
 			                       'MailingAddress',          base.derived_mailing_address,
 			                       'MailingCity',             base.derived_mailing_city,
 			                       'MailingProv',             base.derived_mailing_province,
@@ -1057,6 +1066,7 @@ CREATE OR REPLACE VIEW mal_print_certificate_vw as
 		    when 'LIVESTOCK DEALER' then
 				 json_build_object('ActsAndRegs',             base.licence_type_legislation,
 			                       'LicenceHolderName',       base.derived_licence_holder_name,
+			                       'LicenceHolderTitle',      base.official_title,
 			                       'MailingAddress',          base.derived_mailing_address,
 			                       'MailingCity',             base.derived_mailing_city,
 			                       'MailingProv',             base.derived_mailing_province,
@@ -1072,6 +1082,7 @@ CREATE OR REPLACE VIEW mal_print_certificate_vw as
 		    when 'LIVESTOCK DEALER AGENT' then
 				 json_build_object('ActsAndRegs',             base.licence_type_legislation,
 			                       'LicenceHolderName',       base.derived_licence_holder_name,
+			                       'LicenceHolderTitle',      base.official_title,
 			                       'MailingAddress',          base.derived_mailing_address,
 			                       'MailingCity',             base.derived_mailing_city,
 			                       'MailingProv',             base.derived_mailing_province,
@@ -1084,6 +1095,7 @@ CREATE OR REPLACE VIEW mal_print_certificate_vw as
 		    when 'MEDICATED FEED' then
 				 json_build_object('ActsAndRegs',             base.licence_type_legislation,
 			                       'LicenceHolderCompany',    base.derived_licence_holder_name,
+			                       'LicenceHolderTitle',      base.official_title,
 			                       'LicenceHolderName',       base.registrant_name,
 			                       'MailingAddress',          base.derived_mailing_address,
 			                       'MailingCity',             base.derived_mailing_city,
@@ -1096,6 +1108,7 @@ CREATE OR REPLACE VIEW mal_print_certificate_vw as
 		    when 'PUBLIC SALE YARD OPERATOR' then
 				 json_build_object('ActsAndRegs',             base.licence_type_legislation,
 			                       'LicenceHolderName',       base.derived_licence_holder_name,
+			                       'LicenceHolderTitle',      base.official_title,
 			                       'MailingAddress',          base.derived_mailing_address,
 			                       'MailingCity',             base.derived_mailing_city,
 			                       'MailingProv',             base.derived_mailing_province,
@@ -1112,6 +1125,7 @@ CREATE OR REPLACE VIEW mal_print_certificate_vw as
 		    when 'PURCHASE LIVE POULTRY' then
 				 json_build_object('ActsAndRegs',             base.licence_type_legislation,
 			                       'LicenceHolderName',       base.derived_licence_holder_name,
+			                       'LicenceHolderTitle',      base.official_title,
 			                       'MailingAddress',          base.derived_mailing_address,
 			                       'MailingCity',             base.derived_mailing_city,
 			                       'MailingProv',             base.derived_mailing_province,
@@ -1132,6 +1146,7 @@ CREATE OR REPLACE VIEW mal_print_certificate_vw as
 		    when 'SLAUGHTERHOUSE' then
 				 json_build_object('ActsAndRegs',             base.licence_type_legislation,
 			                       'LicenceHolderName',       base.derived_licence_holder_name,
+			                       'LicenceHolderTitle',      base.official_title,
 			                       'MailingAddress',          base.derived_mailing_address,
 			                       'MailingCity',             base.derived_mailing_city,
 			                       'MailingProv',             base.derived_mailing_province,
@@ -1146,6 +1161,7 @@ CREATE OR REPLACE VIEW mal_print_certificate_vw as
 		    when 'VETERINARY DRUG' then
 				 json_build_object('ActsAndRegs',             base.licence_type_legislation,
 			                       'LicenceHolderCompany',    base.derived_licence_holder_name,
+			                       'LicenceHolderTitle',      base.official_title,
 			                       'MailingAddress',          base.derived_mailing_address,
 			                       'MailingCity',             base.derived_mailing_city,
 			                       'MailingProv',             base.derived_mailing_province,
@@ -1157,6 +1173,7 @@ CREATE OR REPLACE VIEW mal_print_certificate_vw as
 		    when 'DISPENSER' then
 				 json_build_object('ActsAndRegs',             base.licence_type_legislation,
 			                       'LicenceHolderName',       base.derived_licence_holder_name,
+			                       'LicenceHolderTitle',      base.official_title,
 			                       'MailingAddress',          base.derived_mailing_address,
 			                       'MailingCity',             base.derived_mailing_city,
 			                       'MailingProv',             base.derived_mailing_province,
@@ -1514,7 +1531,7 @@ CREATE OR REPLACE VIEW mal_print_dairy_farm_tank_recheck_vw as
 		    cast(lic.licence_number as varchar) licence_number,
 		    lictyp.id licence_type_id,
 		    lictyp.licence_type,
-		    spec.code_name species_description,
+		    spec.code_name species_code,
 		    licstat.code_name licence_status,
 		    reg.first_name registrant_first_name,
 		    reg.last_name registrant_last_name,
@@ -1732,7 +1749,7 @@ CREATE OR REPLACE VIEW mal_print_dairy_farm_tank_recheck_vw as
 			                       'LicenceNumber',         base.licence_number,
 			                       'LicenceFee',            base.licence_fee_display,	
 			                       'SiteLegalDescription',  site.legal_description,			                       
-			                       'SpeciesInventory',      species.species_json)
+			                       'SpeciesInventory',      base.species_code)
 		    when 'HIDE DEALER' then
 		    	--
 		    	--  Need to add LicenceHolderCompanyOperatingAs

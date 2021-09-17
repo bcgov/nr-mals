@@ -295,6 +295,12 @@ CREATE TABLE mal_dairy_farm_test_result (
 	update_timestamp timestamp NOT NULL
 ) ;
 ALTER TABLE mal_dairy_farm_test_result ADD PRIMARY KEY (id);
+CREATE UNIQUE INDEX mal_dryfrmtst_test_job_id_idx ON mal_dairy_farm_test_result (test_job_id);		
+CREATE UNIQUE INDEX mal_dryfrmtst_irmaspc1_uk ON mal_dairy_farm_test_result (irma_number, spc1_date);
+CREATE UNIQUE INDEX mal_dryfrmtst_irmascc_uk  ON mal_dairy_farm_test_result (irma_number, scc_date);
+CREATE UNIQUE INDEX mal_dryfrmtst_irmacry_uk  ON mal_dairy_farm_test_result (irma_number, cry_date);
+CREATE UNIQUE INDEX mal_dryfrmtst_irmaffa_uk  ON mal_dairy_farm_test_result (irma_number, ffa_date);
+CREATE UNIQUE INDEX mal_dryfrmtst_irmaih_uk   ON mal_dairy_farm_test_result (irma_number, ih_date);
 
 --
 -- TABLE:  MAL_DAIRY_FARM_TEST_THRESHOLD_LU
