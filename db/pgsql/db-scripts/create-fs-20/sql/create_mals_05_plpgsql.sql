@@ -373,6 +373,7 @@ AS $procedure$
 			first_name,
 			inspection_date,
 			colonies_tested,
+			brood_tested,
 			american_foulbrood_result,
 			european_foulbrood_result,
 			nosema_result,
@@ -388,8 +389,7 @@ AS $procedure$
 			hives_per_apiary,
 			hive_count
 		from mal_apiary_inspection_vw
-		where licence_status = 'Active'
-		and inspection_date between ip_start_date and ip_end_date
+		where inspection_date between ip_start_date and ip_end_date
 		),
 	licence_summary as (
 		select 
@@ -398,6 +398,7 @@ AS $procedure$
 									   'LastName',               last_name,
 									   'FirstName',              first_name,
 									   'ColoniesInspected',      colonies_tested,
+									   'BroodsInspected',        brood_tested,
 									   'AFB',                    american_foulbrood_result,
 									   'EFB',                    european_foulbrood_result,
 									   'Nosema',                 nosema_result,
@@ -418,6 +419,7 @@ AS $procedure$
 		select 
 			json_agg(json_build_object('RegionName',             region_name,
 							           'ColoniesInspected',      region_colonies_tested,
+									   'BroodsInspected',        region_brood_tested,
 							           'AFB',                    region_american_foulbrood_result,
 							           'EFB',                    region_european_foulbrood_result,
 							           'Nosema',                 region_nosema_result,
@@ -433,34 +435,36 @@ AS $procedure$
 		from (
 				select 
 					region_name,
-					sum(colonies_tested) region_colonies_tested,
-					sum(american_foulbrood_result) region_american_foulbrood_result,
-					sum(european_foulbrood_result) region_european_foulbrood_result,
-					sum(nosema_result) region_nosema_result,
-					sum(chalkbrood_result) region_chalkbrood_result,
-					sum(sacbrood_result) region_sacbrood_result,
-					sum(varroa_tested) region_varroa_tested,
-					sum(varroa_mite_result) region_varroa_mite_result,
-					sum(small_hive_beetle_tested) region_small_hive_beetle_tested,
-					sum(small_hive_beetle_result) region_small_hive_beetle_result,
-					sum(supers_inspected) region_supers_inspected,
-					sum(supers_destroyed) region_supers_destroyed
+					coalesce(sum(colonies_tested), 0) region_colonies_tested,
+					coalesce(sum(brood_tested), 0) region_brood_tested,
+					coalesce(sum(american_foulbrood_result), 0) region_american_foulbrood_result,
+					coalesce(sum(european_foulbrood_result), 0) region_european_foulbrood_result,
+					coalesce(sum(nosema_result), 0) region_nosema_result,
+					coalesce(sum(chalkbrood_result), 0) region_chalkbrood_result,
+					coalesce(sum(sacbrood_result), 0) region_sacbrood_result,
+					coalesce(sum(varroa_tested), 0) region_varroa_tested,
+					coalesce(sum(varroa_mite_result), 0) region_varroa_mite_result,
+					coalesce(sum(small_hive_beetle_tested), 0) region_small_hive_beetle_tested,
+					coalesce(sum(small_hive_beetle_result), 0) region_small_hive_beetle_result,
+					coalesce(sum(supers_inspected), 0) region_supers_inspected,
+					coalesce(sum(supers_destroyed), 0) region_supers_destroyed
 				from details
 				group by region_name) region_totals),
 	report_summary as ( 
 		select 
-			sum(colonies_tested) tot_colonies_tested,
-			sum(american_foulbrood_result) tot_american_foulbrood_result,
-			sum(european_foulbrood_result) tot_european_foulbrood_result,
-			sum(nosema_result) tot_nosema_result,
-			sum(chalkbrood_result) tot_chalkbrood_result,
-			sum(sacbrood_result) tot_sacbrood_result,
-			sum(varroa_tested) tot_varroa_tested,
-			sum(varroa_mite_result) tot_varroa_mite_result,
-			sum(small_hive_beetle_tested) tot_small_hive_beetle_tested,
-			sum(small_hive_beetle_result) tot_small_hive_beetle_result,
-			sum(supers_inspected) tot_supers_inspected,
-			sum(supers_destroyed) tot_supers_destroyed
+			coalesce(sum(colonies_tested), 0) tot_colonies_tested,
+			coalesce(sum(brood_tested), 0) tot_brood_tested,
+			coalesce(sum(american_foulbrood_result), 0) tot_american_foulbrood_result,
+			coalesce(sum(european_foulbrood_result), 0) tot_european_foulbrood_result,
+			coalesce(sum(nosema_result), 0) tot_nosema_result,
+			coalesce(sum(chalkbrood_result), 0) tot_chalkbrood_result,
+			coalesce(sum(sacbrood_result), 0) tot_sacbrood_result,
+			coalesce(sum(varroa_tested), 0) tot_varroa_tested,
+			coalesce(sum(varroa_mite_result), 0) tot_varroa_mite_result,
+			coalesce(sum(small_hive_beetle_tested), 0) tot_small_hive_beetle_tested,
+			coalesce(sum(small_hive_beetle_result), 0) tot_small_hive_beetle_result,
+			coalesce(sum(supers_inspected), 0) tot_supers_inspected,
+			coalesce(sum(supers_destroyed), 0) tot_supers_destroyed
 		from details)
 	--
 	--  MAIN QUERY
@@ -487,6 +491,7 @@ AS $procedure$
 							 'Licence',                      lic_sum.licence_json,		
 							 'Region',                       rgn_sum.region_json,
 							 'Tot_Colonies_Inspected',       rpt_sum.tot_colonies_tested,
+							 'Tot_Broods_Inspected',         rpt_sum.tot_brood_tested,
 							 'Tot_AFB',                      rpt_sum.tot_american_foulbrood_result,
 							 'Tot_EFB',                      rpt_sum.tot_european_foulbrood_result,
 							 'Tot_Nosema',                   rpt_sum.tot_nosema_result,
@@ -1396,8 +1401,9 @@ AS $procedure$
 										'IssueDate',             to_char(issue_date, 'fmyyyy-mm-dd'),
 										'ExpiryDate',            to_char(expiry_date, 'fmyyyy-mm-dd'))
 		                                order by licence_number) licence_json
-		from mals_app.mal_licence_summary_vw
-		where expiry_date between ip_start_date and ip_end_date
+		from mals_app.mal_licence_summary_vw	
+		where licence_type != 'APIARY'
+		and expiry_date between ip_start_date and ip_end_date
 		)
 	--
 	--  MAIN QUERY
