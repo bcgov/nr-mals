@@ -208,6 +208,8 @@ export default function AdminDairyTestResults() {
 
   let control = null;
 
+  const submitting = dairyTestResults.status === REQUEST_STATUS.PENDING;
+
   if (dairyTestResults.status === REQUEST_STATUS.FULFILLED) {
     console.log(dairyTestResults);
     control = (
@@ -236,7 +238,7 @@ export default function AdminDairyTestResults() {
     control = (
       <>
         <div>
-          <Button variant="secondary" onClick={submit}>
+          <Button variant="secondary" onClick={submit} disabled={submitting}>
             Confirm and add to Licences
           </Button>
         </div>
