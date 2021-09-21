@@ -16,3 +16,4 @@ MEMORY_REQUEST=2Gi
 APPLICATION_DOMAIN=mals-app-dev.apps.silver.devops.gov.bc.ca
 APP_SECRETS=mals-app-dev
 IP_WHITELIST=142.34.45.0/24
+CERTBOT_MANAGED=false
