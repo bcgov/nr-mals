@@ -189,7 +189,7 @@
           "app": "${APP_NAME}",
           "role": "application",
           "env": "${ENVIRONMENT}",
-		  "certbot-managed": "true"
+		  "certbot-managed": "${CERTBOT_MANAGED}"
         },
         "name": "${NAME}",
         "annotations": {
@@ -319,6 +319,13 @@
       "description": "List of IP addresses and/or CIDRs allowed to access route",
       "required": false,
       "value": ""
+    },
+	{
+      "name": "CERTBOT_MANAGED",
+      "displayName": "Certbot Managed",
+      "description": "Whether or not Certbot will handle vanity URL certificates",
+      "required": true,
+      "value": "false"
     }
   ]
 }
