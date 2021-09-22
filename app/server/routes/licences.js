@@ -448,9 +448,27 @@ async function deleteInventory(licenceTypeId, id) {
 async function createLicenceAssociations(payloads) {
   return Promise.all(
     payloads.map(async (payload) => {
-      const result = await prisma.mal_licence_parent_child_xref.create({
-        data: payload,
+      let result = null;
+
+      // Make sure we don't violate UK
+      const count = await prisma.mal_licence_parent_child_xref.count({
+        where: {
+          parent_licence_id:
+            payload
+              .mal_licence_mal_licenceTomal_licence_parent_child_xref_parent_licence_id
+              .connect.id,
+          child_licence_id:
+            payload
+              .mal_licence_mal_licenceTomal_licence_parent_child_xref_child_licence_id
+              .connect.id,
+        },
       });
+
+      if (count === 0) {
+        result = await prisma.mal_licence_parent_child_xref.create({
+          data: payload,
+        });
+      }
       return result;
     })
   );
