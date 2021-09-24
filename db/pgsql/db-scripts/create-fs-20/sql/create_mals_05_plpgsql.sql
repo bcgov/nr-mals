@@ -1064,14 +1064,7 @@ end;
 $procedure$
 ;
 
---
--- PROCEDURE:  PR_GENERATE_PRINT_JSON_DAIRY_FARM_QUALITY
---
-
-CREATE OR REPLACE PROCEDURE pr_generate_print_json_dairy_farm_quality(
-    IN    ip_start_date date,
-    IN    ip_end_date date,
-    INOUT iop_print_job_id integer)
+CREATE OR REPLACE PROCEDURE pr_generate_print_json_dairy_farm_quality(ip_start_date date, ip_end_date date, INOUT iop_print_job_id integer)
  LANGUAGE plpgsql
 AS $procedure$
   declare  
@@ -1086,29 +1079,42 @@ AS $procedure$
 	--
 	--  Insert the JSON into the output table
 	with licence_summary as (
-		select licence_id,
-			irma_number,	
-		    derived_licence_holder_name,
-			registrant_last_name,
-			sum(scc_value) sum_scc_value,
-			count(scc_value) num_scc_results,
-			case when coalesce(count(scc_value), 0) >0 
-				 then sum(scc_value)/count(scc_value)
+		select lic.id licence_id,
+			lic.irma_number,	
+		    -- Consider the Company Name Override flag to determine the Licence Holder name.
+		    case 
+			  when lic.company_name_override and lic.company_name is not null 
+			  then lic.company_name
+			  else nullif(trim(concat(reg.first_name, ' ', reg.last_name)),'')
+			end derived_licence_holder_name,
+			reg.last_name registrant_last_name,
+			sum(rslt.scc_value) sum_scc_value,
+			count(rslt.scc_value) num_scc_results,
+			case when coalesce(count(rslt.scc_value), 0) >0 
+				 then sum(rslt.scc_value)/count(rslt.scc_value)
 				 else null
 			end scc_average,
-			sum(spc1_value) sum_spc1_value,
-			count(spc1_value) num_spc1_results,
-			case when coalesce(count(spc1_value), 0) >0 
-				 then sum(spc1_value)/count(spc1_value)
+			sum(rslt.spc1_value) sum_spc1_value,
+			count(rslt.spc1_value) num_spc1_results,
+			case when coalesce(count(rslt.spc1_value), 0) >0 
+				 then sum(rslt.spc1_value)/count(rslt.spc1_value)
 				 else null
 			end spc1_average
-		from mal_dairy_farm_quality_vw
-		where spc1_date between ip_start_date and ip_end_date
-		or    scc_date  between ip_start_date and ip_end_date
-		group by licence_id,
-			irma_number,
-		    derived_licence_holder_name,
-			registrant_last_name),
+		from mal_licence lic
+		inner join mal_registrant reg
+		on lic.primary_registrant_id = reg.id
+		inner join mal_dairy_farm_test_result rslt
+		on lic.id = rslt.licence_id
+		where rslt.spc1_date between ip_start_date and ip_end_date
+		or    rslt.scc_date  between ip_start_date and ip_end_date
+		group by lic.id,
+			lic.irma_number,		    
+		    case 
+			  when lic.company_name_override and lic.company_name is not null 
+			  then lic.company_name
+			  else nullif(trim(concat(reg.first_name, ' ', reg.last_name)),'')
+			end,
+			reg.last_name),
 		json_summary as (
 			select 
 				json_agg(json_build_object('IRMA_Num',              irma_number,
@@ -1152,8 +1158,8 @@ AS $procedure$
 			null,
 			'DAIRY_FARM_QUALITY',
 			json_build_object('DateTime',         to_char(current_timestamp, 'fmyyyy-mm-dd hh24mi'),
-							  'DateRangeStart',   to_char(ip_start_date, 'fmyyyy-mm-dd hh24mi'),
-							  'DateRangeEnd',     to_char(ip_end_date, 'fmyyyy-mm-dd hh24mi'),
+							  'DateRangeStart',   to_char(ip_start_date, 'fmyyyy-mm-dd'),
+							  'DateRangeEnd',     to_char(ip_end_date, 'fmyyyy-mm-dd'),
 							  'Reg',              json_summary.licence_json,		
 							  'SCC_Report_Avg',   report_scc_average,
 							  'IBC_Report_Avg',   report_spc1_average) report_json,
@@ -1296,8 +1302,10 @@ AS $procedure$
 		on lic.primary_registrant_id = reg.id
 		inner join mal_dairy_farm_test_result rslt
 		on lic.id = rslt.licence_id
-		where coalesce(spc1_date, scc_date, cry_date, ffa_date, ih_date) 
-			between ip_start_date and ip_end_date),
+		where greatest(spc1_date, scc_date, cry_date, ffa_date, ih_date) 
+				 between ip_start_date and ip_end_date
+		--and greatest(spc1_infraction_flag, scc_infraction_flag, cry_infraction_flag, ffa_infraction_flag, ih_infraction_flag) = true
+		),
 	licence_list as (
 		select json_agg(json_build_object('IRMA_Num',               irma_number,
 										  'LicenceHolderCompany',   derived_licence_holder_name,
@@ -1310,14 +1318,13 @@ AS $procedure$
 						order by irma_number) licence_json
 		from result_base),
 	result_summary as (
-		select licence_id,
-			count(case when spc1_infraction_flag then 1 else null end) num_spc1_infractions,
-			count(case when scc_infraction_flag then 1 else null end) num_scc_infractions,
-			count(case when cry_infraction_flag then 1 else null end) num_cry_infractions,
-			count(case when ffa_infraction_flag then 1 else null end) num_ffa_infractions,
-			count(case when ih_infraction_flag then 1 else null end) num_ih_infractions
-		from result_base
-		group by licence_id)
+		select 
+			count(spc1_value) spc1_count,
+			count(scc_value) scc_count,
+			count(cry_value) cry_count,
+			count(ffa_value) ffa_count,
+			count(ih_value) ih_count
+		from result_base)
 	--
 	--  MAIN QUERY
 	--
@@ -1341,11 +1348,11 @@ AS $procedure$
 						  'DateRangeStart',    to_char(ip_start_date, 'fmMonth dd, yyyy'),
 						  'DateRangeEnd',      to_char(ip_end_date, 'fmMonth dd, yyyy'),
 						  'Reg',               list.licence_json,
-						  'Tot_IBC_Count',     smry.num_spc1_infractions,
-						  'Tot_SCC_Count',     smry.num_scc_infractions,
-						  'Tot_CRY_Count',     smry.num_cry_infractions,
-						  'Tot_FFA_Count',     smry.num_ffa_infractions,
-						  'Tot_IH_Count',      smry.num_ih_infractions) report_json,
+						  'Tot_IBC_Count',     smry.spc1_count,
+						  'Tot_SCC_Count',     smry.scc_count,
+						  'Tot_CRY_Count',     smry.cry_count,
+						  'Tot_FFA_Count',     smry.ffa_count,
+						  'Tot_IH_Count',      smry.ih_count) report_json,
 		null,
 		current_user,
 		current_timestamp,
