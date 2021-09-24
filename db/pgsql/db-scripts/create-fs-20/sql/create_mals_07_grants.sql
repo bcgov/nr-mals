@@ -52,7 +52,6 @@ grant select, insert, update, delete on mal_status_code_lu                   to 
 
 grant select on mal_apiary_inspection_vw                 to mals_app_role;
 grant select on mal_apiary_producer_vw                   to mals_app_role;
-grant select on mal_dairy_farm_quality_vw                to mals_app_role;
 grant select on mal_dairy_farm_tank_vw                   to mals_app_role;
 grant select on mal_dairy_farm_test_infraction_vw        to mals_app_role;
 grant select on mal_licence_action_required_vw           to mals_app_role;
