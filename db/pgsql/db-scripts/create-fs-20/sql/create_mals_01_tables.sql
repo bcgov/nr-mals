@@ -296,11 +296,11 @@ CREATE TABLE mal_dairy_farm_test_result (
 ) ;
 ALTER TABLE mal_dairy_farm_test_result ADD PRIMARY KEY (id);
 CREATE UNIQUE INDEX mal_dryfrmtst_test_job_id_idx ON mal_dairy_farm_test_result (test_job_id);		
-CREATE UNIQUE INDEX mal_dryfrmtst_irmaspc1_uk ON mal_dairy_farm_test_result (irma_number, spc1_date);
-CREATE UNIQUE INDEX mal_dryfrmtst_irmascc_uk  ON mal_dairy_farm_test_result (irma_number, scc_date);
-CREATE UNIQUE INDEX mal_dryfrmtst_irmacry_uk  ON mal_dairy_farm_test_result (irma_number, cry_date);
-CREATE UNIQUE INDEX mal_dryfrmtst_irmaffa_uk  ON mal_dairy_farm_test_result (irma_number, ffa_date);
-CREATE UNIQUE INDEX mal_dryfrmtst_irmaih_uk   ON mal_dairy_farm_test_result (irma_number, ih_date);
+ALTER TABLE mal_dairy_farm_test_result ADD CONSTRAINT mal_dryfrmtst_irmaspc1_uk UNIQUE (irma_number, test_year, test_month, spc1_day);
+ALTER TABLE mal_dairy_farm_test_result ADD CONSTRAINT mal_dryfrmtst_irmascc_uk UNIQUE (irma_number, test_year, test_month, scc_day);
+ALTER TABLE mal_dairy_farm_test_result ADD CONSTRAINT mal_dryfrmtst_irmacry_uk UNIQUE (irma_number, test_year, test_month, cry_day);
+ALTER TABLE mal_dairy_farm_test_result ADD CONSTRAINT mal_dryfrmtst_irmaffa_uk UNIQUE (irma_number, test_year, test_month, ffa_day);
+ALTER TABLE mal_dairy_farm_test_result ADD CONSTRAINT mal_dryfrmtst_irmaih_uk UNIQUE (irma_number, test_year, test_month, ih_day);
 
 --
 -- TABLE:  MAL_DAIRY_FARM_TEST_THRESHOLD_LU
