@@ -82,7 +82,7 @@ export const updateDairyTestResults = createAsyncThunk(
   "admin/updateDairyTestResults",
   async (data, thunkApi) => {
     try {
-      const response = await Api.put(`admin/dairytestresults`, data);
+      const response = await Api.post(`admin/dairytestresults`, data, 30000);
       return response.data;
     } catch (error) {
       if (error instanceof ApiError) {
@@ -220,9 +220,9 @@ export const adminSlice = createSlice({
       state.dairyTestResults.status = REQUEST_STATUS.FULFILLED;
     },
     [updateDairyTestResults.rejected]: (state, action) => {
-      state.dairyTestThresholds.data = undefined;
-      state.dairyTestThresholds.error = action.payload;
-      state.dairyTestThresholds.status = REQUEST_STATUS.REJECTED;
+      state.dairyTestResults.data = undefined;
+      state.dairyTestResults.error = action.payload;
+      state.dairyTestResults.status = REQUEST_STATUS.REJECTED;
     },
     [fetchDairyTestThresholds.pending]: (state) => {
       state.dairyTestThresholds.error = undefined;
