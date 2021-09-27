@@ -12,9 +12,8 @@ SET client_min_messages = warning;
 
 DROP VIEW IF EXISTS mal_apiary_inspection_vw                     CASCADE;
 DROP VIEW IF EXISTS mal_apiary_producer_vw                       CASCADE;
-DROP VIEW IF EXISTS mal_dairy_farm_test_infraction_vw            CASCADE;
-DROP VIEW IF EXISTS mal_dairy_farm_quality_vw                    CASCADE;
 DROP VIEW IF EXISTS mal_dairy_farm_tank_vw                       CASCADE;
+DROP VIEW IF EXISTS mal_dairy_farm_test_infraction_vw            CASCADE;
 DROP VIEW IF EXISTS mal_licence_action_required_vw               CASCADE;
 DROP VIEW IF EXISTS mal_licence_species_vw                       CASCADE;
 DROP VIEW IF EXISTS mal_licence_summary_vw                       CASCADE;
@@ -110,39 +109,6 @@ CREATE OR REPLACE VIEW mal_apiary_producer_vw as
 	on site.status_code_id = stat.id
 	where lictyp.licence_type = 'APIARY'
 	and stat.code_name = 'ACT';
-		
---
--- VIEW:  MALDAIRY_FARM_QUALITY_VW
---
-
-CREATE OR REPLACE VIEW mal_dairy_farm_quality_vw as (
-		select dry.id dairy_farm_test_result_id,
-			lic.id licence_id,
-			lic.licence_number,
-			lic.irma_number,	
-		    -- Consider the Company Name Override flag to determine the Licence Holder name.
-		    case 
-			  when lic.company_name_override and lic.company_name is not null 
-			  then lic.company_name
-			  else nullif(trim(concat(reg.first_name, ' ', reg.last_name)),'')
-			end derived_licence_holder_name,
-			reg.last_name registrant_last_name,
-			reg.first_name registrant_first_name,
-			dry.spc1_date,
-			dry.spc1_value,
-			dry.scc_date,
-			dry.scc_value,
-			dry.cry_date,
-			dry.cry_value,
-			dry.ffa_date,
-			dry.ffa_value,
-			dry.ih_date,
-			dry.ih_value
-		from mal_licence lic
-		inner join mal_registrant reg
-		on lic.primary_registrant_id = reg.id
-		inner join mal_dairy_farm_test_result dry
-		on lic.id = dry.licence_id);
 
 --
 -- VIEW:  MAL_DAIRY_FARM_TANK_VW
