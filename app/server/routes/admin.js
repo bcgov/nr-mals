@@ -175,59 +175,81 @@ async function createDairyTestResults(payloads) {
   }
 }
 
-router.put("/dairytestresults", async (req, res, next) => {
+router.post("/dairytestresults", async (req, res, next) => {
   const now = new Date();
   const data = req.body;
 
-  // Begin job and assign new job id
-  const queryJobResult = await prisma.$queryRaw(
-    "CALL mals_app.pr_start_dairy_farm_test_job('FILE', NULL)"
-  );
+  let jobId = null;
 
-  const jobId = queryJobResult[0].iop_job_id;
+  try {
+    // Begin job and assign new job id
+    const queryJobResult = await prisma.$queryRaw(
+      "CALL mals_app.pr_start_dairy_farm_test_job('FILE', NULL)"
+    );
 
-  const licenceFilterCriteria = {
-    irma_number: {
-      in: data.map((x) => x.irmaNumber),
-    },
-  };
+    jobId = queryJobResult[0].iop_job_id;
 
-  // Assign licence associations
-  const licences = await prisma.mal_licence.findMany({
-    where: licenceFilterCriteria,
-  });
+    const licenceFilterCriteria = {
+      irma_number: {
+        in: data.map((x) => x.irmaNumber),
+      },
+    };
 
-  for (const row of data) {
-    row.testJobId = jobId;
+    // Assign licence associations
+    const licences = await prisma.mal_licence.findMany({
+      where: licenceFilterCriteria,
+    });
 
-    const licence = licences.find((x) => x.irma_number === row.irmaNumber);
-    if (licence !== undefined) {
-      row.licenceId = licence.id;
+    for (const row of data) {
+      row.testJobId = jobId;
+
+      const licence = licences.find((x) => x.irma_number === row.irmaNumber);
+      if (licence !== undefined) {
+        row.licenceId = licence.id;
+      }
     }
+
+    const licenceMatch = data.filter((x) => x.licenceId !== undefined);
+    const licenceNoMatch = data.filter((x) => x.licenceId === undefined);
+
+    // Create payload and save
+    const createPayloads = licenceMatch.map((r) =>
+      dairyTestResult.convertToPhysicalModel(
+        populateAuditColumnsCreate(r, new Date()),
+        false
+      )
+    );
+
+    const result = await createDairyTestResults(createPayloads);
+
+    // Complete job
+    const updateJobQuery = `CALL mals_app.pr_update_dairy_farm_test_results(${jobId}, ${createPayloads.length}, NULL, NULL)`;
+    const queryUpdateResult = await prisma.$queryRaw(updateJobQuery);
+
+    return res.status(200).send({
+      attemptCount: data.length,
+      successInsertCount: licenceMatch.length,
+      licenceNoIrmaMatch: licenceNoMatch,
+    });
+  } catch (error) {
+    if (jobId !== null) {
+      // Delete any rows created in this job
+      const deleteResult = await prisma.$queryRaw(
+        `DELETE FROM mals_app.mal_dairy_farm_test_result WHERE test_job_id = ${jobId}`
+      );
+      // Mark job as failed and add comment
+      const updateResult = await prisma.$queryRaw(
+        `UPDATE mals_app.mal_dairy_farm_test_job SET job_status = 'FAILED', execution_comment = '${error.meta.message}' WHERE id = ${jobId}`
+      );
+    }
+
+    return res.status(500).send({
+      code: 500,
+      description: `Duplicate data found. The data load has been cancelled. ${error.meta.message}`,
+    });
+  } finally {
+    async () => prisma.$disconnect();
   }
-
-  const licenceMatch = data.filter((x) => x.licenceId !== undefined);
-  const licenceNoMatch = data.filter((x) => x.licenceId === undefined);
-
-  // Create payload and save
-  const createPayloads = licenceMatch.map((r) =>
-    dairyTestResult.convertToPhysicalModel(
-      populateAuditColumnsCreate(r, new Date()),
-      false
-    )
-  );
-
-  const result = await createDairyTestResults(createPayloads);
-
-  // Complete job
-  const updateJobQuery = `CALL mals_app.pr_update_dairy_farm_test_results(${jobId}, ${createPayloads.length}, NULL, NULL)`;
-  const queryUpdateResult = await prisma.$queryRaw(updateJobQuery);
-
-  return res.status(200).send({
-    attemptCount: data.length,
-    successInsertCount: licenceMatch.length,
-    licenceNoIrmaMatch: licenceNoMatch,
-  });
 });
 
 router.put("/dairyfarmtestthresholds/:id(\\d+)", async (req, res, next) => {

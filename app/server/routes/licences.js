@@ -512,7 +512,7 @@ async function findDairyTestResultHistory(params, skip, take) {
     take,
     orderBy: [
       {
-        test_job_id: "desc",
+        spc1_date: "desc",
       },
     ],
   });
@@ -893,9 +893,12 @@ router.get("/dairytestresults/:licenceId(\\d+)", async (req, res, next) => {
         })
       );
 
-      const latestResults = results.filter(
-        (x) => x.testJobId === latestTestJobId
-      );
+      let latestResults = null;
+
+      // -1 is the ID from the MALS1 data load, we dont want to pull the entire set if no other load has occured
+      if (latestTestJobId !== -1) {
+        latestResults = results.filter((x) => x.testJobId === latestTestJobId);
+      }
 
       return res.send(latestResults);
     })
