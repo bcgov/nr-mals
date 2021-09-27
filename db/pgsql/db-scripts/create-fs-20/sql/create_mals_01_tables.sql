@@ -225,6 +225,7 @@ CREATE TABLE mal_dairy_farm_test_job (
 	source_row_count integer,
 	target_insert_count integer,
 	target_update_count integer,
+	execution_comment varchar(2000),
 	create_userid varchar(63) NOT NULL,
 	create_timestamp timestamp NOT NULL,
 	update_userid varchar(63) NOT NULL,
