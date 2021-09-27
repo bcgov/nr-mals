@@ -13,7 +13,7 @@ import {
 
 import PageHeading from "../../components/PageHeading";
 // import SectionHeading from "../../components/SectionHeading";
-// import ErrorMessageRow from "../../components/ErrorMessageRow";
+import ErrorMessageRow from "../../components/ErrorMessageRow";
 
 import { parseAsInt, parseAsFloat } from "../../utilities/parsing";
 import { REQUEST_STATUS } from "../../utilities/constants";
@@ -211,7 +211,6 @@ export default function AdminDairyTestResults() {
   const submitting = dairyTestResults.status === REQUEST_STATUS.PENDING;
 
   if (dairyTestResults.status === REQUEST_STATUS.FULFILLED) {
-    console.log(dairyTestResults);
     control = (
       <>
         <div className="font-weight-bold">
@@ -235,6 +234,11 @@ export default function AdminDairyTestResults() {
   } else if (results.count === 0) {
     control = <Button onClick={onButtonClick}>Load Dairy Test Result</Button>;
   } else {
+    let errorMessage = null;
+    if (dairyTestResults.status === REQUEST_STATUS.REJECTED) {
+      errorMessage = `${dairyTestResults.error.code}: ${dairyTestResults.error.description}`;
+    }
+
     control = (
       <>
         <div>
@@ -242,6 +246,9 @@ export default function AdminDairyTestResults() {
             Confirm and add to Licences
           </Button>
         </div>
+
+        <ErrorMessageRow errorMessage={errorMessage} />
+
         <div className="mt-3">{results.count} entries found</div>
         <Table striped size="sm" responsive className="mt-3 mb-0" hover>
           <thead className="thead-dark">
