@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 // import readXlsxFile from "read-excel-file";
 import {
+  Spinner,
   Button,
   Table,
   Row,
@@ -17,9 +18,9 @@ import ErrorMessageRow from "../../components/ErrorMessageRow";
 
 import { parseAsInt, parseAsFloat } from "../../utilities/parsing";
 import { REQUEST_STATUS } from "../../utilities/constants";
-
 import {
   updateDairyTestResults,
+  updateDairyTestResultCalculations,
   selectDairyTestResults,
   clearDairyTestResults,
 } from "./adminSlice";
@@ -182,7 +183,10 @@ export default function AdminDairyTestResults() {
   };
 
   const submit = () => {
-    dispatch(updateDairyTestResults(data));
+    dispatch(updateDairyTestResults(data)).then((result) => {
+      console.log(result);
+      dispatch(updateDairyTestResultCalculations(result.payload));
+    });
   };
 
   function formatResultRow(result) {
@@ -245,6 +249,11 @@ export default function AdminDairyTestResults() {
           <Button variant="secondary" onClick={submit} disabled={submitting}>
             Confirm and add to Licences
           </Button>
+          {dairyTestResults.status === REQUEST_STATUS.PENDING ? (
+            <Spinner animation="border" role="status" variant="primary">
+              <span className="sr-only">Working...</span>
+            </Spinner>
+          ) : null}
         </div>
 
         <ErrorMessageRow errorMessage={errorMessage} />

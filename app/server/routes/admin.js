@@ -222,16 +222,14 @@ router.post("/dairytestresults", async (req, res, next) => {
 
     const result = await createDairyTestResults(createPayloads);
 
-    // Complete job
-    const updateJobQuery = `CALL mals_app.pr_update_dairy_farm_test_results(${jobId}, ${createPayloads.length}, NULL, NULL)`;
-    const queryUpdateResult = await prisma.$queryRaw(updateJobQuery);
-
     return res.status(200).send({
       attemptCount: data.length,
       successInsertCount: licenceMatch.length,
       licenceNoIrmaMatch: licenceNoMatch,
+      jobId: jobId,
     });
   } catch (error) {
+    console.log(error);
     if (jobId !== null) {
       // Delete any rows created in this job
       const deleteResult = await prisma.$queryRaw(
@@ -240,6 +238,34 @@ router.post("/dairytestresults", async (req, res, next) => {
       // Mark job as failed and add comment
       const updateResult = await prisma.$queryRaw(
         `UPDATE mals_app.mal_dairy_farm_test_job SET job_status = 'FAILED', execution_comment = '${error.meta.message}' WHERE id = ${jobId}`
+      );
+    }
+
+    return res.status(500).send({
+      code: 500,
+      description: `Duplicate data found. The data load has been cancelled. ${error.meta.message}`,
+    });
+  } finally {
+    async () => prisma.$disconnect();
+  }
+});
+
+router.post("/dairytestresultcalculations", async (req, res, next) => {
+  try {
+    // Complete job
+    const updateJobQuery = `CALL mals_app.pr_update_dairy_farm_test_results(${req.body.jobId}, ${req.body.successInsertCount}, NULL, NULL)`;
+    const queryUpdateResult = await prisma.$queryRaw(updateJobQuery);
+    return res.send(req.body);
+  } catch (error) {
+    console.log(error);
+    if (jobId !== null) {
+      // Delete any rows created in this job
+      const deleteResult = await prisma.$queryRaw(
+        `DELETE FROM mals_app.mal_dairy_farm_test_result WHERE test_job_id = ${req.body.jobId}`
+      );
+      // Mark job as failed and add comment
+      const updateResult = await prisma.$queryRaw(
+        `UPDATE mals_app.mal_dairy_farm_test_job SET job_status = 'FAILED', execution_comment = '${error.meta.message}' WHERE id = ${req.body.jobId}`
       );
     }
 
