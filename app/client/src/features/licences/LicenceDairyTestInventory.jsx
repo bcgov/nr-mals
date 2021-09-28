@@ -449,11 +449,29 @@ export default function LicenceDairyTestInventory({ licence }) {
       <SectionHeading>Dairy Test Inventory</SectionHeading>
       <Container className="mt-3 mb-4">
         {initialInventory.length === 0 ? (
-          <ErrorMessageRow
-            variant="success"
-            errorHeading={null}
-            errorMessage={"No dairy test data load information found."}
-          />
+          <>
+            <ErrorMessageRow
+              variant="success"
+              errorHeading={null}
+              errorMessage={"No dairy test data load information found."}
+            />
+            <Row className="mt-3">
+              <Col lg={2}>
+                <Button
+                  size="md"
+                  type="button"
+                  variant="secondary"
+                  onClick={() => {
+                    dispatch(openDairyTestHistoryModal);
+                  }}
+                  disabled={submitting}
+                  block
+                >
+                  View History
+                </Button>
+              </Col>
+            </Row>
+          </>
         ) : (
           <Form onSubmit={handleSubmit(onSubmit)} noValidate>
             <Row className="mb-3">
