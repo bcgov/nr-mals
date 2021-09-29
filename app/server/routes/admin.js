@@ -7,6 +7,8 @@ const {
 } = require("../utilities/auditing");
 const { formatDate } = require("../utilities/formatting");
 
+const Util = require("../utilities/util");
+
 const user = require("../models/user");
 const role = require("../models/role");
 const dairyTestResult = require("../models/dairyTestResult");
@@ -220,13 +222,13 @@ router.post("/dairytestresults", async (req, res, next) => {
       )
     );
 
-    console.log(`Dairy Data Load: start row create`);
+    Util.Log(`Dairy Data Load: start row create`);
     const result = await createDairyTestResults(createPayloads);
-    console.log(`Dairy Data Load: row create complete`);
+    Util.Log(`Dairy Data Load: row create complete`);
 
     const updateJobQuery = `CALL mals_app.pr_update_dairy_farm_test_results(${jobId}, ${licenceMatch.length}, NULL, NULL)`;
     const queryUpdateResult = await prisma.$queryRaw(updateJobQuery);
-    console.log(`Dairy Data Load: pr_update_dairy_farm_test_results complete`);
+    Util.Log(`Dairy Data Load: pr_update_dairy_farm_test_results complete`);
 
     return res.status(200).send({
       attemptCount: data.length,
@@ -234,20 +236,20 @@ router.post("/dairytestresults", async (req, res, next) => {
       licenceNoIrmaMatch: licenceNoMatch,
     });
   } catch (error) {
-    console.log(`Dairy Data Load Error: ${error}`);
+    Util.Log(`Dairy Data Load Error: ${error}`);
     if (jobId !== null) {
       // Delete any rows created in this job
       const deleteResult = await prisma.$queryRaw(
         `DELETE FROM mals_app.mal_dairy_farm_test_result WHERE test_job_id = ${jobId}`
       );
-      console.log(
+      Util.Log(
         `Dairy Data Load: deleted job id ${jobId} rows in mal_dairy_farm_test_result`
       );
       // Mark job as failed and add comment
       const updateResult = await prisma.$queryRaw(
         `UPDATE mals_app.mal_dairy_farm_test_job SET job_status = 'FAILED', execution_comment = '${error.message}' WHERE id = ${jobId}`
       );
-      console.log(
+      Util.Log(
         `Dairy Data Load: updated job id ${jobId} to FAILED in mal_dairy_farm_test_job`
       );
     }
