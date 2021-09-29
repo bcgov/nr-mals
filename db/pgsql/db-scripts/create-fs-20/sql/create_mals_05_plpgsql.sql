@@ -1287,16 +1287,16 @@ AS $procedure$
 			rslt.irma_number,			
 		    coalesce(lic.company_name, nullif(trim(concat(reg.first_name, ' ', reg.last_name)),'')) derived_licence_holder_name,
 		    coalesce(spc1_date, scc_date, cry_date, ffa_date, ih_date) derived_test_date,
-		    rslt.spc1_value,
 		    rslt.spc1_infraction_flag,
-		    rslt.scc_value,
+		    case when rslt.spc1_infraction_flag then rslt.spc1_value else null end spc1_value,
 		    rslt.scc_infraction_flag,
-		    rslt.cry_value,
+		    case when rslt.scc_infraction_flag then rslt.scc_value else null end scc_value,
 		    rslt.cry_infraction_flag,
-		    rslt.ffa_value,
+		    case when rslt.cry_infraction_flag then rslt.cry_value else null end cry_value,
 		    rslt.ffa_infraction_flag,
-		    rslt.ih_value,
-		    rslt.ih_infraction_flag
+		    case when rslt.ffa_infraction_flag then rslt.ffa_value else null end ffa_value,
+		    rslt.ih_infraction_flag,
+		    case when rslt.ih_infraction_flag then rslt.ih_value else null end ih_value
 		from mal_licence lic
 		inner join mal_registrant reg
 		on lic.primary_registrant_id = reg.id
@@ -1304,7 +1304,7 @@ AS $procedure$
 		on lic.id = rslt.licence_id
 		where greatest(spc1_date, scc_date, cry_date, ffa_date, ih_date) 
 				 between ip_start_date and ip_end_date
-		--and greatest(spc1_infraction_flag, scc_infraction_flag, cry_infraction_flag, ffa_infraction_flag, ih_infraction_flag) = true
+		and greatest(spc1_infraction_flag, scc_infraction_flag, cry_infraction_flag, ffa_infraction_flag, ih_infraction_flag) = true
 		),
 	licence_list as (
 		select json_agg(json_build_object('IRMA_Num',               irma_number,
@@ -1885,6 +1885,7 @@ AS $procedure$
 			ih_correspondence_description        = src.ih_correspondence_description
 	    from mal_dairy_farm_test_infraction_vw src
 	    where tgt.id = src.test_result_id
+		and src.test_job_id = ip_job_id
 		and tgt.test_job_id = ip_job_id;
 		GET DIAGNOSTICS l_target_update_count = ROW_COUNT;
 	-- Determine the process status.
