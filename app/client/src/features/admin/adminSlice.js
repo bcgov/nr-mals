@@ -82,7 +82,7 @@ export const updateDairyTestResults = createAsyncThunk(
   "admin/updateDairyTestResults",
   async (data, thunkApi) => {
     try {
-      const response = await Api.post(`admin/dairytestresults`, data, 60000);
+      const response = await Api.post(`admin/dairytestresults`, data, 120000); // Override timeout to 2 minutes
       return response.data;
     } catch (error) {
       if (error instanceof ApiError) {
@@ -239,20 +239,6 @@ export const adminSlice = createSlice({
       state.dairyTestResults.status = REQUEST_STATUS.FULFILLED;
     },
     [updateDairyTestResults.rejected]: (state, action) => {
-      state.dairyTestResults.data = undefined;
-      state.dairyTestResults.error = action.payload;
-      state.dairyTestResults.status = REQUEST_STATUS.REJECTED;
-    },
-    [updateDairyTestResultCalculations.pending]: (state) => {
-      state.dairyTestResults.error = undefined;
-      state.dairyTestResults.status = REQUEST_STATUS.PENDING;
-    },
-    [updateDairyTestResultCalculations.fulfilled]: (state, action) => {
-      state.dairyTestResults.data = action.payload;
-      state.dairyTestResults.error = undefined;
-      state.dairyTestResults.status = REQUEST_STATUS.FULFILLED;
-    },
-    [updateDairyTestResultCalculations.rejected]: (state, action) => {
       state.dairyTestResults.data = undefined;
       state.dairyTestResults.error = action.payload;
       state.dairyTestResults.status = REQUEST_STATUS.REJECTED;

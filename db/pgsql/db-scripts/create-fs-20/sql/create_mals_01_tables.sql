@@ -296,7 +296,7 @@ CREATE TABLE mal_dairy_farm_test_result (
 	update_timestamp timestamp NOT NULL
 ) ;
 ALTER TABLE mal_dairy_farm_test_result ADD PRIMARY KEY (id);
-CREATE UNIQUE INDEX mal_dryfrmtst_test_job_id_idx ON mal_dairy_farm_test_result (test_job_id);		
+CREATE INDEX mal_dryfrmtst_test_job_id_idx ON mal_dairy_farm_test_result (test_job_id);		
 ALTER TABLE mal_dairy_farm_test_result ADD CONSTRAINT mal_dryfrmtst_irmaspc1_uk UNIQUE (irma_number, test_year, test_month, spc1_day);
 ALTER TABLE mal_dairy_farm_test_result ADD CONSTRAINT mal_dryfrmtst_irmascc_uk UNIQUE (irma_number, test_year, test_month, scc_day);
 ALTER TABLE mal_dairy_farm_test_result ADD CONSTRAINT mal_dryfrmtst_irmacry_uk UNIQUE (irma_number, test_year, test_month, cry_day);
