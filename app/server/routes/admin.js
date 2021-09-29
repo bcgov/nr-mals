@@ -220,58 +220,41 @@ router.post("/dairytestresults", async (req, res, next) => {
       )
     );
 
+    console.log(`Dairy Data Load: start row create`);
     const result = await createDairyTestResults(createPayloads);
+    console.log(`Dairy Data Load: row create complete`);
+
+    const updateJobQuery = `CALL mals_app.pr_update_dairy_farm_test_results(${jobId}, ${licenceMatch.length}, NULL, NULL)`;
+    const queryUpdateResult = await prisma.$queryRaw(updateJobQuery);
+    console.log(`Dairy Data Load: pr_update_dairy_farm_test_results complete`);
 
     return res.status(200).send({
       attemptCount: data.length,
       successInsertCount: licenceMatch.length,
       licenceNoIrmaMatch: licenceNoMatch,
-      jobId: jobId,
     });
   } catch (error) {
-    console.log(error);
+    console.log(`Dairy Data Load Error: ${error}`);
     if (jobId !== null) {
       // Delete any rows created in this job
       const deleteResult = await prisma.$queryRaw(
         `DELETE FROM mals_app.mal_dairy_farm_test_result WHERE test_job_id = ${jobId}`
       );
+      console.log(
+        `Dairy Data Load: deleted job id ${jobId} rows in mal_dairy_farm_test_result`
+      );
       // Mark job as failed and add comment
       const updateResult = await prisma.$queryRaw(
-        `UPDATE mals_app.mal_dairy_farm_test_job SET job_status = 'FAILED', execution_comment = '${error.meta.message}' WHERE id = ${jobId}`
+        `UPDATE mals_app.mal_dairy_farm_test_job SET job_status = 'FAILED', execution_comment = '${error.message}' WHERE id = ${jobId}`
+      );
+      console.log(
+        `Dairy Data Load: updated job id ${jobId} to FAILED in mal_dairy_farm_test_job`
       );
     }
 
     return res.status(500).send({
       code: 500,
-      description: `Duplicate data found. The data load has been cancelled. ${error.meta.message}`,
-    });
-  } finally {
-    async () => prisma.$disconnect();
-  }
-});
-
-router.post("/dairytestresultcalculations", async (req, res, next) => {
-  try {
-    // Complete job
-    const updateJobQuery = `CALL mals_app.pr_update_dairy_farm_test_results(${req.body.jobId}, ${req.body.successInsertCount}, NULL, NULL)`;
-    const queryUpdateResult = await prisma.$queryRaw(updateJobQuery);
-    return res.send(req.body);
-  } catch (error) {
-    console.log(error);
-    if (jobId !== null) {
-      // Delete any rows created in this job
-      const deleteResult = await prisma.$queryRaw(
-        `DELETE FROM mals_app.mal_dairy_farm_test_result WHERE test_job_id = ${req.body.jobId}`
-      );
-      // Mark job as failed and add comment
-      const updateResult = await prisma.$queryRaw(
-        `UPDATE mals_app.mal_dairy_farm_test_job SET job_status = 'FAILED', execution_comment = '${error.meta.message}' WHERE id = ${req.body.jobId}`
-      );
-    }
-
-    return res.status(500).send({
-      code: 500,
-      description: `Duplicate data found. The data load has been cancelled. ${error.meta.message}`,
+      description: `The data load has been cancelled. ${error.message}`,
     });
   } finally {
     async () => prisma.$disconnect();

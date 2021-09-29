@@ -183,10 +183,7 @@ export default function AdminDairyTestResults() {
   };
 
   const submit = () => {
-    dispatch(updateDairyTestResults(data)).then((result) => {
-      console.log(result);
-      dispatch(updateDairyTestResultCalculations(result.payload));
-    });
+    dispatch(updateDairyTestResults(data));
   };
 
   function formatResultRow(result) {
@@ -229,7 +226,7 @@ export default function AdminDairyTestResults() {
               Licence and were ignored:
             </span>
             {dairyTestResults.data.licenceNoIrmaMatch.map((x) => {
-              return <div>IRMA # {x.irmaNumber}</div>;
+              return <div key={x.irmaNumber}>IRMA # {x.irmaNumber}</div>;
             })}
           </div>
         ) : null}
