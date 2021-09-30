@@ -226,6 +226,7 @@ router.post("/dairytestresults", async (req, res, next) => {
     const result = await createDairyTestResults(createPayloads);
     Util.Log(`Dairy Data Load: row create complete`);
 
+    Util.Log(`Dairy Data Load: CALL pr_update_dairy_farm_test_results`);
     const updateJobQuery = `CALL mals_app.pr_update_dairy_farm_test_results(${jobId}, ${licenceMatch.length}, NULL, NULL)`;
     const queryUpdateResult = await prisma.$queryRaw(updateJobQuery);
     Util.Log(`Dairy Data Load: pr_update_dairy_farm_test_results complete`);
@@ -236,7 +237,7 @@ router.post("/dairytestresults", async (req, res, next) => {
       licenceNoIrmaMatch: licenceNoMatch,
     });
   } catch (error) {
-    Util.Log(`Dairy Data Load Error: ${error}`);
+    Util.Error(`Dairy Data Load: ${error}`);
     if (jobId !== null) {
       // Delete any rows created in this job
       const deleteResult = await prisma.$queryRaw(
