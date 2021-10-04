@@ -1,6 +1,7 @@
 require("dotenv").config();
 
 const express = require("express");
+var httpContext = require("express-http-context");
 const path = require("path");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
@@ -96,12 +97,22 @@ var corsOptions = {
 };
 
 app.use(cors(corsOptions));
-
 app.use(keycloak.middleware({}));
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+app.use(httpContext.middleware);
+
+app.use(function (req, res, next) {
+  const user = req.headers.currentuser.substring(
+    0,
+    req.headers.currentuser.indexOf("@idir")
+  );
+  httpContext.set("currentUser", user);
+  var get = httpContext.get("currentUser");
+  next();
+});
 
 app.use("/api/user", keycloak.protect(), userRouter);
 app.use(
