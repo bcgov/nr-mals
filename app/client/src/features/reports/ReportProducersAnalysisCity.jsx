@@ -29,7 +29,7 @@ export default function ReportProducersAnalysisCity() {
   const form = useForm({
     reValidateMode: "onBlur",
   });
-  const { register, watch, getValues } = form;
+  const { register, watch } = form;
 
   const watchCity = watch("city", null);
   const watchMinHives = watch("minHives", 0);

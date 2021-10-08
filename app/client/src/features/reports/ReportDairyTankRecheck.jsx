@@ -7,8 +7,6 @@ import { startOfToday, getYear } from "date-fns";
 
 import DocGenDownloadBar from "../../components/DocGenDownloadBar";
 
-import { parseAsInt } from "../../utilities/parsing";
-
 import {
   startDairyTankRecheckJob,
   generateReport,

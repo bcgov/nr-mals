@@ -29,7 +29,7 @@ export default function ReportLicenceTypeLocation() {
   const form = useForm({
     reValidateMode: "onBlur",
   });
-  const { register, setValue, watch } = form;
+  const { register, watch } = form;
 
   const watchLicenceType = watch("licenceTypeId", 1);
 

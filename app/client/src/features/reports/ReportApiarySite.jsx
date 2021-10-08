@@ -31,7 +31,7 @@ export default function ReportApiarySite() {
   const form = useForm({
     reValidateMode: "onBlur",
   });
-  const { register, watch, getValues } = form;
+  const { register, watch } = form;
 
   const watchRegion = watch("region", null);
 

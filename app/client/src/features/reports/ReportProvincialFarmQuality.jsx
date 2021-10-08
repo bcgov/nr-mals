@@ -27,7 +27,7 @@ export default function ReportProvincialFarmQuality() {
   const form = useForm({
     reValidateMode: "onBlur",
   });
-  const { register, setValue, watch } = form;
+  const { setValue, watch } = form;
 
   const startDate = startOfToday();
   const endDate = add(startOfToday(), { days: 15 });
