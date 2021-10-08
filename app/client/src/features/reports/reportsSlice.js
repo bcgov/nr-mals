@@ -266,6 +266,7 @@ export const completeReportJob = createAsyncThunk(
   }
 );
 
+// eslint-disable-next-line
 const pendingStartJobReducer = (state, { payload }) => {
   state.job.status = REQUEST_STATUS.PENDING;
 };

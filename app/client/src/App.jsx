@@ -194,7 +194,7 @@ function App() {
     if (
       currentUser.data === undefined ||
       !Object.keys(Constant.SYSTEM_ROLES)
-        .map(function (key) {
+        .map(function A(key) {
           return Constant.SYSTEM_ROLES[key];
         })
         .some((role) => currentUser.data.roleId === role)

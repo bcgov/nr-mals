@@ -47,7 +47,7 @@ export default function SiteDetailsViewEdit({ site, licence }) {
   const form = useForm({
     reValidateMode: "onBlur",
   });
-  const { register, handleSubmit, setValue } = form;
+  const { handleSubmit, setValue } = form;
 
   const initialFormValues = {
     licenceStatus: null,

@@ -14,8 +14,6 @@ import {
 
 import { REQUEST_STATUS } from "../../utilities/constants";
 
-import { LICENCE_TYPE_ID_SLAUGHTERHOUSE } from "../licences/constants";
-
 import { openModal } from "../../app/appSlice";
 import { SLAUGHTERHOUSE_SPECIES_MODAL } from "../../modals/SlaughterhouseSpeciesModal";
 

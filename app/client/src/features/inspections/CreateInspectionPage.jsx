@@ -1,15 +1,14 @@
 import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { Link, Redirect, useHistory, useParams } from "react-router-dom";
+import { Redirect, useHistory, useParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
-import { Alert, Button, Col, Container, Form } from "react-bootstrap";
+import { Container, Form } from "react-bootstrap";
 import { startOfToday } from "date-fns";
 
 import { REQUEST_STATUS, SITES_PATHNAME } from "../../utilities/constants";
 import { parseAsInt, parseAsFloat } from "../../utilities/parsing";
 
 import ErrorMessageRow from "../../components/ErrorMessageRow";
-import LinkButton from "../../components/LinkButton";
 import PageHeading from "../../components/PageHeading";
 import SectionHeading from "../../components/SectionHeading";
 import SubmissionButtons from "../../components/SubmissionButtons";
@@ -103,14 +102,7 @@ export default function CreateInspectionPage() {
   const form = useForm({
     reValidateMode: "onBlur",
   });
-  const {
-    register,
-    watch,
-    handleSubmit,
-    setValue,
-    setError,
-    clearErrors,
-  } = form;
+  const { handleSubmit, setValue, setError, clearErrors } = form;
 
   useEffect(() => {
     setValue("inspectionDate", today);

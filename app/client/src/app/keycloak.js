@@ -3,7 +3,6 @@ import Keycloak from "keycloak-js";
 function GetKeycloakConfig() {
   let kcConfig = null;
 
-  console.log(process.env.REACT_APP_ENVIRONMENT_LABEL);
   if (process.env.REACT_APP_ENVIRONMENT_LABEL === "dev") {
     kcConfig = "/keycloak_dev.json";
   } else if (
@@ -28,6 +27,7 @@ const getToken = () => kc.token;
 const updateToken = (successCallback) =>
   kc.updateToken(5).then(successCallback).catch(doLogin);
 
+// eslint-disable-next-line
 const log = () => console.log(kc.tokenParsed);
 
 const getUsername = () => kc.tokenParsed?.preferred_username;

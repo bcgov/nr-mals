@@ -13,7 +13,6 @@ import {
   generateReport,
   fetchReportJob,
   selectReportsJob,
-  clearReportsJob,
   completeReportJob,
 } from "./reportsSlice";
 

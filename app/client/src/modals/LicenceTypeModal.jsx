@@ -10,7 +10,6 @@ import {
   parseAsFloat,
   isNullOrEmpty,
 } from "../utilities/parsing";
-import { formatDateString } from "../utilities/formatting.ts";
 
 export const LICENCE_TYPE = "LICENCE_TYPE";
 
