@@ -1835,16 +1835,20 @@ $procedure$
 
 CREATE OR REPLACE PROCEDURE pr_update_dairy_farm_test_results(
     IN    ip_job_id integer, 
-    IN    ip_target_insert_count integer,
+    IN    ip_source_row_count integer,
     INOUT iop_job_status character varying,
     INOUT iop_process_comments character varying)
  LANGUAGE plpgsql
 AS $procedure$
   declare  
+	l_target_insert_count     integer default 0;
 	l_target_update_count  integer default 0;
-	l_licence_id_count     integer default 0;
   begin
 	-- Update those columns which are derived from the inserted results.
+	with src as (
+		select * 
+		from mal_dairy_farm_test_infraction_vw 
+		where test_job_id = ip_job_id)
 	update mal_dairy_farm_test_result tgt
 	    set 
 		    licence_id                           = src.licence_id,
@@ -1883,30 +1887,30 @@ AS $procedure$
 			ih_levy_percentage                   = src.ih_levy_percentage,
 			ih_correspondence_code               = src.ih_correspondence_code,
 			ih_correspondence_description        = src.ih_correspondence_description
-	    from mal_dairy_farm_test_infraction_vw src
-	    where tgt.id = src.test_result_id
-		and src.test_job_id = ip_job_id
-		and tgt.test_job_id = ip_job_id;
+	    from src
+	    where tgt.id = src.test_result_id;
 		GET DIAGNOSTICS l_target_update_count = ROW_COUNT;
 	-- Determine the process status.
 	select count(licence_id)
-	into l_licence_id_count
+	into l_target_insert_count
 	from mal_dairy_farm_test_result
 	where test_job_id = ip_job_id;
 	iop_job_status := case 
-                        when ip_target_insert_count = l_target_update_count and 
-                             ip_target_insert_count = l_licence_id_count
+                        when ip_source_row_count = l_target_update_count and 
+                             ip_source_row_count = l_target_insert_count
                         then 'COMPLETE'
                         else 'WARNING'
                       end;
-	iop_process_comments := concat( 'Insert count: ',ip_target_insert_count,  
-                                   ', Update count: ',l_target_update_count,
-                                   ', Licence ID count: ', l_licence_id_count);
+	iop_process_comments := concat( 'Source count: ', ip_source_row_count,
+								   ', Insert count: ',l_target_insert_count,  
+                                   ', Update count: ',l_target_update_count);
 	-- Update the Job table.
 	update mal_dairy_farm_test_job 
 		set
 			job_status              = iop_job_status,
 			execution_end_time      = current_timestamp,
+			source_row_count        = ip_source_row_count,
+			target_insert_count     = l_target_insert_count,
 			target_update_count     = l_target_update_count,
 			update_userid           = current_user,
 			update_timestamp        = current_timestamp
