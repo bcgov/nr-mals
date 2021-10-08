@@ -506,16 +506,26 @@ async function countDairyTestResultHistory(params) {
 
 async function findDairyTestResultHistory(params, skip, take) {
   const filter = getDairyTestHistorySearchFilter(params);
-  return prisma.mal_dairy_farm_test_result.findMany({
+  var result = await prisma.mal_dairy_farm_test_result.findMany({
     where: filter,
-    skip,
-    take,
     orderBy: [
       {
         spc1_date: "desc",
       },
     ],
   });
+
+  // Sort null dates to the back
+  result.sort(function (a, b) {
+    return (
+      (a.spc1_date === null) - (b.spc1_date === null) ||
+      -(a.spc1_date > b.spc1_date) ||
+      +(a.spc1_date < b.spc1_date)
+    );
+  });
+
+  // Return subsection
+  return result.slice(skip, skip + take);
 }
 
 async function fetchLicenceDairyFarmTestResult(licenceId) {
