@@ -191,7 +191,7 @@ objects:
           image: ${IMAGE_REGISTRY}/${IMAGE_STREAM_NAMESPACE}/${IMAGE_STREAM_TAG}
           # Because we are using image reference to a tag, we need to always pull the image otherwise
           #   we end up with outdated/out-of-sync image depending on the node where it is running
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           name: postgresql
           ports:
           - containerPort: 8008
@@ -282,7 +282,7 @@ parameters:
   value: "30245e-tools"
 - name: IMAGE_STREAM_TAG
   description: Patroni ImageTag
-  value: patroni:v13-latest
+  value: patroni:11.13
 - description: The size of the persistent volume to create.
   displayName: Persistent Volume Size
   name: PVC_SIZE
