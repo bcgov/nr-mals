@@ -20,6 +20,13 @@ jobs:
         # run: npm run lint
       - name: Prettier
         run: npm run format:check
+  build-client:
+    runs-on: ubuntu-latest
+    steps:
+        with:
+          node-version: "12"
+      - name: Build Client
+        run: npm run build-client
   s2i-build-dev:
     if: github.event_name == 'push' && github.repository == 'bcgov/nr-mals' && github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
