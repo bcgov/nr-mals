@@ -28,6 +28,8 @@ jobs:
       - uses: actions/setup-node@master
         with:
           node-version: "12"
+      - name: Install dependencies
+        run: cd client && npm ci
       - name: Build Client
         run: npm run build-client
   s2i-build-dev:
