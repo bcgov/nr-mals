@@ -272,6 +272,11 @@ app.use("/api/*", keycloak.protect(), (req, res) => {
   });
 });
 
+// Health check route for readiness and liveness probes
+app.use("/hc", (req, res) => {
+  res.status(200).send();
+});
+
 // serve static files
 app.use(express.static("static"));
 
