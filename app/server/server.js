@@ -105,13 +105,19 @@ app.use(cookieParser());
 app.use(httpContext.middleware);
 
 app.use(function (req, res, next) {
-  const user = req.headers.currentuser.substring(
-    0,
-    req.headers.currentuser.indexOf("@idir")
-  );
-  httpContext.set("currentUser", user);
-  var get = httpContext.get("currentUser");
+  if (req.headers.currentuser) {
+    const user = req.headers.currentuser.substring(
+      0,
+      req.headers.currentuser.indexOf("@idir")
+    );
+    httpContext.set("currentUser", user);
+  }
   next();
+});
+
+// Health check route for readiness and liveness probes
+app.get("/hc", (req, res) => {
+  res.send("Health check OK");
 });
 
 app.use("/api/user", keycloak.protect(), userRouter);
@@ -270,11 +276,6 @@ app.use("/api/*", keycloak.protect(), (req, res) => {
     code: 404,
     description: "The requested endpoint could not be found.",
   });
-});
-
-// Health check route for readiness and liveness probes
-app.use("/hc", (req, res) => {
-  res.status(200).send();
 });
 
 // serve static files
