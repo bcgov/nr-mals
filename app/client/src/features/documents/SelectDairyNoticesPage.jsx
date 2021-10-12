@@ -20,11 +20,7 @@ import {
   LICENSES_PATHNAME,
   DOWNLOAD_DAIRYNOTICES_PATHNAME,
 } from "../../utilities/constants";
-import {
-  pluralize,
-  formatDate,
-  formatDateString,
-} from "../../utilities/formatting.ts";
+import { pluralize, formatDateString } from "../../utilities/formatting.ts";
 
 import PageHeading from "../../components/PageHeading";
 import CustomDatePicker from "../../components/CustomDatePicker";

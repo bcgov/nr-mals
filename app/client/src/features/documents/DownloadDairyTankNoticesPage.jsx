@@ -1,10 +1,6 @@
-/* eslint-disable */
-
 import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Container, Button, ProgressBar } from "react-bootstrap";
-
-import useInterval from "../../hooks/useInterval";
 
 import Api from "../../utilities/api.ts";
 import {

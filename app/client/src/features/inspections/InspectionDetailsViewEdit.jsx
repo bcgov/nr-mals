@@ -46,7 +46,7 @@ export default function InspectionDetailsViewEdit({
   const form = useForm({
     reValidateMode: "onBlur",
   });
-  const { register, handleSubmit, setValue } = form;
+  const { handleSubmit, setValue } = form;
 
   const initialFormValues = {
     inspectionDate: inspection.data

@@ -9,8 +9,9 @@ import { formatPhoneNumber } from "../../utilities/formatting.ts";
 
 import CustomCheckBox from "../../components/CustomCheckBox";
 
+// eslint-disable-next-line
 export default function RegistrantEdit({ form, registrant, submitting }) {
-  const { register, setValue, getValues, errors, control, clearErrors } = form;
+  const { register, setValue, errors, control, clearErrors } = form;
   const fieldName = `registrants[${registrant.key}]`;
   const registrantErrors = errors.registrants
     ? errors.registrants[registrant.key]
