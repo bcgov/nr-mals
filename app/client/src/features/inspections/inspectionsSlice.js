@@ -1,11 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 import Api, { ApiError } from "../../utilities/api.ts";
-import {
-  REQUEST_STATUS,
-  LICENCE_MODE,
-  REGISTRANT_MODE,
-} from "../../utilities/constants";
+import { REQUEST_STATUS, LICENCE_MODE } from "../../utilities/constants";
 
 export const fetchApiaryInspection = createAsyncThunk(
   "inspections/fetchApiaryInspection",

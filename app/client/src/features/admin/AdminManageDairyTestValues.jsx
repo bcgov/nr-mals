@@ -1,7 +1,7 @@
 /* eslint-disable no-use-before-define */
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Spinner, Table, Row, Col, Button } from "react-bootstrap";
+import { Spinner, Table, Button } from "react-bootstrap";
 
 import SectionHeading from "../../components/SectionHeading";
 import ErrorMessageRow from "../../components/ErrorMessageRow";

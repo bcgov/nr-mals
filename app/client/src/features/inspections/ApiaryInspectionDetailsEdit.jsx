@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from "react";
-import { useDispatch } from "react-redux";
+import React from "react";
 import PropTypes from "prop-types";
-import { Button, Form, Row, Col, InputGroup } from "react-bootstrap";
+import { Form, Row, Col } from "react-bootstrap";
 
 import CustomDatePicker from "../../components/CustomDatePicker";
 import SectionHeading from "../../components/SectionHeading";
@@ -11,8 +10,7 @@ export default function ApiaryInspectionDetailsEdit({
   initialValues,
   site,
 }) {
-  const dispatch = useDispatch();
-  const { watch, setValue, register, errors } = form;
+  const { setValue, register, errors } = form;
 
   const handleFieldChange = (field) => {
     return (value) => {

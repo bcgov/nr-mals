@@ -32,7 +32,6 @@ export default function ReportActionRequired() {
 
   useEffect(() => {
     if (job.id && job.type === REPORTS.ACTION_REQUIRED) {
-      console.log(job);
       dispatch(fetchReportJob());
 
       if (pendingDocuments?.length > 0) {

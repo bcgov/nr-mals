@@ -67,7 +67,7 @@ const CustomDatePicker = React.forwardRef((props, outerRef) => {
       }
     };
 
-    const handleOnBlur = (e) => {
+    const handleOnBlur = () => {
       onBlurWrapper();
     };
 

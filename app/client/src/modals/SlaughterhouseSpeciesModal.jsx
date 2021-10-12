@@ -1,9 +1,7 @@
 import React from "react";
-import { useSelector } from "react-redux";
 import PropTypes from "prop-types";
 import { Button, Modal, Form, Col } from "react-bootstrap";
 import { useForm } from "react-hook-form";
-import { parseAsInt } from "../utilities/parsing";
 
 export const SLAUGHTERHOUSE_SPECIES_MODAL = "SLAUGHTERHOUSE_SPECIES_MODAL";
 
@@ -15,7 +13,7 @@ export default function SlaughterhouseSpeciesModal({
   const form = useForm({
     reValidateMode: "onBlur",
   });
-  const { register, handleSubmit, setError, errors } = form;
+  const { register, handleSubmit, errors } = form;
 
   const onSubmit = (data) => {
     const valid = true;

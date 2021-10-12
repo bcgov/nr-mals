@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "postinstall": "cd client && npm install",
+    "postinstall": "cd client && npm install && npm run build",
     "start": "concurrently \"npm run start-client\" \"npm run debug-server\"",
-    "start:production": "npm run build-client && npm run start-server",
+    "start:production": "npm run start-server",
     "start-server": "node server/bin/www",
     "debug-server": "nodemon --inspect server/bin/www",
     "start-client": "npm run start --prefix client",

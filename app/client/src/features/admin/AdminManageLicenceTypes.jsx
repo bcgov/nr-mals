@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Spinner, Table, Row, Col, Button } from "react-bootstrap";
+import { Spinner, Table, Button } from "react-bootstrap";
 
 import SectionHeading from "../../components/SectionHeading";
 import ErrorMessageRow from "../../components/ErrorMessageRow";
@@ -12,8 +12,6 @@ import {
 } from "../lookups/licenceTypesSlice";
 
 import { REQUEST_STATUS } from "../../utilities/constants";
-
-import { formatMoney } from "../../utilities/formatting.ts";
 
 import { openModal } from "../../app/appSlice";
 import { LICENCE_TYPE } from "../../modals/LicenceTypeModal";

@@ -22,7 +22,6 @@ import {
 } from "../../utilities/constants";
 import {
   pluralize,
-  formatDate,
   formatDateString,
   formatListShorten,
 } from "../../utilities/formatting.ts";

@@ -28,8 +28,6 @@ import RenderOnRole from "../../components/RenderOnRole";
 import LinkButton from "../../components/LinkButton";
 import PageHeading from "../../components/PageHeading";
 
-import { selectCurrentUser } from "../../app/appSlice";
-
 import {
   fetchLicenceResults,
   selectLicenceResults,
@@ -64,8 +62,6 @@ export default function LicenceResultsPage() {
   const results = useSelector(selectLicenceResults);
 
   const dispatch = useDispatch();
-
-  const currentUser = useSelector(selectCurrentUser);
 
   useEffect(() => {
     dispatch(fetchLicenceResults());
