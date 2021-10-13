@@ -53,7 +53,7 @@
                 "name": "ENVIRONMENT_LABEL",
                 "value": "dev"
               },
-			  {
+              {
                 "name": "REACT_APP_ENVIRONMENT_LABEL",
                 "value": "dev"
               },
@@ -125,7 +125,7 @@
                 "name": "ENVIRONMENT_LABEL",
                 "value": "test"
               },
-			  {
+              {
                 "name": "REACT_APP_ENVIRONMENT_LABEL",
                 "value": "test"
               },
@@ -197,7 +197,7 @@
                 "name": "ENVIRONMENT_LABEL",
                 "value": "uat"
               },
-			  {
+              {
                 "name": "REACT_APP_ENVIRONMENT_LABEL",
                 "value": "uat"
               },
@@ -269,7 +269,7 @@
                 "name": "ENVIRONMENT_LABEL",
                 "value": "prod"
               },
-			  {
+              {
                 "name": "REACT_APP_ENVIRONMENT_LABEL",
                 "value": "prod"
               },
