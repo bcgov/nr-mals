@@ -74,6 +74,10 @@
                     "value": "${ENVIRONMENT}"
                   },
                   {
+                    "name": "REACT_APP_VERSION_NUMBER",
+                    "value": "5.0.0"
+                  },
+                  {
                     "name": "DATABASE_URL",
                     "valueFrom": {
                       "secretKeyRef": {
@@ -189,7 +193,7 @@
           "app": "${APP_NAME}",
           "role": "application",
           "env": "${ENVIRONMENT}",
-		  "certbot-managed": "${CERTBOT_MANAGED}"
+          "certbot-managed": "${CERTBOT_MANAGED}"
         },
         "name": "${NAME}",
         "annotations": {
@@ -320,7 +324,7 @@
       "required": false,
       "value": ""
     },
-	{
+    {
       "name": "CERTBOT_MANAGED",
       "displayName": "Certbot Managed",
       "description": "Whether or not Certbot will handle vanity URL certificates",
