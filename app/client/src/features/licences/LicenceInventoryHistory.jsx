@@ -61,21 +61,22 @@ export default function LicenceInventoryHistory({ licence }) {
   function formatResultRow(result, showDelete = true) {
     const speciesData = getSpeciesData();
 
+    const rowSpecies = speciesData.data.species.find(
+      (sp) => sp.id == result.speciesCodeId
+    );
+
+    const rowSubSpecies = speciesData.data.subSpecies.find(
+      (sp) => sp.id == result.speciesSubCodeId
+    );
+
     return (
       <tr key={result.id}>
         <td className="text-nowrap">
-          {
-            speciesData.data.species.find((sp) => sp.id == result.speciesCodeId)
-              .codeDescription
-          }
+          {rowSpecies !== undefined ? rowSpecies.codeDescription : null}
         </td>
         <td className="text-nowrap">{formatDateString(result.date)}</td>
         <td className="text-nowrap">
-          {
-            speciesData.data.subSpecies.find(
-              (sp) => sp.id == result.speciesSubCodeId
-            ).codeName
-          }
+          {rowSubSpecies !== undefined ? rowSubSpecies.codeName : null}
         </td>
         <td className="text-nowrap">{result.value}</td>
         {showDelete === true ? (
