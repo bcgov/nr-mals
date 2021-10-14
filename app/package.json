@@ -3,7 +3,7 @@
   "version": "5.0.0",
   "private": true,
   "scripts": {
-    "postinstall": "cross-env REACT_APP_VERSION=$npm_package_version cd client && npm install && npm run build",
+    "postinstall": "cd client && npm install && cd ../ && npm run build-client",
     "start": "concurrently \"npm run start-client\" \"npm run debug-server\"",
     "start:production": "npm run start-server",
     "start-server": "node server/bin/www",
