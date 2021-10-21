@@ -1,7 +1,7 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
-  name: 'system:image-puller-dev'
+  name: 'system:image-puller-test'
   namespace: 30245e-tools
 roleRef:
   apiGroup: rbac.authorization.k8s.io
@@ -10,4 +10,4 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: default
-    namespace: 30245e-dev
+    namespace: 30245e-test

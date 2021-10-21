@@ -15,7 +15,7 @@ oc process --param-file=../param/mals-db-deploy-test.param -f ../templates/deplo
  
 oc policy add-role-to-user system:image-puller system:serviceaccount:30245e-test:patroni -n 30245e-tools
 	
-oc process --param-file=../param/mals-db-deploy-test.param -f ../templates/deployment.yaml -n 30245e-test -p IMAGE_STREAM_TAG=patroni:v13-latest | oc apply -f -
+oc process --param-file=../param/mals-db-deploy-test.param -f ../templates/deployment.yaml -n 30245e-test | oc apply -f -
 	
 echo WAIT ~3 MINUTES for the 3 pods to complete
 

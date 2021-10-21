@@ -17,7 +17,7 @@ oc process --param-file=uat_mals-db-deploy.param -f uat_deployment-prereq.yaml -
  
 oc policy add-role-to-user system:image-puller system:serviceaccount:30245e-test:patroni-uat -n 30245e-tools
 	
-oc process --param-file=uat_mals-db-deploy.param -f uat_deployment.yaml -n 30245e-test -p IMAGE_STREAM_TAG=patroni:11.13 | oc apply -f -
+oc process --param-file=uat_mals-db-deploy.param -f uat_deployment.yaml -n 30245e-test | oc apply -f -
 	
 echo WAIT ~3 MINUTES for the 3 pods to complete
 
