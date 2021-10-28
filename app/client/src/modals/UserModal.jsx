@@ -21,7 +21,11 @@ export default function UserModal({ user, closeModal, submit }) {
   const onSubmit = (data) => {
     let valid = true;
 
-    if (users.data.find((x) => x.userName === data.userName) !== undefined) {
+    if (
+      users.data.find(
+        (x) => x.userName === data.userName && x.id !== parseAsInt(data.id)
+      ) !== undefined
+    ) {
       setError("userName", {
         type: "invalid",
       });
@@ -159,7 +163,7 @@ export default function UserModal({ user, closeModal, submit }) {
                 {roles.data.map((x) => {
                   return (
                     <option key={x.id} value={x.id}>
-                      {x.name}
+                      {x.description}
                     </option>
                   );
                 })}

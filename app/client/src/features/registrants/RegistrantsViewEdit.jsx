@@ -1,10 +1,14 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useForm } from "react-hook-form";
 import { Container, Form } from "react-bootstrap";
 
-import { REGISTRANT_MODE, REQUEST_STATUS } from "../../utilities/constants";
+import {
+  REGISTRANT_MODE,
+  REQUEST_STATUS,
+  SYSTEM_ROLES,
+} from "../../utilities/constants";
 
 import ErrorMessageRow from "../../components/ErrorMessageRow";
 import SectionHeading from "../../components/SectionHeading";
@@ -15,6 +19,8 @@ import {
   setCurrentLicenceRegistrantModeToEdit,
   setCurrentLicenceRegistrantModeToView,
 } from "../licences/licencesSlice";
+
+import { selectCurrentUser } from "../../app/appSlice";
 
 import { validateRegistrants, formatRegistrants } from "./registrantUtility";
 
@@ -49,6 +55,8 @@ export default function RegistrantsViewEdit({ licence }) {
 
   const dispatch = useDispatch();
 
+  const currentUser = useSelector(selectCurrentUser);
+
   const form = useForm({
     reValidateMode: "onBlur",
   });
@@ -68,7 +76,13 @@ export default function RegistrantsViewEdit({ licence }) {
     };
     return (
       <section>
-        <SectionHeading onEdit={onEdit} showEditButton>
+        <SectionHeading
+          onEdit={onEdit}
+          showEditButton={
+            currentUser.data.roleId !== SYSTEM_ROLES.READ_ONLY &&
+            currentUser.data.roleId !== SYSTEM_ROLES.INSPECTOR
+          }
+        >
           Registrant Details
         </SectionHeading>
         <Container className="mt-3 mb-4">
@@ -100,6 +114,7 @@ export default function RegistrantsViewEdit({ licence }) {
             initialRegistrants={registrants}
             mode={mode}
             form={form}
+            submitting={submitting}
           />
           <SubmissionButtons
             submitButtonLabel={submissionLabel}

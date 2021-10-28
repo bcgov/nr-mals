@@ -1,17 +1,32 @@
-import React from "react";
+import React, { useEffect } from "react";
 import PropTypes from "prop-types";
+import { useDispatch } from "react-redux";
 import { Controller } from "react-hook-form";
 import NumberFormat from "react-number-format";
 import { Row, Col, Form } from "react-bootstrap";
 
 import { formatPhoneNumber } from "../../utilities/formatting.ts";
 
-export default function RegistrantEdit({ form, registrant }) {
-  const { register, errors, control, clearErrors } = form;
+import CustomCheckBox from "../../components/CustomCheckBox";
+
+// eslint-disable-next-line
+export default function RegistrantEdit({ form, registrant, submitting }) {
+  const { register, setValue, errors, control, clearErrors } = form;
   const fieldName = `registrants[${registrant.key}]`;
   const registrantErrors = errors.registrants
     ? errors.registrants[registrant.key]
     : undefined;
+
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    setValue(
+      `${fieldName}.companyNameOverride`,
+      registrant.companyNameOverride !== undefined
+        ? registrant.companyNameOverride
+        : false
+    );
+  }, [dispatch]);
 
   return (
     <>
@@ -116,6 +131,19 @@ export default function RegistrantEdit({ form, registrant }) {
             </Form.Group>
           </Col>
         </Row>
+        {registrant.key === 0 ? (
+          <Row>
+            <Col lg={6}>
+              <Form.Group controlId="companyNameOverride">
+                <CustomCheckBox
+                  id={`${fieldName}.companyNameOverride`}
+                  label="Company Name to appear on License"
+                  ref={register}
+                />
+              </Form.Group>
+            </Col>
+          </Row>
+        ) : null}
       </fieldset>
     </>
   );
@@ -124,4 +152,5 @@ export default function RegistrantEdit({ form, registrant }) {
 RegistrantEdit.propTypes = {
   registrant: PropTypes.object.isRequired,
   form: PropTypes.object.isRequired,
+  submitting: PropTypes.bool.isRequired,
 };

@@ -31,6 +31,8 @@ function convertToLogicalModel(input) {
     primaryPhone: input.primary_phone,
     secondaryPhone: input.secondary_phone,
     faxNumber: input.fax_number,
+    companyName: input.company_name,
+    companyNameOverride: input.company_name_override,
     regionalDistrictId: input.regional_district_id,
     applicationDate: formatDate(input.application_date),
     issuedOnDate: formatDate(input.issue_date),
@@ -59,13 +61,22 @@ function convertToLogicalModel(input) {
     })),
     associatedLicences: input.mal_licence_parent_child_xref_mal_licenceTomal_licence_parent_child_xref_parent_licence_id.map(
       (xref, index) => ({
-        ...convertAssociatdLicenceToLogicalModel(
-          xref.mal_licence_mal_licenceTomal_licence_parent_child_xref_child_licence_id
-        ),
+        ...convertAssociatdLicenceToLogicalModel({
+          associatedOnDate: xref.create_timestamp,
+          ...xref.mal_licence_mal_licenceTomal_licence_parent_child_xref_child_licence_id,
+        }),
         key: index,
       })
     ),
   };
+
+  let primaryRegistrant = output.registrants.find(
+    (x) => x.id === output.primaryRegistrantId
+  );
+  if (primaryRegistrant !== undefined) {
+    primaryRegistrant.companyName = output.companyName;
+    primaryRegistrant.companyNameOverride = output.companyNameOverride;
+  }
 
   switch (input.licence_type_id) {
     case constants.LICENCE_TYPE_ID_GAME_FARM:
@@ -178,6 +189,23 @@ function convertCertificateToLogicalModel(input) {
   return output;
 }
 
+function convertRenewalToLogicalModel(input) {
+  const output = {
+    licenceId: input.licence_id,
+    licenceType: input.licence_type,
+    licenceStatus: input.licence_status,
+    region: input.region_name,
+    regionalDistrict: input.district_name,
+    licenceNumber: input.licence_number,
+    lastNames: input.last_name,
+    companyNames: input.company_name,
+    issuedOnDate: input.issue_date,
+    expiryDate: input.expiry_date,
+  };
+
+  return output;
+}
+
 function convertAssociatdLicenceToLogicalModel(input) {
   const output = {
     id: input.id,
@@ -198,6 +226,12 @@ function convertAssociatdLicenceToLogicalModel(input) {
       ...registrant.convertToLogicalModel(xref.mal_registrant),
       key: index,
     })),
+    associatedOnDate: formatDate(
+      input.associatedOnDate !== undefined && input.associatedOnDate !== null
+        ? input.associatedOnDate
+        : input.create_timestamp
+    ),
+    companyName: input.company_name,
   };
 
   return output;
@@ -255,7 +289,7 @@ function convertToPhysicalModel(input, update) {
         : {
             connect: { id: input.regionalDistrict },
           },
-    mal_registrant_mal_licence_primary_registrant_idTomal_registrant:
+    mal_registrant:
       input.primaryRegistrantId === null
         ? emptyPrimaryRegistrant
         : {
@@ -264,6 +298,8 @@ function convertToPhysicalModel(input, update) {
     mal_licence_species_code_lu: speciesCode,
     issue_date: input.issuedOnDate,
     expiry_date: input.expiryDate,
+    company_name: input.companyName,
+    company_name_override: input.companyNameOverride,
     fee_collected: input.feePaidAmount,
     fee_collected_ind: input.paymentReceived || false,
     action_required: input.actionRequired,
@@ -355,6 +391,7 @@ module.exports = {
   convertToLogicalModel,
   convertSearchResultToLogicalModel,
   convertCertificateToLogicalModel,
+  convertRenewalToLogicalModel,
   convertAssociatdLicenceToLogicalModel,
   convertToAssociatedLicencePhysicalModel,
 };

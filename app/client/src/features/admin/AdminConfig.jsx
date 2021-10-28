@@ -4,9 +4,14 @@ import { Container, Form } from "react-bootstrap";
 
 import PageHeading from "../../components/PageHeading";
 
-import AdminManageUsers from "./AdminManageUsers";
-
 import { ADMIN_CONFIG_OPTIONS } from "../../utilities/constants";
+
+import AdminManageUsers from "./AdminManageUsers";
+import AdminManageDairyTestValues from "./AdminManageDairyTestValues";
+import AdminManageLicenceTypes from "./AdminManageLicenceTypes";
+import AdminManageFurSpecies from "./AdminManageFurSpecies";
+import AdminManageGameSpecies from "./AdminManageGameSpecies";
+import AdminManageSlaughterhouseSpecies from "./AdminManageSlaughterhouseSpecies";
 
 export default function AdminConfig() {
   const form = useForm({
@@ -20,6 +25,21 @@ export default function AdminConfig() {
   switch (selectedConfig) {
     case ADMIN_CONFIG_OPTIONS.MANAGE_USERS:
       control = <AdminManageUsers />;
+      break;
+    case ADMIN_CONFIG_OPTIONS.MANAGE_DAIRY_THRESHOLDS:
+      control = <AdminManageDairyTestValues />;
+      break;
+    case ADMIN_CONFIG_OPTIONS.MANAGE_LICENCE_TYPES:
+      control = <AdminManageLicenceTypes />;
+      break;
+    case ADMIN_CONFIG_OPTIONS.MANAGE_FUR_SPECIES:
+      control = <AdminManageFurSpecies />;
+      break;
+    case ADMIN_CONFIG_OPTIONS.MANAGE_GAME_SPECIES:
+      control = <AdminManageGameSpecies />;
+      break;
+    case ADMIN_CONFIG_OPTIONS.MANAGE_SLAUGHTER_SPECIES:
+      control = <AdminManageSlaughterhouseSpecies />;
       break;
     default:
       break;
@@ -40,6 +60,21 @@ export default function AdminConfig() {
           <option value={null} />
           <option value={ADMIN_CONFIG_OPTIONS.MANAGE_USERS}>
             Manage Users
+          </option>
+          <option value={ADMIN_CONFIG_OPTIONS.MANAGE_DAIRY_THRESHOLDS}>
+            Manage Dairy Test Values
+          </option>
+          <option value={ADMIN_CONFIG_OPTIONS.MANAGE_LICENCE_TYPES}>
+            Manage Licence Types
+          </option>
+          <option value={ADMIN_CONFIG_OPTIONS.MANAGE_FUR_SPECIES}>
+            Manage Fur Species
+          </option>
+          <option value={ADMIN_CONFIG_OPTIONS.MANAGE_GAME_SPECIES}>
+            Manage Game Species
+          </option>
+          <option value={ADMIN_CONFIG_OPTIONS.MANAGE_SLAUGHTER_SPECIES}>
+            Manage Slaughterhouse Species
           </option>
         </Form.Control>
 

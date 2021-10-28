@@ -116,7 +116,7 @@ export default function SiteDetailsView({ site, licenceTypeId }) {
                 as="textarea"
                 rows={6}
                 name="legalDescriptionText"
-                readOnly
+                disabled
                 defaultValue={site.legalDescriptionText}
                 className="mb-1"
               />

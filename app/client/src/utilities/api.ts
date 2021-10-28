@@ -1,4 +1,5 @@
 import axios, { Method } from "axios";
+import keycloak from "../app/keycloak";
 
 export class ApiError extends Error {
   code: string;
@@ -20,17 +21,39 @@ export class ApiError extends Error {
   }
 }
 
+const DEFAULT_TIMEOUT = 10000;
+
 const axiosInstance = axios.create({
   baseURL: "/api/",
-  timeout: 10000,
+  timeout: DEFAULT_TIMEOUT,
 });
 
-async function request(method: Method, url: any, params: any, data: any) {
+axiosInstance.interceptors.request.use((config) => {
+  if (keycloak.isLoggedIn()) {
+    const cb = () => {
+      config.headers.Authorization = `Bearer ${keycloak.getToken()}`;
+      config.headers.CurrentUser = `${keycloak.getUsername()}`;
+      return Promise.resolve(config);
+    };
+    return keycloak.updateToken(cb);
+  }
+
+  return Promise.reject();
+});
+
+async function request(
+  method: Method,
+  url: any,
+  params: any,
+  data: any,
+  timeoutOverride?: number
+) {
   return axiosInstance({
     method,
     url,
     params,
     data,
+    timeout: timeoutOverride !== undefined ? timeoutOverride : DEFAULT_TIMEOUT,
   }).catch((err) => {
     if (
       err.response &&
@@ -49,20 +72,20 @@ async function request(method: Method, url: any, params: any, data: any) {
 }
 
 export default {
-  async get(url: string, params?: any) {
-    return request("get", url, params, null);
+  async get(url: string, params?: any, timeout?: number) {
+    return request("get", url, params, null, timeout);
   },
 
-  async post(url: any, data?: any) {
-    return request("post", url, null, data);
+  async post(url: any, data?: any, timeout?: number) {
+    return request("post", url, null, data, timeout);
   },
 
-  async put(url: any, data?: any) {
-    return request("put", url, null, data);
+  async put(url: any, data?: any, timeout?: number) {
+    return request("put", url, null, data, timeout);
   },
 
-  async delete(url: any, data?: any) {
-    return request("delete", url, null, data);
+  async delete(url: any, data?: any, timeout?: number) {
+    return request("delete", url, null, data, timeout);
   },
 
   getApiInstance() {

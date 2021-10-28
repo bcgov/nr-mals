@@ -17,12 +17,19 @@ import { selectCurrentLicence, updateLicenceInventory } from "./licencesSlice";
 import Species from "../lookups/Species";
 import SubSpecies from "../lookups/SubSpecies";
 
-import { REQUEST_STATUS, SPECIES_SUBCODES } from "../../utilities/constants";
+import {
+  REQUEST_STATUS,
+  SPECIES_SUBCODES,
+  SYSTEM_ROLES,
+} from "../../utilities/constants";
 import { formatDate } from "../../utilities/formatting.ts";
+
+import { selectCurrentUser } from "../../app/appSlice";
 
 export default function LicenceInventory({ licence }) {
   const dispatch = useDispatch();
   const currentLicence = useSelector(selectCurrentLicence);
+  const currentUser = useSelector(selectCurrentUser);
 
   const licenceSpecies = useSelector(selectLicenceSpecies);
 
@@ -78,10 +85,16 @@ export default function LicenceInventory({ licence }) {
               sp.codeName === SPECIES_SUBCODES.FEMALE &&
               sp.speciesCodeId === x.speciesCodeId
           )?.id;
+          const CALVES_ID = licenceSpecies.data.subSpecies.find(
+            (sp) =>
+              sp.codeName === SPECIES_SUBCODES.CALVES &&
+              sp.speciesCodeId === x.speciesCodeId
+          )?.id;
 
           if (
             x.speciesSubCodeId === MALE_ID ||
-            x.speciesSubCodeId === FEMALE_ID
+            x.speciesSubCodeId === FEMALE_ID ||
+            x.speciesSubCodeId === CALVES_ID
           ) {
             total += parsed;
           }
@@ -310,7 +323,12 @@ export default function LicenceInventory({ licence }) {
                 type="button"
                 variant="secondary"
                 onClick={addInventoryOnClick}
-                disabled={submitting || licence.data.speciesCodeId === null}
+                disabled={
+                  submitting ||
+                  licence.data.speciesCodeId === null ||
+                  currentUser.data.roleId === SYSTEM_ROLES.READ_ONLY ||
+                  currentUser.data.roleId === SYSTEM_ROLES.INSPECTOR
+                }
                 block
               >
                 Add Inventory
@@ -323,7 +341,11 @@ export default function LicenceInventory({ licence }) {
                 type="button"
                 variant="secondary"
                 onClick={resetInventoryOnClick}
-                disabled={submitting}
+                disabled={
+                  submitting ||
+                  currentUser.data.roleId === SYSTEM_ROLES.READ_ONLY ||
+                  currentUser.data.roleId === SYSTEM_ROLES.INSPECTOR
+                }
                 block
               >
                 Reset
@@ -334,7 +356,12 @@ export default function LicenceInventory({ licence }) {
                 size="md"
                 type="submit"
                 variant="primary"
-                disabled={submitting || inventory.length === 0}
+                disabled={
+                  submitting ||
+                  inventory.length === 0 ||
+                  currentUser.data.roleId === SYSTEM_ROLES.READ_ONLY ||
+                  currentUser.data.roleId === SYSTEM_ROLES.INSPECTOR
+                }
                 block
               >
                 {submissionLabel}

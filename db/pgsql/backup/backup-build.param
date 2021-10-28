@@ -1,0 +1,27 @@
+#=========================================================
+# OpenShift template parameters for:
+# Component: .
+# Template File: ../openshift/templates/backup/backup-build.yaml
+#=========================================================
+# The NAME parameter is applied to the ImageStream
+NAME                   =mals-backup
+#
+# Parameter Defaults
+#
+# The OUTPUT_IMAGE_TAG parameter is applied to the ImageStream Tag
+# OUTPUT_IMAGE_TAG       =latest
+# Replaced docker.io/centos/postgresql-12-centos7:20200917-804ef01
+# BASE_IMAGE_FOR_BUILD   =docker.io/centos/postgresql-13-centos7
+# SUFFIX                 =-primary
+# APP_NAME               =MALS
+# APP_GROUP              =primary-instance
+# GIT_REPO_URL           =https://github.com/BCDevOps/backup-container.git
+# GIT_REF                =2.3.2
+# SOURCE_CONTEXT_DIR     =/docker
+# SOURCE_IMAGE_KIND      =DockerImage
+# DOCKER_FILE_PATH       =Dockerfile
+#
+# Replaced with BASE_IMAGE_FOR_BUILD
+#    SOURCE_IMAGE_REGISTRY=image-registry.openshift-image-registry.svc:5000/
+#    SOURCE_IMAGE_NAME=centos/postgresql-12-centos7
+#    SOURCE_IMAGE_TAG=20200917-804ef01

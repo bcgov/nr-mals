@@ -5,9 +5,17 @@ const {
   populateAuditColumnsCreate,
   populateAuditColumnsUpdate,
 } = require("../utilities/auditing");
+const { formatDate } = require("../utilities/formatting");
+
+const Util = require("../utilities/util");
 
 const user = require("../models/user");
 const role = require("../models/role");
+const dairyTestResult = require("../models/dairyTestResult");
+const dairyTestThreshold = require("../models/dairyTestThreshold");
+
+const constants = require("../utilities/constants");
+const forEach = require("lodash/forEach");
 
 const prisma = new PrismaClient();
 const router = express.Router();
@@ -49,6 +57,15 @@ async function updateUser(id, payload) {
 
 async function deleteUser(id) {
   return prisma.mal_application_user.delete({
+    where: {
+      id: id,
+    },
+  });
+}
+
+async function updateDairyResultThreshold(id, payload) {
+  return prisma.mal_dairy_farm_test_threshold_lu.update({
+    data: payload,
     where: {
       id: id,
     },
@@ -147,6 +164,123 @@ router.put("/user/delete/:id(\\d+)", async (req, res, next) => {
       const users = await fetchUsers();
       const payload = users.map((x) => user.convertToLogicalModel(x));
       return res.send(payload);
+    })
+    .catch(next)
+    .finally(async () => prisma.$disconnect());
+});
+
+async function createDairyTestResults(payloads) {
+  for (let i = 0; i < payloads.length; i += 1) {
+    const result = await prisma.mal_dairy_farm_test_result.create({
+      data: payloads[i],
+    });
+  }
+}
+
+router.post("/dairytestresults", async (req, res, next) => {
+  const now = new Date();
+  const data = req.body;
+
+  let jobId = null;
+
+  try {
+    // Begin job and assign new job id
+    const queryJobResult = await prisma.$queryRaw(
+      "CALL mals_app.pr_start_dairy_farm_test_job('FILE', NULL)"
+    );
+
+    jobId = queryJobResult[0].iop_job_id;
+
+    const licenceFilterCriteria = {
+      irma_number: {
+        in: data.map((x) => x.irmaNumber),
+      },
+    };
+
+    // Assign licence associations
+    const licences = await prisma.mal_licence.findMany({
+      where: licenceFilterCriteria,
+    });
+
+    for (const row of data) {
+      row.testJobId = jobId;
+
+      const licence = licences.find((x) => x.irma_number === row.irmaNumber);
+      if (licence !== undefined) {
+        row.licenceId = licence.id;
+      }
+    }
+
+    const licenceMatch = data.filter((x) => x.licenceId !== undefined);
+    const licenceNoMatch = data.filter((x) => x.licenceId === undefined);
+
+    // Create payload and save
+    const createPayloads = licenceMatch.map((r) =>
+      dairyTestResult.convertToPhysicalModel(
+        populateAuditColumnsCreate(r, new Date()),
+        false
+      )
+    );
+
+    Util.Log(`Dairy Data Load: start row create`);
+    const result = await createDairyTestResults(createPayloads);
+    Util.Log(`Dairy Data Load: row create complete`);
+
+    Util.Log(`Dairy Data Load: CALL pr_update_dairy_farm_test_results`);
+    const updateJobQuery = `CALL mals_app.pr_update_dairy_farm_test_results(${jobId}, ${licenceMatch.length}, NULL, NULL)`;
+    const queryUpdateResult = await prisma.$queryRaw(updateJobQuery);
+    Util.Log(`Dairy Data Load: pr_update_dairy_farm_test_results complete`);
+
+    return res.status(200).send({
+      attemptCount: data.length,
+      successInsertCount: licenceMatch.length,
+      licenceNoIrmaMatch: licenceNoMatch,
+    });
+  } catch (error) {
+    Util.Error(`Dairy Data Load: ${error}`);
+    if (jobId !== null) {
+      // Delete any rows created in this job
+      const deleteResult = await prisma.$queryRaw(
+        `DELETE FROM mals_app.mal_dairy_farm_test_result WHERE test_job_id = ${jobId}`
+      );
+      Util.Log(
+        `Dairy Data Load: deleted job id ${jobId} rows in mal_dairy_farm_test_result`
+      );
+      // Mark job as failed and add comment
+      const updateResult = await prisma.$queryRaw(
+        `UPDATE mals_app.mal_dairy_farm_test_job SET job_status = 'FAILED', execution_comment = '${error.message}' WHERE id = ${jobId}`
+      );
+      Util.Log(
+        `Dairy Data Load: updated job id ${jobId} to FAILED in mal_dairy_farm_test_job`
+      );
+    }
+
+    return res.status(500).send({
+      code: 500,
+      description: `The data load has been cancelled. ${error.message}`,
+    });
+  } finally {
+    async () => prisma.$disconnect();
+  }
+});
+
+router.put("/dairyfarmtestthresholds/:id(\\d+)", async (req, res, next) => {
+  const now = new Date();
+
+  const id = parseInt(req.params.id, 10);
+
+  const updatePayload = dairyTestThreshold.convertToPhysicalModel(
+    populateAuditColumnsUpdate(req.body, now),
+    true
+  );
+
+  await updateDairyResultThreshold(id, updatePayload)
+    .then(async () => {
+      const fetchThresholds = await prisma.mal_dairy_farm_test_threshold_lu.findMany();
+      const payload = fetchThresholds.map((x) =>
+        dairyTestThreshold.convertToLogicalModel(x)
+      );
+      return res.send(collection.sortBy(payload, (r) => r.id));
     })
     .catch(next)
     .finally(async () => prisma.$disconnect());

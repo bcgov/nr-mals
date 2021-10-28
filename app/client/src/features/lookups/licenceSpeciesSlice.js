@@ -27,6 +27,36 @@ export const fetchLicenceSpecies = createAsyncThunk(
   }
 );
 
+export const createLicenceSpecies = createAsyncThunk(
+  "gameFarm/createLicenceSpecies",
+  async (payload, thunkApi) => {
+    try {
+      const response = await Api.post(`licence-species/species`, payload);
+      return response.data;
+    } catch (error) {
+      if (error instanceof ApiError) {
+        return thunkApi.rejectWithValue(error.serialize());
+      }
+      return thunkApi.rejectWithValue({ code: -1, description: error.message });
+    }
+  }
+);
+
+export const updateLicenceSpecies = createAsyncThunk(
+  "gameFarm/updateLicenceSpecies",
+  async ({ payload, id }, thunkApi) => {
+    try {
+      const response = await Api.put(`licence-species/species/${id}`, payload);
+      return response.data;
+    } catch (error) {
+      if (error instanceof ApiError) {
+        return thunkApi.rejectWithValue(error.serialize());
+      }
+      return thunkApi.rejectWithValue({ code: -1, description: error.message });
+    }
+  }
+);
+
 export const licenceSpeciesSlice = createSlice({
   name: "licenceSpecies",
   initialState: {
@@ -45,6 +75,34 @@ export const licenceSpeciesSlice = createSlice({
       state.status = REQUEST_STATUS.FULFILLED;
     },
     [fetchLicenceSpecies.rejected]: (state, action) => {
+      state.data = undefined;
+      state.error = action.payload;
+      state.status = REQUEST_STATUS.REJECTED;
+    },
+    [createLicenceSpecies.pending]: (state) => {
+      state.error = undefined;
+      state.status = REQUEST_STATUS.PENDING;
+    },
+    [createLicenceSpecies.fulfilled]: (state, action) => {
+      state.data = action.payload;
+      state.error = undefined;
+      state.status = REQUEST_STATUS.FULFILLED;
+    },
+    [createLicenceSpecies.rejected]: (state, action) => {
+      state.data = undefined;
+      state.error = action.payload;
+      state.status = REQUEST_STATUS.REJECTED;
+    },
+    [updateLicenceSpecies.pending]: (state) => {
+      state.error = undefined;
+      state.status = REQUEST_STATUS.PENDING;
+    },
+    [updateLicenceSpecies.fulfilled]: (state, action) => {
+      state.data = action.payload;
+      state.error = undefined;
+      state.status = REQUEST_STATUS.FULFILLED;
+    },
+    [updateLicenceSpecies.rejected]: (state, action) => {
       state.data = undefined;
       state.error = action.payload;
       state.status = REQUEST_STATUS.REJECTED;

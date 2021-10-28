@@ -26,7 +26,11 @@
       sizes="16x16"
       type="image/png"
     />
-    <link rel="mask-icon" href="%PUBLIC_URL%/images/bcid-apple-icon.svg" color="#036" />
+    <link
+      rel="mask-icon"
+      href="%PUBLIC_URL%/images/bcid-apple-icon.svg"
+      color="#036"
+    />
     <link rel="icon" href="%PUBLIC_URL%/images/bcid-favicon-32x32.png" />
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
     <meta name="theme-color" content="#036" />
@@ -35,7 +39,7 @@
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
-    
+
     <footer class="footer">
       <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container">
@@ -45,6 +49,7 @@
                 class="nav-link"
                 href="https://www2.gov.bc.ca/gov/content?id=79F93E018712422FBC8E674A67A70535"
                 target="_blank"
+                rel="noopener noreferrer"
               >
                 Disclaimer
               </a>
@@ -54,6 +59,7 @@
                 class="nav-link"
                 href="https://www2.gov.bc.ca/gov/content?id=9E890E16955E4FF4BF3B0E07B4722932"
                 target="_blank"
+                rel="noopener noreferrer"
               >
                 Privacy
               </a>
@@ -63,6 +69,7 @@
                 class="nav-link"
                 href="https://www2.gov.bc.ca/gov/content?id=E08E79740F9C41B9B0C484685CC5E412"
                 target="_blank"
+                rel="noopener noreferrer"
               >
                 Accessibility
               </a>
@@ -72,6 +79,7 @@
                 class="nav-link"
                 href="https://www2.gov.bc.ca/gov/content?id=1AAACC9C65754E4D89A118B875E0FBDA"
                 target="_blank"
+                rel="noopener noreferrer"
               >
                 Copyright
               </a>
@@ -81,11 +89,17 @@
                 class="nav-link"
                 href="https://www2.gov.bc.ca/gov/content?id=6A77C17D0CCB48F897F8598CCC019111"
                 target="_blank"
+                rel="noopener noreferrer"
               >
                 Contact Us
               </a>
             </li>
           </ul>
+          <span class="pull-right">
+            <span style="color: rgba(255, 255, 255, 0.75);">
+              Version: %REACT_APP_VERSION%
+            </span>
+          </span>
         </div>
       </nav>
     </footer>

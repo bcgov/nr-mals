@@ -86,13 +86,56 @@ oc project 30245e-test
 oc process -f ../app/openshift/templates/mals-app-deploy-environment.json --param-file=../app/openshift/mals-app-deploy-environment.uat.param | oc apply -f -
 ```
 
-### Wire Up Your Jenkins Pipelines
+### Set up Github Actions pipelines
 
-When `genBuilds.sh` provisions the Jenkins pipelines, webhook URLs and secrets will be automatically generated for them. They can be accessed on the pipeline's Configuration tab in OpenShift. To trigger automated deployments upon pushing to the GitHub repo, open the repo's Settings page, navigate to the Webhooks section, and click **Add webhook**.
-
-1. Copy and paste the pipeline's GitHub Webhook URL as the Payload URL (it comes complete with the secret)
-2. Set the content type to **application/json**
-3. Leave the secret empty
-4. Select **Just the push event**
-5. Check **Active**
-6. Click **Add webhook**
+1. Create a github-builder service account within OpenShift.
+2. Provide the github-builder the image-builder role.
+```
+oc adm policy add-role-to-user system:image-builder system:serviceaccount:30245e-tools:github-builder -n 30245e-tools
+oc policy add-role-to-user system:image-puller system:serviceaccount:30245e-dev:default -n 30245e-tools
+oc policy add-role-to-user system:image-puller system:serviceaccount:30245e-test:default -n 30245e-tools
+oc policy add-role-to-user system:image-puller system:serviceaccount:30245e-prod:default -n 30245e-tools
+```
+3. Create a new secret in OpenShift to be provided to GitHub as an API access token.
+4. Add the secret to GitHub (https://github.com/bcgov/nr-mals/settings/secrets/actions) as OPENSHIFTTOKEN.
+5. Additionally, a secret for the URL of the OpenShift cluster must be created, named as OPENSHIFTSERVERURL.
+6. Create build.yml within nr-mals\.github\workflows. A standard automated deployment script for deploying to DEV is as follows
+```
+name: Test & Deploy
+on:
+  push:
+    paths:
+      - "app/**/*"
+defaults:
+  run:
+    working-directory: ./app
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - uses: actions/setup-node@master
+        with:
+          node-version: "12"
+      - name: Install dependencies
+        run: npm ci
+      # - name: LINTing
+        # run: npm run lint
+      - name: Prettier
+        run: npm run format:check
+  s2i-build-dev:
+    if: github.event_name == 'push' && github.repository == 'bcgov/nr-mals' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    needs: [test]
+    steps:
+      - name: S2I Build
+        uses: redhat-developer/openshift-actions@v1.1
+        with:
+          version: "latest"
+          openshift_server_url: ${{ secrets.OpenShiftServerURL}}
+          parameters: '{"apitoken": "${{ secrets.OpenShiftToken }}", "acceptUntrustedCerts": "true"}'
+          cmd: |
+            'version'
+            'start-build mals-app-dev --follow -n 30245e-tools'
+```
+7. GitHub will automatically recognize actions within nr-mals\.github\workflows and they will be viewable/runnable at https://github.com/bcgov/nr-mals/actions

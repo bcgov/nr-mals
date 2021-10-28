@@ -16,6 +16,7 @@ import {
   REQUEST_STATUS,
   CREATE_LICENSES_PATHNAME,
   LICENSES_PATHNAME,
+  SYSTEM_ROLES,
 } from "../../utilities/constants";
 
 import {
@@ -23,6 +24,7 @@ import {
   formatListShorten,
 } from "../../utilities/formatting.ts";
 
+import RenderOnRole from "../../components/RenderOnRole";
 import LinkButton from "../../components/LinkButton";
 import PageHeading from "../../components/PageHeading";
 
@@ -109,9 +111,11 @@ export default function LicenceResultsPage() {
             search term.
           </div>
         </Alert>
-        <Row className="mt-3">
-          <Col md="3">{createLicenceButton}</Col>
-        </Row>
+        <RenderOnRole roles={[SYSTEM_ROLES.USER, SYSTEM_ROLES.SYSTEM_ADMIN]}>
+          <Row className="mt-3">
+            <Col md="3">{createLicenceButton}</Col>
+          </Row>
+        </RenderOnRole>
       </>
     );
   } else if (results.status === REQUEST_STATUS.FULFILLED && results.count > 0) {
@@ -134,7 +138,9 @@ export default function LicenceResultsPage() {
           <tbody>{results.data.map((result) => formatResultRow(result))}</tbody>
         </Table>
         <Row className="mt-3">
-          <Col md="3">{createLicenceButton}</Col>
+          <RenderOnRole roles={[SYSTEM_ROLES.USER, SYSTEM_ROLES.SYSTEM_ADMIN]}>
+            <Col md="3">{createLicenceButton}</Col>
+          </RenderOnRole>
           <Col className="d-flex justify-content-center">
             Showing {results.data.length} of {results.count} entries
           </Col>

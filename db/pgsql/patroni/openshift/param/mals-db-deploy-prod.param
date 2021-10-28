@@ -3,10 +3,11 @@
 # Component: .
 # YAML Template File: other-templates/Patroni/deployment.yaml
 #=========================================================
-SUFFIX="-prod"
+#
+NAME                    =patroni
 #
 # Parameter Defaults
-# NAME                    value: patroni
+# 
 # REPLICAS=3              value: '3'
 # CPU REQUEST             value: '250m'
 # CPU_LIMIT               value: '1'
@@ -17,3 +18,7 @@ SUFFIX="-prod"
 # PVC_SIZE                value: 1Gi
 # STORAGE_CLASS           value: netapp-block-standard
 # IMAGE_REGISTRY          value: docker-registry.default.svc:5000
+#
+#  Parameters Removed from yaml template
+#
+# SUFFIX="-prod"

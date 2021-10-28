@@ -29,3 +29,7 @@ export const parseAsDate = (string) => {
     return null;
   }
 };
+
+export const isNullOrEmpty = (obj) => {
+  return obj === null || obj === undefined || obj.length === 0;
+};

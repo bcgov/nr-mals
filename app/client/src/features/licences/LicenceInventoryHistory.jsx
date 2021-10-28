@@ -61,21 +61,22 @@ export default function LicenceInventoryHistory({ licence }) {
   function formatResultRow(result, showDelete = true) {
     const speciesData = getSpeciesData();
 
+    const rowSpecies = speciesData.data.species.find(
+      (sp) => sp.id == result.speciesCodeId
+    );
+
+    const rowSubSpecies = speciesData.data.subSpecies.find(
+      (sp) => sp.id == result.speciesSubCodeId
+    );
+
     return (
       <tr key={result.id}>
         <td className="text-nowrap">
-          {
-            speciesData.data.species.find((sp) => sp.id == result.speciesCodeId)
-              .codeDescription
-          }
+          {rowSpecies !== undefined ? rowSpecies.codeDescription : null}
         </td>
         <td className="text-nowrap">{formatDateString(result.date)}</td>
         <td className="text-nowrap">
-          {
-            speciesData.data.subSpecies.find(
-              (sp) => sp.id == result.speciesSubCodeId
-            ).codeName
-          }
+          {rowSubSpecies !== undefined ? rowSubSpecies.codeName : null}
         </td>
         <td className="text-nowrap">{result.value}</td>
         {showDelete === true ? (
@@ -201,10 +202,16 @@ export default function LicenceInventoryHistory({ licence }) {
               sp.codeName === SPECIES_SUBCODES.FEMALE &&
               sp.speciesCodeId == x.speciesCodeId
           )?.id;
+          const CALVES_ID = getSpeciesData().data.subSpecies.find(
+            (sp) =>
+              sp.codeName === SPECIES_SUBCODES.CALVES &&
+              sp.speciesCodeId === x.speciesCodeId
+          )?.id;
 
           if (
             x.speciesSubCodeId === MALE_ID ||
-            x.speciesSubCodeId === FEMALE_ID
+            x.speciesSubCodeId === FEMALE_ID ||
+            x.speciesSubCodeId === CALVES_ID
           ) {
             let { value } = x;
             const parsed = parseInt(value);
@@ -252,7 +259,7 @@ export default function LicenceInventoryHistory({ licence }) {
     control = (
       <>
         <Row className="mt-3">
-          <Col lg={6}>
+          <Col sm={12}>
             <Alert variant="success" className="mt-3">
               <div>There is no inventory associated with this licence.</div>
             </Alert>

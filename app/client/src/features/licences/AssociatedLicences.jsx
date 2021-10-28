@@ -221,8 +221,14 @@ export default function AssociatedLicences({ licence }) {
           <Link to={url}>{result.licenceNumber}</Link>
         </td>
         <td className="text-nowrap">{result.licenceType}</td>
-        <td className="text-nowrap">{formatDateString(result.issuedOnDate)}</td>
-        <td className="text-nowrap">{result.registrants[0].label}</td>
+        <td className="text-nowrap">
+          {formatDateString(result.associatedOnDate)}
+        </td>
+        <td className="text-nowrap">
+          {result.companyName !== undefined
+            ? result.companyName
+            : result.registrants[0].label}
+        </td>
         <td>
           <Button
             variant="link"
@@ -244,7 +250,7 @@ export default function AssociatedLicences({ licence }) {
       disabled={submitting}
       block
     >
-      Associated a new Licence
+      Associate a new Licence
     </Button>
   );
 
@@ -296,8 +302,8 @@ export default function AssociatedLicences({ licence }) {
             <tr>
               <th className="text-nowrap">Licence</th>
               <th className="text-nowrap">Licence Type</th>
-              <th className="text-nowrap">Issued On</th>
-              <th className="text-nowrap">Registrant</th>
+              <th className="text-nowrap">Associated On</th>
+              <th className="text-nowrap">Company/Registrant</th>
               <th />
             </tr>
           </thead>

@@ -1,5 +1,6 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
+import Api, { ApiError } from "../utilities/api.ts";
 import { REQUEST_STATUS } from "../utilities/constants";
 
 const SHOW = "app/SHOW_MODAL";
@@ -14,6 +15,21 @@ export const openModal = (modalType, callback, data, modalSize = null) => ({
 });
 export const closeModal = () => ({ type: HIDE });
 
+export const fetchCurrentUser = createAsyncThunk(
+  "app/fetchCurrentUser",
+  async ({ data }, thunkApi) => {
+    try {
+      const response = await Api.post(`user/currentUser`, data);
+      return response.data;
+    } catch (error) {
+      if (error instanceof ApiError) {
+        return thunkApi.rejectWithValue(error.serialize());
+      }
+      return thunkApi.rejectWithValue({ code: -1, description: error.message });
+    }
+  }
+);
+
 export const appSlice = createSlice({
   name: "app",
   initialState: {
@@ -24,6 +40,11 @@ export const appSlice = createSlice({
       size: null,
       modalType: null,
       callback: null,
+      status: REQUEST_STATUS.IDLE,
+    },
+    currentUser: {
+      data: undefined,
+      error: undefined,
       status: REQUEST_STATUS.IDLE,
     },
   },
@@ -43,10 +64,27 @@ export const appSlice = createSlice({
       state.modal.callback = null;
     },
   },
-  extraReducers: {},
+  extraReducers: {
+    [fetchCurrentUser.pending]: (state) => {
+      state.currentUser.error = undefined;
+      state.currentUser.status = REQUEST_STATUS.PENDING;
+    },
+    [fetchCurrentUser.fulfilled]: (state, action) => {
+      state.currentUser.data = action.payload;
+      state.currentUser.error = undefined;
+      state.currentUser.status = REQUEST_STATUS.FULFILLED;
+    },
+    [fetchCurrentUser.rejected]: (state, action) => {
+      state.currentUser.data = undefined;
+      state.currentUser.error = action.payload;
+      state.currentUser.status = REQUEST_STATUS.REJECTED;
+    },
+  },
 });
 
 export const selectModal = (state) => state.app.modal;
+
+export const selectCurrentUser = (state) => state.app.currentUser;
 
 const { actions, reducer } = appSlice;
 

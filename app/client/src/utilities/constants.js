@@ -16,18 +16,26 @@ export const INSPECTIONS_PATHNAME = "/inspections";
 export const SEARCH_INSPECTIONS_PATHNAME = "/inspections/search";
 export const CREATE_INSPECTIONS_PATHNAME = "/inspections/create";
 export const DOCUMENT_GENERATION_PATHNAME = "/documents";
-export const NOTICES_PATHNAME = "/documents/notices";
 export const REPORTS_PATHNAME = "/documents/reports";
 export const SELECT_CERTIFICATES_PATHNAME = "/documents/certificates";
 export const DOWNLOAD_CERTIFICATES_PATHNAME =
   "/documents/certificates/download";
+export const SELECT_RENEWALS_PATHNAME = "/documents/renewals";
+export const SELECT_RENEWALS_APIARY_PATHNAME = "/documents/renewals/apiary";
+export const DOWNLOAD_RENEWALS_PATHNAME = "/documents/renewals/download";
+export const SELECT_DAIRYNOTICES_PATHNAME = "/documents/dairynotices";
+export const DOWNLOAD_DAIRYNOTICES_PATHNAME =
+  "/documents/dairynotices/download";
+export const SELECT_DAIRYTANKNOTICES_PATHNAME = "/documents/dairytanknotices";
+export const DOWNLOAD_DAIRYTANKNOTICES_PATHNAME =
+  "/documents/dairytanknotices/download";
+
 export const ADMIN_PATHNAME = "/admin";
 export const ADMIN_CONFIG_PATHNAME = "/admin/config";
-export const USERS_AND_ROLES_ADMIN_PATHNAME = "/admin/users-and-roles";
+export const ADMIN_DAIRY_TEST_RESULTS_PATHNAME = "/admin/dairytestresults";
 export const LICENSE_TYPES_ADMIN_PATHNAME = "/admin/license-types";
 export const SITES_ADMIN_PATHNAME = "/admin/sites";
 export const INSPECTIONS_ADMIN_PATHNAME = "/admin/inspections";
-export const DAIRY_TEST_RESULTS_ADMIN_PATHNAME = "/admin/dairy-test-results";
 
 export const REQUEST_STATUS = {
   IDLE: "idle",
@@ -113,6 +121,28 @@ export const SPECIES_SUBCODES = {
 
 export const ADMIN_CONFIG_OPTIONS = {
   MANAGE_USERS: "ManageUsers",
+  MANAGE_DAIRY_THRESHOLDS: "ManageDairyThresholds",
+  MANAGE_LICENCE_TYPES: "ManageLicenceTypes",
+  MANAGE_FUR_SPECIES: "ManageFurSpecies",
+  MANAGE_GAME_SPECIES: "ManageGameSpecies",
+  MANAGE_SLAUGHTER_SPECIES: "ManageSlaughterSpecies",
+};
+
+// Report types
+// Value must match mal_print_job_output.document_type
+export const REPORTS = {
+  ACTION_REQUIRED: "ACTION_REQUIRED",
+  APIARY_INSPECTION: "APIARY_INSPECTION",
+  APIARY_PRODUCER_REGION: "APIARY_PRODUCER_REGION",
+  APIARY_PRODUCER_CITY: "APIARY_PRODUCER_CITY",
+  APIARY_SITE: "APIARY_SITE",
+  CLIENT_DETAILS: "VETERINARY_DRUG_DETAILS",
+  DAIRY_FARM_DETAIL: "DAIRY_FARM_DETAIL",
+  DAIRY_FARM_QUALITY: "DAIRY_FARM_QUALITY",
+  DAIRY_FARM_TANK: "DAIRY_FARM_TANK",
+  DAIRY_TEST_THRESHOLD: "DAIRY_TEST_THRESHOLD",
+  LICENCE_LOCATION: "LICENCE_LOCATION",
+  LICENCE_EXPIRY: "LICENCE_EXPIRY",
 };
 
 export const SYSTEM_ROLES = {
@@ -120,4 +150,12 @@ export const SYSTEM_ROLES = {
   INSPECTOR: 2,
   USER: 3,
   READ_ONLY: 4,
+};
+
+export const DAIRY_TEST_THRESHOLD_IDS = {
+  WATER: 1, // CRY
+  IH: 2,
+  SCC: 3,
+  IBC: 4, // SPC1
+  FFA: 5,
 };
