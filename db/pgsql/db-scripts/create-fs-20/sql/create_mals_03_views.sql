@@ -916,6 +916,7 @@ CREATE OR REPLACE VIEW mal_print_certificate_vw as
 		-- Dairy Farms have only one site.
 		select ast.licence_id, 	
 	         json_agg(json_build_object('DairyTankCompany',          t.company_name,
+	                                    'DairyTankModel',            t.model_number,
 	                                    'DairyTankSN',               t.serial_number,
 	                                    'DairyTankCapacity',         t.tank_capacity,
 	                                    'DairyTankCalibrationDate',  to_char(t.calibration_date, 'yyyy/mm/dd'))
