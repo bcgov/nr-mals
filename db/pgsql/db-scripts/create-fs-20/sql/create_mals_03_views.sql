@@ -1703,7 +1703,7 @@ CREATE OR REPLACE VIEW mal_print_dairy_farm_tank_recheck_vw as
 				 json_build_object('LicenceStart',          base.standard_issue_date_display,
 			                       'LicenceExpiry',         base.standard_expiry_date_display,
 			                       'LicenceHolderCompany',  base.derived_licence_holder_name,
-			                       'ClientPhoneNumber',     base.registrant_last_name,
+			                       'ClientPhoneNumber',     base.registrant_primary_phone_display,
 			                       'MailingAddress',        base.derived_address,
 			                       'MailingCity',           base.derived_city,
 			                       'MailingProv',           base.derived_province,
