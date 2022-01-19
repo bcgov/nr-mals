@@ -64,13 +64,6 @@ export default function SelectDairyNoticesPage() {
 
   useEffect(() => {
     dispatch(clearDairyNoticeJob());
-    dispatch(
-      fetchQueuedDairyNotices({
-        startDate: watchStartDate,
-        endDate: watchEndDate,
-      })
-    );
-
     setValue("startDate", startDate);
     setValue("endDate", endDate);
     setValue("licences", licences);
