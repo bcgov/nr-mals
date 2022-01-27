@@ -10,7 +10,11 @@ export const fetchQueuedDairyNotices = createAsyncThunk(
   "dairyNotices/fetchQueued",
   async (payload, thunkApi) => {
     try {
-      const response = await Api.post("documents/dairyNotices/queued", payload);
+      const response = await Api.post(
+        "documents/dairyNotices/queued",
+        payload,
+        30000
+      );
       return response.data;
     } catch (error) {
       if (error instanceof ApiError) {
