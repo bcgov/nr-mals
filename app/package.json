@@ -1,6 +1,6 @@
 {
   "name": "mals",
-  "version": "5.0.0",
+  "version": "5.0.1",
   "private": true,
   "scripts": {
     "postinstall": "cd client && npm install && cd ../ && npm run build-client",
