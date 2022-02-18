@@ -128,6 +128,9 @@ function HeaderNavigation() {
                   >
                     Dairy Test Results
                   </DropdownNavLink>
+                  <DropdownNavLink to={Constant.ADMIN_PREMISES_ID_PATHNAME}>
+                    Premises ID
+                  </DropdownNavLink>
                 </HeaderDropdown>
               </RenderOnRole>
             </Nav>

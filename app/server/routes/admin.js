@@ -286,4 +286,29 @@ router.put("/dairyfarmtestthresholds/:id(\\d+)", async (req, res, next) => {
     .finally(async () => prisma.$disconnect());
 });
 
+router.post("/premisesidresults", async (req, res, next) => {
+  const now = new Date();
+  const data = req.body;
+  console.log(data);
+  let jobId = null;
+
+  try {
+    return res.status(200).send({
+      attemptCount: data.length,
+      successInsertCount: data.length,
+    });
+  } catch (error) {
+    Util.Error(`Dairy Data Load: ${error}`);
+    if (jobId !== null) {
+    }
+
+    return res.status(500).send({
+      code: 500,
+      description: `The data load has been cancelled. ${error.message}`,
+    });
+  } finally {
+    async () => prisma.$disconnect();
+  }
+});
+
 module.exports = router;
