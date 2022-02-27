@@ -13,6 +13,7 @@ const user = require("../models/user");
 const role = require("../models/role");
 const dairyTestResult = require("../models/dairyTestResult");
 const dairyTestThreshold = require("../models/dairyTestThreshold");
+const premisesDetail = require("../models/premisesDetail");
 
 const constants = require("../utilities/constants");
 const forEach = require("lodash/forEach");
@@ -68,6 +69,14 @@ async function updateDairyResultThreshold(id, payload) {
     data: payload,
     where: {
       id: id,
+    },
+  });
+}
+
+async function fetchPremisesJobById(jobId) {
+  return prisma.mal_premises_job.findFirst({
+    where: {
+      id: jobId,
     },
   });
 }
@@ -172,6 +181,14 @@ router.put("/user/delete/:id(\\d+)", async (req, res, next) => {
 async function createDairyTestResults(payloads) {
   for (let i = 0; i < payloads.length; i += 1) {
     const result = await prisma.mal_dairy_farm_test_result.create({
+      data: payloads[i],
+    });
+  }
+}
+
+async function createPremisesIdResults(payloads) {
+  for (let i = 0; i < payloads.length; i += 1) {
+    const result = await prisma.mal_premises_detail.create({
       data: payloads[i],
     });
   }
@@ -293,13 +310,60 @@ router.post("/premisesidresults", async (req, res, next) => {
   let jobId = null;
 
   try {
+    // Begin job and assign new job id
+    const queryJobResult = await prisma.$queryRaw(
+      "CALL mals_app.pr_start_premises_job(NULL)"
+    );
+
+    jobId = queryJobResult[0].iop_premises_job_id;
+
+    // Create payload and save
+    const createPayloads = data.map((r) =>
+      premisesDetail.convertToPhysicalModel(
+        populateAuditColumnsCreate(
+          { ...r, premises_job_id: jobId },
+          new Date()
+        ),
+        false
+      )
+    );
+
+    Util.Log(`Premises Data Load: start row create`);
+    const result = await createPremisesIdResults(createPayloads);
+    Util.Log(`Premises Data Load: row create complete`);
+
+    Util.Log(`Premises Data Load: CALL pr_process_premises_import`);
+    const updateJobQuery = `CALL mals_app.pr_process_premises_import(${jobId}, NULL, NULL)`;
+    const queryUpdateResult = await prisma.$queryRaw(updateJobQuery);
+    Util.Log(`Premises Data Load: pr_process_premises_import complete`);
+
+    const premisesJob = await fetchPremisesJobById(jobId);
+
     return res.status(200).send({
-      attemptCount: data.length,
-      successInsertCount: data.length,
+      status: queryUpdateResult[0].iop_job_status,
+      comment: queryUpdateResult[0].iop_process_comments,
+      attemptCount: premisesJob.source_row_count,
+      insertCount: premisesJob.target_insert_count,
+      updateCount: premisesJob.target_update_count,
+      doNotInsertCount: premisesJob.source_do_not_import_count,
     });
   } catch (error) {
-    Util.Error(`Dairy Data Load: ${error}`);
+    Util.Error(`Premises Data Load: ${error}`);
     if (jobId !== null) {
+      // Delete any rows created in this job
+      const deleteResult = await prisma.$queryRaw(
+        `DELETE FROM mals_app.mal_premises_detail WHERE premises_job_id = ${jobId}`
+      );
+      Util.Log(
+        `Premises Data Load: deleted job id ${jobId} rows in mal_premises_detail`
+      );
+      // Mark job as failed and add comment
+      const updateResult = await prisma.$queryRaw(
+        `UPDATE mals_app.mal_premises_job SET job_status = 'FAILED', execution_comment = '${error.message}' WHERE id = ${jobId}`
+      );
+      Util.Log(
+        `Premises Data Load: updated job id ${jobId} to FAILED in mal_premises_job`
+      );
     }
 
     return res.status(500).send({

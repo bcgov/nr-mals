@@ -10,6 +10,7 @@ const dairyTank = require("../models/dairyTank");
 const inspection = require("../models/inspection");
 const comments = require("./comments");
 const constants = require("../utilities/constants");
+const { max } = require("lodash");
 
 const router = express.Router();
 const prisma = new PrismaClient();

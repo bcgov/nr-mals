@@ -5,7 +5,11 @@ import { Container, Spinner, Table, Form, Button } from "react-bootstrap";
 import PageHeading from "../../components/PageHeading";
 import ErrorMessageRow from "../../components/ErrorMessageRow";
 
-import { parseAsInt, parseAsFloat } from "../../utilities/parsing";
+import {
+  parseAsInt,
+  parseAsDate,
+  isNullOrEmpty,
+} from "../../utilities/parsing";
 import { REQUEST_STATUS } from "../../utilities/constants";
 import {
   updatePremisesIdResults,
@@ -38,17 +42,17 @@ export default function AdminPremisesId() {
   };
 
   const IMPORT_TYPE = {
-    NEW_LICENCE: 0,
-    NEW_SITE: 1,
-    UPDATE: 2,
-    DO_NOT_IMPORT: 3,
+    NEW_LICENCE: "NEW_LICENCE",
+    NEW_SITE: "NEW_SITE",
+    UPDATE: "UPDATE",
+    DO_NOT_IMPORT: "DO_NOT_IMPORT",
   };
 
   const dispatch = useDispatch();
   const premisesIdResults = useSelector(selectPremisesIdResults);
 
-  const [toggleAllChecked, setToggleAllChecked] = useState(true);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [validationMessage, setValidationMessage] = useState(null);
 
   const inputFile = useRef(null);
   const [data, setData] = useState([]);
@@ -93,6 +97,14 @@ export default function AdminPremisesId() {
     return value.replace(/[\\"]/g, "");
   };
 
+  const validateIntValue = (value) => {
+    return parseAsInt(validateStringValue(value));
+  };
+
+  const validateDateValue = (value) => {
+    return parseAsDate(validateStringValue(value));
+  };
+
   const onChangeFile = (event) => {
     const file = event.target.files[0];
     if (file === undefined) {
@@ -112,54 +124,82 @@ export default function AdminPremisesId() {
       // Toss out the header line
       lines.shift();
 
+      let id = 0;
+
       while (typeof lines[0] !== "undefined") {
         const line = lines.shift();
         const split = line.split(",");
 
         const obj = {
-          operationPk: undefined,
-          lastChangeDate: undefined,
-          contactFirstName: validateStringValue(
+          id,
+          sourceOperationPk: validateIntValue(
+            split[PREMISES_HEADER_IDS.OPERATION_PK]
+          ),
+          sourceLastChangeDate: validateDateValue(
+            split[PREMISES_HEADER_IDS.LAST_CHANGE_DATE]
+          ),
+          registrantFirstName: validateStringValue(
             split[PREMISES_HEADER_IDS.CONTACT_FIRST_NAME]
           ),
-          contactLastName: validateStringValue(
+          registrantLastName: validateStringValue(
             split[PREMISES_HEADER_IDS.CONTACT_LAST_NAME]
           ),
-          legalName: validateStringValue(split[PREMISES_HEADER_IDS.LEGAL_NAME]),
-          addressLine1: validateStringValue(
+          licenceCompanyName: validateStringValue(
+            split[PREMISES_HEADER_IDS.LEGAL_NAME]
+          ),
+          licenceMailAddress1: validateStringValue(
             split[PREMISES_HEADER_IDS.ADDRESS_LINE_1]
           ),
-          addressLine2: validateStringValue(
+          licenceMailAddress2: validateStringValue(
             split[PREMISES_HEADER_IDS.ADDRESS_LINE_2]
           ),
-          city: validateStringValue(split[PREMISES_HEADER_IDS.CITY]),
-          provState: validateStringValue(split[PREMISES_HEADER_IDS.PROV_STATE]),
-          postalZipCode: validateStringValue(
+          licenceMailCity: validateStringValue(split[PREMISES_HEADER_IDS.CITY]),
+          licenceMailProvince: validateStringValue(
+            split[PREMISES_HEADER_IDS.PROV_STATE]
+          ),
+          licenceMailPostalCode: validateStringValue(
             split[PREMISES_HEADER_IDS.POSTAL_ZIP_CODE]
           ),
-          phone: validateStringValue(split[PREMISES_HEADER_IDS.PHONE]),
-          cell: validateStringValue(split[PREMISES_HEADER_IDS.CELL]),
-          fax: validateStringValue(split[PREMISES_HEADER_IDS.FAX]),
-          email: validateStringValue(split[PREMISES_HEADER_IDS.EMAIL_ADDRESS]),
+          registrantPrimaryPhone: validateStringValue(
+            split[PREMISES_HEADER_IDS.PHONE]
+          ),
+          registrantSecondaryPhone: validateStringValue(
+            split[PREMISES_HEADER_IDS.CELL]
+          ),
+          registrantFaxNumber: validateStringValue(
+            split[PREMISES_HEADER_IDS.FAX]
+          ),
+          registrantEmail: validateStringValue(
+            split[PREMISES_HEADER_IDS.EMAIL_ADDRESS]
+          ),
           licenceNumber: validateStringValue(
             split[PREMISES_HEADER_IDS.LICENCE_NUMBER]
           ),
-          prn: validateStringValue(split[PREMISES_HEADER_IDS.PRN]),
-          siteAddress: validateStringValue(
+          sitePremisesNumber: validateStringValue(
+            split[PREMISES_HEADER_IDS.PRN]
+          ),
+          siteAddressLine1: validateStringValue(
             split[PREMISES_HEADER_IDS.SITE_ADDRESS]
           ),
-          capacity: parseAsInt(split[PREMISES_HEADER_IDS.CAPACITY]),
-          region: validateStringValue(split[PREMISES_HEADER_IDS.REGION_NAME]),
-          district: validateStringValue(
+          licenceHivesPerApiary: validateIntValue(
+            split[PREMISES_HEADER_IDS.CAPACITY]
+          ),
+          siteRegionalName: validateStringValue(
+            split[PREMISES_HEADER_IDS.REGION_NAME]
+          ),
+          siteRegionalDistrictName: validateStringValue(
             split[PREMISES_HEADER_IDS.REGIONAL_DISTRICT_NAME]
           ),
-          importType: IMPORT_TYPE.NEW_LICENCE,
+          siteId: null,
+          apiarySiteId: null,
+          importAction: IMPORT_TYPE.NEW_LICENCE,
         };
 
-        // Parse some values out
-        if (obj.prn !== undefined) {
+        // Don't add invalid objects
+        if (obj.sitePremisesNumber !== undefined) {
           readData.push(obj);
         }
+        id += 1;
       }
 
       setData(readData);
@@ -175,22 +215,65 @@ export default function AdminPremisesId() {
     inputFile.current.click();
   };
 
+  function validateData() {
+    let isValid = true;
+    data.forEach((x) => {
+      if (isNullOrEmpty(x.registrantFirstName)) {
+        setValidationMessage(
+          "Registrant First Name cannot be empty. Please update your import file and try again."
+        );
+        isValid = false;
+      }
+
+      if (isNullOrEmpty(x.registrantLastName)) {
+        setValidationMessage(
+          "Registrant Last Name cannot be empty. Please update your import file and try again."
+        );
+        isValid = false;
+      }
+
+      if (
+        isNullOrEmpty(x.licenceNumber) &&
+        x.importAction === IMPORT_TYPE.NEW_SITE
+      ) {
+        setValidationMessage(
+          "Licence Number is required when submitting a NEW SITE"
+        );
+        isValid = false;
+      }
+
+      if (
+        isNullOrEmpty(x.licenceNumber) &&
+        x.importAction === IMPORT_TYPE.UPDATE
+      ) {
+        setValidationMessage(
+          "Licence Number is required when submitting an UPDATE"
+        );
+        isValid = false;
+      }
+    });
+
+    if (isValid) {
+      setValidationMessage(null);
+    }
+    return isValid;
+  }
+
   const submit = () => {
-    const selectedRows = data.filter(
-      (x) => x.importType !== IMPORT_TYPE.DO_NOT_IMPORT
-    );
-    dispatch(updatePremisesIdResults(selectedRows));
+    if (validateData()) {
+      // dispatch(updatePremisesIdResults(data));
+    }
   };
 
   function formatResultRow(item) {
     return (
-      <tr key={item.prn}>
-        <td className="text-nowrap">{item.contactFirstName}</td>
-        <td className="text-nowrap">{item.contactLastName}</td>
-        <td className="text-nowrap">{item.legalName}</td>
-        <td className="text-nowrap">{item.email}</td>
-        <td className="text-nowrap">{item.prn}</td>
-        <td className="text-nowrap">{item.siteAddress}</td>
+      <tr key={item.id}>
+        <td className="text-nowrap">{item.registrantFirstName}</td>
+        <td className="text-nowrap">{item.registrantLastName}</td>
+        <td className="text-nowrap">{item.licenceCompanyName}</td>
+        <td className="text-nowrap">{item.registrantEmail}</td>
+        <td className="text-nowrap">{item.sitePremisesNumber}</td>
+        <td className="text-nowrap">{item.siteAddressLine1}</td>
         <td className="text-nowrap">
           <Form.Control
             type="text"
@@ -205,22 +288,22 @@ export default function AdminPremisesId() {
         <td className="text-nowrap">
           <Form.Control
             type="text"
-            name="siteId"
-            defaultValue={item.siteId}
+            name="apiarySiteId"
+            defaultValue={item.apiarySiteId}
             onChange={(e) => {
-              item.siteId = e.target.value;
+              item.apiarySiteId = parseAsInt(e.target.value);
             }}
-            style={{ width: 80 }}
+            style={{ width: 140 }}
           />
         </td>
         <td className="text-nowrap">
           <Form.Control
             as="select"
-            name="importType"
+            name="importAction"
             onChange={(e) => {
-              item.importType = parseAsInt(e.target.value);
+              item.importAction = e.target.value;
             }}
-            defaultValue={item.importType}
+            defaultValue={item.importAction}
             style={{ width: 160 }}
           >
             <option
@@ -255,8 +338,18 @@ export default function AdminPremisesId() {
     content = (
       <>
         <div className="font-weight-bold">
-          {premisesIdResults.data.successInsertCount} of{" "}
-          {premisesIdResults.data.attemptCount} entries were loaded successfully
+          {premisesIdResults.data.attemptCount} entries processed
+          <ul>
+            <li>
+              {premisesIdResults.data.insertCount} entries inserted successfully
+            </li>
+            <li>
+              {premisesIdResults.data.updateCount} entries updated successfully
+            </li>
+            <li>
+              {premisesIdResults.data.doNotInsertCount} entries not imported
+            </li>
+          </ul>
         </div>
       </>
     );
@@ -282,6 +375,7 @@ export default function AdminPremisesId() {
         </div>
 
         <ErrorMessageRow errorMessage={errorMessage} />
+        <ErrorMessageRow errorMessage={validationMessage} />
 
         <div className="mt-3">{data.length} entries found</div>
         <Table striped size="sm" responsive className="mt-3 mb-0" hover>
@@ -294,7 +388,7 @@ export default function AdminPremisesId() {
               <th className="text-nowrap">Premises ID</th>
               <th className="text-nowrap">Site Address</th>
               <th className="text-nowrap">Licence #</th>
-              <th className="text-nowrap">Site ID</th>
+              <th className="text-nowrap">Apiary Site ID</th>
               <th className="text-nowrap">Import Type</th>
             </tr>
           </thead>
