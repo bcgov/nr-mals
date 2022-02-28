@@ -79,6 +79,13 @@ module.exports = Object.freeze({
     FFA: 5,
   },
 
+  PREMISES_IMPORT_TYPES: {
+    NEW_LICENCE: "NEW_LICENCE",
+    NEW_SITE: "NEW_SITE",
+    UPDATE: "UPDATE",
+    DO_NOT_IMPORT: "DO_NOT_IMPORT",
+  },
+
   // Report types
   // Value must match mal_print_job_output.document_type
   REPORTS: {
