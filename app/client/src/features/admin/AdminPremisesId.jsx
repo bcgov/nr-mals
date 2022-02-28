@@ -261,7 +261,7 @@ export default function AdminPremisesId() {
 
   const submit = () => {
     if (validateData()) {
-      // dispatch(updatePremisesIdResults(data));
+      dispatch(updatePremisesIdResults(data));
     }
   };
 
