@@ -33,6 +33,7 @@ export const DOWNLOAD_DAIRYTANKNOTICES_PATHNAME =
 export const ADMIN_PATHNAME = "/admin";
 export const ADMIN_CONFIG_PATHNAME = "/admin/config";
 export const ADMIN_DAIRY_TEST_RESULTS_PATHNAME = "/admin/dairytestresults";
+export const ADMIN_PREMISES_ID_PATHNAME = "/admin/premisesid";
 export const LICENSE_TYPES_ADMIN_PATHNAME = "/admin/license-types";
 export const SITES_ADMIN_PATHNAME = "/admin/sites";
 export const INSPECTIONS_ADMIN_PATHNAME = "/admin/inspections";
