@@ -340,8 +340,8 @@ router.post("/premisesidresults", async (req, res, next) => {
     const premisesJob = await fetchPremisesJobById(jobId);
 
     return res.status(200).send({
-      status: queryUpdateResult[0].iop_job_status,
-      comment: queryUpdateResult[0].iop_process_comments,
+      status: premisesJob.job_status,
+      comment: premisesJob.execution_comment,
       attemptCount: premisesJob.source_row_count,
       insertCount: premisesJob.target_insert_count,
       updateCount: premisesJob.target_update_count,
