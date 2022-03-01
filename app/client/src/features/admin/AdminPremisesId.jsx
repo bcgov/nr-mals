@@ -251,6 +251,13 @@ export default function AdminPremisesId() {
         );
         isValid = false;
       }
+
+      if (x.licenceMailPostalCode.replace(" ", "").length > 6) {
+        setValidationMessage(
+          "Postal Code cannot be longer than 6 characters. Please update your import file and try again."
+        );
+        isValid = false;
+      }
     });
 
     if (isValid) {
@@ -351,6 +358,18 @@ export default function AdminPremisesId() {
             </li>
           </ul>
         </div>
+        {premisesIdResults.data.status === "WARNING" ? (
+          <>
+            <div className="font-weight-bold">
+              {premisesIdResults.data.status}!{" "}
+              {premisesIdResults.data.comment.includes(
+                "One or more of the rows was not successfully processed"
+              )
+                ? "One or more of the rows was not successfully processed. Please contact a system administrator."
+                : premisesIdResults.data.comment}
+            </div>
+          </>
+        ) : null}
       </>
     );
   } else if (isLoaded === false) {
