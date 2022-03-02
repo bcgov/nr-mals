@@ -56,34 +56,11 @@ export default function AdminPremisesId() {
 
   const inputFile = useRef(null);
   const [data, setData] = useState([]);
-  const [results, setResults] = useState({
-    data: undefined,
-    page: undefined,
-    count: 0,
-    error: undefined,
-  });
 
   useEffect(() => {
     setData([]);
     dispatch(clearPremisesIdResults());
   }, [dispatch]);
-
-  function navigateToSearchPage(page) {
-    const size = 20;
-    const skip = (page - 1) * size;
-
-    const readData = data.slice(skip, skip + size);
-    setResults({
-      data: readData,
-      page,
-      count: data.length,
-      error: undefined,
-    });
-  }
-
-  useEffect(() => {
-    navigateToSearchPage(1);
-  }, [data]);
 
   const validateStringValue = (value) => {
     if (value === null || value === undefined) {
@@ -103,6 +80,10 @@ export default function AdminPremisesId() {
 
   const validateDateValue = (value) => {
     return parseAsDate(validateStringValue(value));
+  };
+
+  const clearInputValue = (event) => {
+    event.target.value = null;
   };
 
   const onChangeFile = (event) => {
@@ -211,23 +192,35 @@ export default function AdminPremisesId() {
     reader.readAsText(file);
   };
 
-  const onButtonClick = () => {
+  const onImportButtonClick = () => {
     inputFile.current.click();
+  };
+
+  const onRestartButtonClick = () => {
+    setData([]);
+    dispatch(clearPremisesIdResults());
+    setIsLoaded(false);
   };
 
   function validateData() {
     let isValid = true;
     data.forEach((x) => {
-      if (isNullOrEmpty(x.registrantFirstName)) {
+      if (
+        isNullOrEmpty(x.registrantFirstName) &&
+        x.importAction === IMPORT_TYPE.NEW_LICENCE
+      ) {
         setValidationMessage(
-          "Registrant First Name cannot be empty. Please update your import file and try again."
+          "Registrant First Name is required when submitting a NEW LICENCE. Please update your import file and try again."
         );
         isValid = false;
       }
 
-      if (isNullOrEmpty(x.registrantLastName)) {
+      if (
+        isNullOrEmpty(x.registrantLastName) &&
+        x.importAction === IMPORT_TYPE.NEW_LICENCE
+      ) {
         setValidationMessage(
-          "Registrant Last Name cannot be empty. Please update your import file and try again."
+          "Registrant Last Name is required when submitting a NEW LICENCE. Please update your import file and try again."
         );
         isValid = false;
       }
@@ -237,7 +230,7 @@ export default function AdminPremisesId() {
         x.importAction === IMPORT_TYPE.NEW_SITE
       ) {
         setValidationMessage(
-          "Licence Number is required when submitting a NEW SITE"
+          "Licence Number is required when submitting a NEW SITE."
         );
         isValid = false;
       }
@@ -247,7 +240,7 @@ export default function AdminPremisesId() {
         x.importAction === IMPORT_TYPE.UPDATE
       ) {
         setValidationMessage(
-          "Licence Number is required when submitting an UPDATE"
+          "Licence Number is required when submitting an UPDATE."
         );
         isValid = false;
       }
@@ -370,10 +363,13 @@ export default function AdminPremisesId() {
             </div>
           </>
         ) : null}
+        <div>
+          <Button onClick={onRestartButtonClick}>Import new file</Button>
+        </div>
       </>
     );
   } else if (isLoaded === false) {
-    content = <Button onClick={onButtonClick}>Import</Button>;
+    content = <Button onClick={onImportButtonClick}>Import file</Button>;
   } else {
     let errorMessage = null;
     if (premisesIdResults.status === REQUEST_STATUS.REJECTED) {
@@ -391,6 +387,11 @@ export default function AdminPremisesId() {
               <span className="sr-only">Working...</span>
             </Spinner>
           ) : null}
+          <span className="float-right">
+            <Button onClick={onRestartButtonClick} disabled={submitting}>
+              Import new file
+            </Button>
+          </span>
         </div>
 
         <ErrorMessageRow errorMessage={errorMessage} />
@@ -427,6 +428,7 @@ export default function AdminPremisesId() {
           ref={inputFile}
           style={{ display: "none" }}
           onChange={onChangeFile}
+          onClick={clearInputValue} // Trick onChange to allow same file selection
           accept=".CSV"
         />
         {content}
