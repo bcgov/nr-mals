@@ -197,6 +197,7 @@ export default function AdminPremisesId() {
   };
 
   const onRestartButtonClick = () => {
+    setValidationMessage(null);
     setData([]);
     dispatch(clearPremisesIdResults());
     setIsLoaded(false);
