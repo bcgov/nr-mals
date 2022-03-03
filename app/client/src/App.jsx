@@ -45,6 +45,7 @@ import Reports from "./features/reports/Reports";
 
 import AdminConfig from "./features/admin/AdminConfig";
 import AdminDairyTestResults from "./features/admin/AdminDairyTestResults";
+import AdminPremisesId from "./features/admin/AdminPremisesId";
 
 import ModalComponent from "./components/ModalComponent";
 
@@ -178,6 +179,9 @@ function App() {
             </ProtectedRoute>
             <Route path={`${Constant.ADMIN_DAIRY_TEST_RESULTS_PATHNAME}`}>
               <AdminDairyTestResults />
+            </Route>
+            <Route path={`${Constant.ADMIN_PREMISES_ID_PATHNAME}`}>
+              <AdminPremisesId />
             </Route>
             <Route path="/">
               <Redirect to={`${Constant.SEARCH_LICENSES_PATHNAME}`} />

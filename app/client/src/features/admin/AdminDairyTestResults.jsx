@@ -89,6 +89,10 @@ export default function AdminDairyTestResults() {
     return value;
   };
 
+  const clearInputValue = (event) => {
+    event.target.value = null;
+  };
+
   const onChangeFile = (event) => {
     const file = event.target.files[0];
     if (file === undefined) {
@@ -178,8 +182,19 @@ export default function AdminDairyTestResults() {
     reader.readAsText(file);
   };
 
-  const onButtonClick = () => {
+  const onImportButtonClick = () => {
     inputFile.current.click();
+  };
+
+  const onRestartButtonClick = () => {
+    setResults({
+      data: undefined,
+      page: undefined,
+      count: 0,
+      error: undefined,
+    });
+    setData([]);
+    dispatch(clearDairyTestResults());
   };
 
   const submit = () => {
@@ -230,10 +245,15 @@ export default function AdminDairyTestResults() {
             })}
           </div>
         ) : null}
+        <div>
+          <Button onClick={onRestartButtonClick}>Import new file</Button>
+        </div>
       </>
     );
   } else if (results.count === 0) {
-    control = <Button onClick={onButtonClick}>Load Dairy Test Result</Button>;
+    control = (
+      <Button onClick={onImportButtonClick}>Import Dairy Test Results</Button>
+    );
   } else {
     let errorMessage = null;
     if (dairyTestResults.status === REQUEST_STATUS.REJECTED) {
@@ -251,6 +271,11 @@ export default function AdminDairyTestResults() {
               <span className="sr-only">Working...</span>
             </Spinner>
           ) : null}
+          <span className="float-right">
+            <Button onClick={onRestartButtonClick} disabled={submitting}>
+              Import new file
+            </Button>
+          </span>
         </div>
 
         <ErrorMessageRow errorMessage={errorMessage} />
@@ -315,6 +340,7 @@ export default function AdminDairyTestResults() {
           ref={inputFile}
           style={{ display: "none" }}
           onChange={onChangeFile}
+          onClick={clearInputValue} // Trick onChange to allow same file selection
           accept=".DAT"
         />
         {control}
