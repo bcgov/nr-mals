@@ -206,44 +206,73 @@ export default function AdminPremisesId() {
   function validateData() {
     let isValid = true;
     data.forEach((x) => {
-      if (
-        isNullOrEmpty(x.registrantFirstName) &&
-        x.importAction === IMPORT_TYPE.NEW_LICENCE
-      ) {
-        setValidationMessage(
-          "Registrant First Name is required when submitting a NEW LICENCE. Please update your import file and try again."
-        );
-        isValid = false;
+      let errorStr;
+      if (x.importAction === IMPORT_TYPE.NEW_LICENCE) {
+        if (
+          isNullOrEmpty(x.registrantFirstName) &&
+          isNullOrEmpty(x.registrantLastName)
+        ) {
+          setValidationMessage(
+            "Registrant First & Last Name's are required when submitting a NEW LICENCE. Please update your import file and try again."
+          );
+          isValid = false;
+        } else {
+          if (isNullOrEmpty(x.registrantFirstName)) {
+            setValidationMessage(
+              "Registrant First Name is required when submitting a NEW LICENCE. Please update your import file and try again."
+            );
+            isValid = false;
+          }
+
+          if (isNullOrEmpty(x.registrantLastName)) {
+            setValidationMessage(
+              "Registrant Last Name is required when submitting a NEW LICENCE. Please update your import file and try again."
+            );
+            isValid = false;
+          }
+        }
       }
 
-      if (
-        isNullOrEmpty(x.registrantLastName) &&
-        x.importAction === IMPORT_TYPE.NEW_LICENCE
-      ) {
-        setValidationMessage(
-          "Registrant Last Name is required when submitting a NEW LICENCE. Please update your import file and try again."
-        );
-        isValid = false;
+      if (x.importAction === IMPORT_TYPE.NEW_SITE) {
+        if (isNullOrEmpty(x.licenceNumber)) {
+          setValidationMessage(
+            "Licence Number is required when submitting a NEW SITE."
+          );
+          isValid = false;
+        }
       }
 
-      if (
-        isNullOrEmpty(x.licenceNumber) &&
-        x.importAction === IMPORT_TYPE.NEW_SITE
-      ) {
-        setValidationMessage(
-          "Licence Number is required when submitting a NEW SITE."
-        );
-        isValid = false;
-      }
+      if (x.importAction === IMPORT_TYPE.UPDATE) {
+        if (isNullOrEmpty(x.licenceNumber) && isNullOrEmpty(x.apiarySiteId)) {
+          setValidationMessage(
+            "Licence Number & Apiary Site ID are required when submitting an UPDATE."
+          );
+          isValid = false;
+        } else {
+          if (
+            !isNullOrEmpty(x.apiarySiteId) &&
+            x.apiarySiteId.toString().length > 3
+          ) {
+            setValidationMessage(
+              "Apiary Site ID cannot exceed 3 characters (eg: 100)"
+            );
+            isValid = false;
+          }
 
-      if (
-        isNullOrEmpty(x.licenceNumber) &&
-        x.importAction === IMPORT_TYPE.UPDATE
-      ) {
-        setValidationMessage(
-          "Licence Number is required when submitting an UPDATE."
-        );
-        isValid = false;
+          if (isNullOrEmpty(x.apiarySiteId)) {
+            setValidationMessage(
+              "Apiary Site ID is required when submitting an UPDATE."
+            );
+            isValid = false;
+          }
+
+          if (isNullOrEmpty(x.licenceNumber)) {
+            setValidationMessage(
+              "Licence Number is required when submitting an UPDATE."
+            );
+            isValid = false;
+          }
+        }
       }
 
       if (x.licenceMailPostalCode.replace(" ", "").length > 6) {

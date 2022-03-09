@@ -54,6 +54,7 @@ function convertToLogicalModel(input) {
     legalDescriptionText: input.legal_description,
     hiveCount: input.hive_count,
     apiarySiteId: input.apiary_site_id,
+    premisesId: input.premises_id,
 
     dairyTanks: input.mal_dairy_farm_tank
       ? input.mal_dairy_farm_tank.map((xref, index) => ({
