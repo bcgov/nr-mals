@@ -161,6 +161,9 @@ raise notice 'num_file_rows (%)', l_num_file_rows;
 						mail_city,
 						mail_province,
 						mail_postal_code,
+						application_date,
+						issue_date,
+						expiry_date,
 						hives_per_apiary
 						)
 						values(
@@ -172,6 +175,9 @@ raise notice 'num_file_rows (%)', l_num_file_rows;
 							l_file_rec.licence_mail_city,
 							l_file_rec.licence_mail_province,
 							l_file_rec.licence_mail_postal_code,
+							current_date,  -- application_date,
+							current_date,  -- issue_date,
+							current_date + interval '2 years',  -- expiry_date,
 							l_file_rec.licence_hives_per_apiary
 							)
 							returning id, licence_number into l_licence_id, l_licence_number;
@@ -181,6 +187,7 @@ raise notice 'num_file_rows (%)', l_num_file_rows;
 						apiary_site_id,
 						region_id,
 						regional_district_id,
+						status_code_id,
 						address_line_1,							
 						premises_id
 						)
@@ -189,6 +196,7 @@ raise notice 'num_file_rows (%)', l_num_file_rows;
 							100,   -- First apiary site ID for new licence.
 							l_file_rec.site_region_id,
 							l_file_rec.site_regional_district_id,
+							l_active_status_id,
 							l_file_rec.site_address_line_1,
 							l_file_rec.source_premises_id)
 						returning id into l_site_id;
@@ -213,6 +221,14 @@ raise notice 'num_file_rows (%)', l_num_file_rows;
 					update mal_licence
 						set primary_registrant_id = l_registrant_id
 					where id = l_licence_id;
+					-- Add a row to the cross reference table for the new licence and registrant.
+					insert into mal_licence_registrant_xref(
+						licence_id,
+						registrant_id)
+						values(
+							l_licence_id,
+							l_registrant_id
+							);
 					-- Update the imported row with the new Licence info.
 					update mal_premises_detail
 					set licence_id = l_licence_id,
@@ -317,6 +333,7 @@ raise notice 'num_file_rows (%)', l_num_file_rows;
 								mail_city           = l_file_rec.licence_mail_city,
 								mail_province       = l_file_rec.licence_mail_province,
 								mail_postal_code    = l_file_rec.licence_mail_postal_code,
+								issue_date          = current_date,
 								expiry_date         = current_date + interval '2 years'
 							where id = l_licence_id;
 						update mal_site
