@@ -36,6 +36,9 @@ export default function SiteDetailsView({ site, licenceTypeId }) {
           <Col lg={4}>
             <VerticalField label="Number of Hives" value={site.hiveCount} />
           </Col>
+          <Col lg={4}>
+            <VerticalField label="Premises ID" value={site.premisesId} />
+          </Col>
         </Row>
       ) : null}
       <Row className="mt-3">
