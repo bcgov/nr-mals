@@ -10,6 +10,7 @@ import {
   parseAsDate,
   isNullOrEmpty,
 } from "../../utilities/parsing";
+
 import { REQUEST_STATUS } from "../../utilities/constants";
 import {
   updatePremisesIdResults,
@@ -82,6 +83,14 @@ export default function AdminPremisesId() {
     return parseAsDate(validateStringValue(value));
   };
 
+  const validatePhoneValue = (value) => {
+    if (value) {
+      return value.replace(/[^0-9]/g, "");
+    }
+
+    return value;
+  };
+
   const clearInputValue = (event) => {
     event.target.value = null;
   };
@@ -142,13 +151,13 @@ export default function AdminPremisesId() {
             split[PREMISES_HEADER_IDS.POSTAL_ZIP_CODE]
           ),
           registrantPrimaryPhone: validateStringValue(
-            split[PREMISES_HEADER_IDS.PHONE]
+            validatePhoneValue(split[PREMISES_HEADER_IDS.PHONE])
           ),
           registrantSecondaryPhone: validateStringValue(
-            split[PREMISES_HEADER_IDS.CELL]
+            validatePhoneValue(split[PREMISES_HEADER_IDS.CELL])
           ),
           registrantFaxNumber: validateStringValue(
-            split[PREMISES_HEADER_IDS.FAX]
+            validatePhoneValue(split[PREMISES_HEADER_IDS.FAX])
           ),
           registrantEmail: validateStringValue(
             split[PREMISES_HEADER_IDS.EMAIL_ADDRESS]
@@ -206,7 +215,6 @@ export default function AdminPremisesId() {
   function validateData() {
     let isValid = true;
     data.forEach((x) => {
-      let errorStr;
       if (x.importAction === IMPORT_TYPE.NEW_LICENCE) {
         if (
           isNullOrEmpty(x.registrantFirstName) &&

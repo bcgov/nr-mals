@@ -306,7 +306,7 @@ router.put("/dairyfarmtestthresholds/:id(\\d+)", async (req, res, next) => {
 router.post("/premisesidresults", async (req, res, next) => {
   const now = new Date();
   const data = req.body;
-  console.log(data);
+
   let jobId = null;
 
   try {
@@ -358,9 +358,9 @@ router.post("/premisesidresults", async (req, res, next) => {
         `Premises Data Load: deleted job id ${jobId} rows in mal_premises_detail`
       );
       // Mark job as failed and add comment
-      const updateResult = await prisma.$queryRaw(
-        `UPDATE mals_app.mal_premises_job SET job_status = 'FAILED', execution_comment = '${error.message}' WHERE id = ${jobId}`
-      );
+      const formattedErrorMessage = error.message.replace(/(\n)|(`)|(')/g, "");
+      const updateQuery = `UPDATE mals_app.mal_premises_job SET job_status = 'FAILED', execution_comment = '${formattedErrorMessage}' WHERE id = ${jobId}`;
+      const updateResult = await prisma.$queryRaw(updateQuery);
       Util.Log(
         `Premises Data Load: updated job id ${jobId} to FAILED in mal_premises_job`
       );
