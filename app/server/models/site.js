@@ -177,6 +177,7 @@ function convertToPhysicalModel(input, update) {
     legal_description: input.legalDescriptionText,
     hive_count: input.hiveCount,
     apiary_site_id: input.apiarySiteId,
+    premises_id: input.premisesId,
 
     create_userid: input.createdBy,
     create_timestamp: input.createdOn,
