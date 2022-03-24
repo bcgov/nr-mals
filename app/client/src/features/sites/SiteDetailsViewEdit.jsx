@@ -67,6 +67,8 @@ export default function SiteDetailsViewEdit({ site, licence }) {
     secondaryPhone: null,
     email: null,
     legalDescriptionText: null,
+    hiveCount: null,
+    premisesId: null,
   };
 
   useEffect(() => {
@@ -87,6 +89,8 @@ export default function SiteDetailsViewEdit({ site, licence }) {
     setValue("secondaryPhone", site.data.secondaryPhone);
     setValue("email", site.data.email);
     setValue("legalDescriptionText", site.data.legalDescriptionText);
+    setValue("hiveCount", site.data.hiveCount);
+    setValue("premisesId", site.data.premisesId);
   }, [
     setValue,
     site.data.regionId,
@@ -106,6 +110,8 @@ export default function SiteDetailsViewEdit({ site, licence }) {
     site.data.secondaryPhone,
     site.data.email,
     site.data.legalDescriptionText,
+    site.data.hiveCount,
+    site.data.premisesId,
     mode,
   ]);
 
