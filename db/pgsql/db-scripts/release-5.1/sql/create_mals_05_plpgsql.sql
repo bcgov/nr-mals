@@ -109,12 +109,12 @@ raise notice 'num_file_rows (%)', l_num_file_rows;
 			p.licence_mail_city,
 			p.licence_mail_province,
 			p.licence_mail_postal_code,
-			p.licence_hives_per_apiary,
+			p.licence_total_hives,
 			p.source_premises_id,
 			p.site_address_line_1,
-			r.id as site_region_id,
+			r.id as region_id,
 			p.site_region_name,
-			d.id as site_regional_district_id,
+			d.id as regional_district_id,
 			p.site_regional_district_name,
 			p.registrant_first_name,
 			p.registrant_last_name,
@@ -164,7 +164,7 @@ raise notice 'num_file_rows (%)', l_num_file_rows;
 						application_date,
 						issue_date,
 						expiry_date,
-						hives_per_apiary
+						total_hives
 						)
 						values(
 							l_apiary_type_id,
@@ -178,7 +178,7 @@ raise notice 'num_file_rows (%)', l_num_file_rows;
 							current_date,  -- application_date,
 							current_date,  -- issue_date,
 							current_date + interval '2 years',  -- expiry_date,
-							l_file_rec.licence_hives_per_apiary
+							l_file_rec.licence_total_hives
 							)
 							returning id, licence_number into l_licence_id, l_licence_number;
 					--  Create a new Site.
@@ -194,8 +194,8 @@ raise notice 'num_file_rows (%)', l_num_file_rows;
 						values (
 							l_licence_id,
 							100,   -- First apiary site ID for new licence.
-							l_file_rec.site_region_id,
-							l_file_rec.site_regional_district_id,
+							l_file_rec.region_id,
+							l_file_rec.regional_district_id,
 							l_active_status_id,
 							l_file_rec.site_address_line_1,
 							l_file_rec.source_premises_id)
@@ -272,8 +272,8 @@ raise notice 'num_file_rows (%)', l_num_file_rows;
 							values (
 								l_licence_id,
 								l_apiary_site_id,
-								l_file_rec.site_region_id,
-								l_file_rec.site_regional_district_id,
+								l_file_rec.region_id,
+								l_file_rec.regional_district_id,
 								l_file_rec.site_address_line_1,
 								l_file_rec.source_premises_id)
 							returning id into l_site_id;
@@ -326,19 +326,21 @@ raise notice 'num_file_rows (%)', l_num_file_rows;
 					and s.apiary_site_id = l_file_rec.apiary_site_id;
 					if l_site_id is not null then
 						update mal_licence
-							set company_name        = l_file_rec.licence_company_name,
-								hives_per_apiary    = l_file_rec.licence_hives_per_apiary,
-								mail_address_line_1 = l_file_rec.licence_mail_address_line_1,
-								mail_address_line_2 = l_file_rec.licence_mail_address_line_2,
-								mail_city           = l_file_rec.licence_mail_city,
-								mail_province       = l_file_rec.licence_mail_province,
-								mail_postal_code    = l_file_rec.licence_mail_postal_code,
-								issue_date          = current_date,
-								expiry_date         = current_date + interval '2 years'
+							set region_id            = l_file_rec.region_id,
+								regional_district_id = l_file_rec.regional_district_id,
+								company_name         = l_file_rec.licence_company_name,
+								total_hives          = l_file_rec.licence_total_hives,
+								mail_address_line_1  = l_file_rec.licence_mail_address_line_1,
+								mail_address_line_2  = l_file_rec.licence_mail_address_line_2,
+								mail_city            = l_file_rec.licence_mail_city,
+								mail_province        = l_file_rec.licence_mail_province,
+								mail_postal_code     = l_file_rec.licence_mail_postal_code,
+								issue_date           = current_date,
+								expiry_date          = current_date + interval '2 years'
 							where id = l_licence_id;
 						update mal_site
-							set region_id            = l_file_rec.site_region_id,
-								regional_district_id = l_file_rec.site_regional_district_id,
+							set region_id            = l_file_rec.region_id,
+								regional_district_id = l_file_rec.regional_district_id,
 								address_line_1       = l_file_rec.site_address_line_1
 							where id = l_site_id;								
 						update mal_premises_detail
