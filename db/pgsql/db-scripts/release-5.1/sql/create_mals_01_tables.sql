@@ -70,7 +70,7 @@ CREATE TABLE mal_premises_detail (
 	licence_status varchar(20),
 	licence_status_timestamp timestamp,
 	licence_company_name varchar(200),
-	licence_hives_per_apiary integer,
+	licence_total_hives integer,
 	licence_mail_address_line_1 varchar(100),
 	licence_mail_address_line_2 varchar(100),
 	licence_mail_city varchar(35),

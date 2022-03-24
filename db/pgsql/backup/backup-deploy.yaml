@@ -124,15 +124,19 @@ objects:
                   value: ${WEEKLY_BACKUPS}
                 - name: MONTHLY_BACKUPS
                   value: ${MONTHLY_BACKUPS}
+                - name: DATABASE_SERVICE_NAME
+                  value: ${DATABASE_SERVICE_NAME}
+                - name: POSTGRESQL_DATABASE
+                  value: ${POSTGRESQL_DATABASE}
                 - name: PATRONI_MASTER_USER
                   valueFrom:
                     secretKeyRef:
-                      name: ${DATABASE_HOST}-creds
+                      name: ${DATABASE_SECRET}
                       key: ${DATABASE_USER_KEY_NAME}
                 - name: PATRONI_MASTER_PASSWORD
                   valueFrom:
                     secretKeyRef:
-                      name: ${DATABASE_HOST}-creds
+                      name: ${DATABASE_SECRET}
                       key: ${DATABASE_PASSWORD_KEY_NAME}
                 - name: WEBHOOK_URL
                   valueFrom:
@@ -201,21 +205,31 @@ parameters:
     description: The TAG name for this environment, e.g., dev, test, prod
     required: true
     value: dev
-  - name: DATABASE_HOST
-    displayName: Database Deployment Name
-    description: The name associated to the database deployment resources.  In particular, this is used to wire up the credentials associated to the database.
+  - name: DATABASE_SECRET
+    displayName: Database Secret Name
+    description: The name associated to the database deployment secret.
     required: true
-    value: patroni
+    value: patroni-creds
+  - name: DATABASE_SERVICE_NAME
+    displayName: Database Deployment Name
+    description: The name associated to the database deployment resources.
+    required: true
+    value: patroni-master
+  - name: POSTGRESQL_DATABASE
+    displayName: Database Deployment Name
+    description: The name associated to the database deployment.
+    required: true
+    value: mals
   - name: DATABASE_USER_KEY_NAME
     displayName: Database User Key Name
     description: The datbase user key name stored in database deployment resources specified by DATABASE_DEPLOYMENT_NAME.
     required: true
-    value: app-db-owner-username
+    value: superuser-username
   - name: DATABASE_PASSWORD_KEY_NAME
     displayName: Database Password Key Name
     description: The database password key name stored in database deployment resources specified by DATABASE_DEPLOYMENT_NAME.
     required: true
-    value: app-db-owner-password
+    value: superuser-password
   - name: BACKUP_STRATEGY
     displayName: Backup Strategy
     description: The strategy to use for backups; for example daily, or rolling.
