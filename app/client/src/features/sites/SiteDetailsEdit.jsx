@@ -117,6 +117,16 @@ export default function SiteDetailsEdit({
               />
             </Form.Group>
           </Col>
+          <Col lg={4}>
+            <Form.Group controlId="hiveCount">
+              <Form.Label>Premises ID</Form.Label>
+              <Form.Control
+                name="premisesId"
+                defaultValue={initialValues.premisesId}
+                ref={register}
+              />
+            </Form.Group>
+          </Col>
         </Row>
       ) : null}
       <Row className="mt-3">
@@ -179,7 +189,7 @@ export default function SiteDetailsEdit({
       <Row className="mt-3">
         <Col lg={2}>
           <Form.Group controlId="province">
-            {selectedCountry === COUNTRIES.CANADA ? (
+            {selectedCountry !== COUNTRIES.UNITEDSTATES ? (
               <>
                 <Form.Label>Province</Form.Label>
                 <Form.Control
@@ -220,7 +230,7 @@ export default function SiteDetailsEdit({
         <Col lg={2}>
           <Form.Group controlId="postalCode">
             <Form.Label>
-              {selectedCountry === COUNTRIES.CANADA
+              {selectedCountry !== COUNTRIES.UNITEDSTATES
                 ? "Postal Code"
                 : "Zip Code"}
             </Form.Label>
