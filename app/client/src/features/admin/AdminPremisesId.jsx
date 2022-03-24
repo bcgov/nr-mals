@@ -171,7 +171,7 @@ export default function AdminPremisesId() {
           siteAddressLine1: validateStringValue(
             split[PREMISES_HEADER_IDS.SITE_ADDRESS]
           ),
-          licenceHivesPerApiary: validateIntValue(
+          licenceTotalHives: validateIntValue(
             split[PREMISES_HEADER_IDS.CAPACITY]
           ),
           siteRegionalName: validateStringValue(
