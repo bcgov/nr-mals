@@ -629,11 +629,6 @@ model mal_dairy_farm_test_result {
   @@unique([irma_number, test_year, test_month, ih_day], name: "mal_dryfrmtst_irmaih_uk")
   @@unique([irma_number, test_year, test_month, scc_day], name: "mal_dryfrmtst_irmascc_uk")
   @@unique([irma_number, test_year, test_month, spc1_day], name: "mal_dryfrmtst_irmaspc1_uk")
-  @@index([cry_date], name: "mal_dryfrmtst_cry_date_idx")
-  @@index([ffa_date], name: "mal_dryfrmtst_ffa_date_idx")
-  @@index([ih_date], name: "mal_dryfrmtst_ih_date_idx")
-  @@index([scc_date], name: "mal_dryfrmtst_scc_date_idx")
-  @@index([spc1_date], name: "mal_dryfrmtst_spc1_date_idx")
   @@index([test_job_id], name: "mal_dryfrmtst_test_job_id_idx")
 }
 
@@ -725,7 +720,7 @@ model mal_premises_detail {
   licence_status              String?          @db.VarChar(20)
   licence_status_timestamp    DateTime?        @db.Timestamp(6)
   licence_company_name        String?          @db.VarChar(200)
-  licence_hives_per_apiary    Int?
+  licence_total_hives         Int?
   licence_mail_address_line_1 String?          @db.VarChar(100)
   licence_mail_address_line_2 String?          @db.VarChar(100)
   licence_mail_city           String?          @db.VarChar(35)
@@ -745,10 +740,10 @@ model mal_premises_detail {
   registrant_status_timestamp DateTime?        @db.Timestamp(6)
   registrant_first_name       String?          @db.VarChar(200)
   registrant_last_name        String?          @db.VarChar(200)
-  registrant_email_address    String?          @db.VarChar(128)
   registrant_primary_phone    String?          @db.VarChar(10)
   registrant_secondary_phone  String?          @db.VarChar(10)
   registrant_fax_number       String?          @db.VarChar(10)
+  registrant_email_address    String?          @db.VarChar(128)
   process_comments            String?          @db.VarChar(2000)
   create_userid               String           @db.VarChar(63)
   create_timestamp            DateTime         @db.Timestamp(6)
