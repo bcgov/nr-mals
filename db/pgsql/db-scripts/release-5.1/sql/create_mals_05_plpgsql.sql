@@ -155,6 +155,8 @@ raise notice 'num_file_rows (%)', l_num_file_rows;
 					insert into mal_licence(
 						licence_type_id,
 						status_code_id,
+						region_id,
+						regional_district_id,
 						company_name,
 						mail_address_line_1,
 						mail_address_line_2,
@@ -169,6 +171,8 @@ raise notice 'num_file_rows (%)', l_num_file_rows;
 						values(
 							l_apiary_type_id,
 							l_active_status_id,
+							l_file_rec.region_id,
+							l_file_rec.regional_district_id,
 							l_file_rec.licence_company_name,
 							l_file_rec.licence_mail_address_line_1,
 							l_file_rec.licence_mail_address_line_2,
@@ -266,6 +270,7 @@ raise notice 'num_file_rows (%)', l_num_file_rows;
 							apiary_site_id,
 							region_id,
 							regional_district_id,
+							status_code_id,
 							address_line_1,							
 							premises_id
 							)
@@ -274,6 +279,7 @@ raise notice 'num_file_rows (%)', l_num_file_rows;
 								l_apiary_site_id,
 								l_file_rec.region_id,
 								l_file_rec.regional_district_id,
+								l_active_status_id,
 								l_file_rec.site_address_line_1,
 								l_file_rec.source_premises_id)
 							returning id into l_site_id;
@@ -311,7 +317,7 @@ raise notice 'num_file_rows (%)', l_num_file_rows;
 		--  UPDATE (Licence and Site)
 				-- Process updates to licences and sites
 				elsif l_file_rec.import_action in ('UPDATE') then
-					select l.id, s.apiary_site_id
+					select l.id, s.id
 					into l_licence_id, l_site_id
 					from mal_licence l
 					left join mal_site s 
@@ -334,15 +340,17 @@ raise notice 'num_file_rows (%)', l_num_file_rows;
 								mail_address_line_2  = l_file_rec.licence_mail_address_line_2,
 								mail_city            = l_file_rec.licence_mail_city,
 								mail_province        = l_file_rec.licence_mail_province,
-								mail_postal_code     = l_file_rec.licence_mail_postal_code,
+								mail_postal_code     = l_file_rec.licence_mail_postal_code,	
 								issue_date           = current_date,
-								expiry_date          = current_date + interval '2 years'
+								expiry_date          = current_date + interval '2 years',
+							    total_hives          = l_file_rec.licence_total_hives
 							where id = l_licence_id;
 						update mal_site
 							set region_id            = l_file_rec.region_id,
 								regional_district_id = l_file_rec.regional_district_id,
-								address_line_1       = l_file_rec.site_address_line_1
-							where id = l_site_id;								
+								address_line_1       = l_file_rec.site_address_line_1,
+								premises_id          = l_file_rec.source_premises_id
+							where id = l_site_id;	
 						update mal_premises_detail
 							set licence_id            = l_licence_id,
 								site_id               = l_site_id,
