@@ -155,6 +155,8 @@ raise notice 'num_file_rows (%)', l_num_file_rows;
 					insert into mal_licence(
 						licence_type_id,
 						status_code_id,
+						region_id,
+						regional_district_id,
 						company_name,
 						mail_address_line_1,
 						mail_address_line_2,
@@ -169,6 +171,8 @@ raise notice 'num_file_rows (%)', l_num_file_rows;
 						values(
 							l_apiary_type_id,
 							l_active_status_id,
+							l_file_rec.region_id,
+							l_file_rec.regional_district_id,
 							l_file_rec.licence_company_name,
 							l_file_rec.licence_mail_address_line_1,
 							l_file_rec.licence_mail_address_line_2,
@@ -181,6 +185,8 @@ raise notice 'num_file_rows (%)', l_num_file_rows;
 							l_file_rec.licence_total_hives
 							)
 							returning id, licence_number into l_licence_id, l_licence_number;
+					-- First apiary site ID for new licence.
+					l_apiary_site_id = 100;
 					--  Create a new Site.
 					insert into mal_site (
 						licence_id,
@@ -193,7 +199,7 @@ raise notice 'num_file_rows (%)', l_num_file_rows;
 						)
 						values (
 							l_licence_id,
-							100,   -- First apiary site ID for new licence.
+							l_apiary_site_id,   
 							l_file_rec.region_id,
 							l_file_rec.regional_district_id,
 							l_active_status_id,
@@ -229,23 +235,26 @@ raise notice 'num_file_rows (%)', l_num_file_rows;
 							l_licence_id,
 							l_registrant_id
 							);
-					-- Update the imported row with the new Licence info.
-					update mal_premises_detail
-					set licence_id = l_licence_id,
-						licence_number = l_licence_number,
-						registrant_id  = l_registrant_id,
-						licence_action = 'INSERT',
-						licence_status = 'SUCCESS',
-						licence_status_timestamp = current_timestamp
-					where id = l_file_rec.id;
-					l_num_db_inserts = l_num_db_inserts + 1;
 					l_process_comments  = concat(l_file_rec.process_comments, 
 												 to_char(current_timestamp, 'yyyy-mm-dd hh24:mi:ss'), 
 												' This row was successfully processed. ');
+					-- Update the imported row with the new Licence info.
 					update mal_premises_detail
-						set import_status    = 'SUCCESS',
-							process_comments = l_process_comments
-						where id = l_file_rec.id;
+					set import_status            = 'SUCCESS',
+						licence_id               = l_licence_id,
+						licence_number           = l_licence_number,
+						site_id                  = l_site_id,
+						apiary_site_id           = l_apiary_site_id,
+						registrant_id            = l_registrant_id,
+						licence_action           = 'INSERT',
+						licence_status           = 'SUCCESS',
+						site_action              = 'INSERT',
+						site_status              = 'SUCCESS',
+						process_comments         = l_process_comments,
+						licence_status_timestamp = current_timestamp,
+						site_status_timestamp    = current_timestamp
+					where id = l_file_rec.id;
+					l_num_db_inserts = l_num_db_inserts + 1;
 	--  NEW_SITE (existing Licence)
 				-- New Site on exixsting Licence
 				elsif l_file_rec.import_action in ('NEW_SITE') then
@@ -266,6 +275,7 @@ raise notice 'num_file_rows (%)', l_num_file_rows;
 							apiary_site_id,
 							region_id,
 							regional_district_id,
+							status_code_id,
 							address_line_1,							
 							premises_id
 							)
@@ -274,6 +284,7 @@ raise notice 'num_file_rows (%)', l_num_file_rows;
 								l_apiary_site_id,
 								l_file_rec.region_id,
 								l_file_rec.regional_district_id,
+								l_active_status_id,
 								l_file_rec.site_address_line_1,
 								l_file_rec.source_premises_id)
 							returning id into l_site_id;
@@ -281,23 +292,21 @@ raise notice 'num_file_rows (%)', l_num_file_rows;
 						update mal_licence
 							set expiry_date = current_date + interval '2 years'
 						where id = l_licence_id;
+						l_process_comments  = concat(l_file_rec.process_comments, 
+													 to_char(current_timestamp, 'yyyy-mm-dd hh24:mi:ss'), 
+													' This row was successfully processed. ');
 						-- Update the file row with the new IDs.
 						update mal_premises_detail
-						set licence_id            = l_licence_id,
+						set import_status         = 'SUCCESS',
+							licence_id            = l_licence_id,
 							site_id               = l_site_id,
 							apiary_site_id        = l_apiary_site_id,
 							site_action           = 'INSERT',
 							site_status           = 'SUCCESS',
+							process_comments      = l_process_comments,
 							site_status_timestamp = current_timestamp
 						where id = l_file_rec.id;
 						l_num_db_inserts = l_num_db_inserts + 1;
-						l_process_comments  = concat(l_file_rec.process_comments, 
-													 to_char(current_timestamp, 'yyyy-mm-dd hh24:mi:ss'), 
-													' This row was successfully processed. ');
-						update mal_premises_detail
-							set import_status    = 'SUCCESS',
-								process_comments = l_process_comments
-							where id = l_file_rec.id;
 					else
 						l_process_comments  = concat(l_file_rec.process_comments, 
 													 to_char(current_timestamp, 'yyyy-mm-dd hh24:mi:ss'), 
@@ -311,7 +320,7 @@ raise notice 'num_file_rows (%)', l_num_file_rows;
 		--  UPDATE (Licence and Site)
 				-- Process updates to licences and sites
 				elsif l_file_rec.import_action in ('UPDATE') then
-					select l.id, s.apiary_site_id
+					select l.id, s.id
 					into l_licence_id, l_site_id
 					from mal_licence l
 					left join mal_site s 
@@ -334,18 +343,20 @@ raise notice 'num_file_rows (%)', l_num_file_rows;
 								mail_address_line_2  = l_file_rec.licence_mail_address_line_2,
 								mail_city            = l_file_rec.licence_mail_city,
 								mail_province        = l_file_rec.licence_mail_province,
-								mail_postal_code     = l_file_rec.licence_mail_postal_code,
+								mail_postal_code     = l_file_rec.licence_mail_postal_code,	
 								issue_date           = current_date,
-								expiry_date          = current_date + interval '2 years'
+								expiry_date          = current_date + interval '2 years',
+							    total_hives          = l_file_rec.licence_total_hives
 							where id = l_licence_id;
 						update mal_site
 							set region_id            = l_file_rec.region_id,
 								regional_district_id = l_file_rec.regional_district_id,
-								address_line_1       = l_file_rec.site_address_line_1
-							where id = l_site_id;								
+								address_line_1       = l_file_rec.site_address_line_1,
+								premises_id          = l_file_rec.source_premises_id
+							where id = l_site_id;	
 						update mal_premises_detail
-							set licence_id            = l_licence_id,
-								site_id               = l_site_id,
+							set licence_id       = l_licence_id,
+								site_id          = l_site_id,
 								import_status    = 'SUCCESS',
 								process_comments = concat(process_comments, 
 														  to_char(current_timestamp, 'yyyy-mm-dd hh24:mi:ss '), 
@@ -367,7 +378,8 @@ raise notice 'num_file_rows (%)', l_num_file_rows;
 						set import_status    = 'NO_ACTION',
 							process_comments = concat(process_comments, 
 													  to_char(current_timestamp, 'yyyy-mm-dd hh24:mi:ss '), 
-													  'The information supplied on this row is not a valid request.');			
+													  'The information supplied on this row is not a valid request.')
+						where id = l_file_rec.id;			
 				end if;				
 			exception
 				when others then
