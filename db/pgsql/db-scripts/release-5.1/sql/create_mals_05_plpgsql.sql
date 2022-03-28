@@ -345,8 +345,7 @@ raise notice 'num_file_rows (%)', l_num_file_rows;
 								mail_province        = l_file_rec.licence_mail_province,
 								mail_postal_code     = l_file_rec.licence_mail_postal_code,	
 								issue_date           = current_date,
-								expiry_date          = current_date + interval '2 years',
-							    total_hives          = l_file_rec.licence_total_hives
+								expiry_date          = current_date + interval '2 years'
 							where id = l_licence_id;
 						update mal_site
 							set region_id            = l_file_rec.region_id,
