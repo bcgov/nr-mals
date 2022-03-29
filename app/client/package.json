@@ -24,6 +24,7 @@
     "react-hook-form": "^6.6.0",
     "react-icons": "^3.11.0",
     "react-number-format": "^4.4.1",
+    "react-papaparse": "^4.0.2",
     "react-redux": "^7.2.0",
     "react-router-dom": "^5.2.0",
     "react-scripts": "^4.0.3",
@@ -81,6 +82,7 @@
       "react/prefer-stateless-function": "off",
       "react/no-array-index-key": "off",
       "react-hooks/exhaustive-deps": "off",
+      "react/jsx-props-no-spreading": "off",
       "no-unused-vars": "warn",
       "no-param-reassign": [
         "error",
