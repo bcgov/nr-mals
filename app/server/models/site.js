@@ -54,6 +54,7 @@ function convertToLogicalModel(input) {
     legalDescriptionText: input.legal_description,
     hiveCount: input.hive_count,
     apiarySiteId: input.apiary_site_id,
+    premisesId: input.premises_id,
 
     dairyTanks: input.mal_dairy_farm_tank
       ? input.mal_dairy_farm_tank.map((xref, index) => ({
@@ -176,6 +177,7 @@ function convertToPhysicalModel(input, update) {
     legal_description: input.legalDescriptionText,
     hive_count: input.hiveCount,
     apiary_site_id: input.apiarySiteId,
+    premises_id: input.premisesId,
 
     create_userid: input.createdBy,
     create_timestamp: input.createdOn,

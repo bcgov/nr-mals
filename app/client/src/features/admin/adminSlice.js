@@ -127,6 +127,21 @@ export const fetchDairyTestThresholds = createAsyncThunk(
   }
 );
 
+export const updatePremisesIdResults = createAsyncThunk(
+  "admin/updatePremisesIdResults",
+  async (data, thunkApi) => {
+    try {
+      const response = await Api.post(`admin/premisesidresults`, data, 120000); // Override timeout to 2 minutes
+      return response.data;
+    } catch (error) {
+      if (error instanceof ApiError) {
+        return thunkApi.rejectWithValue(error.serialize());
+      }
+      return thunkApi.rejectWithValue({ code: -1, description: error.message });
+    }
+  }
+);
+
 export const adminSlice = createSlice({
   name: "admin",
   initialState: {
@@ -150,12 +165,22 @@ export const adminSlice = createSlice({
       error: undefined,
       status: REQUEST_STATUS.IDLE,
     },
+    premisesIdResults: {
+      data: undefined,
+      error: undefined,
+      status: REQUEST_STATUS.IDLE,
+    },
   },
   reducers: {
     clearDairyTestResults: (state) => {
       state.dairyTestResults.data = undefined;
       state.dairyTestResults.error = undefined;
       state.dairyTestResults.status = REQUEST_STATUS.IDLE;
+    },
+    clearPremisesIdResults: (state) => {
+      state.premisesIdResults.data = undefined;
+      state.premisesIdResults.error = undefined;
+      state.premisesIdResults.status = REQUEST_STATUS.IDLE;
     },
   },
   extraReducers: {
@@ -257,6 +282,20 @@ export const adminSlice = createSlice({
       state.dairyTestThresholds.error = action.payload;
       state.dairyTestThresholds.status = REQUEST_STATUS.REJECTED;
     },
+    [updatePremisesIdResults.pending]: (state) => {
+      state.premisesIdResults.error = undefined;
+      state.premisesIdResults.status = REQUEST_STATUS.PENDING;
+    },
+    [updatePremisesIdResults.fulfilled]: (state, action) => {
+      state.premisesIdResults.data = action.payload;
+      state.premisesIdResults.error = undefined;
+      state.premisesIdResults.status = REQUEST_STATUS.FULFILLED;
+    },
+    [updatePremisesIdResults.rejected]: (state, action) => {
+      state.premisesIdResults.data = undefined;
+      state.premisesIdResults.error = action.payload;
+      state.premisesIdResults.status = REQUEST_STATUS.REJECTED;
+    },
   },
 });
 
@@ -265,9 +304,10 @@ export const selectRoles = (state) => state.admin.roles;
 export const selectDairyTestResults = (state) => state.admin.dairyTestResults;
 export const selectDairyTestThresholds = (state) =>
   state.admin.dairyTestThresholds;
+export const selectPremisesIdResults = (state) => state.admin.premisesIdResults;
 
 const { actions, reducer } = adminSlice;
 
-export const { clearDairyTestResults } = actions;
+export const { clearDairyTestResults, clearPremisesIdResults } = actions;
 
 export default reducer;
