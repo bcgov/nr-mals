@@ -75,7 +75,7 @@
     "lodash": "^4.17.21",
     "morgan": "~1.9.1",
     "react-bootstrap-typeahead": "^5.1.4",
-    "read-excel-file": "^5.0.0"
+    "read-excel-file": "^5.5.1"
   },
   "devDependencies": {
     "concurrently": "^5.2.0",
