@@ -3,7 +3,7 @@ import React, { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import PropTypes from "prop-types";
 import { Controller } from "react-hook-form";
-import NumberFormat from "react-number-format";
+import { NumericFormat } from "react-number-format";
 import { Row, Col, Form } from "react-bootstrap";
 
 import CustomDatePicker from "../../../components/CustomDatePicker";

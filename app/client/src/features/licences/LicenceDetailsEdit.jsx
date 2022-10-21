@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { useSelector, useDispatch } from "react-redux";
-import NumberFormat from "react-number-format";
+import { NumericFormat } from "react-number-format";
 import { Controller } from "react-hook-form";
 import { Button, Form, Col, InputGroup } from "react-bootstrap";
 
@@ -317,7 +317,7 @@ export default function LicenceDetailsEdit({
             <Form.Group controlId="irmaNumber">
               <Form.Label>IRMA Number</Form.Label>
               <Controller
-                as={NumberFormat}
+                as={NumericFormat}
                 name="irmaNumber"
                 control={control}
                 defaultValue={formatIrmaNumber(initialValues.irmaNumber)}

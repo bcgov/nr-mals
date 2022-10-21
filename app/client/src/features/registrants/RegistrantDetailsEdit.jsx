@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import PropTypes from "prop-types";
 import { useDispatch } from "react-redux";
 import { Controller } from "react-hook-form";
-import NumberFormat from "react-number-format";
+import { NumericFormat } from "react-number-format";
 import { Row, Col, Form } from "react-bootstrap";
 
 import { formatPhoneNumber } from "../../utilities/formatting.ts";
@@ -105,7 +105,7 @@ export default function RegistrantEdit({ form, registrant, submitting }) {
             <Form.Group controlId={`${fieldName}.primaryPhone`}>
               <Form.Label>Primary Phone</Form.Label>
               <Controller
-                as={NumberFormat}
+                as={NumericFormat}
                 name={`${fieldName}.primaryPhone`}
                 control={control}
                 defaultValue={formatPhoneNumber(registrant.primaryPhone)}

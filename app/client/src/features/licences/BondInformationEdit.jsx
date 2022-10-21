@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { Form, Col, InputGroup } from "react-bootstrap";
-import NumberFormat from "react-number-format";
+import { NumericFormat } from "react-number-format";
 import { Controller } from "react-hook-form";
 
 import { formatPhoneNumber } from "../../utilities/formatting.ts";
@@ -72,7 +72,7 @@ export default function BondInformationEdit({ form, initialValues }) {
           <Form.Group controlId="bondCarrierPhoneNumber">
             <Form.Label>Carrier Phone Number</Form.Label>
             <Controller
-              as={NumberFormat}
+              as={NumericFormat}
               name="bondCarrierPhoneNumber"
               control={control}
               defaultValue={formatPhoneNumber(

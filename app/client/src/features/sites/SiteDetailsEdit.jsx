@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 import { useSelector, useDispatch } from "react-redux";
 import { Button, Form, Row, Col, InputGroup } from "react-bootstrap";
 import { Controller } from "react-hook-form";
-import NumberFormat from "react-number-format";
+import { NumericFormat } from "react-number-format";
 
 import { selectRegions } from "../lookups/regionsSlice";
 
@@ -332,7 +332,7 @@ export default function SiteDetailsEdit({
           <Form.Group controlId="primaryPhone">
             <Form.Label>Primary Number</Form.Label>
             <Controller
-              as={NumberFormat}
+              as={NumericFormat}
               name="primaryPhone"
               control={form.control}
               defaultValue={initialValues.primaryPhone ?? null}
@@ -352,7 +352,7 @@ export default function SiteDetailsEdit({
           <Form.Group controlId="secondaryPhone">
             <Form.Label>Secondary Number</Form.Label>
             <Controller
-              as={NumberFormat}
+              as={NumericFormat}
               name="secondaryPhone"
               control={form.control}
               defaultValue={initialValues.secondaryPhone ?? null}

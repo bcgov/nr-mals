@@ -3,11 +3,9 @@ import React, { useEffect } from "react";
 import PropTypes from "prop-types";
 import { Button, Modal, Form, Col } from "react-bootstrap";
 import { useForm, Controller } from "react-hook-form";
-import NumberFormat from "react-number-format";
+import { NumericFormat } from "react-number-format";
 
-import { formatPhoneNumber } from "../utilities/formatting";
 import { parseAsInt } from "../utilities/parsing";
-import CustomCheckBox from "../components/CustomCheckBox";
 
 import { PHONE_NUMBER_TYPES } from "../utilities/constants";
 
@@ -99,7 +97,7 @@ export default function PhoneNumberModal({
             <Form.Group controlId="number">
               <Form.Label>Number</Form.Label>
               <Controller
-                as={NumberFormat}
+                as={NumericFormat}
                 name="number"
                 control={form.control}
                 defaultValue={phone.number ?? null}

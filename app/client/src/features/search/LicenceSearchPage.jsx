@@ -9,7 +9,7 @@ import {
   SEARCH_TYPE,
   LICENSE_RESULTS_PATHNAME,
 } from "../../utilities/constants";
-import { formatDate } from "../../utilities/formatting";
+import { formatDate } from "../../utilities/formatting.ts";
 import { parseAsDate, parseAsInt } from "../../utilities/parsing";
 
 import CustomDatePicker from "../../components/CustomDatePicker";

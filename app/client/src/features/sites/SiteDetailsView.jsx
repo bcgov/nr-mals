@@ -2,7 +2,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { Form, Row, Col, InputGroup } from "react-bootstrap";
-import NumberFormat from "react-number-format";
+import { NumericFormat } from "react-number-format";
 import {
   formatDateString,
   formatMoney,

@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 import React from "react";
 import PropTypes from "prop-types";
-import NumberFormat from "react-number-format";
+import { NumericFormat } from "react-number-format";
 import { Row, Col } from "react-bootstrap";
 
 import { parseAsInt } from "../../utilities/parsing";
@@ -64,7 +64,7 @@ export default function LicenceDetailsView({ licence }) {
             <VerticalField
               label="IRMA Number"
               value={
-                <NumberFormat
+                <NumericFormat
                   displayType="text"
                   format="##-###"
                   value={licence.irmaNumber}

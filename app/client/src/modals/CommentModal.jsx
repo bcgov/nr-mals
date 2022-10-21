@@ -3,9 +3,9 @@ import React, { useEffect } from "react";
 import PropTypes from "prop-types";
 import { Button, Modal, Form, Col } from "react-bootstrap";
 import { useForm, Controller } from "react-hook-form";
-import NumberFormat from "react-number-format";
+import { NumericFormat } from "react-number-format";
 
-import { formatPhoneNumber } from "../utilities/formatting";
+import { formatPhoneNumber } from "../utilities/formatting.ts";
 import { parseAsInt } from "../utilities/parsing";
 import CustomCheckBox from "../components/CustomCheckBox";
 

@@ -4,7 +4,7 @@ import { useDispatch } from "react-redux";
 import PropTypes from "prop-types";
 
 import VerticalField from "../../../components/VerticalField";
-import { formatDateString } from "../../../utilities/formatting";
+import { formatDateString } from "../../../utilities/formatting.ts";
 
 import { useForm } from "react-hook-form";
 import { Form, Row, Col } from "react-bootstrap";
