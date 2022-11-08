@@ -36,7 +36,13 @@ export default function Comments({ licence }) {
   const form = useForm({
     reValidateMode: "onBlur",
   });
-  const { register, handleSubmit, setValue, errors, watch } = form;
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+    watch,
+  } = form;
 
   const { status, error } = comments;
   const submitting = status === REQUEST_STATUS.PENDING;
@@ -94,7 +100,7 @@ export default function Comments({ licence }) {
             rows={6}
             maxLength={2000}
             name="commentText"
-            ref={register({ required: true })}
+            {...register("commentText", { required: true })}
             className="mb-1"
             isInvalid={errors.commentText}
           />

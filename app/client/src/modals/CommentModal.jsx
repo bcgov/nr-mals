@@ -37,7 +37,12 @@ export default function CommentModal({
   const form = useForm({
     reValidateMode: "onBlur",
   });
-  const { register, handleSubmit, setError, errors } = form;
+  const {
+    register,
+    handleSubmit,
+    setError,
+    formState: { errors },
+  } = form;
 
   return (
     <Form onSubmit={handleSubmit(onSubmit)} noValidate>
@@ -47,7 +52,7 @@ export default function CommentModal({
         id="licenceId"
         name="licenceId"
         defaultValue={licenceId}
-        ref={register}
+        {...register("licenceId")}
       />
       <Form.Control
         hidden
@@ -55,7 +60,7 @@ export default function CommentModal({
         id="commentId"
         name="commentId"
         defaultValue={commentId}
-        ref={register}
+        {...register("commentId")}
       />
       <Modal.Header closeButton>
         <Modal.Title>
@@ -70,7 +75,7 @@ export default function CommentModal({
               rows={6}
               maxLength={2000}
               name="commentText"
-              ref={register({ required: true })}
+              {...register("commentText", { required: true })}
               defaultValue={commentText}
               className="mb-1"
               isInvalid={errors.commentText}
