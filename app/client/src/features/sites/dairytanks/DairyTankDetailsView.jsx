@@ -75,7 +75,7 @@ export default function DairyTankDetailsView({ dairyTank }) {
             <CustomCheckBox
               id="printTankRecheckNotice"
               label="Tank Re-Check Notice"
-              ref={register}
+              {...register("printTankRecheckNotice")}
               onChange={() => onPrintTankRecheckNotice(dairyTank.id)}
             />
           </Form.Group>

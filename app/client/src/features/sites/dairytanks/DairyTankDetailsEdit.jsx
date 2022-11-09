@@ -11,7 +11,13 @@ import { parseAsDate } from "../../../utilities/parsing";
 
 export default function DairyTankDetailsEdit({ form, dairyTank }) {
   const dispatch = useDispatch();
-  const { register, errors, setValue, getValues, clearErrors } = form;
+  const {
+    register,
+    formState: { errors },
+    setValue,
+    getValues,
+    clearErrors,
+  } = form;
   const fieldName = `dairyTanks[${dairyTank.key}]`;
   const fieldName2 = `dairyTankDates[${dairyTank.key}]`;
   const dairyTankErrors = errors.dairyTanks
@@ -40,21 +46,21 @@ export default function DairyTankDetailsEdit({ form, dairyTank }) {
           id={`${fieldName}.status`}
           name={`${fieldName}.status`}
           value={dairyTank.status || ""}
-          ref={register}
+          {...register(`${fieldName}.status`)}
         />
         <input
           type="hidden"
           id={`${fieldName}.id`}
           name={`${fieldName}.id`}
           value={dairyTank.id || ""}
-          ref={register}
+          {...register(`${fieldName}.id`)}
         />
         <input
           type="hidden"
           id={`${fieldName}.siteId`}
           name={`${fieldName}.siteId`}
           value={dairyTank.siteId || ""}
-          ref={register}
+          {...register(`${fieldName}.siteId`)}
         />
         <Row>
           <Col>
@@ -88,7 +94,7 @@ export default function DairyTankDetailsEdit({ form, dairyTank }) {
                 type="number"
                 name={`${fieldName}.recheckYear`}
                 defaultValue={dairyTank.recheckYear}
-                ref={register}
+                {...register(`${fieldName}.recheckYear`)}
                 maxLength={4}
               />
             </Form.Group>
@@ -100,7 +106,7 @@ export default function DairyTankDetailsEdit({ form, dairyTank }) {
                 type="text"
                 name={`${fieldName}.serialNumber`}
                 defaultValue={dairyTank.serialNumber}
-                ref={register}
+                {...register(`${fieldName}.serialNumber`)}
               />
             </Form.Group>
           </Col>
@@ -113,7 +119,7 @@ export default function DairyTankDetailsEdit({ form, dairyTank }) {
                 type="text"
                 name={`${fieldName}.modelNumber`}
                 defaultValue={dairyTank.modelNumber}
-                ref={register}
+                {...register(`${fieldName}.modelNumber`)}
                 isInvalid={dairyTankErrors && dairyTankErrors.names}
                 onBlur={() => clearErrors(`${fieldName}.modelNumber`)}
               />
@@ -129,7 +135,7 @@ export default function DairyTankDetailsEdit({ form, dairyTank }) {
                 type="text"
                 name={`${fieldName}.capacity`}
                 defaultValue={dairyTank.capacity}
-                ref={register}
+                {...register(`${fieldName}.capacity`)}
               />
             </Form.Group>
           </Col>
@@ -140,7 +146,7 @@ export default function DairyTankDetailsEdit({ form, dairyTank }) {
                 type="text"
                 name={`${fieldName}.manufacturer`}
                 defaultValue={dairyTank.manufacturer}
-                ref={register}
+                {...register(`${fieldName}.manufacturer`)}
               />
             </Form.Group>
           </Col>
