@@ -89,7 +89,7 @@ export default function Reports() {
             <Form.Control
               as="select"
               name="selectedConfig"
-              ref={register}
+              {...register("selectedConfig")}
               defaultValue={null}
             >
               {/* Reports to be ordered alphabetically */}

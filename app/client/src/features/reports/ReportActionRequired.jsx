@@ -51,7 +51,7 @@ export default function ReportActionRequired() {
       <Row>
         <Col sm={3}>
           <LicenceTypes
-            ref={register}
+            {...register("licenceType")}
             defaultValue={null}
             allowAny
             label="Select a Licence Type"

@@ -77,7 +77,7 @@ export default function ReportDairyClientDetails() {
             type="text"
             name="irmaNumber"
             defaultValue={null}
-            ref={register}
+            {...register("irmaNumber")}
           />
         </Col>
         <Col lg={3}>

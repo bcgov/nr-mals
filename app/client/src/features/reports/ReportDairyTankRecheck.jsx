@@ -64,7 +64,7 @@ export default function ReportDairyTankRecheck() {
               type="number"
               name="recheckYear"
               defaultValue={initialYear}
-              ref={register}
+              {...register("recheckYear")}
             />
           </Form.Group>
         </Col>

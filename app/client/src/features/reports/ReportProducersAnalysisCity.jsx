@@ -65,7 +65,7 @@ export default function ReportProducersAnalysisCity() {
     <>
       <Row>
         <Col sm={3}>
-          <Cities cities={cities} ref={register} defaultValue={null} />
+          <Cities cities={cities} {...register("city")} defaultValue={null} />
         </Col>
         <Col sm={2}>
           <Form.Label>Min Hives</Form.Label>
@@ -73,7 +73,7 @@ export default function ReportProducersAnalysisCity() {
             type="number"
             name="minHives"
             defaultValue={0}
-            ref={register}
+            {...register("minHives")}
           />
         </Col>
         <Col sm={2}>
@@ -82,7 +82,7 @@ export default function ReportProducersAnalysisCity() {
             type="number"
             name="maxHives"
             defaultValue={0}
-            ref={register}
+            {...register("maxHives")}
           />
         </Col>
         <Col sm={2}>
