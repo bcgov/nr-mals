@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import PropTypes from "prop-types";
 import { useDispatch } from "react-redux";
 import { Controller } from "react-hook-form";
-import { NumericFormat } from "react-number-format";
+import { PatternFormat } from "react-number-format";
 import { Row, Col, Form } from "react-bootstrap";
 
 import { formatPhoneNumber } from "../../utilities/formatting.ts";
@@ -11,7 +11,13 @@ import CustomCheckBox from "../../components/CustomCheckBox";
 
 // eslint-disable-next-line
 export default function RegistrantEdit({ form, registrant, submitting }) {
-  const { register, setValue, errors, control, clearErrors } = form;
+  const {
+    register,
+    setValue,
+    formState: { errors },
+    control,
+    clearErrors,
+  } = form;
   const fieldName = `registrants[${registrant.key}]`;
   const registrantErrors = errors.registrants
     ? errors.registrants[registrant.key]
@@ -36,14 +42,14 @@ export default function RegistrantEdit({ form, registrant, submitting }) {
           id={`${fieldName}.status`}
           name={`${fieldName}.status`}
           value={registrant.status || ""}
-          ref={register}
+          {...register(`${fieldName}.status`)}
         />
         <input
           type="hidden"
           id={`${fieldName}.id`}
           name={`${fieldName}.id`}
           value={registrant.id || ""}
-          ref={register}
+          {...register(`${fieldName}.id`)}
         />
         <Row>
           <Col>
@@ -53,7 +59,7 @@ export default function RegistrantEdit({ form, registrant, submitting }) {
                 type="text"
                 name={`${fieldName}.firstName`}
                 defaultValue={registrant.firstName}
-                ref={register}
+                {...register(`${fieldName}.firstName`)}
                 isInvalid={registrantErrors && registrantErrors.names}
                 onBlur={() => clearErrors(`${fieldName}.names`)}
               />
@@ -66,7 +72,7 @@ export default function RegistrantEdit({ form, registrant, submitting }) {
                 type="text"
                 name={`${fieldName}.lastName`}
                 defaultValue={registrant.lastName}
-                ref={register}
+                {...register(`${fieldName}.lastName`)}
                 isInvalid={registrantErrors && registrantErrors.names}
                 onBlur={() => clearErrors(`${fieldName}.names`)}
               />
@@ -79,7 +85,7 @@ export default function RegistrantEdit({ form, registrant, submitting }) {
                 type="text"
                 name={`${fieldName}.officialTitle`}
                 defaultValue={registrant.officialTitle}
-                ref={register}
+                {...register(`${fieldName}.officialTitle`)}
               />
             </Form.Group>
           </Col>
@@ -92,7 +98,7 @@ export default function RegistrantEdit({ form, registrant, submitting }) {
                 type="text"
                 name={`${fieldName}.companyName`}
                 defaultValue={registrant.companyName}
-                ref={register}
+                {...register(`${fieldName}.companyName`)}
                 isInvalid={registrantErrors && registrantErrors.names}
                 onBlur={() => clearErrors(`${fieldName}.names`)}
               />
@@ -105,18 +111,27 @@ export default function RegistrantEdit({ form, registrant, submitting }) {
             <Form.Group controlId={`${fieldName}.primaryPhone`}>
               <Form.Label>Primary Phone</Form.Label>
               <Controller
-                as={NumericFormat}
+                render={({ field: { onChange }, formState }) => (
+                  <>
+                    <PatternFormat
+                      customInput={Form.Control}
+                      format="(###) ###-####"
+                      mask="_"
+                      defaultValue={formatPhoneNumber(registrant.primaryPhone)}
+                      onValueChange={(v) => {
+                        onChange(v.formattedValue);
+                      }}
+                    />
+                    <Form.Control.Feedback type="invalid">
+                      Please enter a valid phone number.
+                    </Form.Control.Feedback>
+                  </>
+                )}
                 name={`${fieldName}.primaryPhone`}
                 control={control}
+                isValid={registrantErrors && registrantErrors.primaryPhone}
                 defaultValue={formatPhoneNumber(registrant.primaryPhone)}
-                format="(###) ###-####"
-                mask="_"
-                customInput={Form.Control}
-                isInvalid={registrantErrors && registrantErrors.primaryPhone}
               />
-              <Form.Control.Feedback type="invalid">
-                Please enter a valid phone number.
-              </Form.Control.Feedback>
             </Form.Group>
           </Col>
           <Col>
@@ -126,7 +141,7 @@ export default function RegistrantEdit({ form, registrant, submitting }) {
                 type="text"
                 name={`${fieldName}.email`}
                 defaultValue={registrant.email}
-                ref={register}
+                {...register(`${fieldName}.email`)}
               />
             </Form.Group>
           </Col>
@@ -138,7 +153,7 @@ export default function RegistrantEdit({ form, registrant, submitting }) {
                 <CustomCheckBox
                   id={`${fieldName}.companyNameOverride`}
                   label="Company Name to appear on License"
-                  ref={register}
+                  {...register(`${fieldName}.companyNameOverride`)}
                 />
               </Form.Group>
             </Col>
