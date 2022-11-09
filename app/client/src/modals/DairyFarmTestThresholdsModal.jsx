@@ -13,7 +13,11 @@ export default function DairyFarmTestThresholdsModal({
   const form = useForm({
     reValidateMode: "onBlur",
   });
-  const { register, handleSubmit, errors } = form;
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = form;
 
   const onSubmit = (data) => {
     const valid = true;
@@ -37,7 +41,7 @@ export default function DairyFarmTestThresholdsModal({
         id="id"
         name="id"
         defaultValue={threshold !== null ? threshold.id : null}
-        ref={register}
+        {...register("id")}
       />
       <Modal.Header closeButton>
         <Modal.Title>
@@ -53,7 +57,7 @@ export default function DairyFarmTestThresholdsModal({
                 type="text"
                 name="dairyTestCode"
                 defaultValue={threshold !== null ? threshold.speciesCode : null}
-                ref={register({
+                {...register("dairyTestCode", {
                   required: true,
                 })}
                 isInvalid={errors.speciesCode}
@@ -75,7 +79,7 @@ export default function DairyFarmTestThresholdsModal({
                 defaultValue={
                   threshold !== null ? threshold.speciesSubCode : null
                 }
-                ref={register({
+                {...register("description", {
                   required: true,
                 })}
                 isInvalid={errors.speciesSubCode}
@@ -95,7 +99,7 @@ export default function DairyFarmTestThresholdsModal({
                 type="text"
                 name="upperLimit"
                 defaultValue={threshold !== null ? threshold.upperLimit : null}
-                ref={register({
+                {...register("upperLimit", {
                   required: true,
                 })}
                 isInvalid={errors.upperLimit}

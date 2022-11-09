@@ -13,7 +13,11 @@ export default function SlaughterhouseSpeciesModal({
   const form = useForm({
     reValidateMode: "onBlur",
   });
-  const { register, handleSubmit, errors } = form;
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = form;
 
   const onSubmit = (data) => {
     const valid = true;
@@ -33,7 +37,7 @@ export default function SlaughterhouseSpeciesModal({
         id="id"
         name="id"
         defaultValue={species !== null ? species.id : null}
-        ref={register}
+        {...register("id")}
       />
       <Modal.Header closeButton>
         <Modal.Title>
@@ -51,7 +55,7 @@ export default function SlaughterhouseSpeciesModal({
                 type="text"
                 name="codeName"
                 defaultValue={species !== null ? species.codeName : null}
-                ref={register({
+                {...register("codeName", {
                   required: true,
                 })}
                 isInvalid={errors.codeName}
@@ -73,7 +77,7 @@ export default function SlaughterhouseSpeciesModal({
                 maxLength={120}
                 name="codeDescription"
                 defaultValue={species !== null ? species.codeDescription : null}
-                ref={register({
+                {...register("codeDescription", {
                   required: true,
                 })}
                 isInvalid={errors.codeDescription}

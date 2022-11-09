@@ -53,7 +53,7 @@ export default function AdminConfig() {
         <Form.Control
           as="select"
           name="selectedConfig"
-          ref={register}
+          {...register("selectedConfig")}
           defaultValue={null}
           style={{ width: 300 }}
         >
