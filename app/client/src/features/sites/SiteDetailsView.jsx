@@ -84,7 +84,7 @@ export default function SiteDetailsView({ site, licenceTypeId }) {
           <VerticalField
             label="Primary Phone"
             value={
-              <NumberFormat
+              <NumericFormat
                 displayType="text"
                 format="(###) ###-####"
                 value={site.primaryPhone}
@@ -98,7 +98,7 @@ export default function SiteDetailsView({ site, licenceTypeId }) {
           <VerticalField
             label="Secondary Phone"
             value={
-              <NumberFormat
+              <NumericFormat
                 displayType="text"
                 format="(###) ###-####"
                 value={site.secondaryPhone}
