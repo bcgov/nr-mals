@@ -51,7 +51,7 @@ export default function LicenceInventory({ licence }) {
 
     // Set initial dates in form because DatePicker doesnt do this
     initialInventory.forEach((x, index) => {
-      setValue(`inventoryDates[${index}].date`, parseAsDate(x.date));
+      setValue(`inventoryDates.${index}.date`, parseAsDate(x.date));
     });
   }, [dispatch]);
 
@@ -65,13 +65,13 @@ export default function LicenceInventory({ licence }) {
         Math,
         // eslint-disable-next-line
         inventory.map(function (o, index) {
-          return getValues(`inventoryDates[${index}].date`).getFullYear();
+          return getValues(`inventoryDates.${index}.date`).getFullYear();
         })
       );
 
       inventory.forEach((x, index) => {
-        const year = getValues(`inventoryDates[${index}].date`).getFullYear();
-        const value = getValues(`inventory[${index}].value`);
+        const year = getValues(`inventoryDates.${index}.date`).getFullYear();
+        const value = getValues(`inventory.${index}.value`);
         const parsed = parseAsInt(value);
 
         if (year === recentYear) {
@@ -127,13 +127,13 @@ export default function LicenceInventory({ licence }) {
     };
 
     // Set default values to override anything that may have been deleted
-    setValue(`inventory[${inventory.length}].speciesCodeId`, obj.speciesCodeId);
-    setValue(`inventoryDates[${inventory.length}].date`, parseAsDate(obj.date));
+    setValue(`inventory.${inventory.length}.speciesCodeId`, obj.speciesCodeId);
+    setValue(`inventoryDates.${inventory.length}.date`, parseAsDate(obj.date));
     setValue(
-      `inventory[${inventory.length}].speciesSubCodeId`,
+      `inventory.${inventory.length}.speciesSubCodeId`,
       obj.speciesSubCodeId
     );
-    setValue(`inventory[${inventory.length}].value`, obj.value);
+    setValue(`inventory.${inventory.length}.value`, obj.value);
 
     setInventory([...inventory, obj]);
   }
@@ -145,7 +145,7 @@ export default function LicenceInventory({ licence }) {
   function deleteRow(index) {
     // Shift all the form values
     for (let i = index; i < inventory.length - 1; i += 1) {
-      setValue(`inventory[${i}]`, inventory[i + 1]);
+      setValue(`inventory.${i}`, inventory[i + 1]);
     }
 
     const clone = [...inventory];
@@ -158,7 +158,6 @@ export default function LicenceInventory({ licence }) {
     if (data.inventoryDates === undefined) {
       data.inventoryDates = [];
     }
-
     const formattedRows = data.inventory.map((inv, index) => {
       return {
         ...inv,
@@ -226,26 +225,26 @@ export default function LicenceInventory({ licence }) {
               <Row key={index}>
                 <input
                   type="hidden"
-                  id={`inventory[${index}].id`}
-                  name={`inventory[${index}].id`}
+                  id={`inventory.${index}.id`}
+                  name={`inventory.${index}.id`}
                   value={x.id}
-                  ref={register}
+                  {...register(`inventory.${index}.id`)}
                 />
                 <Col>
                   <Species
                     species={licenceSpecies}
-                    name={`inventory[${index}].speciesCodeId`}
+                    name={`inventory.${index}.speciesCodeId`}
                     defaultValue={x.speciesCodeId}
-                    ref={register}
+                    {...register(`inventory.${index}.speciesCodeId`)}
                     readOnly
                   />
                 </Col>
                 <Col>
-                  <Form.Group controlId={`inventoryDates[${index}].date`}>
+                  <Form.Group controlId={`inventoryDates.${index}.date`}>
                     <CustomDatePicker
-                      id={`inventoryDates[${index}].date`}
+                      id={`inventoryDates.${index}.date`}
                       notifyOnChange={handleFieldChange(
-                        `inventoryDates[${index}].date`,
+                        `inventoryDates.${index}.date`,
                         index
                       )}
                       defaultValue={parseAsDate(x.date)}
@@ -256,12 +255,12 @@ export default function LicenceInventory({ licence }) {
                   <SubSpecies
                     subspecies={licenceSpecies}
                     speciesId={x.speciesCodeId}
-                    name={`inventory[${index}].speciesSubCodeId`}
+                    name={`inventory.${index}.speciesSubCodeId`}
                     value={x.speciesSubCodeId}
-                    ref={register}
+                    {...register(`inventory.${index}.speciesSubCodeId`)}
                     onChange={(e) =>
                       handleSubSpeciesChange(
-                        `inventory[${index}].speciesSubCodeId`,
+                        `inventory.${index}.speciesSubCodeId`,
                         index,
                         e.target.value
                       )
@@ -269,13 +268,12 @@ export default function LicenceInventory({ licence }) {
                   />
                 </Col>
                 <Col>
-                  <Form.Group controlId={`inventory[${index}].value`}>
+                  <Form.Group controlId={`inventory.${index}.value`}>
                     <Form.Control
                       type="text"
-                      name={`inventory[${index}].value`}
+                      name={`inventory.${index}.value`}
                       defaultValue={x.value}
-                      ref={register}
-                      onChange={(e) => handleValueChange(index, e.target.value)}
+                      {...register(`inventory.${index}.value`)}
                       onBlur={calculateInventoryTotal}
                     />
                   </Form.Group>
@@ -301,14 +299,14 @@ export default function LicenceInventory({ licence }) {
                   id="inventoryTotalValue"
                   name="inventoryTotalValue"
                   value={0}
-                  ref={register}
+                  {...register("inventoryTotalValue")}
                 />
                 <Form.Group controlId="inventoryTotalValueDisplay">
                   <Form.Control
                     type="number"
                     name="inventoryTotalValueDisplay"
                     defaultValue={null}
-                    ref={register}
+                    {...register("inventoryTotalValueDisplay")}
                     disabled
                   />
                 </Form.Group>
