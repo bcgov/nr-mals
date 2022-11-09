@@ -1,7 +1,7 @@
 const parseAsInt = (string) => {
   const number = parseInt(string, 10);
   if (Number.isNaN(number)) {
-    return null;
+    return undefined;
   }
   return number;
 };
@@ -9,7 +9,7 @@ const parseAsInt = (string) => {
 const parseAsFloat = (string) => {
   const number = parseFloat(string);
   if (Number.isNaN(number)) {
-    return null;
+    return undefined;
   }
   return number;
 };
