@@ -33,3 +33,11 @@ export const parseAsDate = (string) => {
 export const isNullOrEmpty = (obj) => {
   return obj === null || obj === undefined || obj.length === 0;
 };
+
+export const isTruthy = (value) => {
+  if (value === undefined) return value;
+
+  const isStr = typeof value === 'string' || value instanceof String;
+  const trueStrings = ['true', 't', 'yes', 'y', '1'];
+  return value === true || value === 1 || isStr && trueStrings.includes(value.toLowerCase());
+};
