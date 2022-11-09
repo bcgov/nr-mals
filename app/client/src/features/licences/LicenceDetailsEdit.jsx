@@ -47,7 +47,13 @@ export default function LicenceDetailsEdit({
   licenceTypeId,
   mode,
 }) {
-  const { watch, setValue, register, errors, control } = form;
+  const {
+    watch,
+    setValue,
+    register,
+    formState: { errors },
+    control,
+  } = form;
   const dispatch = useDispatch();
   const regions = useSelector(selectRegions);
 
@@ -192,12 +198,19 @@ export default function LicenceDetailsEdit({
     };
   };
 
-  const watchPaymentReceived = watch("paymentReceived", false);
+  const watchPaymentReceived = watch(
+    "paymentReceived",
+    licence.paymentReceived
+  );
 
   const watchRegion = watch("region", null);
   const parsedRegion = parseAsInt(watchRegion);
 
-  const watchLicenceType = parseAsInt(watch("licenceType", licenceTypeId));
+  // Watch during create, force during editing existing licence
+  let watchLicenceType = parseAsInt(watch("licenceType", licenceTypeId));
+  if (watchLicenceType === null || watchLicenceType === undefined) {
+    watchLicenceType = licenceTypeId;
+  }
 
   const config = getLicenceTypeConfiguration(licenceTypeId);
 
@@ -269,7 +282,7 @@ export default function LicenceDetailsEdit({
             species={filter}
             name="speciesCodeId"
             defaultValue={licenceSpecies.data.species[0].id}
-            ref={register({
+            {...register("speciesCodeId", {
               required: true,
             })}
           />
@@ -285,7 +298,7 @@ export default function LicenceDetailsEdit({
         <Col lg={8}>
           <Regions
             regions={regions}
-            ref={register}
+            {...register("region")}
             defaultValue={initialValues.region}
             isInvalid={errors.region}
           />
@@ -305,7 +318,7 @@ export default function LicenceDetailsEdit({
           <RegionalDistricts
             regions={regions}
             selectedRegion={parsedRegion}
-            ref={register}
+            {...register("regionalDistrict")}
             defaultValue={initialValues.regionalDistrict}
             isInvalid={errors.regionalDistrict}
           />
@@ -341,7 +354,7 @@ export default function LicenceDetailsEdit({
         </Col>
         <Col lg={8}>
           <LicenceStatuses
-            ref={register({ required: true })}
+            {...register("licenceStatus", { required: true })}
             isInvalid={errors.licenceStatus}
           />
         </Col>
@@ -365,7 +378,7 @@ export default function LicenceDetailsEdit({
                 as="select"
                 name="selectedAddress"
                 id="selectedAddress"
-                ref={register}
+                {...register("selectedAddress")}
                 disabled={addresses.length === 0}
                 custom
               >
@@ -401,7 +414,7 @@ export default function LicenceDetailsEdit({
                 as="select"
                 name="selectedPhoneNumber"
                 id="selectedPhoneNumber"
-                ref={register}
+                {...register("selectedPhoneNumber")}
                 disabled={phoneNumbers.length === 0}
                 custom
               >
@@ -430,7 +443,7 @@ export default function LicenceDetailsEdit({
                 type="number"
                 name="totalHives"
                 defaultValue={initialValues.totalHives}
-                ref={register}
+                {...register("totalHives")}
               />
             </Form.Group>
           </Col>
@@ -441,7 +454,7 @@ export default function LicenceDetailsEdit({
                 type="number"
                 name="hivesPerApiary"
                 defaultValue={initialValues.hivesPerApiary}
-                ref={register}
+                {...register("hivesPerApiary")}
               />
             </Form.Group>
           </Col>
@@ -453,7 +466,7 @@ export default function LicenceDetailsEdit({
               <CustomCheckBox
                 id="paymentReceived"
                 label="Payment Received"
-                ref={register}
+                {...register("paymentReceived")}
               />
             </Form.Group>
           </Col>
@@ -468,7 +481,7 @@ export default function LicenceDetailsEdit({
                   <Form.Control
                     type="text"
                     name="feePaidAmount"
-                    ref={register({
+                    {...register("feePaidAmount", {
                       required: true,
                       pattern: /^(\d|[1-9]\d+)(\.\d{2})?$/i,
                     })}

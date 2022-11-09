@@ -65,14 +65,8 @@ export default function LicenceDetailsViewEdit({ licence }) {
   const form = useForm({
     reValidateMode: "onBlur",
   });
-  const {
-    register,
-    handleSubmit,
-    clearErrors,
-    setError,
-    setValue,
-    getValues,
-  } = form;
+  const { register, handleSubmit, clearErrors, setError, setValue, getValues } =
+    form;
 
   useEffect(() => {
     register("applicationDate");
@@ -233,7 +227,7 @@ export default function LicenceDetailsViewEdit({ licence }) {
           <CustomCheckBox
             id="actionRequired"
             label="Action Required"
-            ref={register}
+            {...register("actionRequired")}
             onChange={onLicenceDetailsCheckboxChange}
             disabled={
               submitting ||
@@ -248,7 +242,7 @@ export default function LicenceDetailsViewEdit({ licence }) {
           <CustomCheckBox
             id="printLicence"
             label="Print Licence"
-            ref={register}
+            {...register("printLicence")}
             onChange={onLicenceDetailsCheckboxChange}
             disabled={
               submitting ||
@@ -263,7 +257,7 @@ export default function LicenceDetailsViewEdit({ licence }) {
           <CustomCheckBox
             id="renewalNotice"
             label="Renewal Notice"
-            ref={register}
+            {...register("renewalNotice")}
             onChange={onLicenceDetailsCheckboxChange}
             disabled={
               submitting ||

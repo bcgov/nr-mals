@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { Form, Col, InputGroup } from "react-bootstrap";
-import { NumericFormat } from "react-number-format";
+import { PatternFormat } from "react-number-format";
 import { Controller } from "react-hook-form";
 
 import { formatPhoneNumber } from "../../utilities/formatting.ts";
@@ -9,7 +9,12 @@ import { formatPhoneNumber } from "../../utilities/formatting.ts";
 import CustomDatePicker from "../../components/CustomDatePicker";
 
 export default function BondInformationEdit({ form, initialValues }) {
-  const { control, setValue, register, errors } = form;
+  const {
+    control,
+    setValue,
+    register,
+    formState: { errors },
+  } = form;
 
   const handleFieldChange = (field) => {
     return (value) => {
@@ -27,7 +32,7 @@ export default function BondInformationEdit({ form, initialValues }) {
               type="text"
               name="bondNumber"
               defaultValue={initialValues.bondNumber}
-              ref={register}
+              {...register("bondNumber")}
             />
           </Form.Group>
         </Col>
@@ -42,7 +47,7 @@ export default function BondInformationEdit({ form, initialValues }) {
               <Form.Control
                 type="text"
                 name="bondValue"
-                ref={register({
+                {...register("bondValue", {
                   required: true,
                   pattern: /^(\d|[1-9]\d+)(\.\d{2})?$/i,
                 })}
@@ -64,7 +69,7 @@ export default function BondInformationEdit({ form, initialValues }) {
               type="text"
               name="bondCarrierName"
               defaultValue={initialValues.bondCarrierName}
-              ref={register}
+              {...register("bondCarrierName")}
             />
           </Form.Group>
         </Col>
@@ -72,16 +77,21 @@ export default function BondInformationEdit({ form, initialValues }) {
           <Form.Group controlId="bondCarrierPhoneNumber">
             <Form.Label>Carrier Phone Number</Form.Label>
             <Controller
-              as={NumericFormat}
-              name="bondCarrierPhoneNumber"
-              control={control}
-              defaultValue={formatPhoneNumber(
-                initialValues.bondCarrierPhoneNumber
+              render={({ field: { onChange } }) => (
+                <PatternFormat
+                  customInput={Form.Control}
+                  format="(###) ###-####"
+                  mask="_"
+                  defaultValue={initialValues.bondCarrierPhoneNumber}
+                  onValueChange={(v) => {
+                    onChange(v.formattedValue);
+                  }}
+                />
               )}
-              format="(###) ###-####"
-              mask="_"
-              customInput={Form.Control}
+              name="bondCarrierPhoneNumber"
+              control={form.control}
               isInvalid={errors && errors.bondCarrierPhoneNumber}
+              defaultValue={initialValues.bondCarrierPhoneNumber}
             />
             <Form.Control.Feedback type="invalid">
               Please enter a valid phone number.
