@@ -3,7 +3,7 @@ import React, { useEffect } from "react";
 import PropTypes from "prop-types";
 import { Button, Modal, Form, Col } from "react-bootstrap";
 import { useForm, Controller } from "react-hook-form";
-import { NumericFormat } from "react-number-format";
+import { PatternFormat } from "react-number-format";
 
 import { parseAsInt } from "../utilities/parsing";
 
@@ -44,7 +44,12 @@ export default function PhoneNumberModal({
   const form = useForm({
     reValidateMode: "onBlur",
   });
-  const { register, handleSubmit, setError, errors } = form;
+  const {
+    register,
+    handleSubmit,
+    setError,
+    formState: { errors },
+  } = form;
 
   const phoneTypes = [
     { value: PHONE_NUMBER_TYPES.PRIMARY, description: "Primary Phone" },
@@ -64,7 +69,7 @@ export default function PhoneNumberModal({
         id="phoneKey"
         name="phoneKey"
         defaultValue={phone.key}
-        ref={register}
+        {...register("phoneKey")}
       />
       <Modal.Header closeButton>
         <Modal.Title>
@@ -79,7 +84,7 @@ export default function PhoneNumberModal({
               <Form.Control
                 as="select"
                 name="phoneNumberType"
-                ref={register}
+                {...register("phoneNumberType")}
                 defaultValue={
                   phone.phoneNumberType ?? PHONE_NUMBER_TYPES.PRIMARY
                 }
@@ -97,18 +102,27 @@ export default function PhoneNumberModal({
             <Form.Group controlId="number">
               <Form.Label>Number</Form.Label>
               <Controller
-                as={NumericFormat}
+                render={({ field: { onChange }, formState }) => (
+                  <>
+                    <PatternFormat
+                      customInput={Form.Control}
+                      format="(###) ###-####"
+                      mask="_"
+                      defaultValue={phone.number ?? null}
+                      onValueChange={(v) => {
+                        onChange(v.formattedValue);
+                      }}
+                    />
+                    <Form.Control.Feedback type="invalid">
+                      Please enter a valid phone number.
+                    </Form.Control.Feedback>
+                  </>
+                )}
                 name="number"
                 control={form.control}
-                defaultValue={phone.number ?? null}
-                format="(###) ###-####"
-                mask="_"
-                customInput={Form.Control}
                 isInvalid={errors.number}
+                defaultValue={phone.number ?? null}
               />
-              <Form.Control.Feedback type="invalid">
-                Please enter a valid phone number.
-              </Form.Control.Feedback>
             </Form.Group>
           </Col>
         </Form.Row>

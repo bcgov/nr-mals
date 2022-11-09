@@ -59,7 +59,13 @@ export default function AddressModal({
   const form = useForm({
     reValidateMode: "onBlur",
   });
-  const { register, handleSubmit, setValue, errors, watch } = form;
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+    watch,
+  } = form;
 
   const addressTypes = [
     { value: ADDRESS_TYPES.PRIMARY, description: "Primary Address" },
@@ -81,7 +87,7 @@ export default function AddressModal({
         id="addressKey"
         name="addressKey"
         defaultValue={address.key}
-        ref={register}
+        {...register("addressKey")}
       />
       <Modal.Header closeButton>
         <Modal.Title>
@@ -110,7 +116,7 @@ export default function AddressModal({
                 type="text"
                 name="addressLine1"
                 defaultValue={address.addressLine1 ?? null}
-                ref={register({
+                {...register("addressLine1", {
                   required: true,
                 })}
                 isInvalid={errors.addressLine1}
@@ -129,7 +135,7 @@ export default function AddressModal({
                 type="text"
                 name="addressLine2"
                 defaultValue={address.addressLine2 ?? null}
-                ref={register}
+                {...register("addressLine2")}
               />
             </Form.Group>
           </Col>
@@ -144,7 +150,7 @@ export default function AddressModal({
                     type="text"
                     name="city"
                     defaultValue={address.city ?? null}
-                    ref={register({
+                    {...register("city", {
                       required: true,
                     })}
                     isInvalid={errors.city}
@@ -156,7 +162,7 @@ export default function AddressModal({
               ) : (
                 <Cities
                   cities={cities}
-                  ref={register({ required: true })}
+                  {...register("city", { required: true })}
                   defaultValue={address.city ?? "BC"}
                   isInvalid={errors.city}
                 />
@@ -171,7 +177,7 @@ export default function AddressModal({
                   <Form.Control
                     as="select"
                     name="province"
-                    ref={register}
+                    {...register("province")}
                     defaultValue={address.province ?? "BC"}
                   >
                     <option value="AB">AB</option>
@@ -196,7 +202,7 @@ export default function AddressModal({
                     type="text"
                     name="province"
                     defaultValue={address.province ?? null}
-                    ref={register}
+                    {...register("province")}
                     maxLength={4}
                   />
                 </>
@@ -214,7 +220,7 @@ export default function AddressModal({
                 type="text"
                 name="postalCode"
                 defaultValue={address.postalCode ?? null}
-                ref={register}
+                {...register("postalCode")}
                 maxLength={7}
               />
             </Form.Group>
@@ -225,7 +231,7 @@ export default function AddressModal({
               <Form.Control
                 as="select"
                 name="country"
-                ref={register}
+                {...register("country")}
                 defaultValue={address.country ?? COUNTRIES.CANADA}
               >
                 {COUNTRIES_MAP.map((x) => {
@@ -246,7 +252,7 @@ export default function AddressModal({
               <Form.Control
                 as="select"
                 name="addressType"
-                ref={register}
+                {...register("addressType")}
                 defaultValue={address.addressType ?? ADDRESS_TYPES.PRIMARY}
                 custom
               >
