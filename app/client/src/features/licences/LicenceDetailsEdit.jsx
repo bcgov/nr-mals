@@ -198,9 +198,13 @@ export default function LicenceDetailsEdit({
     };
   };
 
+  const handleValueChange = (field, value) => {
+    setValue(field, value);
+  };
+
   const watchPaymentReceived = watch(
     "paymentReceived",
-    licence.paymentReceived
+    licence && licence.paymentReceived ? licence.paymentReceived : null
   );
 
   const watchRegion = watch("region", null);
@@ -231,8 +235,11 @@ export default function LicenceDetailsEdit({
     } else {
       setValue("totalHives", undefined);
       setValue("hivesPerApiary", undefined);
-      setValue("paymentReceived", false);
-      setValue("feePaidAmount", null);
+      setValue(
+        "paymentReceived",
+        licence && licence.paymentReceived ? licence.paymentReceived : null
+      );
+      setValue("feePaidAmount", initialValues.feePaidAmount ?? null);
     }
   }, [
     licenceTypeId,
@@ -466,7 +473,14 @@ export default function LicenceDetailsEdit({
               <CustomCheckBox
                 id="paymentReceived"
                 label="Payment Received"
-                {...register("paymentReceived")}
+                defaultChecked={
+                  licence && licence.paymentReceived
+                    ? licence.paymentReceived
+                    : null
+                }
+                onChange={(e) =>
+                  handleValueChange("paymentReceived", e.target.checked)
+                }
               />
             </Form.Group>
           </Col>

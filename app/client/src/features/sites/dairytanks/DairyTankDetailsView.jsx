@@ -19,18 +19,20 @@ export default function DairyTankDetailsView({ dairyTank }) {
   const form = useForm({
     reValidateMode: "onBlur",
   });
-  const { register, setValue, getValues } = form;
+  const { setValue } = form;
 
   useEffect(() => {
     setValue("printTankRecheckNotice", dairyTank.printRecheckNotice);
   }, [dispatch]);
 
-  const onPrintTankRecheckNotice = (id) => {
-    const checked = getValues("printTankRecheckNotice");
+  const onPrintTankRecheckNotice = (id, value) => {
+    setValue("printTankRecheckNotice", value);
 
+    console.log(id);
+    console.log(value);
     dispatch(
       updateSiteDairyTankRecheckNotice({
-        data: { checked },
+        data: { checked: value },
         id: id,
       })
     );
@@ -75,8 +77,10 @@ export default function DairyTankDetailsView({ dairyTank }) {
             <CustomCheckBox
               id="printTankRecheckNotice"
               label="Tank Re-Check Notice"
-              {...register("printTankRecheckNotice")}
-              onChange={() => onPrintTankRecheckNotice(dairyTank.id)}
+              defaultChecked={dairyTank.printRecheckNotice}
+              onChange={(e) =>
+                onPrintTankRecheckNotice(dairyTank.id, e.target.checked)
+              }
             />
           </Form.Group>
         </Col>

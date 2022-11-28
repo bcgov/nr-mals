@@ -207,10 +207,27 @@ export default function LicenceDetailsViewEdit({ licence }) {
     );
   };
 
-  const onLicenceDetailsCheckboxChange = () => {
-    const actionRequired = getValues("actionRequired");
-    const printLicence = getValues("printLicence");
-    const renewalNotice = getValues("renewalNotice");
+  const onLicenceDetailsCheckboxChange = (target, value) => {
+    setValue(target, value);
+
+    let actionRequired = getValues("actionRequired");
+    let printLicence = getValues("printLicence");
+    let renewalNotice = getValues("renewalNotice");
+
+    // Some hokeyness because setValue most likely wont have actually updated state yet
+    switch (target) {
+      case "actionRequired":
+        actionRequired = value;
+        break;
+      case "printLicence":
+        printLicence = value;
+        break;
+      case "renewalNotice":
+        renewalNotice = value;
+        break;
+      default:
+        break;
+    }
 
     dispatch(
       updateLicenceCheckboxes({
@@ -227,8 +244,10 @@ export default function LicenceDetailsViewEdit({ licence }) {
           <CustomCheckBox
             id="actionRequired"
             label="Action Required"
-            {...register("actionRequired")}
-            onChange={onLicenceDetailsCheckboxChange}
+            defaultChecked={initialFormValues.actionRequired}
+            onChange={(e) =>
+              onLicenceDetailsCheckboxChange("actionRequired", e.target.checked)
+            }
             disabled={
               submitting ||
               currentUser.data.roleId === SYSTEM_ROLES.READ_ONLY ||
@@ -242,8 +261,10 @@ export default function LicenceDetailsViewEdit({ licence }) {
           <CustomCheckBox
             id="printLicence"
             label="Print Licence"
-            {...register("printLicence")}
-            onChange={onLicenceDetailsCheckboxChange}
+            defaultChecked={initialFormValues.printLicence}
+            onChange={(e) =>
+              onLicenceDetailsCheckboxChange("printLicence", e.target.checked)
+            }
             disabled={
               submitting ||
               currentUser.data.roleId === SYSTEM_ROLES.READ_ONLY ||
@@ -257,8 +278,10 @@ export default function LicenceDetailsViewEdit({ licence }) {
           <CustomCheckBox
             id="renewalNotice"
             label="Renewal Notice"
-            {...register("renewalNotice")}
-            onChange={onLicenceDetailsCheckboxChange}
+            defaultChecked={initialFormValues.renewalNotice}
+            onChange={(e) =>
+              onLicenceDetailsCheckboxChange("renewalNotice", e.target.checked)
+            }
             disabled={
               submitting ||
               currentUser.data.roleId === SYSTEM_ROLES.READ_ONLY ||

@@ -1,14 +1,11 @@
 /* eslint-disable */
-import React, { useEffect } from "react";
+import React from "react";
 import { useSelector } from "react-redux";
 import PropTypes from "prop-types";
 import { Button, Modal, Form, Col } from "react-bootstrap";
-import { useForm, Controller } from "react-hook-form";
-import { NumericFormat } from "react-number-format";
+import { useForm } from "react-hook-form";
 
-import { formatPhoneNumber } from "../utilities/formatting.ts";
 import { parseAsInt } from "../utilities/parsing";
-import CustomCheckBox from "../components/CustomCheckBox";
 
 import Cities from "../features/lookups/Cities";
 
