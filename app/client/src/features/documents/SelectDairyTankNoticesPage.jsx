@@ -35,14 +35,9 @@ import {
   clearDairyTankNoticeJob,
 } from "./dairyTankNoticesSlice";
 
-function getSelectedLicences(licences) {
-  return licences
-    .filter((licence) => licence.selected === "true")
-    .map((licence) => licence.id);
-}
-
 export default function SelectDairyTankNoticesPage() {
-  const [toggleAllChecked, setToggleAllChecked] = useState(true);
+  const [isCheckAll, setIsCheckAll] = useState(false);
+  const [isChecked, setIsChecked] = useState([]);
 
   const queuedDairyTankNotices = useSelector(selectQueuedDairyTankNotices);
   const dairyTankNoticeJob = useSelector(selectDairyTankNoticesJob);
@@ -50,15 +45,7 @@ export default function SelectDairyTankNoticesPage() {
   const dispatch = useDispatch();
   const history = useHistory();
 
-  const {
-    control,
-    reset,
-    register,
-    handleSubmit,
-    watch,
-    getValues,
-    setValue,
-  } = useForm();
+  const { control, reset, handleSubmit, watch } = useForm();
   const { fields } = useFieldArray({
     control,
     name: "licences",
@@ -90,30 +77,36 @@ export default function SelectDairyTankNoticesPage() {
   }, [reset, queuedDairyTankNotices.data]);
 
   const watchLicences = watch("licences", []);
-  const selectedLicencesCount = getSelectedLicences(watchLicences).length;
 
   const onSubmit = (data) => {
-    const selectedIds = getSelectedLicences(data.licences);
-    dispatch(startDairyTankNoticeJob(selectedIds));
+    dispatch(startDairyTankNoticeJob(isChecked));
     history.push(DOWNLOAD_DAIRYTANKNOTICES_PATHNAME);
   };
 
-  const updateToggleAllChecked = () => {
-    const { licences } = getValues();
-    const selectedLicences = getSelectedLicences(licences);
-    setToggleAllChecked(selectedLicences.length === licences.length);
+  const handleSelectAll = (e) => {
+    setIsCheckAll(!isCheckAll);
+
+    // Check inverse because the state hasn't actually updated yet
+    if (isCheckAll) {
+      setIsChecked([]);
+    } else {
+      setIsChecked(watchLicences.map((x) => x.licenceId));
+    }
   };
 
-  const toggleAllLicences = () => {
-    let { licences } = getValues();
-    const selectedLicences = getSelectedLicences(licences);
-    if (selectedLicences.length === licences.length) {
-      licences = licences.map((licence) => ({ ...licence, selected: false }));
+  const handleClick = (e, id) => {
+    const { checked } = e.target;
+
+    if (!checked) {
+      // Uncheck checkall if toggling a checkbox off manually
+      setIsCheckAll(false);
+
+      // Filter out licence id
+      setIsChecked(isChecked.filter((item) => item !== id));
     } else {
-      licences = licences.map((licence) => ({ ...licence, selected: true }));
+      // Add licence id
+      setIsChecked([...isChecked, id]);
     }
-    setValue("licences", licences);
-    updateToggleAllChecked();
   };
 
   let content = null;
@@ -122,7 +115,7 @@ export default function SelectDairyTankNoticesPage() {
       variant="primary"
       type="submit"
       disabled={
-        selectedLicencesCount === 0 ||
+        isChecked.length === 0 ||
         dairyTankNoticeJob.status !== REQUEST_STATUS.IDLE
       }
     >
@@ -171,8 +164,8 @@ export default function SelectDairyTankNoticesPage() {
       <Form onSubmit={handleSubmit(onSubmit)}>
         <Row className="mt-3 d-flex justify-content-end">
           <Col md="auto">
-            {selectedLicencesCount}{" "}
-            {pluralize(selectedLicencesCount, "dairy tank notice")} selected for
+            {isChecked.length}{" "}
+            {pluralize(isChecked.length, "dairy tank notice")} selected for
             generation.
           </Col>
         </Row>
@@ -182,9 +175,9 @@ export default function SelectDairyTankNoticesPage() {
               <th>
                 <Form.Check
                   id="toggleAllCheckbox"
-                  onChange={(event) => toggleAllLicences(event)}
+                  onChange={(event) => handleSelectAll(event)}
+                  checked={isCheckAll}
                   label={<FaPrint />}
-                  checked={toggleAllChecked}
                 />
               </th>
               <th>Licence</th>
@@ -199,22 +192,15 @@ export default function SelectDairyTankNoticesPage() {
           </thead>
           <tbody>
             {fields.map((item, index) => {
-              const url = `${LICENSES_PATHNAME}/${item.id}`;
+              const url = `${LICENSES_PATHNAME}/${item.licenceId}`;
               return (
                 <tr key={item.id}>
                   <td>
                     <Form.Check
-                      name={`licences[${index}].selected`}
-                      ref={register()}
-                      defaultChecked
-                      defaultValue
-                      onChange={() => updateToggleAllChecked()}
-                    />
-                    <input
-                      hidden
-                      name={`licences[${index}].id`}
-                      ref={register()}
-                      defaultValue={item.id}
+                      name={`licences.${index}.check`}
+                      id={item.licenceId}
+                      checked={isChecked.includes(item.licenceId)}
+                      onChange={(e) => handleClick(e, item.licenceId)}
                     />
                   </td>
                   <td className="text-nowrap">

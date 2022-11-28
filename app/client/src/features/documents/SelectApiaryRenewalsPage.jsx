@@ -37,16 +37,11 @@ import {
   clearRenewalJob,
 } from "./renewalsSlice";
 
-function getSelectedLicences(licences) {
-  return licences
-    .filter((licence) => licence.selected === "true")
-    .map((licence) => licence.licenceId);
-}
-
 let licences = [];
 
 export default function SelectApiaryRenewalsPage() {
-  const [toggleAllChecked, setToggleAllChecked] = useState(true);
+  const [isCheckAll, setIsCheckAll] = useState(false);
+  const [isChecked, setIsChecked] = useState([]);
 
   const queuedRenewals = useSelector(selectQueuedRenewals);
   const renewalJob = useSelector(selectRenewalsJob);
@@ -54,7 +49,7 @@ export default function SelectApiaryRenewalsPage() {
   const dispatch = useDispatch();
   const history = useHistory();
 
-  const { register, handleSubmit, watch, getValues, setValue } = useForm();
+  const { handleSubmit, watch, setValue } = useForm();
 
   const startDate = startOfToday();
   const endDate = add(startOfToday(), { days: 15 });
@@ -62,7 +57,6 @@ export default function SelectApiaryRenewalsPage() {
   const watchLicences = watch("licences", []);
   const watchStartDate = watch("startDate", startDate);
   const watchEndDate = watch("endDate", endDate);
-  const selectedLicencesCount = getSelectedLicences(watchLicences).length;
 
   useEffect(() => {
     dispatch(clearRenewalJob());
@@ -82,6 +76,7 @@ export default function SelectApiaryRenewalsPage() {
     licences = queuedRenewals.data
       ? queuedRenewals.data.map((licence) => ({
           ...licence,
+          licenceId: licence.licenceId,
           issuedOnDate: formatDateString(licence.issuedOnDate),
           expiryDate: formatDateString(licence.expiryDate),
           selected: "true",
@@ -100,33 +95,34 @@ export default function SelectApiaryRenewalsPage() {
   }, [watchStartDate, watchEndDate]);
 
   const onSubmit = (data) => {
-    const selectedIds = getSelectedLicences(data.licences);
-    dispatch(startRenewalJob(selectedIds));
+    dispatch(startRenewalJob(isChecked));
     history.push(DOWNLOAD_RENEWALS_PATHNAME);
   };
 
-  const updateToggleAllChecked = () => {
-    const values = getValues();
-    const selectedLicences = getSelectedLicences(values.licences);
-    setToggleAllChecked(selectedLicences.length === values.licences.length);
+  const handleSelectAll = (e) => {
+    setIsCheckAll(!isCheckAll);
+
+    // Check inverse because the state hasn't actually updated yet
+    if (isCheckAll) {
+      setIsChecked([]);
+    } else {
+      setIsChecked(watchLicences.map((x) => x.licenceId));
+    }
   };
 
-  const toggleAllLicences = () => {
-    const values = getValues();
-    const selectedLicences = getSelectedLicences(values.licences);
-    if (selectedLicences.length === values.licences.length) {
-      values.licences = values.licences.map((licence) => ({
-        ...licence,
-        selected: false,
-      }));
+  const handleClick = (e, id) => {
+    const { checked } = e.target;
+
+    if (!checked) {
+      // Uncheck checkall if toggling a checkbox off manually
+      setIsCheckAll(false);
+
+      // Filter out licence id
+      setIsChecked(isChecked.filter((item) => item !== id));
     } else {
-      values.licences = values.licences.map((licence) => ({
-        ...licence,
-        selected: true,
-      }));
+      // Add licence id
+      setIsChecked([...isChecked, id]);
     }
-    setValue("licences", values.licences);
-    updateToggleAllChecked();
   };
 
   const handleFieldChange = (field) => {
@@ -141,7 +137,7 @@ export default function SelectApiaryRenewalsPage() {
       variant="primary"
       type="submit"
       disabled={
-        selectedLicencesCount === 0 || renewalJob.status !== REQUEST_STATUS.IDLE
+        isChecked.length === 0 || renewalJob.status !== REQUEST_STATUS.IDLE
       }
     >
       Generate
@@ -186,9 +182,8 @@ export default function SelectApiaryRenewalsPage() {
       <Form onSubmit={handleSubmit(onSubmit)}>
         <Row className="mt-3 d-flex justify-content-end">
           <Col md="auto">
-            {selectedLicencesCount}{" "}
-            {pluralize(selectedLicencesCount, "renewal")} selected for
-            generation.
+            {isChecked.length} {pluralize(isChecked.length, "renewal")} selected
+            for generation.
           </Col>
         </Row>
         <Table striped size="sm" responsive className="mt-3" hover>
@@ -197,9 +192,9 @@ export default function SelectApiaryRenewalsPage() {
               <th>
                 <Form.Check
                   id="toggleAllCheckbox"
-                  onChange={(event) => toggleAllLicences(event)}
+                  onChange={(event) => handleSelectAll(event)}
+                  checked={isCheckAll}
                   label={<FaPrint />}
-                  checked={toggleAllChecked}
                 />
               </th>
               <th>Licence</th>
@@ -220,17 +215,10 @@ export default function SelectApiaryRenewalsPage() {
                 <tr key={item.licenceId}>
                   <td>
                     <Form.Check
-                      name={`licences[${index}].selected`}
-                      ref={register()}
-                      defaultChecked
-                      defaultValue
-                      onChange={() => updateToggleAllChecked()}
-                    />
-                    <input
-                      hidden
-                      name={`licences[${index}].licenceId`}
-                      ref={register()}
-                      defaultValue={item.licenceId}
+                      name={`licences.${index}.check`}
+                      id={item.licenceId}
+                      checked={isChecked.includes(item.licenceId)}
+                      onChange={(e) => handleClick(e, item.licenceId)}
                     />
                   </td>
                   <td className="text-nowrap">
