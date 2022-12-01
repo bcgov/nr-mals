@@ -1,13 +1,7 @@
-/* eslint-disable */
 import React from "react";
 import PropTypes from "prop-types";
-import { Form, Row, Col, InputGroup } from "react-bootstrap";
-import { NumericFormat } from "react-number-format";
-import {
-  formatDateString,
-  formatMoney,
-  formatBoolean,
-} from "../../utilities/formatting.ts";
+import { Form, Row, Col } from "react-bootstrap";
+import { PatternFormat } from "react-number-format";
 
 import {
   LICENCE_TYPE_ID_APIARY,
@@ -84,7 +78,7 @@ export default function SiteDetailsView({ site, licenceTypeId }) {
           <VerticalField
             label="Primary Phone"
             value={
-              <NumericFormat
+              <PatternFormat
                 displayType="text"
                 format="(###) ###-####"
                 value={site.primaryPhone}
@@ -98,7 +92,7 @@ export default function SiteDetailsView({ site, licenceTypeId }) {
           <VerticalField
             label="Secondary Phone"
             value={
-              <NumericFormat
+              <PatternFormat
                 displayType="text"
                 format="(###) ###-####"
                 value={site.secondaryPhone}

@@ -170,7 +170,6 @@ export default function LicenceInventoryHistory({ licence }) {
   };
 
   const onDeleteCallback = (data) => {
-    console.log(data);
     dispatch(
       deleteLicenceInventoryHistory({ data, licenceId: licence.data.id })
     );

@@ -1,8 +1,7 @@
-/* eslint-disable */
-import React, { useState, useEffect } from "react";
+import React from "react";
 import PropTypes from "prop-types";
-import { useSelector, useDispatch } from "react-redux";
-import { Button, Form, Row, Col, InputGroup } from "react-bootstrap";
+import { useSelector } from "react-redux";
+import { Button, Form, Row, Col } from "react-bootstrap";
 import { Controller } from "react-hook-form";
 import { PatternFormat } from "react-number-format";
 
@@ -19,30 +18,22 @@ import Cities from "../../features/lookups/Cities";
 
 import { selectCities } from "../../features/lookups/citiesSlice";
 
+import { formatPhoneNumber } from "../../utilities/formatting.ts";
+
 import {
   LICENCE_TYPE_ID_APIARY,
   LICENCE_TYPE_ID_GAME_FARM,
 } from "../licences/constants";
 
-import {
-  ADDRESS_TYPES,
-  COUNTRIES,
-  COUNTRIES_MAP,
-} from "../../utilities/constants";
+import { COUNTRIES, COUNTRIES_MAP } from "../../utilities/constants";
 
-export default function SiteDetailsEdit({
-  form,
-  initialValues,
-  licence,
-  mode,
-}) {
+export default function SiteDetailsEdit({ form, initialValues, licence }) {
   const {
     watch,
     setValue,
     register,
     formState: { errors },
   } = form;
-  const dispatch = useDispatch();
   const regions = useSelector(selectRegions);
 
   const cities = useSelector(selectCities);
@@ -78,8 +69,6 @@ export default function SiteDetailsEdit({
     setValue("region", null);
     setValue("regionalDistrict", null);
   };
-
-  console.log(initialValues);
 
   return (
     <>
@@ -337,7 +326,7 @@ export default function SiteDetailsEdit({
           <Form.Group controlId="primaryPhone">
             <Form.Label>Primary Number</Form.Label>
             <Controller
-              render={({ field: { onChange }, formState }) => (
+              render={({ field: { onChange } }) => (
                 <>
                   <PatternFormat
                     customInput={Form.Control}
@@ -347,6 +336,7 @@ export default function SiteDetailsEdit({
                     onValueChange={(v) => {
                       onChange(v.formattedValue);
                     }}
+                    isInvalid={errors && errors.primaryPhone}
                   />
                   <Form.Control.Feedback type="invalid">
                     Please enter a valid phone number.
@@ -355,7 +345,6 @@ export default function SiteDetailsEdit({
               )}
               name="primaryPhone"
               control={form.control}
-              isInvalid={errors.number}
               defaultValue={initialValues.primaryPhone ?? null}
             />
           </Form.Group>
@@ -366,16 +355,19 @@ export default function SiteDetailsEdit({
           <Form.Group controlId="secondaryPhone">
             <Form.Label>Secondary Number</Form.Label>
             <Controller
-              render={({ field: { onChange }, formState }) => (
+              render={({ field: { onChange } }) => (
                 <>
                   <PatternFormat
                     customInput={Form.Control}
                     format="(###) ###-####"
                     mask="_"
-                    defaultValue={initialValues.secondaryPhone ?? null}
+                    defaultValue={formatPhoneNumber(
+                      initialValues.secondaryPhone
+                    )}
                     onValueChange={(v) => {
                       onChange(v.formattedValue);
                     }}
+                    isInvalid={errors && errors.secondaryPhone}
                   />
                   <Form.Control.Feedback type="invalid">
                     Please enter a valid phone number.
@@ -384,8 +376,7 @@ export default function SiteDetailsEdit({
               )}
               name="secondaryPhone"
               control={form.control}
-              isInvalid={errors.number}
-              defaultValue={initialValues.secondaryPhone ?? null}
+              defaultValue={formatPhoneNumber(initialValues.secondaryPhone)}
             />
           </Form.Group>
         </Col>

@@ -350,12 +350,26 @@ export default function LicenceDetailsViewEdit({ licence }) {
   const onSubmit = async (data) => {
     clearErrors("irmaNumber");
 
-    const validationResult = validateIrmaNumber(data.irmaNumber);
-    if (validationResult === false) {
+    // validate phone numbers
+    let errorCount = 0;
+    if (
+      data.bondCarrierPhoneNumber &&
+      !data.bondCarrierPhoneNumber.match(/^$|\(\d{3}\) \d{3}-\d{4}/g)
+    ) {
+      setError(`bondCarrierPhoneNumber`, {
+        type: "invalid",
+      });
+      errorCount += 1;
+    }
+
+    if (!validateIrmaNumber(data.irmaNumber)) {
       setError("irmaNumber", {
         type: "invalid",
       });
+      errorCount += 1;
+    }
 
+    if (errorCount > 0) {
       return;
     }
 

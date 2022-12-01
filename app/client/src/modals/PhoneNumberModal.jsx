@@ -112,6 +112,7 @@ export default function PhoneNumberModal({
                       onValueChange={(v) => {
                         onChange(v.formattedValue);
                       }}
+                      isInvalid={errors && errors.number}
                     />
                     <Form.Control.Feedback type="invalid">
                       Please enter a valid phone number.
@@ -120,7 +121,6 @@ export default function PhoneNumberModal({
                 )}
                 name="number"
                 control={form.control}
-                isInvalid={errors.number}
                 defaultValue={phone.number ?? null}
               />
             </Form.Group>

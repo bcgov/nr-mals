@@ -47,7 +47,7 @@ export default function SiteDetailsViewEdit({ site, licence }) {
   const form = useForm({
     reValidateMode: "onBlur",
   });
-  const { handleSubmit, setValue } = form;
+  const { handleSubmit, setValue, setError } = form;
 
   const initialFormValues = {
     licenceStatus: null,
@@ -62,9 +62,9 @@ export default function SiteDetailsViewEdit({ site, licence }) {
     latitude: null,
     longitude: null,
     firstName: null,
-    lastName: null,
-    primaryPhone: null,
-    secondaryPhone: null,
+    lastName: site.data.lastName,
+    primaryPhone: site.data.primaryPhone,
+    secondaryPhone: site.data.secondaryPhone,
     email: null,
     legalDescriptionText: null,
     hiveCount: null,
@@ -85,8 +85,6 @@ export default function SiteDetailsViewEdit({ site, licence }) {
     setValue("longitude", site.data.longitude);
     setValue("firstName", site.data.firstName);
     setValue("lastName", site.data.lastName);
-    setValue("primaryPhone", site.data.primaryPhone);
-    setValue("secondaryPhone", site.data.secondaryPhone);
     setValue("email", site.data.email);
     setValue("legalDescriptionText", site.data.legalDescriptionText);
     setValue("hiveCount", site.data.hiveCount);
@@ -106,8 +104,6 @@ export default function SiteDetailsViewEdit({ site, licence }) {
     site.data.longitude,
     site.data.firstName,
     site.data.lastName,
-    site.data.primaryPhone,
-    site.data.secondaryPhone,
     site.data.email,
     site.data.legalDescriptionText,
     site.data.hiveCount,
@@ -150,6 +146,31 @@ export default function SiteDetailsViewEdit({ site, licence }) {
   const submissionLabel = submitting ? "Saving..." : "Save";
 
   const onSubmit = async (data) => {
+    let errorCount = 0;
+    if (
+      data.primaryPhone &&
+      !data.primaryPhone.match(/^$|\(\d{3}\) \d{3}-\d{4}/g)
+    ) {
+      setError(`primaryPhone`, {
+        type: "invalid",
+      });
+      errorCount += 1;
+    }
+
+    if (
+      data.secondaryPhone &&
+      !data.secondaryPhone.match(/^$|\(\d{3}\) \d{3}-\d{4}/g)
+    ) {
+      setError(`secondaryPhone`, {
+        type: "invalid",
+      });
+      errorCount += 1;
+    }
+
+    if (errorCount > 0) {
+      return;
+    }
+
     const payload = {
       ...data,
       licenceId: site.data.licenceId,

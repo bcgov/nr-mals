@@ -18,7 +18,7 @@ export default function RegistrantEdit({ form, registrant, submitting }) {
     control,
     clearErrors,
   } = form;
-  const fieldName = `registrants[${registrant.key}]`;
+  const fieldName = `registrants.${registrant.key}`;
   const registrantErrors = errors.registrants
     ? errors.registrants[registrant.key]
     : undefined;
@@ -111,7 +111,7 @@ export default function RegistrantEdit({ form, registrant, submitting }) {
             <Form.Group controlId={`${fieldName}.primaryPhone`}>
               <Form.Label>Primary Phone</Form.Label>
               <Controller
-                render={({ field: { onChange }, formState }) => (
+                render={({ field: { onChange } }) => (
                   <>
                     <PatternFormat
                       customInput={Form.Control}
@@ -121,6 +121,9 @@ export default function RegistrantEdit({ form, registrant, submitting }) {
                       onValueChange={(v) => {
                         onChange(v.formattedValue);
                       }}
+                      isInvalid={
+                        registrantErrors && registrantErrors.primaryPhone
+                      }
                     />
                     <Form.Control.Feedback type="invalid">
                       Please enter a valid phone number.
@@ -129,7 +132,6 @@ export default function RegistrantEdit({ form, registrant, submitting }) {
                 )}
                 name={`${fieldName}.primaryPhone`}
                 control={control}
-                isValid={registrantErrors && registrantErrors.primaryPhone}
                 defaultValue={formatPhoneNumber(registrant.primaryPhone)}
               />
             </Form.Group>

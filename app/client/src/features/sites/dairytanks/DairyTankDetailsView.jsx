@@ -28,8 +28,6 @@ export default function DairyTankDetailsView({ dairyTank }) {
   const onPrintTankRecheckNotice = (id, value) => {
     setValue("printTankRecheckNotice", value);
 
-    console.log(id);
-    console.log(value);
     dispatch(
       updateSiteDairyTankRecheckNotice({
         data: { checked: value },

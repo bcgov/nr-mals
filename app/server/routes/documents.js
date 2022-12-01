@@ -1139,7 +1139,6 @@ router.get("/dairyTankNotices/queued", async (req, res, next) => {
 
 router.post("/dairyTankNotices/startJob", async (req, res, next) => {
   const tankIds = req.body.map((tankId) => parseInt(tankId, 10));
-  console.log(tankIds);
 
   await startDairyTankNoticeJob(tankIds)
     .then(({ jobId, documents }) => {

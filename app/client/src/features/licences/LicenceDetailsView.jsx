@@ -10,6 +10,7 @@ import {
   formatDateString,
   formatMoney,
   formatBoolean,
+  formatPhoneNumber,
 } from "../../utilities/formatting.ts";
 
 import VerticalField from "../../components/VerticalField";
@@ -139,13 +140,13 @@ export default function LicenceDetailsView({ licence }) {
           {primaryPhone !== undefined ? (
             <Row>
               <Col lg={3}>Primary Number:</Col>
-              <Col>{primaryPhone.number}</Col>
+              <Col>{formatPhoneNumber(primaryPhone.number)}</Col>
             </Row>
           ) : null}
           {secondaryPhone !== undefined ? (
             <Row>
               <Col lg={3}>Secondary Number:</Col>
-              <Col>{secondaryPhone.number}</Col>
+              <Col>{formatPhoneNumber(secondaryPhone.number)}</Col>
             </Row>
           ) : null}
           {faxNumber !== undefined ? (

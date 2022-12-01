@@ -10,7 +10,6 @@ import CustomDatePicker from "../../components/CustomDatePicker";
 
 export default function BondInformationEdit({ form, initialValues }) {
   const {
-    control,
     setValue,
     register,
     formState: { errors },
@@ -78,24 +77,30 @@ export default function BondInformationEdit({ form, initialValues }) {
             <Form.Label>Carrier Phone Number</Form.Label>
             <Controller
               render={({ field: { onChange } }) => (
-                <PatternFormat
-                  customInput={Form.Control}
-                  format="(###) ###-####"
-                  mask="_"
-                  defaultValue={initialValues.bondCarrierPhoneNumber}
-                  onValueChange={(v) => {
-                    onChange(v.formattedValue);
-                  }}
-                />
+                <>
+                  <PatternFormat
+                    customInput={Form.Control}
+                    format="(###) ###-####"
+                    mask="_"
+                    defaultValue={formatPhoneNumber(
+                      initialValues.bondCarrierPhoneNumber
+                    )}
+                    onValueChange={(v) => {
+                      onChange(v.formattedValue);
+                    }}
+                    isInvalid={errors && errors.bondCarrierPhoneNumber}
+                  />
+                  <Form.Control.Feedback type="invalid">
+                    Please enter a valid phone number.
+                  </Form.Control.Feedback>
+                </>
               )}
               name="bondCarrierPhoneNumber"
               control={form.control}
-              isInvalid={errors && errors.bondCarrierPhoneNumber}
-              defaultValue={initialValues.bondCarrierPhoneNumber}
+              defaultValue={formatPhoneNumber(
+                initialValues.bondCarrierPhoneNumber
+              )}
             />
-            <Form.Control.Feedback type="invalid">
-              Please enter a valid phone number.
-            </Form.Control.Feedback>
           </Form.Group>
         </Col>
       </Form.Row>
