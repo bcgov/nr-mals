@@ -65,7 +65,11 @@ export default function ReportApiarySite() {
     <>
       <Row>
         <Col sm={3}>
-          <Regions regions={regions} ref={register} defaultValue={null} />
+          <Regions
+            regions={regions}
+            {...register("region")}
+            defaultValue={null}
+          />
         </Col>
         <Col sm={2}>
           <Form.Label>&nbsp;</Form.Label>

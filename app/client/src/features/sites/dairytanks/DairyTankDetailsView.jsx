@@ -4,7 +4,7 @@ import { useDispatch } from "react-redux";
 import PropTypes from "prop-types";
 
 import VerticalField from "../../../components/VerticalField";
-import { formatDateString } from "../../../utilities/formatting";
+import { formatDateString } from "../../../utilities/formatting.ts";
 
 import { useForm } from "react-hook-form";
 import { Form, Row, Col } from "react-bootstrap";
@@ -19,18 +19,18 @@ export default function DairyTankDetailsView({ dairyTank }) {
   const form = useForm({
     reValidateMode: "onBlur",
   });
-  const { register, setValue, getValues } = form;
+  const { setValue } = form;
 
   useEffect(() => {
     setValue("printTankRecheckNotice", dairyTank.printRecheckNotice);
   }, [dispatch]);
 
-  const onPrintTankRecheckNotice = (id) => {
-    const checked = getValues("printTankRecheckNotice");
+  const onPrintTankRecheckNotice = (id, value) => {
+    setValue("printTankRecheckNotice", value);
 
     dispatch(
       updateSiteDairyTankRecheckNotice({
-        data: { checked },
+        data: { checked: value },
         id: id,
       })
     );
@@ -75,8 +75,10 @@ export default function DairyTankDetailsView({ dairyTank }) {
             <CustomCheckBox
               id="printTankRecheckNotice"
               label="Tank Re-Check Notice"
-              ref={register}
-              onChange={() => onPrintTankRecheckNotice(dairyTank.id)}
+              defaultChecked={dairyTank.printRecheckNotice}
+              onChange={(e) =>
+                onPrintTankRecheckNotice(dairyTank.id, e.target.checked)
+              }
             />
           </Form.Group>
         </Col>

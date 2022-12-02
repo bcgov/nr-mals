@@ -3,7 +3,6 @@
   "version": "5.1.0",
   "private": true,
   "scripts": {
-    "postinstall": "cd client && npm install && cd ../ && npm run build-client",
     "start": "concurrently \"npm run start-client\" \"npm run debug-server\"",
     "start:production": "npm run start-server",
     "start-server": "node server/bin/www",
@@ -56,7 +55,7 @@
   },
   "homepage": "https://github.com/bcgov/nr-mals#readme",
   "dependencies": {
-    "@prisma/client": "^2.20.1",
+    "@prisma/client": "^4.5.0",
     "@types/axios-token-interceptor": "^0.2.1",
     "adm-zip": "^0.5.3",
     "axios": "^0.21.0",
@@ -86,7 +85,7 @@
     "eslint-plugin-import": "^2.22.0",
     "eslint-plugin-prettier": "^3.1.4",
     "prettier": "^2.0.5",
-    "prisma": "^2.20.1",
+    "prisma": "^4.5.0",
     "shx": "^0.3.3"
   }
 }

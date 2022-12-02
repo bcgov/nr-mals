@@ -65,14 +65,8 @@ export default function LicenceDetailsViewEdit({ licence }) {
   const form = useForm({
     reValidateMode: "onBlur",
   });
-  const {
-    register,
-    handleSubmit,
-    clearErrors,
-    setError,
-    setValue,
-    getValues,
-  } = form;
+  const { register, handleSubmit, clearErrors, setError, setValue, getValues } =
+    form;
 
   useEffect(() => {
     register("applicationDate");
@@ -213,10 +207,27 @@ export default function LicenceDetailsViewEdit({ licence }) {
     );
   };
 
-  const onLicenceDetailsCheckboxChange = () => {
-    const actionRequired = getValues("actionRequired");
-    const printLicence = getValues("printLicence");
-    const renewalNotice = getValues("renewalNotice");
+  const onLicenceDetailsCheckboxChange = (target, value) => {
+    setValue(target, value);
+
+    let actionRequired = getValues("actionRequired");
+    let printLicence = getValues("printLicence");
+    let renewalNotice = getValues("renewalNotice");
+
+    // Some hokeyness because setValue most likely wont have actually updated state yet
+    switch (target) {
+      case "actionRequired":
+        actionRequired = value;
+        break;
+      case "printLicence":
+        printLicence = value;
+        break;
+      case "renewalNotice":
+        renewalNotice = value;
+        break;
+      default:
+        break;
+    }
 
     dispatch(
       updateLicenceCheckboxes({
@@ -233,8 +244,10 @@ export default function LicenceDetailsViewEdit({ licence }) {
           <CustomCheckBox
             id="actionRequired"
             label="Action Required"
-            ref={register}
-            onChange={onLicenceDetailsCheckboxChange}
+            defaultChecked={initialFormValues.actionRequired}
+            onChange={(e) =>
+              onLicenceDetailsCheckboxChange("actionRequired", e.target.checked)
+            }
             disabled={
               submitting ||
               currentUser.data.roleId === SYSTEM_ROLES.READ_ONLY ||
@@ -248,8 +261,10 @@ export default function LicenceDetailsViewEdit({ licence }) {
           <CustomCheckBox
             id="printLicence"
             label="Print Licence"
-            ref={register}
-            onChange={onLicenceDetailsCheckboxChange}
+            defaultChecked={initialFormValues.printLicence}
+            onChange={(e) =>
+              onLicenceDetailsCheckboxChange("printLicence", e.target.checked)
+            }
             disabled={
               submitting ||
               currentUser.data.roleId === SYSTEM_ROLES.READ_ONLY ||
@@ -263,8 +278,10 @@ export default function LicenceDetailsViewEdit({ licence }) {
           <CustomCheckBox
             id="renewalNotice"
             label="Renewal Notice"
-            ref={register}
-            onChange={onLicenceDetailsCheckboxChange}
+            defaultChecked={initialFormValues.renewalNotice}
+            onChange={(e) =>
+              onLicenceDetailsCheckboxChange("renewalNotice", e.target.checked)
+            }
             disabled={
               submitting ||
               currentUser.data.roleId === SYSTEM_ROLES.READ_ONLY ||
@@ -333,12 +350,26 @@ export default function LicenceDetailsViewEdit({ licence }) {
   const onSubmit = async (data) => {
     clearErrors("irmaNumber");
 
-    const validationResult = validateIrmaNumber(data.irmaNumber);
-    if (validationResult === false) {
+    // validate phone numbers
+    let errorCount = 0;
+    if (
+      data.bondCarrierPhoneNumber &&
+      !data.bondCarrierPhoneNumber.match(/^$|\(\d{3}\) \d{3}-\d{4}/g)
+    ) {
+      setError(`bondCarrierPhoneNumber`, {
+        type: "invalid",
+      });
+      errorCount += 1;
+    }
+
+    if (!validateIrmaNumber(data.irmaNumber)) {
       setError("irmaNumber", {
         type: "invalid",
       });
+      errorCount += 1;
+    }
 
+    if (errorCount > 0) {
       return;
     }
 

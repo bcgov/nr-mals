@@ -28,14 +28,17 @@ const axiosInstance = axios.create({
   timeout: DEFAULT_TIMEOUT,
 });
 
-axiosInstance.interceptors.request.use((config) => {
+axiosInstance.interceptors.request.use(function (config) {
   if (keycloak.isLoggedIn()) {
     const cb = () => {
-      config.headers.Authorization = `Bearer ${keycloak.getToken()}`;
-      config.headers.CurrentUser = `${keycloak.getUsername()}`;
+      if (config.headers) {
+        config.headers.Authorization = `Bearer ${keycloak.getToken()}`;
+        config.headers.CurrentUser = `${keycloak.getUsername()}`;
+      }
       return Promise.resolve(config);
     };
-    return keycloak.updateToken(cb);
+    keycloak.updateToken(cb);
+    return config;
   }
 
   return Promise.reject();

@@ -35,14 +35,9 @@ import {
   clearRenewalJob,
 } from "./renewalsSlice";
 
-function getSelectedLicences(licences) {
-  return licences
-    .filter((licence) => licence.selected === "true")
-    .map((licence) => licence.id);
-}
-
 export default function SelectRenewalsPage() {
-  const [toggleAllChecked, setToggleAllChecked] = useState(true);
+  const [isCheckAll, setIsCheckAll] = useState(false);
+  const [isChecked, setIsChecked] = useState([]);
 
   const queuedRenewals = useSelector(selectQueuedRenewals);
   const renewalJob = useSelector(selectRenewalsJob);
@@ -50,15 +45,7 @@ export default function SelectRenewalsPage() {
   const dispatch = useDispatch();
   const history = useHistory();
 
-  const {
-    control,
-    reset,
-    register,
-    handleSubmit,
-    watch,
-    getValues,
-    setValue,
-  } = useForm();
+  const { control, reset, handleSubmit, watch } = useForm();
   const { fields } = useFieldArray({
     control,
     name: "licences",
@@ -73,7 +60,7 @@ export default function SelectRenewalsPage() {
     reset({
       licences: queuedRenewals.data
         ? queuedRenewals.data.map((licence) => ({
-            id: licence.licenceId,
+            licenceId: licence.licenceId,
             licenceNumber: licence.licenceNumber,
             licenceType: licence.licenceType,
             lastNames: licence.lastNames,
@@ -89,30 +76,36 @@ export default function SelectRenewalsPage() {
   }, [reset, queuedRenewals.data]);
 
   const watchLicences = watch("licences", []);
-  const selectedLicencesCount = getSelectedLicences(watchLicences).length;
 
   const onSubmit = (data) => {
-    const selectedIds = getSelectedLicences(data.licences);
-    dispatch(startRenewalJob(selectedIds));
+    dispatch(startRenewalJob(isChecked));
     history.push(DOWNLOAD_RENEWALS_PATHNAME);
   };
 
-  const updateToggleAllChecked = () => {
-    const { licences } = getValues();
-    const selectedLicences = getSelectedLicences(licences);
-    setToggleAllChecked(selectedLicences.length === licences.length);
+  const handleSelectAll = (e) => {
+    setIsCheckAll(!isCheckAll);
+
+    // Check inverse because the state hasn't actually updated yet
+    if (isCheckAll) {
+      setIsChecked([]);
+    } else {
+      setIsChecked(watchLicences.map((x) => x.licenceId));
+    }
   };
 
-  const toggleAllLicences = () => {
-    let { licences } = getValues();
-    const selectedLicences = getSelectedLicences(licences);
-    if (selectedLicences.length === licences.length) {
-      licences = licences.map((licence) => ({ ...licence, selected: false }));
+  const handleClick = (e, id) => {
+    const { checked } = e.target;
+
+    if (!checked) {
+      // Uncheck checkall if toggling a checkbox off manually
+      setIsCheckAll(false);
+
+      // Filter out licence id
+      setIsChecked(isChecked.filter((item) => item !== id));
     } else {
-      licences = licences.map((licence) => ({ ...licence, selected: true }));
+      // Add licence id
+      setIsChecked([...isChecked, id]);
     }
-    setValue("licences", licences);
-    updateToggleAllChecked();
   };
 
   let content = null;
@@ -121,7 +114,7 @@ export default function SelectRenewalsPage() {
       variant="primary"
       type="submit"
       disabled={
-        selectedLicencesCount === 0 || renewalJob.status !== REQUEST_STATUS.IDLE
+        isChecked.length === 0 || renewalJob.status !== REQUEST_STATUS.IDLE
       }
     >
       Generate
@@ -166,9 +159,8 @@ export default function SelectRenewalsPage() {
       <Form onSubmit={handleSubmit(onSubmit)}>
         <Row className="mt-3 d-flex justify-content-end">
           <Col md="auto">
-            {selectedLicencesCount}{" "}
-            {pluralize(selectedLicencesCount, "renewal")} selected for
-            generation.
+            {isChecked.length} {pluralize(isChecked.length, "renewal")} selected
+            for generation.
           </Col>
         </Row>
         <Table striped size="sm" responsive className="mt-3" hover>
@@ -177,9 +169,9 @@ export default function SelectRenewalsPage() {
               <th>
                 <Form.Check
                   id="toggleAllCheckbox"
-                  onChange={(event) => toggleAllLicences(event)}
+                  onChange={(event) => handleSelectAll(event)}
+                  checked={isCheckAll}
                   label={<FaPrint />}
-                  checked={toggleAllChecked}
                 />
               </th>
               <th>Licence</th>
@@ -195,22 +187,15 @@ export default function SelectRenewalsPage() {
           </thead>
           <tbody>
             {fields.map((item, index) => {
-              const url = `${LICENSES_PATHNAME}/${item.id}`;
+              const url = `${LICENSES_PATHNAME}/${item.licenceId}`;
               return (
                 <tr key={item.id}>
                   <td>
                     <Form.Check
-                      name={`licences[${index}].selected`}
-                      ref={register()}
-                      defaultChecked
-                      defaultValue
-                      onChange={() => updateToggleAllChecked()}
-                    />
-                    <input
-                      hidden
-                      name={`licences[${index}].id`}
-                      ref={register()}
-                      defaultValue={item.id}
+                      name={`licences.${index}.check`}
+                      id={item.licenceId}
+                      checked={isChecked.includes(item.licenceId)}
+                      onChange={(e) => handleClick(e, item.licenceId)}
                     />
                   </td>
                   <td className="text-nowrap">

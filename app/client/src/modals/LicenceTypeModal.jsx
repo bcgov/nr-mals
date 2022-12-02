@@ -17,7 +17,12 @@ export default function LicenceTypeModal({ licenceType, closeModal, submit }) {
   const form = useForm({
     reValidateMode: "onBlur",
   });
-  const { register, setValue, handleSubmit, errors } = form;
+  const {
+    register,
+    setValue,
+    handleSubmit,
+    formState: { errors },
+  } = form;
   setValue("standardIssueDate", licenceType.standardIssueDate);
   setValue("standardExpiryDate", licenceType.standardExpiryDate);
 
@@ -61,7 +66,7 @@ export default function LicenceTypeModal({ licenceType, closeModal, submit }) {
         id="id"
         name="id"
         defaultValue={licenceType !== null ? licenceType.id : null}
-        ref={register}
+        {...register("id")}
       />
       <Modal.Header closeButton>
         <Modal.Title>
@@ -79,7 +84,7 @@ export default function LicenceTypeModal({ licenceType, closeModal, submit }) {
                 defaultValue={
                   licenceType !== null ? licenceType.licenceType : null
                 }
-                ref={register({
+                {...register("licenceType", {
                   required: true,
                 })}
                 isInvalid={errors.licenceType}
@@ -100,7 +105,7 @@ export default function LicenceTypeModal({ licenceType, closeModal, submit }) {
                 defaultValue={
                   licenceType !== null ? licenceType.standardFee : null
                 }
-                ref={register({
+                {...register("standardFee", {
                   required: true,
                 })}
                 isInvalid={errors.standardFee}
@@ -121,7 +126,7 @@ export default function LicenceTypeModal({ licenceType, closeModal, submit }) {
                 defaultValue={
                   licenceType !== null ? licenceType.renewalNotice : null
                 }
-                ref={register({
+                {...register("renewalNotice", {
                   required: true,
                 })}
                 isInvalid={errors.renewalNotice}
@@ -142,7 +147,7 @@ export default function LicenceTypeModal({ licenceType, closeModal, submit }) {
                 defaultValue={
                   licenceType !== null ? licenceType.licenceTerm : null
                 }
-                ref={register({
+                {...register("licenceTerm", {
                   required: true,
                 })}
                 isInvalid={errors.licenceTerm}
@@ -184,7 +189,7 @@ export default function LicenceTypeModal({ licenceType, closeModal, submit }) {
                 defaultValue={
                   licenceType !== null ? licenceType.legislation : null
                 }
-                ref={register({
+                {...register("applicableAct", {
                   required: false,
                 })}
                 maxLength={2000}
@@ -207,7 +212,7 @@ export default function LicenceTypeModal({ licenceType, closeModal, submit }) {
                 defaultValue={
                   licenceType !== null ? licenceType.regulation : null
                 }
-                ref={register({
+                {...register("regulation", {
                   required: false,
                 })}
                 maxLength={2000}

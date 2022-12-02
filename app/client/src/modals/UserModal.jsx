@@ -16,7 +16,12 @@ export default function UserModal({ user, closeModal, submit }) {
   const form = useForm({
     reValidateMode: "onBlur",
   });
-  const { register, handleSubmit, setError, errors } = form;
+  const {
+    register,
+    handleSubmit,
+    setError,
+    formState: { errors },
+  } = form;
 
   const onSubmit = (data) => {
     let valid = true;
@@ -53,7 +58,7 @@ export default function UserModal({ user, closeModal, submit }) {
         id="id"
         name="id"
         defaultValue={user !== null ? user.id : null}
-        ref={register}
+        {...register("id")}
       />
       <Modal.Header closeButton>
         <Modal.Title>{user ? "Edit a  user" : "Add a new user"}</Modal.Title>
@@ -67,7 +72,7 @@ export default function UserModal({ user, closeModal, submit }) {
                 type="text"
                 name="surname"
                 defaultValue={user !== null ? user.surname : null}
-                ref={register({
+                {...register("surname", {
                   required: true,
                 })}
                 isInvalid={errors.surname}
@@ -86,7 +91,7 @@ export default function UserModal({ user, closeModal, submit }) {
                 type="text"
                 name="givenName1"
                 defaultValue={user !== null ? user.givenName1 : null}
-                ref={register({
+                {...register("givenName1", {
                   required: true,
                 })}
                 isInvalid={errors.givenName1}
@@ -105,7 +110,7 @@ export default function UserModal({ user, closeModal, submit }) {
                 type="text"
                 name="givenName2"
                 defaultValue={user !== null ? user.givenName2 : null}
-                ref={register}
+                {...register("givenName2")}
                 isInvalid={errors.givenName2}
               />
               <Form.Control.Feedback type="invalid">
@@ -122,7 +127,7 @@ export default function UserModal({ user, closeModal, submit }) {
                 type="text"
                 name="givenName3"
                 defaultValue={user !== null ? user.givenName3 : null}
-                ref={register}
+                {...register("givenName3")}
                 isInvalid={errors.givenName3}
               />
               <Form.Control.Feedback type="invalid">
@@ -139,7 +144,7 @@ export default function UserModal({ user, closeModal, submit }) {
                 type="text"
                 name="userName"
                 defaultValue={user !== null ? user.userName : null}
-                ref={register({
+                {...register("userName", {
                   required: true,
                 })}
                 isInvalid={errors.userName}
@@ -157,8 +162,8 @@ export default function UserModal({ user, closeModal, submit }) {
               <Form.Control
                 as="select"
                 name="roleId"
-                ref={register}
-                defaultValue={user !== null ? user.role_id : null}
+                {...register("roleId")}
+                defaultValue={user !== null ? user.roleId : null}
               >
                 {roles.data.map((x) => {
                   return (
@@ -178,7 +183,7 @@ export default function UserModal({ user, closeModal, submit }) {
               <Form.Control
                 as="select"
                 name="active"
-                ref={register}
+                {...register("active")}
                 defaultValue={user !== null ? user.active : null}
               >
                 <option key={1} value="true">

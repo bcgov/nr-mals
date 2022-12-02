@@ -9,7 +9,11 @@ export default function GameSpeciesModal({ species, closeModal, submit }) {
   const form = useForm({
     reValidateMode: "onBlur",
   });
-  const { register, handleSubmit, errors } = form;
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = form;
 
   const onSubmit = (data) => {
     const valid = true;
@@ -29,7 +33,7 @@ export default function GameSpeciesModal({ species, closeModal, submit }) {
         id="id"
         name="id"
         defaultValue={species !== null ? species.id : null}
-        ref={register}
+        {...register("id")}
       />
       <Modal.Header closeButton>
         <Modal.Title>
@@ -45,7 +49,7 @@ export default function GameSpeciesModal({ species, closeModal, submit }) {
                 type="text"
                 name="codeName"
                 defaultValue={species !== null ? species.codeName : null}
-                ref={register({
+                {...register("codeName", {
                   required: true,
                 })}
                 isInvalid={errors.codeName}
@@ -67,7 +71,7 @@ export default function GameSpeciesModal({ species, closeModal, submit }) {
                 maxLength={120}
                 name="codeDescription"
                 defaultValue={species !== null ? species.codeDescription : null}
-                ref={register({
+                {...register("codeDescription", {
                   required: true,
                 })}
                 isInvalid={errors.codeDescription}

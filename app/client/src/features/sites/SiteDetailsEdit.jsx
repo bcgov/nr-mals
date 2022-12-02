@@ -1,10 +1,9 @@
-/* eslint-disable */
-import React, { useState, useEffect } from "react";
+import React from "react";
 import PropTypes from "prop-types";
-import { useSelector, useDispatch } from "react-redux";
-import { Button, Form, Row, Col, InputGroup } from "react-bootstrap";
+import { useSelector } from "react-redux";
+import { Button, Form, Row, Col } from "react-bootstrap";
 import { Controller } from "react-hook-form";
-import NumberFormat from "react-number-format";
+import { PatternFormat } from "react-number-format";
 
 import { selectRegions } from "../lookups/regionsSlice";
 
@@ -19,25 +18,22 @@ import Cities from "../../features/lookups/Cities";
 
 import { selectCities } from "../../features/lookups/citiesSlice";
 
+import { formatPhoneNumber } from "../../utilities/formatting.ts";
+
 import {
   LICENCE_TYPE_ID_APIARY,
   LICENCE_TYPE_ID_GAME_FARM,
 } from "../licences/constants";
 
-import {
-  ADDRESS_TYPES,
-  COUNTRIES,
-  COUNTRIES_MAP,
-} from "../../utilities/constants";
+import { COUNTRIES, COUNTRIES_MAP } from "../../utilities/constants";
 
-export default function SiteDetailsEdit({
-  form,
-  initialValues,
-  licence,
-  mode,
-}) {
-  const { watch, setValue, register, errors } = form;
-  const dispatch = useDispatch();
+export default function SiteDetailsEdit({ form, initialValues, licence }) {
+  const {
+    watch,
+    setValue,
+    register,
+    formState: { errors },
+  } = form;
   const regions = useSelector(selectRegions);
 
   const cities = useSelector(selectCities);
@@ -74,14 +70,12 @@ export default function SiteDetailsEdit({
     setValue("regionalDistrict", null);
   };
 
-  console.log(initialValues);
-
   return (
     <>
       <Row className="mt-3">
         <Col lg={4}>
           <LicenceStatuses
-            ref={register({ required: true })}
+            {...register("licenceStatus", { required: true })}
             isInvalid={errors.licenceStatus}
             defaultValue={initialValues.status}
           />
@@ -89,7 +83,7 @@ export default function SiteDetailsEdit({
         <Col lg={4}>
           <Regions
             regions={regions}
-            ref={register}
+            {...register("region")}
             defaultValue={initialValues.region}
             isInvalid={errors.region}
           />
@@ -98,7 +92,7 @@ export default function SiteDetailsEdit({
           <RegionalDistricts
             regions={regions}
             selectedRegion={parsedRegion}
-            ref={register}
+            {...register("regionalDistrict")}
             defaultValue={initialValues.district}
             isInvalid={errors.regionalDistrict}
           />
@@ -113,7 +107,7 @@ export default function SiteDetailsEdit({
                 type="number"
                 name="hiveCount"
                 defaultValue={initialValues.hiveCount}
-                ref={register}
+                {...register("hiveCount")}
               />
             </Form.Group>
           </Col>
@@ -123,7 +117,7 @@ export default function SiteDetailsEdit({
               <Form.Control
                 name="premisesId"
                 defaultValue={initialValues.premisesId}
-                ref={register}
+                {...register("premisesId")}
               />
             </Form.Group>
           </Col>
@@ -137,7 +131,7 @@ export default function SiteDetailsEdit({
               type="text"
               name="addressLine1"
               defaultValue={initialValues.addressLine1}
-              ref={register}
+              {...register("addressLine1")}
               isInvalid={errors.addressLine1}
             />
             <Form.Control.Feedback type="invalid">
@@ -154,7 +148,7 @@ export default function SiteDetailsEdit({
               type="text"
               name="addressLine2"
               defaultValue={initialValues.addressLine2}
-              ref={register}
+              {...register("addressLine2")}
             />
           </Form.Group>
         </Col>
@@ -168,7 +162,7 @@ export default function SiteDetailsEdit({
                   type="text"
                   name="city"
                   defaultValue={initialValues.city ?? null}
-                  ref={register}
+                  {...register("city")}
                   isInvalid={errors.city}
                 />
                 <Form.Control.Feedback type="invalid">
@@ -178,7 +172,7 @@ export default function SiteDetailsEdit({
             ) : (
               <Cities
                 cities={cities}
-                ref={register}
+                {...register("city")}
                 defaultValue={initialValues.city ?? "BC"}
                 isInvalid={errors.city}
               />
@@ -195,7 +189,7 @@ export default function SiteDetailsEdit({
                 <Form.Control
                   as="select"
                   name="province"
-                  ref={register}
+                  {...register("province")}
                   defaultValue={initialValues.province ?? "BC"}
                 >
                   <option value="AB">AB</option>
@@ -220,7 +214,7 @@ export default function SiteDetailsEdit({
                   type="text"
                   name="province"
                   defaultValue={initialValues.province ?? null}
-                  ref={register}
+                  {...register("province")}
                   maxLength={4}
                 />
               </>
@@ -238,7 +232,7 @@ export default function SiteDetailsEdit({
               type="text"
               name="postalCode"
               defaultValue={initialValues.postalCode ?? null}
-              ref={register}
+              {...register("postalCode")}
               maxLength={7}
             />
           </Form.Group>
@@ -249,7 +243,7 @@ export default function SiteDetailsEdit({
             <Form.Control
               as="select"
               name="country"
-              ref={register}
+              {...register("country")}
               defaultValue={initialValues.country ?? COUNTRIES.CANADA}
             >
               {COUNTRIES_MAP.map((x) => {
@@ -270,7 +264,7 @@ export default function SiteDetailsEdit({
               type="text"
               name="latitude"
               defaultValue={initialValues.latitude}
-              ref={register}
+              {...register("latitude")}
             />
           </Form.Group>
         </Col>
@@ -281,7 +275,7 @@ export default function SiteDetailsEdit({
               type="text"
               name="longitude"
               defaultValue={initialValues.longitude}
-              ref={register}
+              {...register("longitude")}
             />
           </Form.Group>
         </Col>
@@ -313,7 +307,7 @@ export default function SiteDetailsEdit({
               type="text"
               name="firstName"
               defaultValue={initialValues.firstName}
-              ref={register}
+              {...register("firstName")}
             />
           </Form.Group>
         </Col>
@@ -324,7 +318,7 @@ export default function SiteDetailsEdit({
               type="text"
               name="lastName"
               defaultValue={initialValues.lastName}
-              ref={register}
+              {...register("lastName")}
             />
           </Form.Group>
         </Col>
@@ -332,18 +326,27 @@ export default function SiteDetailsEdit({
           <Form.Group controlId="primaryPhone">
             <Form.Label>Primary Number</Form.Label>
             <Controller
-              as={NumberFormat}
+              render={({ field: { onChange } }) => (
+                <>
+                  <PatternFormat
+                    customInput={Form.Control}
+                    format="(###) ###-####"
+                    mask="_"
+                    defaultValue={initialValues.primaryPhone ?? null}
+                    onValueChange={(v) => {
+                      onChange(v.formattedValue);
+                    }}
+                    isInvalid={errors && errors.primaryPhone}
+                  />
+                  <Form.Control.Feedback type="invalid">
+                    Please enter a valid phone number.
+                  </Form.Control.Feedback>
+                </>
+              )}
               name="primaryPhone"
               control={form.control}
               defaultValue={initialValues.primaryPhone ?? null}
-              format="(###) ###-####"
-              mask="_"
-              customInput={Form.Control}
-              isInvalid={errors.number}
             />
-            <Form.Control.Feedback type="invalid">
-              Please enter a valid phone number.
-            </Form.Control.Feedback>
           </Form.Group>
         </Col>
       </Row>
@@ -352,18 +355,29 @@ export default function SiteDetailsEdit({
           <Form.Group controlId="secondaryPhone">
             <Form.Label>Secondary Number</Form.Label>
             <Controller
-              as={NumberFormat}
+              render={({ field: { onChange } }) => (
+                <>
+                  <PatternFormat
+                    customInput={Form.Control}
+                    format="(###) ###-####"
+                    mask="_"
+                    defaultValue={formatPhoneNumber(
+                      initialValues.secondaryPhone
+                    )}
+                    onValueChange={(v) => {
+                      onChange(v.formattedValue);
+                    }}
+                    isInvalid={errors && errors.secondaryPhone}
+                  />
+                  <Form.Control.Feedback type="invalid">
+                    Please enter a valid phone number.
+                  </Form.Control.Feedback>
+                </>
+              )}
               name="secondaryPhone"
               control={form.control}
-              defaultValue={initialValues.secondaryPhone ?? null}
-              format="(###) ###-####"
-              mask="_"
-              customInput={Form.Control}
-              isInvalid={errors.number}
+              defaultValue={formatPhoneNumber(initialValues.secondaryPhone)}
             />
-            <Form.Control.Feedback type="invalid">
-              Please enter a valid phone number.
-            </Form.Control.Feedback>
           </Form.Group>
         </Col>
         <Col lg={4}>
@@ -373,7 +387,7 @@ export default function SiteDetailsEdit({
               type="text"
               name="email"
               defaultValue={initialValues.email}
-              ref={register}
+              {...register("email")}
             />
           </Form.Group>
         </Col>
@@ -387,7 +401,7 @@ export default function SiteDetailsEdit({
                 as="textarea"
                 rows={6}
                 name="legalDescriptionText"
-                ref={register}
+                {...register("legalDescriptionText")}
                 maxLength={2000}
                 className="mb-1"
               />

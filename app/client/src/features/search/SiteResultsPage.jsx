@@ -80,8 +80,6 @@ function navigateToSearchPage(dispatch, page) {
 
 async function downloadSearchExport(parameters) {
   try {
-    console.log(parameters);
-
     // perform API call
     const response = await Api.getApiInstance().post(
       `sites/search/export`,
