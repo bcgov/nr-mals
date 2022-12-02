@@ -33,16 +33,11 @@ import {
   clearDairyNoticeJob,
 } from "./dairyNoticesSlice";
 
-function getSelectedLicences(licences) {
-  const filter = licences.filter((licence) => licence.selected === "true");
-  const map = filter.map((licence) => licence.licenceId);
-  return map;
-}
-
 let licences = [];
 
 export default function SelectDairyNoticesPage() {
-  const [toggleAllChecked, setToggleAllChecked] = useState(true);
+  const [isCheckAll, setIsCheckAll] = useState(false);
+  const [isChecked, setIsChecked] = useState([]);
 
   const queuedDairyNotices = useSelector(selectQueuedDairyNotices);
   const dairyNoticeJob = useSelector(selectDairyNoticesJob);
@@ -50,7 +45,7 @@ export default function SelectDairyNoticesPage() {
   const dispatch = useDispatch();
   const history = useHistory();
 
-  const { register, handleSubmit, watch, getValues, setValue } = useForm();
+  const { register, handleSubmit, watch, setValue } = useForm();
 
   const startDate = startOfToday();
   const endDate = add(startOfToday(), { days: 15 });
@@ -58,7 +53,6 @@ export default function SelectDairyNoticesPage() {
   const watchLicences = watch("licences", []);
   const watchStartDate = watch("startDate", startDate);
   const watchEndDate = watch("endDate", endDate);
-  const selectedLicencesCount = getSelectedLicences(watchLicences).length;
 
   let licenceIdsWithChecks = [];
 
@@ -80,8 +74,8 @@ export default function SelectDairyNoticesPage() {
             ...licence,
             selected:
               checked.find((x) => x === licence.licenceId) === undefined
-                ? "true"
-                : "false",
+                ? true
+                : false,
           };
           checked.push(licence.licenceId);
           return obj;
@@ -100,9 +94,9 @@ export default function SelectDairyNoticesPage() {
   }, [watchStartDate, watchEndDate]);
 
   const onSubmit = (data) => {
-    const selectedIds = getSelectedLicences(data.licences);
+    const uniqueSelectedLicences = [...new Set(isChecked.map((x) => x))];
     const payload = {
-      licenceIds: selectedIds,
+      licenceIds: uniqueSelectedLicences,
       startDate: data.startDate,
       endDate: data.endDate,
     };
@@ -110,34 +104,33 @@ export default function SelectDairyNoticesPage() {
     history.push(DOWNLOAD_DAIRYNOTICES_PATHNAME);
   };
 
-  const updateToggleAllChecked = () => {
-    const values = getValues();
-    const selectedLicences = getSelectedLicences(values.licences);
-    const uniqueLicences = [
-      ...new Set(values.licences.map((x) => x.licenceId)),
-    ];
-    setToggleAllChecked(selectedLicences.length === uniqueLicences.length);
+  const handleSelectAll = (e) => {
+    setIsCheckAll(!isCheckAll);
+
+    // Check inverse because the state hasn't actually updated yet
+    if (isCheckAll) {
+      setIsChecked([]);
+    } else {
+      const uniqueSelectedLicences = [
+        ...new Set(watchLicences.map((x) => x.licenceId)),
+      ];
+      setIsChecked(uniqueSelectedLicences.map((x) => x));
+    }
   };
 
-  const toggleAllLicences = () => {
-    const values = getValues();
-    const selectedLicences = getSelectedLicences(values.licences);
-    const uniqueLicences = [
-      ...new Set(values.licences.map((x) => x.licenceId)),
-    ];
-    if (selectedLicences.length === uniqueLicences.length) {
-      values.licences = values.licences.map((licence) => ({
-        ...licence,
-        selected: false,
-      }));
+  const handleClick = (e, id) => {
+    const { checked } = e.target;
+
+    if (!checked) {
+      // Uncheck checkall if toggling a checkbox off manually
+      setIsCheckAll(false);
+
+      // Filter out licence id
+      setIsChecked(isChecked.filter((item) => item !== id));
     } else {
-      values.licences = values.licences.map((licence) => ({
-        ...licence,
-        selected: true,
-      }));
+      // Add licence id
+      setIsChecked([...isChecked, id]);
     }
-    setValue("licences", values.licences);
-    updateToggleAllChecked();
   };
 
   const handleFieldChange = (field) => {
@@ -152,8 +145,7 @@ export default function SelectDairyNoticesPage() {
       variant="primary"
       type="submit"
       disabled={
-        selectedLicencesCount === 0 ||
-        dairyNoticeJob.status !== REQUEST_STATUS.IDLE
+        isChecked.length === 0 || dairyNoticeJob.status !== REQUEST_STATUS.IDLE
       }
     >
       Generate
@@ -199,9 +191,9 @@ export default function SelectDairyNoticesPage() {
       <Form onSubmit={handleSubmit(onSubmit)}>
         <Row className="mt-3 d-flex justify-content-end">
           <Col md="auto">
-            {selectedLicencesCount}{" "}
-            {pluralize(selectedLicencesCount, "Dairy Notice Licence")} selected
-            for generation.
+            {isChecked.length}{" "}
+            {pluralize(isChecked.length, "Dairy Notice Licence")} selected for
+            generation.
           </Col>
         </Row>
         <Table striped size="sm" responsive className="mt-3" hover>
@@ -210,9 +202,9 @@ export default function SelectDairyNoticesPage() {
               <th>
                 <Form.Check
                   id="toggleAllCheckbox"
-                  onChange={(event) => toggleAllLicences(event)}
+                  onChange={(event) => handleSelectAll(event)}
+                  checked={isCheckAll}
                   label={<FaPrint />}
-                  checked={toggleAllChecked}
                 />
               </th>
               <th>Licence</th>
@@ -234,29 +226,28 @@ export default function SelectDairyNoticesPage() {
                   <td>
                     {addCheck ? (
                       <Form.Check
-                        name={`licences[${index}].selected`}
-                        ref={register()}
-                        defaultChecked
-                        defaultValue
-                        onChange={() => updateToggleAllChecked()}
+                        name={`licences.${index}.check`}
+                        id={item.licenceId}
+                        checked={isChecked.includes(item.licenceId)}
+                        onChange={(e) => handleClick(e, item.licenceId)}
                       />
                     ) : null}
                     <input
                       hidden
                       name={`licences[${index}].id`}
-                      ref={register()}
+                      {...register(`licences[${index}].id`)}
                       defaultValue={item.id}
                     />
                     <input
                       hidden
                       name={`licences[${index}].licenceId`}
-                      ref={register()}
+                      {...register(`licences[${index}].licenceId`)}
                       defaultValue={item.licenceId}
                     />
                     <input
                       hidden
                       name={`licences[${index}].infractionJson`}
-                      ref={register()}
+                      {...register(`licences[${index}].infractionJson`)}
                       defaultValue={item.infractionJson}
                     />
                   </td>

@@ -202,7 +202,7 @@ router.post("/dairytestresults", async (req, res, next) => {
 
   try {
     // Begin job and assign new job id
-    const queryJobResult = await prisma.$queryRaw(
+    const queryJobResult = await prisma.$queryRawUnsafe(
       "CALL mals_app.pr_start_dairy_farm_test_job('FILE', NULL)"
     );
 
@@ -245,7 +245,7 @@ router.post("/dairytestresults", async (req, res, next) => {
 
     Util.Log(`Dairy Data Load: CALL pr_update_dairy_farm_test_results`);
     const updateJobQuery = `CALL mals_app.pr_update_dairy_farm_test_results(${jobId}, ${licenceMatch.length}, NULL, NULL)`;
-    const queryUpdateResult = await prisma.$queryRaw(updateJobQuery);
+    const queryUpdateResult = await prisma.$queryRawUnsafe(updateJobQuery);
     Util.Log(`Dairy Data Load: pr_update_dairy_farm_test_results complete`);
 
     return res.status(200).send({
@@ -311,7 +311,7 @@ router.post("/premisesidresults", async (req, res, next) => {
 
   try {
     // Begin job and assign new job id
-    const queryJobResult = await prisma.$queryRaw(
+    const queryJobResult = await prisma.$queryRawUnsafe(
       "CALL mals_app.pr_start_premises_job(NULL)"
     );
 
@@ -334,7 +334,7 @@ router.post("/premisesidresults", async (req, res, next) => {
 
     Util.Log(`Premises Data Load: CALL pr_process_premises_import`);
     const updateJobQuery = `CALL mals_app.pr_process_premises_import(${jobId}, NULL, NULL)`;
-    const queryUpdateResult = await prisma.$queryRaw(updateJobQuery);
+    const queryUpdateResult = await prisma.$queryRawUnsafe(updateJobQuery);
     Util.Log(`Premises Data Load: pr_process_premises_import complete`);
 
     const premisesJob = await fetchPremisesJobById(jobId);

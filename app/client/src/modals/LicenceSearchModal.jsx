@@ -1,8 +1,6 @@
-/* eslint-disable */
 import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import PropTypes from "prop-types";
-import { Link } from "react-router-dom";
 import {
   Alert,
   Container,
@@ -16,8 +14,8 @@ import {
   FormControl,
   Modal,
 } from "react-bootstrap";
-import { FaSearch, FaChevronDown, FaChevronUp } from "react-icons/fa";
-import { useForm, Controller } from "react-hook-form";
+import { FaSearch } from "react-icons/fa";
+import { useForm } from "react-hook-form";
 
 import {
   formatDateString,
@@ -27,8 +25,6 @@ import {
 import { REQUEST_STATUS } from "../utilities/constants";
 
 import { parseAsInt } from "../utilities/parsing";
-import CustomCheckBox from "../components/CustomCheckBox";
-import PageHeading from "../components/PageHeading";
 
 import {
   fetchAssociatedLicenceResults,
@@ -79,18 +75,11 @@ export default function LicenceSearchModal({
   const form = useForm({
     reValidateMode: "onBlur",
   });
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    getValues,
-    setError,
-    errors,
-  } = form;
+  const { register, handleSubmit } = form;
 
   const updateToggle = (licence) => {
     const intId = parseAsInt(licence.licenceId);
-    const index = selectedLicences.findIndex((x) => x.id === intId);
+    const index = selectedLicences.findIndex((x) => x.licenceId === intId);
 
     if (index >= 0) {
       let clone = [...selectedLicences];
@@ -160,10 +149,9 @@ export default function LicenceSearchModal({
                 <tr key={result.licenceId}>
                   <td>
                     <Form.Check
-                      name={`licences[${
+                      name={`licences.${
                         (results.page - 1) * results.data.length + index
-                      }].selected`}
-                      ref={register}
+                      }.selected`}
                       defaultChecked={
                         selectedLicences.find(
                           (x) => x.id === result.licenceId
@@ -182,10 +170,14 @@ export default function LicenceSearchModal({
                     ></Form.Check>
                     <input
                       hidden
-                      name={`licences[${
+                      name={`licences.${
                         (results.page - 1) * results.data.length + index
-                      }].licenceId`}
-                      ref={register}
+                      }.licenceId`}
+                      {...register(
+                        `licences.${
+                          (results.page - 1) * results.data.length + index
+                        }.licenceId`
+                      )}
                       defaultValue={result.licenceId}
                     />
                   </td>
@@ -193,10 +185,14 @@ export default function LicenceSearchModal({
                     {result.licenceNumber}
                     <input
                       hidden
-                      name={`licences[${
+                      name={`licences.${
                         (results.page - 1) * results.data.length + index
-                      }].licenceNumber`}
-                      ref={register}
+                      }.licenceNumber`}
+                      {...register(
+                        `licences.${
+                          (results.page - 1) * results.data.length + index
+                        }.licenceNumber`
+                      )}
                       defaultValue={result.licenceNumber}
                     />
                   </td>
@@ -204,10 +200,14 @@ export default function LicenceSearchModal({
                     {result.licenceType}
                     <input
                       hidden
-                      name={`licences[${
+                      name={`licences.${
                         (results.page - 1) * results.data.length + index
-                      }].licenceType`}
-                      ref={register}
+                      }.licenceType`}
+                      {...register(
+                        `licences.${
+                          (results.page - 1) * results.data.length + index
+                        }.licenceType`
+                      )}
                       defaultValue={result.licenceType}
                     />
                   </td>
@@ -312,7 +312,9 @@ export default function LicenceSearchModal({
             type="submit"
             disabled={
               !(
-                results.status === REQUEST_STATUS.FULFILLED && results.count > 0
+                results.status === REQUEST_STATUS.FULFILLED &&
+                results.count > 0 &&
+                selectedLicences.length > 0
               )
             }
           >

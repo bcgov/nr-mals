@@ -1,15 +1,7 @@
-/* eslint-disable */
-import React, { useEffect } from "react";
+import React from "react";
 import PropTypes from "prop-types";
 import { Button, Modal, Form, Col } from "react-bootstrap";
-import { useForm, Controller } from "react-hook-form";
-import NumberFormat from "react-number-format";
-
-import { formatPhoneNumber } from "../utilities/formatting";
-import { parseAsInt } from "../utilities/parsing";
-import CustomCheckBox from "../components/CustomCheckBox";
-
-import { PHONE_NUMBER_TYPES } from "../utilities/constants";
+import { useForm } from "react-hook-form";
 
 export const COMMENT = "COMMENT_MODAL";
 
@@ -37,7 +29,11 @@ export default function CommentModal({
   const form = useForm({
     reValidateMode: "onBlur",
   });
-  const { register, handleSubmit, setError, errors } = form;
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = form;
 
   return (
     <Form onSubmit={handleSubmit(onSubmit)} noValidate>
@@ -47,7 +43,7 @@ export default function CommentModal({
         id="licenceId"
         name="licenceId"
         defaultValue={licenceId}
-        ref={register}
+        {...register("licenceId")}
       />
       <Form.Control
         hidden
@@ -55,7 +51,7 @@ export default function CommentModal({
         id="commentId"
         name="commentId"
         defaultValue={commentId}
-        ref={register}
+        {...register("commentId")}
       />
       <Modal.Header closeButton>
         <Modal.Title>
@@ -70,7 +66,7 @@ export default function CommentModal({
               rows={6}
               maxLength={2000}
               name="commentText"
-              ref={register({ required: true })}
+              {...register("commentText", { required: true })}
               defaultValue={commentText}
               className="mb-1"
               isInvalid={errors.commentText}

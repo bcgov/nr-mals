@@ -33,7 +33,7 @@ import {
 } from "../search/searchSlice";
 
 import VerticalField from "../../components/VerticalField";
-import { formatDateString } from "../../utilities/formatting";
+import { formatDateString } from "../../utilities/formatting.ts";
 
 import { REQUEST_STATUS, SPECIES_SUBCODES } from "../../utilities/constants";
 import { parseAsDate } from "../../utilities/parsing";
@@ -170,7 +170,6 @@ export default function LicenceInventoryHistory({ licence }) {
   };
 
   const onDeleteCallback = (data) => {
-    console.log(data);
     dispatch(
       deleteLicenceInventoryHistory({ data, licenceId: licence.data.id })
     );

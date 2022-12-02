@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 import React from "react";
 import PropTypes from "prop-types";
-import NumberFormat from "react-number-format";
+import { NumericFormat } from "react-number-format";
 import { Row, Col } from "react-bootstrap";
 
 import { parseAsInt } from "../../utilities/parsing";
@@ -10,6 +10,7 @@ import {
   formatDateString,
   formatMoney,
   formatBoolean,
+  formatPhoneNumber,
 } from "../../utilities/formatting.ts";
 
 import VerticalField from "../../components/VerticalField";
@@ -64,7 +65,7 @@ export default function LicenceDetailsView({ licence }) {
             <VerticalField
               label="IRMA Number"
               value={
-                <NumberFormat
+                <NumericFormat
                   displayType="text"
                   format="##-###"
                   value={licence.irmaNumber}
@@ -139,13 +140,13 @@ export default function LicenceDetailsView({ licence }) {
           {primaryPhone !== undefined ? (
             <Row>
               <Col lg={3}>Primary Number:</Col>
-              <Col>{primaryPhone.number}</Col>
+              <Col>{formatPhoneNumber(primaryPhone.number)}</Col>
             </Row>
           ) : null}
           {secondaryPhone !== undefined ? (
             <Row>
               <Col lg={3}>Secondary Number:</Col>
-              <Col>{secondaryPhone.number}</Col>
+              <Col>{formatPhoneNumber(secondaryPhone.number)}</Col>
             </Row>
           ) : null}
           {faxNumber !== undefined ? (

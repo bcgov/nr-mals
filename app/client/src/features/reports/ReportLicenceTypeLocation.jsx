@@ -62,7 +62,7 @@ export default function ReportLicenceTypeLocation() {
             as="select"
             name="licenceTypeId"
             defaultValue={LICENCE_TYPE_ID_GAME_FARM}
-            ref={register}
+            {...register("licenceTypeId")}
             custom
           >
             <option

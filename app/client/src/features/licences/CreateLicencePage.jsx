@@ -158,14 +158,8 @@ export default function CreateLicencePage() {
   const form = useForm({
     reValidateMode: "onBlur",
   });
-  const {
-    register,
-    watch,
-    handleSubmit,
-    setValue,
-    setError,
-    clearErrors,
-  } = form;
+  const { register, watch, handleSubmit, setValue, setError, clearErrors } =
+    form;
 
   useEffect(() => {
     register("applicationDate");
@@ -282,7 +276,7 @@ export default function CreateLicencePage() {
           <Container>
             <Form.Row>
               <Col sm={6}>
-                <LicenceTypes ref={register} />
+                <LicenceTypes {...register("licenceType")} />
               </Col>
             </Form.Row>
           </Container>
@@ -324,7 +318,7 @@ export default function CreateLicencePage() {
               as="textarea"
               rows={6}
               name="commentText"
-              ref={register}
+              {...register("commentText")}
               className="mb-1"
             />
           </Container>

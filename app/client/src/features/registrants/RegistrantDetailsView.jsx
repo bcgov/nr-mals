@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import NumberFormat from "react-number-format";
+import { PatternFormat } from "react-number-format";
 import { Col, Row } from "react-bootstrap";
 
 import VerticalField from "../../components/VerticalField";
@@ -30,7 +30,7 @@ export default function RegistrantDetailsView({ registrant }) {
           <VerticalField
             label="Primary Phone"
             value={
-              <NumberFormat
+              <PatternFormat
                 displayType="text"
                 format="(###) ###-####"
                 value={registrant.primaryPhone}
