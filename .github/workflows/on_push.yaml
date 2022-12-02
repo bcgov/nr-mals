@@ -50,6 +50,7 @@ jobs:
           acronym: ${{ env.ACRONYM }}
           environment: dev
           job_name: master
+          route_path: /app
           namespace_prefix: ${{ env.NAMESPACE_PREFIX }}
           namespace_environment: dev
           openshift_server: ${{ secrets.OPENSHIFT_SERVER }}
