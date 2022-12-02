@@ -3,12 +3,9 @@
   "version": "5.1.0",
   "private": true,
   "scripts": {
-    "start": "concurrently \"npm run start-client\" \"npm run debug-server\"",
-    "start:production": "npm run start-server",
-    "start-server": "node server/bin/www",
-    "debug-server": "nodemon --inspect server/bin/www",
-    "start-client": "cross-env REACT_APP_VERSION=$npm_package_version npm run start --prefix client",
-    "build-client": "cross-env REACT_APP_VERSION=$npm_package_version npm run build --prefix client",
+    "serve": "nodemon --inspect server/bin/www",
+    "build": "cd client && npm run build",
+    "start": "node server/bin/www",
     "lint": "npm run lint-server && npm run lint-client",
     "lint:fix": "npm run lint-server:fix && npm run lint-client:fix",
     "format": "npm run format-server && npm run format-client",
@@ -21,7 +18,10 @@
     "lint-client:fix": "npm run lint:fix --prefix client",
     "format-client": "npm run format --prefix client",
     "format-client:check": "npm run format:check --prefix client",
-    "introspect": "npx prisma db pull && shx cat prisma/views.prisma >> prisma/schema.prisma"
+    "introspect": "npx prisma db pull && shx cat prisma/views.prisma >> prisma/schema.prisma",
+    "all:ci": "npm ci && cd client && npm ci",
+    "all:build": "npm run build",
+    "client:purge": "cd client && npm run purge"
   },
   "eslintConfig": {
     "env": {
