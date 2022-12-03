@@ -69,6 +69,21 @@ objects:
                   value: "8080"
                 - name: ENVIRONMENT_LABEL
                   value: "${ENVIRONMENT_LABEL}"
+                - name: CDOGS_URL
+                  valueFrom:
+                    secretKeyRef:
+                      key: CDOGS_URL
+                      name: "${APP_NAME}"
+                - name: CDOGS_OAUTH_URL
+                  valueFrom:
+                    secretKeyRef:
+                      key: CDOGS_OAUTH_URL
+                      name: "${APP_NAME}"
+                - name: CDOGS_SECRET
+                  valueFrom:
+                    secretKeyRef:
+                      key: CDOGS_SECRET
+                      name: "${APP_NAME}"
           restartPolicy: Always
           terminationGracePeriodSeconds: 30
       test: false
