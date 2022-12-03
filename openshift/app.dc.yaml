@@ -7,20 +7,20 @@ labels:
   app.kubernetes.io/name: nodejs
   app.kubernetes.io/part-of: "${APP_NAME}-${JOB_NAME}"
   app: "${APP_NAME}-${JOB_NAME}"
-  template: "${REPO_NAME}-app-dc-template"
+  template: "${REPO_NAME}-dc-template"
 metadata:
-  name: "${REPO_NAME}-app-dc"
+  name: "${REPO_NAME}-dc"
 objects:
   - apiVersion: v1
     kind: DeploymentConfig
     metadata:
-      name: "${APP_NAME}-app-${JOB_NAME}"
+      name: "${APP_NAME}-${JOB_NAME}"
     spec:
       replicas: 2
       revisionHistoryLimit: 10
       selector:
         app: "${APP_NAME}-${JOB_NAME}"
-        deploymentconfig: "${APP_NAME}-app-${JOB_NAME}"
+        deploymentconfig: "${APP_NAME}-${JOB_NAME}"
         role: app
       strategy:
         type: Rolling
@@ -31,7 +31,7 @@ objects:
         metadata:
           labels:
             app: "${APP_NAME}-${JOB_NAME}"
-            deploymentconfig: "${APP_NAME}-app-${JOB_NAME}"
+            deploymentconfig: "${APP_NAME}-${JOB_NAME}"
             role: app
         spec:
           containers:
@@ -64,29 +64,6 @@ objects:
                 limits:
                   cpu: "${CPU_LIMIT}"
                   memory: "${MEMORY_LIMIT}"
-              env:
-                - name: PORT
-                  value: 8080
-                - name: DATABASE_URL
-                  valueFrom:
-                    secretKeyRef:
-                      key: DATABASE_URL
-                      name: "${APP_NAME}"
-                - name: CDOGS_URL
-                  valueFrom:
-                    secretKeyRef:
-                      key: CDOGS_URL
-                      name: "${APP_NAME}"
-                - name: CDOGS_OAUTH_URL
-                  valueFrom:
-                    secretKeyRef:
-                      key: CDOGS_OAUTH_URL
-                      name: "${APP_NAME}"
-                - name: CDOGS_SECRET
-                  valueFrom:
-                    secretKeyRef:
-                      key: CDOGS_SECRET
-                      name: "${APP_NAME}"
           restartPolicy: Always
           terminationGracePeriodSeconds: 30
       test: false
@@ -95,7 +72,7 @@ objects:
   - apiVersion: v1
     kind: Service
     metadata:
-      name: "${APP_NAME}-app-${JOB_NAME}"
+      name: "${APP_NAME}-${JOB_NAME}"
     spec:
       ports:
         - name: 8080-tcp
@@ -104,7 +81,7 @@ objects:
           targetPort: 8080
       selector:
         app: "${APP_NAME}-${JOB_NAME}"
-        deploymentconfig: "${APP_NAME}-app-${JOB_NAME}"
+        deploymentconfig: "${APP_NAME}-${JOB_NAME}"
         role: app
       sessionAffinity: None
   - apiVersion: v1
