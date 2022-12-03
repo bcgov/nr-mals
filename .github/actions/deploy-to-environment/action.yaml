@@ -13,6 +13,9 @@ inputs:
   job_name:
     description: Job/Instance name
     required: true
+  route_path:
+    description: Route to base application folder
+    required: true
   namespace_prefix:
     description: Openshift Namespace common prefix
     required: true
