@@ -42,7 +42,6 @@ app.use(
         "default-src": [
           "self",
           "https://mals.nrs.gov.bc.ca/",
-          "https://uat-mals.nrs.gov.bc.ca/",
           "https://*.silver.devops.gov.bc.ca/",
           "https://*.oidc.gov.bc.ca/",
           "https://oidc.gov.bc.ca/",
@@ -50,7 +49,6 @@ app.use(
         "script-src": [
           "'self'",
           "mals.nrs.gov.bc.ca",
-          "uat-mals.nrs.gov.bc.ca",
           "*.silver.devops.gov.bc.ca",
           "*.oidc.gov.bc.ca",
           "oidc.gov.bc.ca",
@@ -66,37 +64,10 @@ app.use(function (req, res, next) {
   next();
 });
 
-var corsWhitelist = [
-  "https://dev.oidc.gov.bc.ca/",
-  "https://test.oidc.gov.bc.ca/",
-  "https://oidc.gov.bc.ca/",
-];
+app.use(cors({
+  origin: true // Set true to dynamically set Access-Control-Allow-Origin based on Origin
+}));
 
-if (process.env.ENVIRONMENT_LABEL === "dev") {
-  corsWhitelist.push("https://mals-app-dev.apps.silver.devops.gov.bc.ca");
-  corsWhitelist.push("http://127.0.0.1:3000/");
-  corsWhitelist.push("http://127.0.0.1:3001/");
-} else if (process.env.ENVIRONMENT_LABEL === "test") {
-  corsWhitelist.push("https://mals-app-test.apps.silver.devops.gov.bc.ca");
-} else if (process.env.ENVIRONMENT_LABEL === "uat") {
-  corsWhitelist.push("https://mals-app-uat.apps.silver.devops.gov.bc.ca");
-  corsWhitelist.push("https://uat-mals.nrs.gov.bc.ca");
-} else if (process.env.ENVIRONMENT_LABEL === "prod") {
-  corsWhitelist.push("https://mals-app-prod.apps.silver.devops.gov.bc.ca");
-  corsWhitelist.push("https://mals.nrs.gov.bc.ca");
-}
-
-var corsOptions = {
-  origin: function (origin, callback) {
-    if (!origin || corsWhitelist.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
-};
-
-app.use(cors(corsOptions));
 app.use(keycloak.middleware({}));
 app.use(logger("dev"));
 app.use(express.json({ limit: "50mb" }));
