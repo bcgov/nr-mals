@@ -34,10 +34,6 @@ runs:
   steps:
     - name: Checkout repository
       uses: actions/checkout@v3
-    - name: Install oc
-      uses: redhat-actions/openshift-tools-installer@v1
-      with:
-        oc: 4
     - name: Login to OpenShift Cluster
       uses: redhat-actions/oc-login@v1
       with:
