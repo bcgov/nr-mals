@@ -134,9 +134,10 @@ parameters:
     displayName: Route host
     required: true
   - name: ROUTE_PATH
-    description: Configure the route path (ex. /pr-5 or /app), also used for CLIENT_BASEPATH
+    description: Configure the route path (ex. /pr-5 or /app)
     displayName: Route path
     required: true
+    value: ""
   - name: JOB_NAME
     description: Job identifier (i.e. 'pr-5' OR 'master')
     displayName: Job Branch Name
