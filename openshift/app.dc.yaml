@@ -69,8 +69,6 @@ objects:
                   value: "8080"
                 - name: ENVIRONMENT_LABEL
                   value: "${ENVIRONMENT_LABEL}"
-                - name: REACT_APP_ENVIRONMENT_LABEL
-                  value: "${ENVIRONMENT_LABEL}"
                 - name: CDOGS_URL
                   valueFrom:
                     secretKeyRef:
