@@ -113,7 +113,6 @@ objects:
       name: "${APP_NAME}-app-${JOB_NAME}"
     spec:
       host: "${ROUTE_HOST}"
-      path: "${ROUTE_PATH}"
       port:
         targetPort: 8080-tcp
       tls:
@@ -133,11 +132,6 @@ parameters:
     description: The host the route will use to expose service outside cluster
     displayName: Route host
     required: true
-  - name: ROUTE_PATH
-    description: Configure the route path (ex. /pr-5 or /app)
-    displayName: Route path
-    required: true
-    value: ""
   - name: JOB_NAME
     description: Job identifier (i.e. 'pr-5' OR 'master')
     displayName: Job Branch Name
