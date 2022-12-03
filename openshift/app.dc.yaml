@@ -87,7 +87,7 @@ objects:
   - apiVersion: v1
     kind: Route
     metadata:
-      name: "${APP_NAME}-app-${JOB_NAME}"
+      name: "${APP_NAME}-${JOB_NAME}"
     spec:
       host: "${ROUTE_HOST}"
       port:
@@ -97,7 +97,7 @@ objects:
         termination: edge
       to:
         kind: Service
-        name: "${APP_NAME}-app-${JOB_NAME}"
+        name: "${APP_NAME}-${JOB_NAME}"
         weight: 100
       wildcardPolicy: None
 parameters:
