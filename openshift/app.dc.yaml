@@ -68,7 +68,7 @@ objects:
                 - name: PORT
                   value: 8080
                 - name: ENVIRONMENT_LABEL
-                  value: ${ENVIRONMENT_LABEL}
+                  value: "${ENVIRONMENT_LABEL}"
                 - name: DATABASE_URL
                   valueFrom:
                     secretKeyRef:
@@ -135,7 +135,6 @@ parameters:
     description: Application Environment name
     displayName: Application Environment name
     required: true
-    value: dev
   - name: ROUTE_HOST
     description: The host the route will use to expose service outside cluster
     displayName: Route host
