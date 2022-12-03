@@ -64,6 +64,11 @@ objects:
                 limits:
                   cpu: "${CPU_LIMIT}"
                   memory: "${MEMORY_LIMIT}"
+              env:
+                - name: PORT
+                  value: 8080
+                - name: ENVIRONMENT_LABEL
+                  value: "${ENVIRONMENT_LABEL}"
           restartPolicy: Always
           terminationGracePeriodSeconds: 30
       test: false
@@ -104,6 +109,10 @@ parameters:
   - name: APP_NAME
     description: Application name
     displayName: Application name
+    required: true
+  - name: ENVIRONMENT_LABEL
+    description: Application environment name
+    displayName: Application environment name
     required: true
   - name: ROUTE_HOST
     description: The host the route will use to expose service outside cluster
