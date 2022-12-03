@@ -70,23 +70,23 @@ objects:
                 - name: DATABASE_URL
                   valueFrom:
                     secretKeyRef:
-                      name: ${APP_NAME}
                       key: DATABASE_URL
+                      name: "${APP_NAME}"
                 - name: CDOGS_URL
                   valueFrom:
                     secretKeyRef:
-                      name: ${APP_NAME}
                       key: CDOGS_URL
+                      name: "${APP_NAME}"
                 - name: CDOGS_OAUTH_URL
                   valueFrom:
                     secretKeyRef:
-                      name: ${APP_NAME}
                       key: CDOGS_OAUTH_URL
+                      name: "${APP_NAME}"
                 - name: CDOGS_SECRET
                   valueFrom:
                     secretKeyRef:
-                      name: ${APP_NAME}
                       key: CDOGS_SECRET
+                      name: "${APP_NAME}"
           restartPolicy: Always
           terminationGracePeriodSeconds: 30
       test: false
