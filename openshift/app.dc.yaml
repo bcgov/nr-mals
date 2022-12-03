@@ -40,7 +40,7 @@ objects:
               imagePullPolicy: IfNotPresent
               livenessProbe:
                 httpGet:
-                  path: "${ROUTE_PATH}/hc"
+                  path: "/hc"
                   port: 8080
                   scheme: HTTP
                 initialDelaySeconds: 10
@@ -51,7 +51,7 @@ objects:
                   protocol: TCP
               readinessProbe:
                 httpGet:
-                  path: "${ROUTE_PATH}/hc"
+                  path: "/hc"
                   port: 8080
                   scheme: HTTP
                 initialDelaySeconds: 10
@@ -68,7 +68,7 @@ objects:
                 - name: PORT
                   value: 8080
                 - name: ENVIRONMENT_LABEL
-                  value: ${NODE_ENV}
+                  value: ${ENVIRONMENT_LABEL}
                 - name: DATABASE_URL
                   valueFrom:
                     secretKeyRef:
