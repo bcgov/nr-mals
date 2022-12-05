@@ -1,15 +1,3 @@
-
-const whitelist = ['https://dev.loginproxy.gov.bc.ca/', 'http://127.0.0.1:3000/', 'http://127.0.0.1:3001/', 'https://mals-app-dev.apps.silver.devops.gov.bc.ca']
-const corsOptions = {
-  origin: function (origin, callback) {
-    if (whitelist.indexOf(origin) !== -1) {
-      callback(null, true)
-    } else {
-      callback(new Error('Not allowed by CORS'))
-    }
-  }
-}
-
 require("dotenv").config();
 
 const express = require("express");
@@ -40,6 +28,17 @@ const dairyFarmTestThresholdsRouter = require("./routes/dairyFarmTestThresholds"
 const inspectionsRouter = require("./routes/inspections");
 const constants = require("./utilities/constants");
 const roleValidation = require("./middleware/roleValidation");
+
+const whitelist = ['https://dev.loginproxy.gov.bc.ca/', 'http://127.0.0.1:3000/', 'http://127.0.0.1:3001/', 'https://mals-app-dev.apps.silver.devops.gov.bc.ca/*']
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (!origin || whitelist.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  }
+}
 
 const app = express();
 app.disable("x-powered-by");
