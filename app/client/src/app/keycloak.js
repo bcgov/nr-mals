@@ -19,8 +19,15 @@ function GetKeycloakConfig() {
 
 const kc = new Keycloak(GetKeycloakConfig());
 
-const doLogin = kc.login;
-const doLogout = kc.logout;
+function doLogin() { window.location.replace(kc.createLoginUrl()); }
+function doLogout() {
+  window.location.replace(
+    kc.createLogoutUrl({
+      redirectUri: `${window.location.origin}/`,
+    })
+  );
+}
+
 const isLoggedIn = () => !!kc.token;
 
 const getToken = () => kc.token;
