@@ -1,6 +1,7 @@
 const { PrismaClient } = require("@prisma/client");
-const prisma = new PrismaClient();
 const user = require("../models/user");
+
+const prisma = new PrismaClient();
 
 // Request will add the current users IDIR from Keycloak in the headers
 // Validate IDIR against database and get user role if applicable

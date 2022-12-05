@@ -7,11 +7,11 @@ const AdmZip = require("adm-zip");
 const path = require("path");
 const fs = require("fs").promises;
 
-const licence = require("../models/licence");
-const dairyFarmInfractionView = require("../models/dairyFarmInfractionView");
-const dairyFarmTankRecheckView = require("../models/dairyFarmTankRecheckView");
-const constants = require("../utilities/constants");
-const { getCurrentUser } = require("../utilities/user");
+const licence = require("../../models/licence");
+const dairyFarmInfractionView = require("../../models/dairyFarmInfractionView");
+const dairyFarmTankRecheckView = require("../../models/dairyFarmTankRecheckView");
+const constants = require("../../utilities/constants");
+const { getCurrentUser } = require("../../utilities/user");
 const {
   formatCdogsBody,
   getCertificateTemplateName,
@@ -19,10 +19,10 @@ const {
   getDairyNoticeTemplateName,
   getDairyTankNoticeTemplateName,
   getReportsTemplateName,
-} = require("../utilities/documents");
-const { formatDate } = require("../utilities/formatting");
-const { parseAsInt } = require("../utilities/parsing");
-const { REPORTS } = require("../utilities/constants");
+} = require("../../utilities/documents");
+const { formatDate } = require("../../utilities/formatting");
+const { parseAsInt } = require("../../utilities/parsing");
+const { REPORTS } = require("../../utilities/constants");
 
 const prisma = new PrismaClient();
 const router = express.Router();

@@ -4,19 +4,15 @@ const collection = require("lodash/collection");
 const {
   populateAuditColumnsCreate,
   populateAuditColumnsUpdate,
-} = require("../utilities/auditing");
-const { formatDate } = require("../utilities/formatting");
+} = require("../../utilities/auditing");
 
-const Util = require("../utilities/util");
+const Util = require("../../utilities/util");
 
-const user = require("../models/user");
-const role = require("../models/role");
-const dairyTestResult = require("../models/dairyTestResult");
-const dairyTestThreshold = require("../models/dairyTestThreshold");
-const premisesDetail = require("../models/premisesDetail");
-
-const constants = require("../utilities/constants");
-const forEach = require("lodash/forEach");
+const user = require("../../models/user");
+const role = require("../../models/role");
+const dairyTestResult = require("../../models/dairyTestResult");
+const dairyTestThreshold = require("../../models/dairyTestThreshold");
+const premisesDetail = require("../../models/premisesDetail");
 
 const prisma = new PrismaClient();
 const router = express.Router();

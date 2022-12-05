@@ -5,7 +5,7 @@ const collection = require("lodash/collection");
 const {
   populateAuditColumnsCreate,
   populateAuditColumnsUpdate,
-} = require("../utilities/auditing");
+} = require("../../utilities/auditing");
 
 const prisma = new PrismaClient();
 const router = express.Router();

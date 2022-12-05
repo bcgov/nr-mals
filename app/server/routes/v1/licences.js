@@ -1,20 +1,22 @@
 const express = require("express");
 const { PrismaClient } = require("@prisma/client");
+const collection = require("lodash/collection");
+
 const {
   populateAuditColumnsCreate,
   populateAuditColumnsUpdate,
-} = require("../utilities/auditing");
-const licence = require("../models/licence");
-const registrant = require("../models/registrant");
-const comment = require("../models/comment");
-const inventory = require("../models/inventory");
+} = require("../../utilities/auditing");
+const licence = require("../../models/licence");
+const registrant = require("../../models/registrant");
+const comment = require("../../models/comment");
+const inventory = require("../../models/inventory");
 const comments = require("./comments");
-const constants = require("../utilities/constants");
-const collection = require("lodash/collection");
-const dairyTestResult = require("../models/dairyTestResult");
+const constants = require("../../utilities/constants");
 
-const { parseAsInt, parseAsFloat } = require("../utilities/parsing");
-const { formatDate } = require("../utilities/formatting");
+const dairyTestResult = require("../../models/dairyTestResult");
+
+const { parseAsInt } = require("../../utilities/parsing");
+const { formatDate } = require("../../utilities/formatting");
 
 const router = express.Router();
 const prisma = new PrismaClient();
@@ -1194,8 +1196,8 @@ router.put("/:licenceId(\\d+)/registrants", async (req, res, next) => {
         a.createTimestamp > b.createTimestamp
           ? 1
           : b.createTimestamp > a.createTimestamp
-          ? -1
-          : 0
+            ? -1
+            : 0
       );
 
       let newPrimaryRegistrant = undefined;
@@ -1323,8 +1325,8 @@ router.post("/", async (req, res, next) => {
 
   const newRegistrants = req.body.registrants
     ? req.body.registrants.filter(
-        (r) => r && r.status === REGISTRANT_STATUS.NEW
-      )
+      (r) => r && r.status === REGISTRANT_STATUS.NEW
+    )
     : [];
 
   req.body.companyName =
@@ -1368,8 +1370,8 @@ router.post("/", async (req, res, next) => {
         a.createTimestamp > b.createTimestamp
           ? 1
           : b.createTimestamp > a.createTimestamp
-          ? -1
-          : 0
+            ? -1
+            : 0
       );
       updatedRecordLogical.primaryRegistrantId = registrants[0].id;
 

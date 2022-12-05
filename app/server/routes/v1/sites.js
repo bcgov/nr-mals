@@ -1,16 +1,15 @@
 const express = require("express");
 const { PrismaClient } = require("@prisma/client");
+
 const {
   populateAuditColumnsCreate,
   populateAuditColumnsUpdate,
-} = require("../utilities/auditing");
-const site = require("../models/site");
-const comment = require("../models/comment");
-const dairyTank = require("../models/dairyTank");
-const inspection = require("../models/inspection");
-const comments = require("./comments");
-const constants = require("../utilities/constants");
-const { max } = require("lodash");
+} = require("../../utilities/auditing");
+const site = require("../../models/site");
+const dairyTank = require("../../models/dairyTank");
+const inspection = require("../../models/inspection");
+const constants = require("../../utilities/constants");
+
 
 const router = express.Router();
 const prisma = new PrismaClient();
@@ -277,15 +276,14 @@ router.post("/search/export", async (req, res, next) => {
         "Site ID,Registrant Name,Company Name,Licence Number,City,Region,District,Next Inspection Date\n";
       const values = results
         .map((x) => {
-          return `${
-            x.apiarySiteIdDisplay ? x.apiarySiteIdDisplay : x.siteId
-          },${formatValue(x.registrantLastName)},${formatValue(
-            x.registrantCompanyName
-          )},${formatValue(x.licenceNumber)},${formatValue(
-            x.licenceCity
-          )},${formatValue(x.licenceRegion)},${formatValue(
-            x.licenceDistrict
-          )},${formatValue(x.nextInspectionDate)}`;
+          return `${x.apiarySiteIdDisplay ? x.apiarySiteIdDisplay : x.siteId
+            },${formatValue(x.registrantLastName)},${formatValue(
+              x.registrantCompanyName
+            )},${formatValue(x.licenceNumber)},${formatValue(
+              x.licenceCity
+            )},${formatValue(x.licenceRegion)},${formatValue(
+              x.licenceDistrict
+            )},${formatValue(x.nextInspectionDate)}`;
         })
         .join("\n");
       const payload = columnHeaders.concat(values);

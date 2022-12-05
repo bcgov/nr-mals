@@ -2,8 +2,8 @@ const express = require("express");
 const { PrismaClient } = require("@prisma/client");
 const collection = require("lodash/collection");
 
-const { populateAuditColumnsUpdate } = require("../utilities/auditing");
-const { formatDate } = require("../utilities/formatting");
+const { populateAuditColumnsUpdate } = require("../../utilities/auditing");
+const { formatDate } = require("../../utilities/formatting");
 
 const prisma = new PrismaClient();
 const router = express.Router();

@@ -1,8 +1,7 @@
 const express = require("express");
 const { PrismaClient } = require("@prisma/client");
-const collection = require("lodash/collection");
 
-const user = require("../models/user");
+const user = require("../../models/user");
 
 const prisma = new PrismaClient();
 const router = express.Router();

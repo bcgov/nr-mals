@@ -4,8 +4,8 @@ const collection = require("lodash/collection");
 const {
   populateAuditColumnsCreate,
   populateAuditColumnsUpdate,
-} = require("../utilities/auditing");
-const comment = require("../models/comment");
+} = require("../../utilities/auditing");
+const comment = require("../../models/comment");
 
 const prisma = new PrismaClient();
 const router = express.Router();

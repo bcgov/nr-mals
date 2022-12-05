@@ -5,7 +5,7 @@ const collection = require("lodash/collection");
 const {
   populateAuditColumnsCreate,
   populateAuditColumnsUpdate,
-} = require("../utilities/auditing");
+} = require("../../utilities/auditing");
 
 const prisma = new PrismaClient();
 const router = express.Router();
@@ -74,7 +74,7 @@ router.post("/species", async (req, res, next) => {
     code_description: record.codeDescription,
     active_flag: true,
   };
-  payloadWithAudit = populateAuditColumnsCreate(payload, now, now);
+  const payloadWithAudit = populateAuditColumnsCreate(payload, now, now);
   payload = {
     ...payload,
     create_userid: payloadWithAudit.createdBy,
@@ -102,7 +102,7 @@ router.put("/species/:id(\\d+)", async (req, res, next) => {
     code_name: record.codeName,
     code_description: record.codeDescription,
   };
-  payloadWithAudit = populateAuditColumnsUpdate(payload, now, now);
+  const payloadWithAudit = populateAuditColumnsUpdate(payload, now, now);
   payload = {
     ...payload,
     update_userid: payloadWithAudit.updatedBy,

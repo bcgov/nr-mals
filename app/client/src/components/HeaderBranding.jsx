@@ -7,7 +7,7 @@ import "./HeaderBranding.scss";
 function HeaderBranding() {
   return (
     <nav id="header-branding" className="navbar navbar-expand-lg navbar-dark">
-      <div className="container justify-content-start">
+      <div className="container d-flex justify-content-start">
         <a className="navbar-brand" href="https://www2.gov.bc.ca">
           <img
             className="img-fluid d-none d-md-block"
@@ -25,12 +25,11 @@ function HeaderBranding() {
           />
         </a>
         <div className="navbar-brand">Agriculture Licensing System</div>
-        <div>
+        <div className="ml-auto">
           {keycloak.getKeycloak().token ? (
             <Button
               variant="primary"
               type="button"
-              className="mt-3 mb-4"
               onClick={() => keycloak.logout()}
             >
               Log out
@@ -39,7 +38,6 @@ function HeaderBranding() {
             <Button
               variant="primary"
               type="button"
-              className="mt-3 mb-4"
               onClick={() => keycloak.login()}
             >
               Log in

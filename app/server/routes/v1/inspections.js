@@ -3,11 +3,8 @@ const { PrismaClient } = require("@prisma/client");
 const {
   populateAuditColumnsCreate,
   populateAuditColumnsUpdate,
-} = require("../utilities/auditing");
-const inspection = require("../models/inspection");
-
-const { parseAsInt, parseAsFloat } = require("../utilities/parsing");
-const { formatDate } = require("../utilities/formatting");
+} = require("../../utilities/auditing");
+const inspection = require("../../models/inspection");
 
 const router = express.Router();
 const prisma = new PrismaClient();
