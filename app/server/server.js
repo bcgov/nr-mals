@@ -94,23 +94,6 @@ app.get("/hc", (req, res) => {
   res.send("Health check OK");
 });
 
-// Base API Directory
-apiRouter.get('/', (_req, res) => {
-  if (state.shutdown) {
-    throw new Error('Server shutting down');
-  } else {
-    res.status(200).json({
-      app: {
-        name: process.env.npm_package_name,
-        version: process.env.npm_package_version,
-        gitRev: getGitRevision(),
-      },
-      endpoints: ['/api/v1'],
-      versions: [1]
-    });
-  }
-});
-
 // app Router
 apiRouter.use('/v1', appRouter);
 
