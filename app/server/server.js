@@ -71,6 +71,15 @@ app.get("/hc", (req, res) => {
   res.send("Health check OK");
 });
 
+// serve static files
+app.use(express.static("static"));
+
+// serve client
+app.use(express.static(path.join(__dirname, "../client/build")));
+app.get("/*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../client/build", "index.html"));
+});
+
 app.use(cors({
   origin: true // Set true to dynamically set Access-Control-Allow-Origin based on Origin
 }));
@@ -87,8 +96,6 @@ app.use(function (req, res, next) {
   }
   next();
 });
-
-
 
 app.use("/api/user", userRouter);
 app.use(
@@ -232,15 +239,6 @@ app.use("/api/*", (req, res) => {
     code: 404,
     description: "The requested endpoint could not be found.",
   });
-});
-
-// serve static files
-app.use(express.static("static"));
-
-// serve client
-app.use(express.static(path.join(__dirname, "../client/build")));
-app.get("/*", (req, res) => {
-  res.sendFile(path.join(__dirname, "../client/build", "index.html"));
 });
 
 // eslint-disable-next-line no-unused-vars
