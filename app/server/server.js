@@ -6,6 +6,7 @@ const path = require("path");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
 const helmet = require("helmet");
+const cors = require("cors");
 
 const keycloak = require("./keycloak");
 
@@ -66,6 +67,7 @@ app.use(function (req, res, next) {
   next();
 });
 
+app.use(cors());
 app.use(keycloak.middleware({}));
 app.use(logger("dev"));
 app.use(express.json({ limit: "50mb" }));
