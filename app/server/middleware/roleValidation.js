@@ -18,10 +18,7 @@ async function fetchUser(username) {
 module.exports = function (roles) {
   return async function (req, res, next) {
     try {
-      const userName = req.headers.currentuser.substring(
-        0,
-        req.headers.currentuser.indexOf("@idir")
-      );
+      const userName = req.headers.currentuser;
 
       const data = await fetchUser(userName.toUpperCase());
       if (data !== undefined) {

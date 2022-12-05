@@ -21,9 +21,7 @@ async function fetchUser(username) {
 }
 
 router.post("/currentUser", async (req, res, next) => {
-  const now = new Date();
-
-  const userName = req.body.idir.substring(0, req.body.idir.indexOf("@idir"));
+  const userName = req.body.idir;
 
   await fetchUser(userName.toUpperCase())
     .then((data) => {

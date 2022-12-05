@@ -45,6 +45,8 @@ app.use(
           "https://*.silver.devops.gov.bc.ca/",
           "https://*.oidc.gov.bc.ca/",
           "https://oidc.gov.bc.ca/",
+          "https://loginproxy.gov.bc.ca/",
+          "https://*.loginproxy.gov.bc.ca/",
         ],
         "script-src": [
           "'self'",
@@ -52,6 +54,8 @@ app.use(
           "*.silver.devops.gov.bc.ca",
           "*.oidc.gov.bc.ca",
           "oidc.gov.bc.ca",
+          "https://loginproxy.gov.bc.ca/",
+          "https://*.loginproxy.gov.bc.ca/",
         ],
       },
     },
@@ -77,11 +81,7 @@ app.use(httpContext.middleware);
 
 app.use(function (req, res, next) {
   if (req.headers.currentuser) {
-    const user = req.headers.currentuser.substring(
-      0,
-      req.headers.currentuser.indexOf("@idir")
-    );
-    httpContext.set("currentUser", user);
+    httpContext.set("currentUser", req.headers.currentuser);
   }
   next();
 });

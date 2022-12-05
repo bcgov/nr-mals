@@ -57,6 +57,7 @@ function App() {
   const currentUser = useSelector(selectCurrentUser);
 
   useEffect(() => {
+    console.log(keycloak.getTokenParsed());
     dispatch(fetchStatus());
     dispatch(fetchCurrentUser({ data: { idir: keycloak.getUsername() } }));
   }, [dispatch]);

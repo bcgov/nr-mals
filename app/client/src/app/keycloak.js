@@ -24,14 +24,13 @@ const doLogout = kc.logout;
 const isLoggedIn = () => !!kc.token;
 
 const getToken = () => kc.token;
+const getTokenParsed = () => kc.tokenParsed;
 const updateToken = (successCallback) =>
   kc.updateToken(5).then(successCallback).catch(doLogin);
 
-// eslint-disable-next-line
-const log = () => console.log(kc.tokenParsed);
-
-const getUsername = () => kc.tokenParsed?.preferred_username;
+const getUsername = () => kc.tokenParsed?.idir_username;
 const getName = () => kc.tokenParsed?.name;
+
 
 const hasRealmRole = (roles) => roles.some((role) => kc.hasRealmRole(role));
 
@@ -51,12 +50,12 @@ const init = (onAuthenticatedCallback) => {
 };
 
 const keycloak = {
-  log,
   init,
   doLogin,
   doLogout,
   isLoggedIn,
   getToken,
+  getTokenParsed,
   updateToken,
   getUsername,
   getName,
