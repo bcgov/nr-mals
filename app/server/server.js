@@ -5,7 +5,6 @@ const httpContext = require("express-http-context");
 const path = require("path");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
-const cors = require("cors");
 const helmet = require("helmet");
 
 const keycloak = require("./keycloak");
@@ -29,16 +28,6 @@ const inspectionsRouter = require("./routes/inspections");
 const constants = require("./utilities/constants");
 const roleValidation = require("./middleware/roleValidation");
 
-const whitelist = ['https://dev.loginproxy.gov.bc.ca/', 'http://127.0.0.1:3000/', 'http://127.0.0.1:3001/', 'https://mals-app-dev.apps.silver.devops.gov.bc.ca/*']
-const corsOptions = {
-  origin: function (origin, callback) {
-    if (!origin || whitelist.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
-  }
-}
 
 const app = express();
 app.disable("x-powered-by");
@@ -78,7 +67,6 @@ app.use(function (req, res, next) {
 });
 
 app.use(keycloak.middleware({}));
-app.use(cors(corsOptions));
 app.use(logger("dev"));
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: false, limit: "50mb" }));
