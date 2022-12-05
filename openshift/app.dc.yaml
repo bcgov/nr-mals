@@ -84,6 +84,11 @@ objects:
                     secretKeyRef:
                       key: CDOGS_SECRET
                       name: "${APP_NAME}"
+                - name: DATABASE_URL
+                  valueFrom:
+                    secretKeyRef:
+                      key: DATABASE_URL
+                      name: "${APP_NAME}"
           restartPolicy: Always
           terminationGracePeriodSeconds: 30
       test: false
