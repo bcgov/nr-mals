@@ -63,6 +63,10 @@ app.use(
 
 app.use(function (req, res, next) {
   res.setHeader("X-XSS-Protection", "1");
+  res.setHeader("Access-Control-Allow-Headers", "*");
+  res.setHeader("Access-Control-Allow-Methods", "*");
+  res.setHeader("Access-Control-Allow-Origin", "*");
+
   next();
 });
 
