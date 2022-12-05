@@ -1,11 +1,10 @@
 require("dotenv").config();
 
 const express = require("express");
-var httpContext = require("express-http-context");
+const httpContext = require("express-http-context");
 const path = require("path");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
-const session = require("express-session");
 const cors = require("cors");
 const helmet = require("helmet");
 
@@ -28,7 +27,6 @@ const adminRouter = require("./routes/admin");
 const dairyFarmTestThresholdsRouter = require("./routes/dairyFarmTestThresholds");
 const inspectionsRouter = require("./routes/inspections");
 const constants = require("./utilities/constants");
-
 const roleValidation = require("./middleware/roleValidation");
 
 const app = express();
@@ -68,11 +66,8 @@ app.use(function (req, res, next) {
   next();
 });
 
-app.use(cors({
-  origin: true // Set true to dynamically set Access-Control-Allow-Origin based on Origin
-}));
-
 app.use(keycloak.middleware({}));
+app.use(cors());
 app.use(logger("dev"));
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: false, limit: "50mb" }));
