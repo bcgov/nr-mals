@@ -8,8 +8,6 @@ const logger = require("morgan");
 const helmet = require("helmet");
 const cors = require("cors");
 
-const keycloak = require("./keycloak");
-
 const userRouter = require("./routes/user");
 const licenceTypesRouter = require("./routes/licenceTypes");
 const licenceStatusesRouter = require("./routes/licenceStatuses");
@@ -28,6 +26,7 @@ const dairyFarmTestThresholdsRouter = require("./routes/dairyFarmTestThresholds"
 const inspectionsRouter = require("./routes/inspections");
 const constants = require("./utilities/constants");
 const roleValidation = require("./middleware/roleValidation");
+const { currentUser } = require("./middleware/authentication");
 
 
 const app = express();
@@ -67,8 +66,15 @@ app.use(function (req, res, next) {
   next();
 });
 
-app.use(cors());
-app.use(keycloak.middleware({}));
+// Health check route for readiness and liveness probes
+app.get("/hc", (req, res) => {
+  res.send("Health check OK");
+});
+
+app.use(cors({
+  origin: true // Set true to dynamically set Access-Control-Allow-Origin based on Origin
+}));
+app.use(currentUser);
 app.use(logger("dev"));
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: false, limit: "50mb" }));
@@ -82,15 +88,11 @@ app.use(function (req, res, next) {
   next();
 });
 
-// Health check route for readiness and liveness probes
-app.get("/hc", (req, res) => {
-  res.send("Health check OK");
-});
 
-app.use("/api/user", keycloak.protect(), userRouter);
+
+app.use("/api/user", userRouter);
 app.use(
   "/api/licence-types",
-  keycloak.protect(),
   roleValidation([
     constants.SYSTEM_ROLES.READ_ONLY,
     constants.SYSTEM_ROLES.USER,
@@ -101,7 +103,6 @@ app.use(
 );
 app.use(
   "/api/licence-statuses",
-  keycloak.protect(),
   roleValidation([
     constants.SYSTEM_ROLES.READ_ONLY,
     constants.SYSTEM_ROLES.USER,
@@ -112,7 +113,6 @@ app.use(
 );
 app.use(
   "/api/licences",
-  keycloak.protect(),
   roleValidation([
     constants.SYSTEM_ROLES.READ_ONLY,
     constants.SYSTEM_ROLES.USER,
@@ -123,7 +123,6 @@ app.use(
 );
 app.use(
   "/api/sites",
-  keycloak.protect(),
   roleValidation([
     constants.SYSTEM_ROLES.READ_ONLY,
     constants.SYSTEM_ROLES.USER,
@@ -134,7 +133,6 @@ app.use(
 );
 app.use(
   "/api/regional-districts",
-  keycloak.protect(),
   roleValidation([
     constants.SYSTEM_ROLES.READ_ONLY,
     constants.SYSTEM_ROLES.USER,
@@ -145,7 +143,6 @@ app.use(
 );
 app.use(
   "/api/regions",
-  keycloak.protect(),
   roleValidation([
     constants.SYSTEM_ROLES.READ_ONLY,
     constants.SYSTEM_ROLES.USER,
@@ -154,10 +151,9 @@ app.use(
   ]),
   regionsRouter
 );
-app.use("/api/status", keycloak.protect(), statusRouter);
+app.use("/api/status", statusRouter);
 app.use(
   "/api/comments",
-  keycloak.protect(),
   roleValidation([
     constants.SYSTEM_ROLES.READ_ONLY,
     constants.SYSTEM_ROLES.USER,
@@ -168,7 +164,6 @@ app.use(
 );
 app.use(
   "/api/licence-species",
-  keycloak.protect(),
   roleValidation([
     constants.SYSTEM_ROLES.READ_ONLY,
     constants.SYSTEM_ROLES.USER,
@@ -179,7 +174,6 @@ app.use(
 );
 app.use(
   "/api/slaughterhouse-species",
-  keycloak.protect(),
   roleValidation([
     constants.SYSTEM_ROLES.READ_ONLY,
     constants.SYSTEM_ROLES.USER,
@@ -190,7 +184,6 @@ app.use(
 );
 app.use(
   "/api/documents",
-  keycloak.protect(),
   roleValidation([
     constants.SYSTEM_ROLES.READ_ONLY,
     constants.SYSTEM_ROLES.USER,
@@ -201,7 +194,6 @@ app.use(
 );
 app.use(
   "/api/cities",
-  keycloak.protect(),
   roleValidation([
     constants.SYSTEM_ROLES.READ_ONLY,
     constants.SYSTEM_ROLES.USER,
@@ -212,7 +204,6 @@ app.use(
 );
 app.use(
   "/api/dairyfarmtestthresholds",
-  keycloak.protect(),
   roleValidation([
     constants.SYSTEM_ROLES.READ_ONLY,
     constants.SYSTEM_ROLES.USER,
@@ -223,7 +214,6 @@ app.use(
 );
 app.use(
   "/api/inspections",
-  keycloak.protect(),
   roleValidation([
     constants.SYSTEM_ROLES.READ_ONLY,
     constants.SYSTEM_ROLES.USER,
@@ -234,11 +224,10 @@ app.use(
 );
 app.use(
   "/api/admin",
-  keycloak.protect(),
   roleValidation([constants.SYSTEM_ROLES.SYSTEM_ADMIN]),
   adminRouter
 );
-app.use("/api/*", keycloak.protect(), (req, res) => {
+app.use("/api/*", (req, res) => {
   res.status(404).send({
     code: 404,
     description: "The requested endpoint could not be found.",

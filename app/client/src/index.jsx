@@ -20,7 +20,12 @@ const renderApp = () => {
   );
 };
 
-keycloak.init(renderApp);
+async function init() {
+  await keycloak.init();
+  renderApp();
+}
+
+init();
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))

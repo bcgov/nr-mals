@@ -29,15 +29,13 @@ const axiosInstance = axios.create({
 });
 
 axiosInstance.interceptors.request.use(function (config) {
-  if (keycloak.isLoggedIn()) {
-    const cb = () => {
-      if (config.headers) {
-        config.headers.Authorization = `Bearer ${keycloak.getToken()}`;
-        config.headers.CurrentUser = `${keycloak.getUsername()}`;
-      }
-      return Promise.resolve(config);
-    };
-    keycloak.updateToken(cb);
+  if (keycloak.getKeycloak().token) {
+    if (config.headers) {
+      config.headers.Authorization = `Bearer ${keycloak.getKeycloak().token}`;
+      config.headers.CurrentUser = `${
+        keycloak.getKeycloak().tokenParsed.idir_username
+      }`;
+    }
     return config;
   }
 

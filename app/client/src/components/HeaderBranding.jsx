@@ -1,4 +1,6 @@
 import React from "react";
+import { Button } from "react-bootstrap";
+import keycloak from "../app/keycloak";
 
 import "./HeaderBranding.scss";
 
@@ -23,6 +25,27 @@ function HeaderBranding() {
           />
         </a>
         <div className="navbar-brand">Agriculture Licensing System</div>
+        <div>
+          {keycloak.getKeycloak().token ? (
+            <Button
+              variant="primary"
+              type="button"
+              className="mt-3 mb-4"
+              onClick={() => keycloak.logout()}
+            >
+              Log out
+            </Button>
+          ) : (
+            <Button
+              variant="primary"
+              type="button"
+              className="mt-3 mb-4"
+              onClick={() => keycloak.login()}
+            >
+              Log in
+            </Button>
+          )}
+        </div>
       </div>
     </nav>
   );
