@@ -53,7 +53,6 @@ async function init(environment) {
   await _keycloak
     .init({
       onLoad: 'check-sso',
-      silentCheckSsoRedirectUri: window.location.origin + '/silent-check-sso.html',
       pkceMethod: 'S256'
     })
     .then(() => {
