@@ -12,7 +12,7 @@ import "./HeaderNavigation.scss";
 import RenderOnRole from "./RenderOnRole";
 
 function HeaderNavigation() {
-  const { environment } = useSelector((state) => state.status.data);
+  const { environment } = useSelector((state) => state.config.data);
 
   let environmentClass = "";
   if (environment === "dev") {

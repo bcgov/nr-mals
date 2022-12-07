@@ -95,6 +95,14 @@ app.get("/hc", (req, res) => {
 });
 
 // app Router
+apiRouter.use("/v1/config", (req, res) => {
+  const response = {
+    environment: process.env.ENVIRONMENT_LABEL || "dev",
+    nodeVersion: process.version,
+    version: process.env.npm_package_version
+  };
+  return res.send(response);
+});
 apiRouter.use('/v1', appRouter);
 
 // Root level Router

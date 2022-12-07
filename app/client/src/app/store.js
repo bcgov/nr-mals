@@ -1,10 +1,10 @@
-import { configureStore, getDefaultMiddleware } from "@reduxjs/toolkit";
+import { configureStore } from "@reduxjs/toolkit";
 
 import appReducer from "./appSlice";
 import licencesReducer from "../features/licences/licencesSlice";
 import sitesReducer from "../features/sites/sitesSlice";
 import lookupsReducer from "../features/lookups/lookupsReducer";
-import statusReducer from "../features/status/statusSlice";
+import configReducer from "../features/config/configSlice";
 import searchReducer from "../features/search/searchSlice";
 import commentsReducer from "../features/comments/commentsSlice";
 import certificatesReducer from "../features/documents/certificatesSlice";
@@ -29,20 +29,16 @@ const reducer = {
   reports: reportsReducer,
   search: searchReducer,
   sites: sitesReducer,
-  status: statusReducer,
+  config: configReducer,
 };
 
-const middleware = [
-  ...getDefaultMiddleware({
+export default configureStore({
+  reducer,
+  middleware: (getDefaultMiddleware) => getDefaultMiddleware({
     serializableCheck: {
       // Ignore these action types
       ignoredActions: ["app/SHOW_MODAL"],
     },
   }),
-];
-
-export default configureStore({
-  reducer,
-  middleware,
   devTools: process.env.NODE_ENV !== "production",
 });

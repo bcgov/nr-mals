@@ -6,7 +6,6 @@ const spkiWrapper = (spki) => `-----BEGIN PUBLIC KEY-----\n${spki}\n-----END PUB
 
 const currentUser = async (req, res, next) => {
   const authorization = req.get('Authorization');
-  const user = {};
   let isValid = false;
 
   if (authorization) {
@@ -25,11 +24,13 @@ const currentUser = async (req, res, next) => {
           });
         } else {
           isValid = await keycloak.grantManager.validateAccessToken(bearerToken);
-
-          // Inject currentUser data into request
-          req.currentUser = Object.freeze(user);
         }
 
+        // Inject currentUser data into request
+        if (isValid) {
+          const user = jwt.decode(bearerToken);
+          req.currentUser = Object.freeze(user);
+        }
       } catch (err) {
         return new Problem(403, { detail: err.message }).send(res);
       }

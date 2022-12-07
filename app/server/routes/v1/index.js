@@ -8,7 +8,6 @@ const licencesRouter = require("./licences");
 const sitesRouter = require("./sites");
 const regionalDistrictsRouter = require("./regionalDistricts");
 const regionsRouter = require("./regions");
-const statusRouter = require("./status");
 const commentsRouter = require("./comments");
 const licenceSpeciesRouter = require("./licenceSpecies");
 const slaughterhouseSpeciesRouter = require("./slaughterhouseSpecies");
@@ -33,7 +32,7 @@ router.get('/', (_req, res) => {
             '/sites',
             '/regional-districts',
             '/regions',
-            '/status',
+            '/config',
             '/comments',
             '/licence-species',
             '/slaughterhouse-species',
@@ -107,7 +106,6 @@ router.use(
     ]),
     regionsRouter
 );
-router.use("/status", statusRouter);
 router.use(
     "/comments",
     roleValidation([

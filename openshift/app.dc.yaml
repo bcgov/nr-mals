@@ -89,6 +89,16 @@ objects:
                     secretKeyRef:
                       key: DATABASE_URL
                       name: "${APP_NAME}"
+                - name: KEYCLOAK_SECRET
+                  valueFrom:
+                    secretKeyRef:
+                      key: KEYCLOAK_SECRET
+                      name: "${APP_NAME}"
+                - name: KEYCLOAK_PUBLIC_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      key: KEYCLOAK_PUBLIC_KEY
+                      name: "${APP_NAME}"
           restartPolicy: Always
           terminationGracePeriodSeconds: 30
       test: false

@@ -1,16 +1,13 @@
 import Keycloak from "keycloak-js";
 
-function GetKeycloakConfig() {
+function GetKeycloakConfig(environment) {
   let kcConfig = null;
 
-  if (process.env.REACT_APP_ENVIRONMENT_LABEL === "dev") {
+  if (environment === "dev") {
     kcConfig = "/keycloak_dev.json";
-  } else if (
-    process.env.REACT_APP_ENVIRONMENT_LABEL === "test" ||
-    process.env.REACT_APP_ENVIRONMENT_LABEL === "uat"
-  ) {
+  } else if (environment === "test") {
     kcConfig = "/keycloak_test.json";
-  } else if (process.env.REACT_APP_ENVIRONMENT_LABEL === "prod") {
+  } else if (environment === "prod") {
     kcConfig = "/keycloak_prod.json";
   }
 
@@ -40,8 +37,8 @@ function logout() {
 
 const getKeycloak = () => _keycloak;
 
-async function init() {
-  _keycloak = new Keycloak(GetKeycloakConfig());
+async function init(environment) {
+  _keycloak = new Keycloak(GetKeycloakConfig(environment));
 
   // Once KC is set up and connected flag it as 'ready'
   _keycloak.onReady = function (authenticated) {
@@ -54,14 +51,18 @@ async function init() {
   };
 
   await _keycloak
-    .init({ onLoad: 'check-sso', pkceMethod: 'S256' })
+    .init({
+      onLoad: 'check-sso',
+      silentCheckSsoRedirectUri: window.location.origin + '/silent-check-sso.html',
+      pkceMethod: 'S256'
+    })
     .then(() => {
       // Set the state field to the inited keycloak instance
 
       // Token Refresh
       // Check token validity every 10s and, if necessary, update the token.
       // Refresh token if it's valid for less then 70 seconds
-      refreshJobInterval.value = window.setInterval(() => {
+      refreshJobInterval = window.setInterval(() => {
         _keycloak.updateToken(70) // If the token expires within 70 seconds from now get a refreshed
           .then((refreshed) => {
             if (refreshed) {
@@ -83,10 +84,12 @@ async function init() {
 };
 
 const keycloak = {
+  GetKeycloakConfig,
   init,
   login,
   logout,
-  getKeycloak
+  getKeycloak,
+  ready
 };
 
 export default keycloak;

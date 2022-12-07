@@ -3,25 +3,34 @@ import ReactDOM from "react-dom/client";
 import { Provider } from "react-redux";
 
 import "./index.scss";
+import Footer from "./components/Footer";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import store from "./app/store";
 import keycloak from "./app/keycloak";
 import * as serviceWorker from "./serviceWorker";
+import Api from "./utilities/api.ts";
 
 const renderApp = () => {
   const root = ReactDOM.createRoot(document.getElementById("root"));
   root.render(
-    <React.StrictMode>
-      <Provider store={store}>
-        <App />
-      </Provider>
-    </React.StrictMode>
+    <Provider store={store}>
+      <div className="layout-app">
+        <main className="layout-container">
+          <App />
+        </main>
+
+        <footer className="layout-footer">
+          <Footer />
+        </footer>
+      </div>
+    </Provider>
   );
 };
 
 async function init() {
-  await keycloak.init();
+  const response = await Api.get("config");
+  await keycloak.init(response.data.environment);
   renderApp();
 }
 

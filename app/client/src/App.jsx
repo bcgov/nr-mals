@@ -4,7 +4,7 @@ import { BrowserRouter, Redirect, Switch } from "react-router-dom";
 import { Container } from "react-bootstrap";
 
 import * as Constant from "./utilities/constants";
-import { fetchStatus } from "./features/status/statusSlice";
+import { fetchConfig, selectConfig } from "./features/config/configSlice";
 import HeaderBranding from "./components/HeaderBranding";
 import HeaderNavigation from "./components/HeaderNavigation";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -46,12 +46,15 @@ import ModalComponent from "./components/ModalComponent";
 
 import "./App.scss";
 
+import { useSelector } from "react-redux";
+
 function App() {
   const dispatch = useDispatch();
+  const config = useSelector(selectConfig);
 
   useEffect(() => {
-    dispatch(fetchStatus());
-  }, [dispatch]);
+    dispatch(fetchConfig());
+  }, []);
 
   return (
     <BrowserRouter>
@@ -61,7 +64,7 @@ function App() {
       </header>
       <main role="main">
         <ModalComponent />
-        <Container className="mt-3">
+        <Container id="main-content" className="mt-3">
           <Switch>
             <ProtectedRoute path={`${Constant.SEARCH_LICENSES_PATHNAME}`}>
               <LicenceSearchPage />

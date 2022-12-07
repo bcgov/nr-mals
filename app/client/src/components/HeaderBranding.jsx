@@ -2,8 +2,6 @@ import React from "react";
 import { Button } from "react-bootstrap";
 import keycloak from "../app/keycloak";
 
-import "./HeaderBranding.scss";
-
 function HeaderBranding() {
   return (
     <nav id="header-branding" className="navbar navbar-expand-lg navbar-dark">
@@ -26,7 +24,7 @@ function HeaderBranding() {
         </a>
         <div className="navbar-brand">Agriculture Licensing System</div>
         <div className="ml-auto">
-          {keycloak.getKeycloak().token ? (
+          {keycloak.getKeycloak()?.token ? (
             <Button
               variant="primary"
               type="button"

@@ -39,7 +39,7 @@
     "prettier": "^2.7.1"
   },
   "scripts": {
-    "serve": "cross-env REACT_APP_VERSION=$npm_package_version react-scripts start",
+    "serve": "react-scripts start",
     "build": "react-scripts build",
     "lint": "eslint --ext js,jsx src",
     "lint:fix": "npm run lint -- --fix",
