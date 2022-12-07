@@ -42,8 +42,8 @@ app.use(
           "*.silver.devops.gov.bc.ca",
           "*.oidc.gov.bc.ca",
           "oidc.gov.bc.ca",
-          "https://loginproxy.gov.bc.ca/",
-          "https://*.loginproxy.gov.bc.ca/",
+          "loginproxy.gov.bc.ca",
+          "*.loginproxy.gov.bc.ca/"
         ],
       },
     },
