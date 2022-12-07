@@ -29,14 +29,14 @@ const router = express.Router();
 
 const certificateTemplateDir = path.join(
   __dirname,
-  "../static/templates/certificates"
+  "../../static/templates/certificates"
 );
-const renewalsTemplateDir = path.join(__dirname, "../static/templates/notices");
+const renewalsTemplateDir = path.join(__dirname, "../../static/templates/notices");
 const dairyNoticeTemplateDir = path.join(
   __dirname,
-  "../static/templates/notices/dairy"
+  "../../static/templates/notices/dairy"
 );
-const reportsTemplateDir = path.join(__dirname, "../static/templates/reports");
+const reportsTemplateDir = path.join(__dirname, "../../static/templates/reports");
 
 // As templates are converted to base 64 for the first time they will be pushed to this for reuse
 const templateBuffers = [];
