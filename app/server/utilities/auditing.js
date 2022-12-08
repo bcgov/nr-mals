@@ -5,7 +5,7 @@ function populateAuditColumnsCreate(
   createdOnDate = undefined,
   updatedOnDate = undefined
 ) {
-  const currentUser = httpContext.get("currentUser");
+  const currentUser = (httpContext.get("currentUser")).idir_username;;
   const now = new Date();
 
   return {
@@ -21,7 +21,7 @@ function populateAuditColumnsUpdate(
   entity = undefined,
   updatedOnDate = undefined
 ) {
-  const currentUser = httpContext.get("currentUser");
+  const currentUser = (httpContext.get("currentUser")).idir_username;
   const now = new Date();
 
   return {

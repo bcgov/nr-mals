@@ -71,13 +71,6 @@ if (process.env.NODE_ENV !== 'test') {
   initializeConnections();
 }
 
-app.use((req, res, next) => {
-  if (req.headers.currentuser) {
-    httpContext.set("currentUser", req.headers.currentuser);
-  }
-  next();
-});
-
 // Block requests until service is ready
 app.use((_req, res, next) => {
   if (state.shutdown) {

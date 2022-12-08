@@ -93,8 +93,6 @@ export default function LicenceInventoryHistory({ licence }) {
   useEffect(() => {
     switch (licence.data.licenceTypeId) {
       case LICENCE_TYPE_ID_GAME_FARM:
-        dispatch(fetchLicenceSpecies());
-        break;
       case LICENCE_TYPE_ID_FUR_FARM:
         dispatch(fetchLicenceSpecies());
         break;
@@ -109,7 +107,6 @@ export default function LicenceInventoryHistory({ licence }) {
         licenceTypeId: parseInt(licence.data.licenceTypeId),
       })
     );
-    dispatch(fetchInventoryHistoryResults());
   }, [dispatch]);
 
   useEffect(() => {

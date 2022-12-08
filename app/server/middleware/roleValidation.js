@@ -19,9 +19,7 @@ async function fetchUser(username) {
 module.exports = function (roles) {
   return async function (req, res, next) {
     try {
-      const userName = req.headers.currentuser;
-
-      const data = await fetchUser(userName.toUpperCase());
+      const data = await fetchUser(req.currentUser.idir_username.toUpperCase());
       if (data !== undefined) {
         const logical = user.convertToLogicalModel(data);
 

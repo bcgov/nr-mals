@@ -43,6 +43,8 @@ import AdminDairyTestResults from "./features/admin/AdminDairyTestResults";
 import AdminPremisesId from "./features/admin/AdminPremisesId";
 
 import ModalComponent from "./components/ModalComponent";
+import keycloak from "./app/keycloak";
+import { fetchCurrentUser } from "./app/appSlice";
 
 import "./App.scss";
 
@@ -51,6 +53,14 @@ function App() {
 
   useEffect(() => {
     dispatch(fetchConfig());
+
+    if (keycloak.getKeycloak()?.tokenParsed) {
+      dispatch(
+        fetchCurrentUser({
+          data: { idir: keycloak.getKeycloak().tokenParsed.idir_username },
+        })
+      );
+    }
   }, []);
 
   return (

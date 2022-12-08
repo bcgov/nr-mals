@@ -1,5 +1,7 @@
 const router = require('express').Router();
+const httpContext = require("express-http-context");
 const { currentUser } = require('../../middleware/authentication');
+
 
 const userRouter = require("./user");
 const licenceTypesRouter = require("./licenceTypes");
@@ -20,6 +22,13 @@ const constants = require("../../utilities/constants");
 const roleValidation = require("../../middleware/roleValidation");
 
 router.use(currentUser);
+
+router.use((req, res, next) => {
+    if (req.currentUser) {
+        httpContext.set("currentUser", req.currentUser);
+    }
+    next();
+});
 
 // Base v1 Responder
 router.get('/', (_req, res) => {
