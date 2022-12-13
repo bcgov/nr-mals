@@ -156,7 +156,7 @@ parameters:
     description: The base OpenShift docker registry
     displayName: Docker Image Registry
     required: true
-    value: ghcr.io/kamorel
+    value: ghcr.io/bcgov
   - name: IMAGE_TAG
     description: The GitHub commit short SHA
     displayName: Image Tag
