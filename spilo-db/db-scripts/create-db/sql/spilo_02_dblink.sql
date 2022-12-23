@@ -11,7 +11,7 @@
 	
 	CREATE SERVER patroni_dblink_fdw
 	    FOREIGN DATA WRAPPER dblink_fdw
-	    OPTIONS (host '10.97.11.44', port '5432', dbname 'mals');
+	    OPTIONS (host '<<mals patroni cluster IP>>', port '5432', dbname 'mals');
 	
 	-- permit mals to use the foreign server
 	--GRANT USAGE ON FOREIGN SERVER patroni_dblink_fdw TO mals;	   
@@ -19,7 +19,7 @@
 	-- The first mals user is local, the second is remote
 	CREATE USER MAPPING FOR postgres
 	    SERVER patroni_dblink_fdw
-	    OPTIONS (user 'mals', password '5uQHCaf6cE8GJmajpbhLwJf5UMnUoj0g');
+	    OPTIONS (user 'mals', password '<<mals patroni cluster password>>');
 
 /*
 	-- veiw the data over the database link
