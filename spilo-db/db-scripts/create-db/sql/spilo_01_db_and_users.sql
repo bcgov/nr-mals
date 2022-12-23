@@ -8,7 +8,7 @@ SET client_min_messages = warning;
 
 -- CREATE MALS USER
 drop role if exists mals;
-create role mals with LOGIN PASSWORD '5uQHCaf6cE8GJmajpbhLwJf5UMnUoj0g';	
+create role mals with LOGIN PASSWORD '<<postgres password>>';	
 
 -- CREATE DATABASE
 drop database if exists mals;
@@ -16,7 +16,7 @@ create database mals with encoding = 'UTF8' owner mals;
 
 -- CREATE APP USER AND ROLE
 drop role if exists app_proxy_user;
-create role app_proxy_user with LOGIN PASSWORD 'SiKdOof3x5jOYe4BeI2wFOysdb3us1yn';
+create role app_proxy_user with LOGIN PASSWORD '<<postgres password>>';
 
 drop role if exists mals_app_role;
 create role mals_app_role;
