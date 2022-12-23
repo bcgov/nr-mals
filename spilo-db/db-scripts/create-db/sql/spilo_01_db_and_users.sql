@@ -6,6 +6,10 @@ SELECT pg_catalog.set_config('search_path', '', false);
 SET check_function_bodies = false;
 SET client_min_messages = warning;
 
+--
+-- New passwords should have been generated when the spilo secret was updated
+--
+
 -- CREATE MALS USER
 drop role if exists mals;
 create role mals with LOGIN PASSWORD '<<postgres password>>';	
