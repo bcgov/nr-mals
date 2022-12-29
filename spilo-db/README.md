@@ -22,7 +22,9 @@ Steps to create the Spilo cluster
 
 
 Manually copy the five patroni-creds secret key/value pairs to the new mals-dev-spilo secret
-    The passwords can be changed or replicated
+
+    Generate new 32 character passwords for mals and app_proxy using key generator, ie
+       https://cloud.google.com/network-connectivity/docs/vpn/how-to/generating-pre-shared-key
 
 
 Create the Spilo mals database and users
