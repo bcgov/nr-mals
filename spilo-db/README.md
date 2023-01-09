@@ -15,28 +15,32 @@ Steps to create the Spilo cluster
     Request S3 storage
     Update values.yaml to use S3 storage 
 
-    Manually create mals-dev-spilo-s3 secret to store the S3 keys, as referenced by the values.yaml file
+    Manually create mals-<<environment>>-spilo-s3 secret to store the S3 keys, as referenced by the values.yaml file
 
     cd C:\<<path to git clone>>\git\nr-mals\spilo-db\openshift
-        helm install mals-dev . --namespace 30245e-<<environment>> -f values-<<environment>>.yaml (dev, test, or prod)
+        helm install mals-<<environment>> . --namespace 30245e-<<environment>> -f values-<<environment>>.yaml (dev, test, or prod)
 
 
-Manually copy the five patroni-creds secret key/value pairs to the new mals-dev-spilo secret
+Manually add password key/value pairs to the new mals-<<environment>>-spilo secret;
 
-    Generate new 32 character passwords for mals and app_proxy using key generator, ie
+    Generate new 32 character passwords
        https://cloud.google.com/network-connectivity/docs/vpn/how-to/generating-pre-shared-key
+	   
+	Add key/value pairs to mals-<<environment>>-spilo secret;
+	   app-db-owner-password
+	   app-proxy-password
 
 
 Create the Spilo mals database and users
 
-	oc port-forward mals-dev-spilo-0 <<local port>>:5432  (ie Dev:5442, Test:5452, Prod:5472)
+	oc port-forward mals-<<environment>>-spilo-0 <<local port>>:5432  (ie Dev:5442, Test:5452, Prod:5472)
     
     Update scripts to add environment specific information
         ./sql/spilo_01_db_and_users.sql
 			create role mals with LOGIN PASSWORD '<<password>>';
 			create role app_proxy_user with LOGIN PASSWORD '<<password>>';
         ./sql/spilo_02_dblink.sql
-	        OPTIONS (host '<<Patroni cluster IP>>', port '5432', dbname 'mals');
+	        OPTIONS (host '<<Patroni Pod-0 IP>>', port '5432', dbname 'mals');
 	        OPTIONS (user 'mals', password '<<Patroni password>>');
     Execute the scripts via the batch file
         cd C:\Users\mikes\OneDrive\Documents\PARC\MALS\git\nr-mals\spilo-db\db-scripts\create-db
@@ -46,7 +50,7 @@ Create the Spilo mals database and users
 Migrate the database objects and data from the Patroni cluster to the Spilo cluster
 
 	oc port-forward patroni-0 <<local port>>:5432 (ie Dev:5441, Test:5451, Prod:5471)
-	oc port-forward mals-dev-spilo-0 <<local port>>:5432  (ie Dev:5442, Test:5452, Prod:5472)
+	oc port-forward mals-<<environment>>-spilo-0 <<local port>>:5432  (ie Dev:5442, Test:5452, Prod:5472)
 
     Update scripts to add environment specific information
         ./sql mals_migrate_02_seq_restart.sql
