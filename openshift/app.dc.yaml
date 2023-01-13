@@ -79,6 +79,11 @@ objects:
                     secretKeyRef:
                       key: CDOGS_OAUTH_URL
                       name: "${APP_NAME}"
+                - name: CDOGS_CLIENT_ID
+                  valueFrom:
+                    secretKeyRef:
+                      key: CDOGS_CLIENT_ID
+                      name: "${APP_NAME}"
                 - name: CDOGS_SECRET
                   valueFrom:
                     secretKeyRef:
