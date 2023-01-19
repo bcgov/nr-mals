@@ -770,3 +770,66 @@ AS $procedure$
 end; 
 $procedure$
 ;
+
+--        MALS-1184 - Livestock Dealer Agent Card - incorrect
+--          Replaced registrant_name with company_name for the LIVESTOCK DEALER AGENT LicenceHolderName
+
+--
+-- VIEW:  MAL_PRINT_CARD_VW
+--
+
+CREATE OR REPLACE VIEW mals_app.mal_print_card_vw as
+	WITH licence_base AS (
+	         SELECT lictyp.licence_type,
+	            lic.company_name,
+	            COALESCE(lic.company_name, NULLIF(concat(reg.first_name, ' ', reg.last_name), ' '::text)::character varying) AS derived_company_name,
+	            NULLIF(concat(reg.first_name, ' ', reg.last_name), ' '::text) AS registrant_name,
+	                CASE
+	                    WHEN reg.first_name IS NOT NULL AND reg.last_name IS NOT NULL THEN concat(reg.last_name, ', ', reg.first_name)::character varying
+	                    ELSE COALESCE(reg.last_name, reg.first_name)
+	                END AS registrant_last_first,
+	            lic.licence_number::character varying AS licence_number,
+	            lic.issue_date,
+	            lic.expiry_date,
+	            to_char(lic.expiry_date::timestamp with time zone, 'FMMonth dd, yyyy'::text) AS expiry_date_display
+	           FROM mals_app.mal_licence lic
+	             JOIN mals_app.mal_licence_type_lu lictyp ON lic.licence_type_id = lictyp.id
+	             JOIN mals_app.mal_status_code_lu licstat ON lic.status_code_id = licstat.id
+	             JOIN mals_app.mal_registrant reg ON lic.primary_registrant_id = reg.id
+	          WHERE lic.print_certificate = true AND licstat.code_name::text = 'ACT'::text
+	        )
+	 SELECT licence_base.licence_type,
+	        CASE licence_base.licence_type
+	            WHEN 'BULK TANK MILK GRADER'::text THEN 
+	            	json_agg(json_build_object(
+	            		'CardLabel', 'Bulk Tank Milk Grader''s Identification Card', 
+	            		'LicenceHolderCompany', licence_base.company_name, 
+	            		'LicenceHolderName', licence_base.registrant_name, 
+	            		'LicenceNumber', licence_base.licence_number, 
+	            		'ExpiryDate', licence_base.expiry_date_display) 
+	            	ORDER BY licence_base.company_name, licence_base.licence_number)
+	            WHEN 'LIVESTOCK DEALER AGENT'::text THEN 
+	            	json_agg(json_build_object(
+	            		'CardType', 'Livestock Dealer Agent''s Identification Card', 
+	            		'LicenceHolderName', licence_base.company_name, 
+	            		'LastFirstName', licence_base.registrant_last_first, 
+	            		'LicenceNumber', licence_base.licence_number, 
+	            		'StartDate', to_char(GREATEST(licence_base.issue_date::timestamp with time zone, date_trunc('year'::text, licence_base.expiry_date::timestamp with time zone) - '9 mons'::interval), 'FMMonth dd, yyyy'::text), 
+	            		'ExpiryDate', licence_base.expiry_date_display) 
+	            	ORDER BY licence_base.registrant_name, licence_base.licence_number)
+	            WHEN 'LIVESTOCK DEALER'::text THEN 
+	            	json_agg(json_build_object(
+	            		'CardType', 'Livestock Dealer''s Identification Card', 
+	            		'LicenceHolderCompany', licence_base.derived_company_name,
+	            		'LicenceNumber', licence_base.licence_number, 
+	            		'StartDate', to_char(GREATEST(licence_base.issue_date::timestamp with time zone, date_trunc('year'::text, licence_base.expiry_date::timestamp with time zone) - '9 mons'::interval), 'FMMonth dd, yyyy'::text), 
+	            		'ExpiryDate', licence_base.expiry_date_display) 
+	            	ORDER BY licence_base.derived_company_name, licence_base.licence_number)
+	            ELSE NULL::json
+	        END AS card_json
+	   FROM licence_base
+	  WHERE licence_base.licence_type::text = ANY (ARRAY['BULK TANK MILK GRADER'::character varying::text, 
+	  													'LIVESTOCK DEALER AGENT'::character varying::text, 
+	  													'LIVESTOCK DEALER'::character varying::text])
+	  GROUP BY licence_base.licence_type;
+  
