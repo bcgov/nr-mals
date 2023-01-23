@@ -100,6 +100,16 @@
                       }
                     }
                   },
+				  ,
+                  {
+                    "name": "CDOGS_CLIENT_ID",
+                    "valueFrom": {
+                      "secretKeyRef": {
+                        "key": "CDOGS_CLIENT_ID",
+                        "name": "${APP_SECRETS}"
+                      }
+                    }
+                  }
                   {
                     "name": "CDOGS_SECRET",
                     "valueFrom": {

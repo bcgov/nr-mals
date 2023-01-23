@@ -41,6 +41,7 @@ const reportsTemplateDir = path.join(__dirname, "../static/templates/reports");
 // As templates are converted to base 64 for the first time they will be pushed to this for reuse
 const templateBuffers = [];
 
+
 const cdogs = axios.create({
   baseURL: process.env.CDOGS_URL,
   timeout: 10000,
