@@ -55,9 +55,8 @@ cdogs.interceptors.request.use(
     oauth.client(axios.create(), {
       url: process.env.CDOGS_OAUTH_URL,
       grant_type: "client_credentials",
-      client_id: "MALS_SERVICE_CLIENT",
+      client_id: process.env.CDOGS_CLIENT_ID,
       client_secret: process.env.CDOGS_SECRET,
-      scope: "",
     })
   )
 );

@@ -57,8 +57,8 @@ jobs:
         uses: redhat-developer/openshift-actions@v1.1
         with:
           version: "latest"
-          openshift_server_url: ${{ secrets.OpenShiftServerURL}}
-          parameters: '{"apitoken": "${{ secrets.OpenShiftToken }}", "acceptUntrustedCerts": "true"}'
+          openshift_server_url: ${{ secrets.OPENSHIFT_SERVER}}
+          parameters: '{"apitoken": "${{ secrets.OPENSHIFT_TOKEN_PROD }}", "acceptUntrustedCerts": "true"}'
           cmd: |
             'version'
             'start-build mals-app-prod --follow -n 30245e-tools'
