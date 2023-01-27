@@ -30,7 +30,7 @@ const updateToken = (successCallback) =>
 // eslint-disable-next-line
 const log = () => console.log(kc.tokenParsed);
 
-const getUsername = () => kc.tokenParsed?.preferred_username;
+const getUsername = () => kc.tokenParsed?.idir_username;
 const getName = () => kc.tokenParsed?.name;
 
 const hasRealmRole = (roles) => roles.some((role) => kc.hasRealmRole(role));
