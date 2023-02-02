@@ -1,13 +1,14 @@
-/* eslint-disable */
 import React, { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import PropTypes from "prop-types";
-import { Controller } from "react-hook-form";
-import { NumericFormat } from "react-number-format";
 import { Row, Col, Form } from "react-bootstrap";
 
 import CustomDatePicker from "../../../components/CustomDatePicker";
 import { parseAsDate } from "../../../utilities/parsing";
+
+import {
+  DAIRY_TANK_STATUS,
+} from "../../../utilities/constants";
 
 export default function DairyTankDetailsEdit({ form, dairyTank }) {
   const dispatch = useDispatch();
@@ -15,11 +16,10 @@ export default function DairyTankDetailsEdit({ form, dairyTank }) {
     register,
     formState: { errors },
     setValue,
-    getValues,
     clearErrors,
   } = form;
-  const fieldName = `dairyTanks[${dairyTank.key}]`;
-  const fieldName2 = `dairyTankDates[${dairyTank.key}]`;
+  const fieldName = `dairyTanks.${dairyTank.key}`;
+  const fieldName2 = `dairyTankDates.${dairyTank.key}`;
   const dairyTankErrors = errors.dairyTanks
     ? errors.dairyTanks[dairyTank.key]
     : undefined;
@@ -38,6 +38,14 @@ export default function DairyTankDetailsEdit({ form, dairyTank }) {
     };
   };
 
+  // There's some issue with the new react-hook-form and updating these inputs automatically
+  setValue(`${fieldName}.status`, dairyTank.status);
+  setValue(`${fieldName}.id`, dairyTank.id);
+  setValue(`${fieldName}.siteId`, dairyTank.siteId);
+  if (dairyTankErrors) {
+    console.log(dairyTank.status);
+    console.log(dairyTankErrors);
+  }
   return (
     <>
       <fieldset name={fieldName} key={fieldName}>
@@ -119,8 +127,10 @@ export default function DairyTankDetailsEdit({ form, dairyTank }) {
                 type="text"
                 name={`${fieldName}.modelNumber`}
                 defaultValue={dairyTank.modelNumber}
-                {...register(`${fieldName}.modelNumber`)}
-                isInvalid={dairyTankErrors && dairyTankErrors.names}
+                {...register(`${fieldName}.modelNumber`, {
+                  required: dairyTank.status === DAIRY_TANK_STATUS.NEW || dairyTank.status === DAIRY_TANK_STATUS.EXISTING
+                })}
+                isInvalid={dairyTankErrors && dairyTankErrors.modelNumber}
                 onBlur={() => clearErrors(`${fieldName}.modelNumber`)}
               />
               <Form.Control.Feedback type="invalid">
