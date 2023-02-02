@@ -39,9 +39,9 @@ const getKeycloakConfig = () => {
       "ssl-required": "external",
       "resource": "mals-4444",
       "credentials": {
-        "secret": process.env.KEYCLOAK_PUBLIC_KEY,
+        "secret": process.env.KEYCLOAK_SECRET,
       },
-      realmPublicKey: process.env.KEYCLOAK_PUBLICKEY,
+      realmPublicKey: process.env.KEYCLOAK_PUBLIC_KEY,
     };
   }
 

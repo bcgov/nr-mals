@@ -189,7 +189,7 @@ export default function LicenceDetailsViewEdit({ licence }) {
               <Row>
                 <div className="justify-content-center">
                   The Issued On date will be updated to today&apos;s date, and
-                  the Expiry Date for Licence Number {licence.data.id} will be
+                  the Expiry Date for Licence Number {licence.data.licenceNumber} will be
                   updated to {formatDate(dates.expiryDate)}
                 </div>
               </Row>
@@ -324,7 +324,7 @@ export default function LicenceDetailsViewEdit({ licence }) {
         ) : null}
         <Container className="mt-3 mb-4">
           {currentUser.data.roleId !== SYSTEM_ROLES.READ_ONLY &&
-          currentUser.data.roleId !== SYSTEM_ROLES.INSPECTOR ? (
+            currentUser.data.roleId !== SYSTEM_ROLES.INSPECTOR ? (
             <Form.Row className="mt-3 mb-3">
               <Col sm={2}>
                 <Button
