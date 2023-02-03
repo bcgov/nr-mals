@@ -42,6 +42,14 @@ import {
   selectSiteParameters,
 } from "./searchSlice";
 
+import {
+  clearCurrentLicence
+} from "../licences/licencesSlice";
+
+import {
+  clearCurrentSite
+} from "../sites/sitesSlice";
+
 function formatResultRow(result) {
   const url = `${SITES_PATHNAME}/${result.siteId}`;
   const licenceUrl = `${LICENSES_PATHNAME}/${result.licenceId}`;
@@ -115,6 +123,8 @@ export default function SiteResultsPage() {
   const dispatch = useDispatch();
 
   useEffect(() => {
+    dispatch(clearCurrentLicence());
+    dispatch(clearCurrentSite());
     dispatch(fetchSiteResults());
   }, [dispatch]);
 

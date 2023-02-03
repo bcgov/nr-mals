@@ -22,8 +22,8 @@ import RenderOnRole from "../../components/RenderOnRole";
 import PageHeading from "../../components/PageHeading";
 import SectionHeading from "../../components/SectionHeading";
 
-import { fetchSite, selectCurrentSite, clearCreatedSite } from "./sitesSlice";
-import { fetchLicence, selectCurrentLicence } from "../licences/licencesSlice";
+import { fetchSite, selectCurrentSite, clearCreatedSite, clearCurrentSite } from "./sitesSlice";
+import { fetchLicence, selectCurrentLicence, clearCurrentLicence } from "../licences/licencesSlice";
 
 import SiteHeader from "./SiteHeader";
 import LicenceDetailsView from "../licences/LicenceDetailsView";
@@ -46,6 +46,8 @@ export default function ViewLicencePage() {
   const licence = useSelector(selectCurrentLicence);
   useEffect(() => {
     dispatch(clearCreatedSite());
+    dispatch(clearCurrentLicence());
+    dispatch(clearCurrentSite());
 
     dispatch(fetchSite(id)).then((record) => {
       dispatch(fetchLicence(record.payload.licenceId));
