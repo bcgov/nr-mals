@@ -12,7 +12,7 @@ import {
   clearCurrentLicence,
   selectCurrentLicence,
 } from "./licencesSlice";
-import { selectCreatedSite } from "../sites/sitesSlice";
+import { selectCreatedSite, clearCurrentSite } from "../sites/sitesSlice";
 import LicenceDetailsViewEdit from "./LicenceDetailsViewEdit";
 import LicenceHeader from "./LicenceHeader";
 import LicenceSites from "./LicenceSites";
@@ -45,6 +45,7 @@ export default function ViewLicencePage() {
 
   useEffect(() => {
     dispatch(clearCurrentLicence());
+    dispatch(clearCurrentSite());
     dispatch(fetchLicence(id));
   }, [dispatch, id]);
 
@@ -64,7 +65,7 @@ export default function ViewLicencePage() {
   const showAssociatedLicence =
     licence.data &&
     associatedLicenceTypes.find((x) => x === licence.data.licenceTypeId) !==
-      undefined;
+    undefined;
 
   let content;
   if (licence.data) {
@@ -78,7 +79,7 @@ export default function ViewLicencePage() {
           <LicenceDairyTestInventory licence={licence} />
         ) : null}
         {licence.data.licenceTypeId === LICENCE_TYPE_ID_GAME_FARM ||
-        licence.data.licenceTypeId === LICENCE_TYPE_ID_FUR_FARM ? (
+          licence.data.licenceTypeId === LICENCE_TYPE_ID_FUR_FARM ? (
           <>
             <LicenceInventory licence={licence} />
             <LicenceInventoryHistory licence={licence} />

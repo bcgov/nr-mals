@@ -38,6 +38,9 @@ import {
   clearCurrentLicence
 } from "../licences/licencesSlice";
 
+import {
+  clearCurrentSite
+} from "../sites/sitesSlice";
 
 function formatResultRow(result) {
   const url = `${LICENSES_PATHNAME}/${result.licenceId}`;
@@ -70,6 +73,7 @@ export default function LicenceResultsPage() {
 
   useEffect(() => {
     dispatch(clearCurrentLicence());
+    dispatch(clearCurrentSite());
     dispatch(fetchLicenceResults());
   }, [dispatch]);
 
