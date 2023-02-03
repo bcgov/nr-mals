@@ -34,6 +34,11 @@ import {
   setLicenceSearchPage,
 } from "./searchSlice";
 
+import {
+  clearCurrentLicence
+} from "../licences/licencesSlice";
+
+
 function formatResultRow(result) {
   const url = `${LICENSES_PATHNAME}/${result.licenceId}`;
   return (
@@ -64,6 +69,7 @@ export default function LicenceResultsPage() {
   const dispatch = useDispatch();
 
   useEffect(() => {
+    dispatch(clearCurrentLicence());
     dispatch(fetchLicenceResults());
   }, [dispatch]);
 
