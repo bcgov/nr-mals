@@ -13,7 +13,8 @@ function useDairyTankController(
   dairyTanks,
   setDairyTanks,
   setSelectedDairyTank,
-  clearErrors
+  clearErrors,
+  resetField
 ) {
   function addDairyTank() {
     const dairyTankKey = dairyTanks.length;
@@ -26,6 +27,7 @@ function useDairyTankController(
     ]);
     setSelectedDairyTank(dairyTankKey);
     clearErrors("noDairyTanks");
+    resetField(`dairyTanks.${dairyTankKey}`);
   }
 
   function removeDairyTank(key) {
@@ -83,12 +85,13 @@ export default function DairyTanksEdit({
   setDairyTanks,
   setSelectedDairyTank,
 }) {
-  const { clearErrors } = form;
+  const { clearErrors, resetField } = form;
   const { addDairyTank, removeDairyTank } = useDairyTankController(
     dairyTanks,
     setDairyTanks,
     setSelectedDairyTank,
-    clearErrors
+    clearErrors,
+    resetField
   );
 
   useEffect(() => {
@@ -111,8 +114,7 @@ export default function DairyTanksEdit({
   return (
     <>
       {dairyTanks.map((dairyTank) => {
-        const hidden =
-          dairyTank.status === DAIRY_TANK_STATUS.DELETED ||
+        const hidden = dairyTank.status === DAIRY_TANK_STATUS.DELETED ||
           dairyTank.status === DAIRY_TANK_STATUS.CANCELLED;
         return (
           <Tab.Pane

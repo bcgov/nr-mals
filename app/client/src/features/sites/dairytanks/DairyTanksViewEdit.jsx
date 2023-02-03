@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import PropTypes from "prop-types";
 import { useDispatch, useSelector } from "react-redux";
 import { useForm } from "react-hook-form";
@@ -26,7 +26,7 @@ import DairyTanksTab from "./DairyTanksTab";
 
 import { selectCurrentUser } from "../../../app/appSlice";
 
-function submissionController(setError, clearErrors, dispatch, siteId) {
+function submissionController(setError, clearErrors, dispatch, siteId, reset) {
   const onSubmit = async (data) => {
     const validationResult = validateDairyTanks(
       data.dairyTanks,
@@ -42,7 +42,14 @@ function submissionController(setError, clearErrors, dispatch, siteId) {
       data.dairyTankDates,
       siteId
     );
-    dispatch(updateSiteDairyTanks({ dairyTanks: payload, id: siteId }));
+    dispatch(updateSiteDairyTanks({ dairyTanks: payload, id: siteId }))
+      .then(() => {
+        // Reset tanks form on a succesful submit to clear cancelled items
+        reset();
+      })
+      .catch((error) => {
+        console.error(`${error.message}`);
+      });
   };
 
   return { onSubmit };
@@ -64,13 +71,18 @@ export default function DairyTanksViewEdit({ site }) {
     reValidateMode: "onBlur",
   });
 
-  const { handleSubmit, setError, clearErrors } = form;
+  const { handleSubmit, setError, clearErrors, reset } = form;
+
+  useEffect(() => {
+    reset();
+  }, [dispatch]);
 
   const { onSubmit } = submissionController(
     setError,
     clearErrors,
     dispatch,
-    site.data.id
+    site.data.id,
+    reset
   );
 
   if (mode === DAIRY_TANK_MODE.VIEW) {
@@ -89,8 +101,8 @@ export default function DairyTanksViewEdit({ site }) {
           Dairy Tank Details
         </SectionHeading>
         {dairyTanks === undefined ||
-        dairyTanks === null ||
-        dairyTanks.length === 0 ? (
+          dairyTanks === null ||
+          dairyTanks.length === 0 ? (
           <Row className="mt-3">
             <Col>
               <Alert variant="success" className="mt-3">
