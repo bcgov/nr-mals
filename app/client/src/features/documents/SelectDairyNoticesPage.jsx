@@ -36,7 +36,7 @@ import {
 let licences = [];
 
 export default function SelectDairyNoticesPage() {
-  const [isCheckAll, setIsCheckAll] = useState(false);
+  const [isCheckAll, setIsCheckAll] = useState(true);
   const [isChecked, setIsChecked] = useState([]);
 
   const queuedDairyNotices = useSelector(selectQueuedDairyNotices);
@@ -70,16 +70,16 @@ export default function SelectDairyNoticesPage() {
     const checked = [];
     licences = queuedDairyNotices.data
       ? queuedDairyNotices.data.map((licence) => {
-          const obj = {
-            ...licence,
-            selected:
-              checked.find((x) => x === licence.licenceId) === undefined
-                ? true
-                : false,
-          };
-          checked.push(licence.licenceId);
-          return obj;
-        })
+        const obj = {
+          ...licence,
+          selected:
+            checked.find((x) => x === licence.licenceId) === undefined
+              ? true
+              : false,
+        };
+        checked.push(licence.licenceId);
+        return obj;
+      })
       : [];
     setValue("licences", licences);
   }, [queuedDairyNotices.data]);
@@ -130,6 +130,7 @@ export default function SelectDairyNoticesPage() {
     } else {
       // Add licence id
       setIsChecked([...isChecked, id]);
+      setIsCheckAll(isChecked.length + 1 === licences.length);
     }
   };
 
@@ -191,8 +192,8 @@ export default function SelectDairyNoticesPage() {
       <Form onSubmit={handleSubmit(onSubmit)}>
         <Row className="mt-3 d-flex justify-content-end">
           <Col md="auto">
-            {isChecked.length}{" "}
-            {pluralize(isChecked.length, "Dairy Notice Licence")} selected for
+            {isCheckAll ? [...new Set(licences.map((x) => x.licenceId))].length : isChecked.length} {" "}
+            {pluralize(isCheckAll ? [...new Set(licences.map((x) => x.licenceId))].length : isChecked.length, "Dairy Notice Licence")} selected for
             generation.
           </Col>
         </Row>
@@ -228,7 +229,7 @@ export default function SelectDairyNoticesPage() {
                       <Form.Check
                         name={`licences.${index}.check`}
                         id={item.licenceId}
-                        checked={isChecked.includes(item.licenceId)}
+                        checked={isCheckAll || isChecked.includes(item.licenceId)}
                         onChange={(e) => handleClick(e, item.licenceId)}
                       />
                     ) : null}

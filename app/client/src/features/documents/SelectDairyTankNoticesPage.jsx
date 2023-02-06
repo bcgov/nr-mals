@@ -36,7 +36,7 @@ import {
 } from "./dairyTankNoticesSlice";
 
 export default function SelectDairyTankNoticesPage() {
-  const [isCheckAll, setIsCheckAll] = useState(false);
+  const [isCheckAll, setIsCheckAll] = useState(true);
   const [isChecked, setIsChecked] = useState([]);
 
   const queuedDairyTankNotices = useSelector(selectQueuedDairyTankNotices);
@@ -60,18 +60,18 @@ export default function SelectDairyTankNoticesPage() {
     reset({
       licences: queuedDairyTankNotices.data
         ? queuedDairyTankNotices.data.map((licence) => ({
-            id: licence.id,
-            licenceType: licence.licenceType,
-            licenceId: licence.licenceId,
-            licenceNumber: licence.licenceNumber,
-            irmaNumber: licence.irmaNumber,
-            recheckYear: licence.recheckYear,
-            lastName: licence.lastName,
-            regionName: licence.regionName,
-            districtName: licence.districtName,
-            printRecheckNotice: licence.printRecheckNotice,
-            recheckNoticeJson: licence.recheckNoticeJson,
-          }))
+          id: licence.id,
+          licenceType: licence.licenceType,
+          licenceId: licence.licenceId,
+          licenceNumber: licence.licenceNumber,
+          irmaNumber: licence.irmaNumber,
+          recheckYear: licence.recheckYear,
+          lastName: licence.lastName,
+          regionName: licence.regionName,
+          districtName: licence.districtName,
+          printRecheckNotice: licence.printRecheckNotice,
+          recheckNoticeJson: licence.recheckNoticeJson,
+        }))
         : [],
     });
   }, [reset, queuedDairyTankNotices.data]);
@@ -106,6 +106,7 @@ export default function SelectDairyTankNoticesPage() {
     } else {
       // Add licence id
       setIsChecked([...isChecked, id]);
+      setIsCheckAll(isChecked.length + 1 === watchLicences.length);
     }
   };
 
@@ -164,9 +165,7 @@ export default function SelectDairyTankNoticesPage() {
       <Form onSubmit={handleSubmit(onSubmit)}>
         <Row className="mt-3 d-flex justify-content-end">
           <Col md="auto">
-            {isChecked.length}{" "}
-            {pluralize(isChecked.length, "dairy tank notice")} selected for
-            generation.
+            {isCheckAll ? watchLicences.length : isChecked.length} {pluralize(isCheckAll ? watchLicences.length : isChecked.length, "dairy tank notice")} selected for generation.
           </Col>
         </Row>
         <Table striped size="sm" responsive className="mt-3" hover>
@@ -199,7 +198,7 @@ export default function SelectDairyTankNoticesPage() {
                     <Form.Check
                       name={`licences.${index}.check`}
                       id={item.licenceId}
-                      checked={isChecked.includes(item.licenceId)}
+                      checked={isCheckAll || isChecked.includes(item.licenceId)}
                       onChange={(e) => handleClick(e, item.licenceId)}
                     />
                   </td>
