@@ -27,6 +27,7 @@ import CustomCheckBox from "../../components/CustomCheckBox";
 
 import { fetchRegions } from "../lookups/regionsSlice";
 import { fetchLicenceStatuses } from "../lookups/licenceStatusesSlice";
+import { fetchLicenceTypes, selectLicenceTypes } from "../lookups/licenceTypesSlice";
 import { fetchCities } from "../lookups/citiesSlice";
 
 import {
@@ -55,11 +56,13 @@ export default function LicenceDetailsViewEdit({ licence }) {
   const dispatch = useDispatch();
 
   const currentUser = useSelector(selectCurrentUser);
+  const licenceTypesConfig = useSelector(selectLicenceTypes);
 
   useEffect(() => {
     dispatch(fetchRegions());
     dispatch(fetchLicenceStatuses());
     dispatch(fetchCities());
+    dispatch(fetchLicenceTypes());
   }, [dispatch]);
 
   const form = useForm({
@@ -154,17 +157,12 @@ export default function LicenceDetailsViewEdit({ licence }) {
   const config = getLicenceTypeConfiguration(licence.data.licenceTypeId);
 
   const getRenewLicenceDates = () => {
+    const licenceTypeConfig = licenceTypesConfig.data.find(x => x.id === licence.data.licenceTypeId);
+
     const today = startOfToday();
-    let expiryDate = null;
-    if (config.expiryInTwoYears) {
-      expiryDate = add(today, { years: 2 });
-    } else if (config.expiryMonth) {
-      expiryDate = set(today, { date: 31, month: config.expiryMonth - 1 }); // months are indexed at 0
-      expiryDate = add(expiryDate, { years: 1 });
-      if (config.yearsAddedToExpiryDate) {
-        expiryDate = add(expiryDate, { years: config.yearsAddedToExpiryDate });
-      }
-    } else if (config.replaceExpiryDateWithIrmaNumber) {
+    let expiryDate = add(new Date(licenceTypeConfig.standardExpiryDate), { days: 1 });
+
+    if (config.replaceExpiryDateWithIrmaNumber) {
       expiryDate = undefined;
     }
 
