@@ -852,7 +852,7 @@ model mal_print_dairy_farm_tank_recheck_vw {
   licence_number                    Int
   irma_number                       String
   last_name                         String
-  region_name                       String
+  region_name                       String?
   district_name                     String?
   recheck_year                      String
   print_recheck_notice              Boolean

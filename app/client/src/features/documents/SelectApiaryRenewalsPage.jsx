@@ -40,7 +40,7 @@ import {
 let licences = [];
 
 export default function SelectApiaryRenewalsPage() {
-  const [isCheckAll, setIsCheckAll] = useState(false);
+  const [isCheckAll, setIsCheckAll] = useState(true);
   const [isChecked, setIsChecked] = useState([]);
 
   const queuedRenewals = useSelector(selectQueuedRenewals);
@@ -75,12 +75,12 @@ export default function SelectApiaryRenewalsPage() {
   useEffect(() => {
     licences = queuedRenewals.data
       ? queuedRenewals.data.map((licence) => ({
-          ...licence,
-          licenceId: licence.licenceId,
-          issuedOnDate: formatDateString(licence.issuedOnDate),
-          expiryDate: formatDateString(licence.expiryDate),
-          selected: "true",
-        }))
+        ...licence,
+        licenceId: licence.licenceId,
+        issuedOnDate: formatDateString(licence.issuedOnDate),
+        expiryDate: formatDateString(licence.expiryDate),
+        selected: "true",
+      }))
       : [];
     setValue("licences", licences);
   }, [queuedRenewals.data]);
@@ -122,6 +122,7 @@ export default function SelectApiaryRenewalsPage() {
     } else {
       // Add licence id
       setIsChecked([...isChecked, id]);
+      setIsCheckAll(isChecked.length + 1 === licences.length);
     }
   };
 
@@ -182,7 +183,7 @@ export default function SelectApiaryRenewalsPage() {
       <Form onSubmit={handleSubmit(onSubmit)}>
         <Row className="mt-3 d-flex justify-content-end">
           <Col md="auto">
-            {isChecked.length} {pluralize(isChecked.length, "renewal")} selected
+            {isCheckAll ? licences.length : isChecked.length} {pluralize(isCheckAll ? licences.length : isChecked.length, "renewal")} selected
             for generation.
           </Col>
         </Row>
@@ -217,7 +218,7 @@ export default function SelectApiaryRenewalsPage() {
                     <Form.Check
                       name={`licences.${index}.check`}
                       id={item.licenceId}
-                      checked={isChecked.includes(item.licenceId)}
+                      checked={isCheckAll || isChecked.includes(item.licenceId)}
                       onChange={(e) => handleClick(e, item.licenceId)}
                     />
                   </td>

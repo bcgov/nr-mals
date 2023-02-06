@@ -36,7 +36,7 @@ import {
 } from "./renewalsSlice";
 
 export default function SelectRenewalsPage() {
-  const [isCheckAll, setIsCheckAll] = useState(false);
+  const [isCheckAll, setIsCheckAll] = useState(true);
   const [isChecked, setIsChecked] = useState([]);
 
   const queuedRenewals = useSelector(selectQueuedRenewals);
@@ -60,17 +60,17 @@ export default function SelectRenewalsPage() {
     reset({
       licences: queuedRenewals.data
         ? queuedRenewals.data.map((licence) => ({
-            licenceId: licence.licenceId,
-            licenceNumber: licence.licenceNumber,
-            licenceType: licence.licenceType,
-            lastNames: licence.lastNames,
-            companyNames: licence.companyNames,
-            licenceStatus: licence.licenceStatus,
-            issuedOnDate: licence.issuedOnDate,
-            expiryDate: licence.expiryDate,
-            region: licence.region,
-            regionalDistrict: licence.regionalDistrict,
-          }))
+          licenceId: licence.licenceId,
+          licenceNumber: licence.licenceNumber,
+          licenceType: licence.licenceType,
+          lastNames: licence.lastNames,
+          companyNames: licence.companyNames,
+          licenceStatus: licence.licenceStatus,
+          issuedOnDate: licence.issuedOnDate,
+          expiryDate: licence.expiryDate,
+          region: licence.region,
+          regionalDistrict: licence.regionalDistrict,
+        }))
         : [],
     });
   }, [reset, queuedRenewals.data]);
@@ -105,6 +105,7 @@ export default function SelectRenewalsPage() {
     } else {
       // Add licence id
       setIsChecked([...isChecked, id]);
+      setIsCheckAll(isChecked.length + 1 === fields.length);
     }
   };
 
@@ -159,7 +160,7 @@ export default function SelectRenewalsPage() {
       <Form onSubmit={handleSubmit(onSubmit)}>
         <Row className="mt-3 d-flex justify-content-end">
           <Col md="auto">
-            {isChecked.length} {pluralize(isChecked.length, "renewal")} selected
+            {isCheckAll ? fields.length : isChecked.length} {pluralize(isCheckAll ? fields.length : isChecked.length, "renewal")} selected
             for generation.
           </Col>
         </Row>
@@ -194,7 +195,7 @@ export default function SelectRenewalsPage() {
                     <Form.Check
                       name={`licences.${index}.check`}
                       id={item.licenceId}
-                      checked={isChecked.includes(item.licenceId)}
+                      checked={isCheckAll || isChecked.includes(item.licenceId)}
                       onChange={(e) => handleClick(e, item.licenceId)}
                     />
                   </td>
