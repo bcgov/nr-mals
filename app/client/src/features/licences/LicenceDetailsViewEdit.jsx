@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { useDispatch, useSelector } from "react-redux";
 import { useForm } from "react-hook-form";
 import { Button, Container, Form, Row, Col } from "react-bootstrap";
-import { startOfToday, add, set } from "date-fns";
+import { startOfDay, startOfToday, add, set } from "date-fns";
 
 import {
   LICENCE_MODE,
@@ -160,7 +160,7 @@ export default function LicenceDetailsViewEdit({ licence }) {
     const licenceTypeConfig = licenceTypesConfig.data.find(x => x.id === licence.data.licenceTypeId);
 
     const today = startOfToday();
-    let expiryDate = add(new Date(licenceTypeConfig.standardExpiryDate), { days: 1 });
+    let expiryDate = add(startOfDay(new Date(licenceTypeConfig.standardExpiryDate)), { days: 1 });
 
     if (config.replaceExpiryDateWithIrmaNumber) {
       expiryDate = undefined;
