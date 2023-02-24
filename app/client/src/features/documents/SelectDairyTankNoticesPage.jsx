@@ -79,7 +79,8 @@ export default function SelectDairyTankNoticesPage() {
   const watchLicences = watch("licences", []);
 
   const onSubmit = (data) => {
-    dispatch(startDairyTankNoticeJob(isChecked));
+    const checked = isCheckAll ? watchLicences.map((x) => x.licenceId) : isChecked;
+    dispatch(startDairyTankNoticeJob(checked));
     history.push(DOWNLOAD_DAIRYTANKNOTICES_PATHNAME);
   };
 
@@ -116,8 +117,9 @@ export default function SelectDairyTankNoticesPage() {
       variant="primary"
       type="submit"
       disabled={
-        isChecked.length === 0 ||
-        dairyTankNoticeJob.status !== REQUEST_STATUS.IDLE
+        !isCheckAll &&
+        (isChecked.length === 0 ||
+          dairyTankNoticeJob.status !== REQUEST_STATUS.IDLE)
       }
     >
       Generate
