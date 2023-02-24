@@ -36,7 +36,7 @@ import {
 } from "./certificatesSlice";
 
 export default function SelectCertificatesPage() {
-  const [isCheckAll, setIsCheckAll] = useState(false);
+  const [isCheckAll, setIsCheckAll] = useState(true);
   const [isChecked, setIsChecked] = useState([]);
 
   const queuedCertificates = useSelector(selectQueuedCertificates);
@@ -60,18 +60,18 @@ export default function SelectCertificatesPage() {
     reset({
       licences: queuedCertificates.data
         ? queuedCertificates.data.map((licence) => ({
-            id: licence.licenceId,
-            licenceId: licence.licenceId,
-            licenceNumber: licence.licenceNumber,
-            licenceType: licence.licenceType,
-            lastNames: licence.lastNames,
-            companyNames: licence.companyNames,
-            licenceStatus: licence.licenceStatus,
-            issuedOnDate: licence.issuedOnDate,
-            expiryDate: licence.expiryDate,
-            region: licence.region,
-            regionalDistrict: licence.regionalDistrict,
-          }))
+          id: licence.licenceId,
+          licenceId: licence.licenceId,
+          licenceNumber: licence.licenceNumber,
+          licenceType: licence.licenceType,
+          lastNames: licence.lastNames,
+          companyNames: licence.companyNames,
+          licenceStatus: licence.licenceStatus,
+          issuedOnDate: licence.issuedOnDate,
+          expiryDate: licence.expiryDate,
+          region: licence.region,
+          regionalDistrict: licence.regionalDistrict,
+        }))
         : [],
     });
   }, [reset, queuedCertificates.data]);
@@ -106,6 +106,7 @@ export default function SelectCertificatesPage() {
     } else {
       // Add licence id
       setIsChecked([...isChecked, id]);
+      setIsCheckAll(isChecked.length + 1 === fields.length);
     }
   };
 
@@ -161,7 +162,7 @@ export default function SelectCertificatesPage() {
       <Form onSubmit={handleSubmit(onSubmit)}>
         <Row className="mt-3 d-flex justify-content-end">
           <Col md="auto">
-            {isChecked.length} {pluralize(isChecked.length, "certificate")}{" "}
+            {isCheckAll ? fields.length : isChecked.length} {pluralize(isCheckAll ? fields.length : isChecked.length, "certificate")}{" "}
             selected for generation.
           </Col>
         </Row>
@@ -196,7 +197,7 @@ export default function SelectCertificatesPage() {
                     <Form.Check
                       name={`licences.${index}.check`}
                       id={item.licenceId}
-                      checked={isChecked.includes(item.licenceId)}
+                      checked={isCheckAll || isChecked.includes(item.licenceId)}
                       onChange={(e) => handleClick(e, item.licenceId)}
                     />
                   </td>
