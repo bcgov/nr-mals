@@ -79,7 +79,8 @@ export default function SelectCertificatesPage() {
   const watchLicences = watch("licences", []);
 
   const onSubmit = (data) => {
-    dispatch(startCertificateJob(isChecked));
+    const checked = isCheckAll ? watchLicences.map((x) => x.licenceId) : isChecked;
+    dispatch(startCertificateJob(checked));
     history.push(DOWNLOAD_CERTIFICATES_PATHNAME);
   };
 
@@ -116,7 +117,7 @@ export default function SelectCertificatesPage() {
       variant="primary"
       type="submit"
       disabled={
-        isChecked.length === 0 || certificateJob.status !== REQUEST_STATUS.IDLE
+        !isCheckAll && (isChecked.length === 0 || certificateJob.status !== REQUEST_STATUS.IDLE)
       }
     >
       Generate

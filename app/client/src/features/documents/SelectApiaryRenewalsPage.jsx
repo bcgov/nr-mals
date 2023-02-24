@@ -95,7 +95,8 @@ export default function SelectApiaryRenewalsPage() {
   }, [watchStartDate, watchEndDate]);
 
   const onSubmit = (data) => {
-    dispatch(startRenewalJob(isChecked));
+    const checked = isCheckAll ? watchLicences.map((x) => x.licenceId) : isChecked;
+    dispatch(startRenewalJob(checked));
     history.push(DOWNLOAD_RENEWALS_PATHNAME);
   };
 
@@ -138,7 +139,7 @@ export default function SelectApiaryRenewalsPage() {
       variant="primary"
       type="submit"
       disabled={
-        isChecked.length === 0 || renewalJob.status !== REQUEST_STATUS.IDLE
+        !isCheckAll && (isChecked.length === 0 || renewalJob.status !== REQUEST_STATUS.IDLE)
       }
     >
       Generate

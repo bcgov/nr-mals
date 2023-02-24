@@ -94,7 +94,15 @@ export default function SelectDairyNoticesPage() {
   }, [watchStartDate, watchEndDate]);
 
   const onSubmit = (data) => {
-    const uniqueSelectedLicences = [...new Set(isChecked.map((x) => x))];
+    let uniqueSelectedLicences;
+    if (isCheckAll) {
+      uniqueSelectedLicences = [
+        ...new Set(watchLicences.map((x) => x.licenceId)),
+      ];
+    }
+    else {
+      uniqueSelectedLicences = [...new Set(isChecked.map((x) => x))];
+    }
     const payload = {
       licenceIds: uniqueSelectedLicences,
       startDate: data.startDate,
@@ -146,7 +154,7 @@ export default function SelectDairyNoticesPage() {
       variant="primary"
       type="submit"
       disabled={
-        isChecked.length === 0 || dairyNoticeJob.status !== REQUEST_STATUS.IDLE
+        !isCheckAll && (isChecked.length === 0 || dairyNoticeJob.status !== REQUEST_STATUS.IDLE)
       }
     >
       Generate
