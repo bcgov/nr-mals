@@ -12,8 +12,6 @@ SET client_min_messages = warning;
 -- VIEW:  MAL_APIARY_PRODUCER_VW
 --
 
-DROP VIEW IF EXISTS mal_apiary_producer_vw CASCADE;
-
 CREATE OR REPLACE VIEW mal_apiary_producer_vw as 
 	select site.id site_id,
 		lic.id licence_id,
@@ -499,8 +497,6 @@ $procedure$
 -- VIEW:  MAL_DAIRY_FARM_TANK_VW
 --
 
-DROP VIEW IF EXISTS mal_dairy_farm_tank_vw CASCADE;
-
 CREATE OR REPLACE VIEW mal_dairy_farm_tank_vw as
 	select dft.id dairy_farm_tank_id,
 		site_id,
@@ -832,4 +828,437 @@ CREATE OR REPLACE VIEW mals_app.mal_print_card_vw as
 	  													'LIVESTOCK DEALER AGENT'::character varying::text, 
 	  													'LIVESTOCK DEALER'::character varying::text])
 	  GROUP BY licence_base.licence_type;
+  
+
+;
+
+--        MALS-1207 - Apiary Premises ID - update not functioning
+--          Removed duplicate assignment of the total_hives clumn in the Update section
+
+--
+-- PROCEDURE:  PR_PROCESS_PREMISES_IMPORT
+--
+
+CREATE OR REPLACE PROCEDURE mals_app.pr_process_premises_import(ip_job_id integer, INOUT iop_job_status character varying, INOUT iop_process_comments character varying)
+ LANGUAGE plpgsql
+AS $procedure$
+  declare  
+	l_apiary_type_id          integer;
+	l_active_status_id        integer;
+	l_file_rec                record;
+	l_num_file_rows           integer := 0;
+	l_num_file_inserts        integer := 0;
+	l_num_file_updates        integer := 0;
+	l_num_file_do_not_imports integer := 0;
+	l_num_db_inserts          integer := 0;
+	l_num_db_updates          integer := 0;
+	-- 
+	l_licence_id              integer;
+	l_licence_number          integer;
+	l_site_id                 integer;
+	l_apiary_site_id          integer;
+	l_registrant_id           integer;
+	l_process_comments        varchar(2000);
+	l_error_sqlstate          text;
+	l_error_message           text;
+	l_error_context           text;
+  --
+  begin
+	--
+	select 
+		count(*) as num_file_rows,
+		count(case when import_action in ('NEW_LICENCE', 'NEW_SITE') then 1 else null end) num_file_inserts,
+		count(case when import_action = 'UPDATE' then 1 else null end) num_file_updates,
+		count(case when import_action = 'DO_NOT_IMPORT' then 1 else null end) num_do_not_imports
+	into l_num_file_rows, l_num_file_inserts, l_num_file_updates, l_num_file_do_not_imports
+	from mal_premises_detail
+	where premises_job_id = ip_job_id;
+raise notice 'num_file_rows (%)', l_num_file_rows;
+	update mal_premises_job
+		set source_row_count = l_num_file_rows,
+			source_insert_count = l_num_file_inserts,
+			source_update_count = l_num_file_updates,
+			source_do_not_import_count = l_num_file_do_not_imports
+	where id = ip_job_id;
+	--
+	select id
+	into l_apiary_type_id
+	from mal_licence_type_lu
+	where licence_type = 'APIARY';
+	select id
+	into l_active_status_id
+	from mal_status_code_lu
+	where code_name = 'ACT';
+	--
+	for l_file_rec in 
+		select 
+			p.id,
+			p.apiary_site_id,
+			p.import_action, 
+			p.licence_number,
+			p.licence_company_name,
+			p.licence_mail_address_line_1,
+			p.licence_mail_address_line_2,
+			p.licence_mail_city,
+			p.licence_mail_province,
+			p.licence_mail_postal_code,
+			p.licence_total_hives,
+			p.source_premises_id,
+			p.site_address_line_1,
+			r.id as region_id,
+			p.site_region_name,
+			d.id as regional_district_id,
+			p.site_regional_district_name,
+			p.registrant_first_name,
+			p.registrant_last_name,
+			p.registrant_primary_phone,
+			p.registrant_secondary_phone,
+			p.registrant_fax_number,
+			p.registrant_email_address,
+			p.process_comments
+		from mal_premises_detail p
+		left join mal_region_lu r
+		on p.site_region_name = r.region_name
+		left join mal_regional_district_lu d
+		on p.site_regional_district_name = d.district_name	
+		where p.premises_job_id = ip_job_id 
+		and p.import_status = 'PENDING' loop
+			l_licence_id            := null;
+			l_licence_number        := null;
+			l_site_id               := null;
+			l_apiary_site_id        := null;
+			l_registrant_id         := null;
+			l_process_comments      := null;
+			l_error_message         := null;
+			begin
+	--  DO_NOT_IMPORT
+				--
+				if l_file_rec.import_action in ('DO_NOT_IMPORT') then
+				-- Mark the Do Not Import rows.
+					update mal_premises_detail
+						set import_status    = 'NO_ACTION',
+							process_comments = concat(process_comments, 
+													  to_char(current_timestamp, 'yyyy-mm-dd hh24:mi:ss '), 
+													  'This row was marked as DO_NOT_IMPORT and was therefore not processed.')
+						where id = l_file_rec.id;
+	--  NEW_LICENCE (and Site, and Registrant)
+				-- Process new licences and sites
+				elsif l_file_rec.import_action in ('NEW_LICENCE' ) then
+					-- Create a new Licence.
+					insert into mal_licence(
+						licence_type_id,
+						status_code_id,
+						region_id,
+						regional_district_id,
+						company_name,
+						mail_address_line_1,
+						mail_address_line_2,
+						mail_city,
+						mail_province,
+						mail_postal_code,
+						application_date,
+						issue_date,
+						expiry_date,
+						total_hives
+						)
+						values(
+							l_apiary_type_id,
+							l_active_status_id,
+							l_file_rec.region_id,
+							l_file_rec.regional_district_id,
+							l_file_rec.licence_company_name,
+							l_file_rec.licence_mail_address_line_1,
+							l_file_rec.licence_mail_address_line_2,
+							l_file_rec.licence_mail_city,
+							l_file_rec.licence_mail_province,
+							l_file_rec.licence_mail_postal_code,
+							current_date,  -- application_date,
+							current_date,  -- issue_date,
+							current_date + interval '2 years',  -- expiry_date,
+							l_file_rec.licence_total_hives
+							)
+							returning id, licence_number into l_licence_id, l_licence_number;
+					-- First apiary site ID for new licence.
+					l_apiary_site_id = 100;
+					--  Create a new Site.
+					insert into mal_site (
+						licence_id,
+						apiary_site_id,
+						region_id,
+						regional_district_id,
+						status_code_id,
+						address_line_1,							
+						premises_id
+						)
+						values (
+							l_licence_id,
+							l_apiary_site_id,   
+							l_file_rec.region_id,
+							l_file_rec.regional_district_id,
+							l_active_status_id,
+							l_file_rec.site_address_line_1,
+							l_file_rec.source_premises_id)
+						returning id into l_site_id;
+					-- Create a new Registrant
+					insert into mal_registrant(
+						first_name,
+						last_name,
+						primary_phone,
+						secondary_phone,
+						fax_number,
+						email_address)
+						values(
+							l_file_rec.registrant_first_name,
+							l_file_rec.registrant_last_name,
+							l_file_rec.registrant_primary_phone,
+							l_file_rec.registrant_secondary_phone,
+							l_file_rec.registrant_fax_number,
+							l_file_rec.registrant_email_address
+							)
+							returning id into l_registrant_id;
+					-- Add a reference to the new Registrant on the new Licence
+					update mal_licence
+						set primary_registrant_id = l_registrant_id
+					where id = l_licence_id;
+					-- Add a row to the cross reference table for the new licence and registrant.
+					insert into mal_licence_registrant_xref(
+						licence_id,
+						registrant_id)
+						values(
+							l_licence_id,
+							l_registrant_id
+							);
+					l_process_comments  = concat(l_file_rec.process_comments, 
+												 to_char(current_timestamp, 'yyyy-mm-dd hh24:mi:ss'), 
+												' This row was successfully processed. ');
+					-- Update the imported row with the new Licence info.
+					update mal_premises_detail
+					set import_status            = 'SUCCESS',
+						licence_id               = l_licence_id,
+						licence_number           = l_licence_number,
+						site_id                  = l_site_id,
+						apiary_site_id           = l_apiary_site_id,
+						registrant_id            = l_registrant_id,
+						licence_action           = 'INSERT',
+						licence_status           = 'SUCCESS',
+						site_action              = 'INSERT',
+						site_status              = 'SUCCESS',
+						process_comments         = l_process_comments,
+						licence_status_timestamp = current_timestamp,
+						site_status_timestamp    = current_timestamp
+					where id = l_file_rec.id;
+					l_num_db_inserts = l_num_db_inserts + 1;
+	--  NEW_SITE (existing Licence)
+				-- New Site on exixsting Licence
+				elsif l_file_rec.import_action in ('NEW_SITE') then
+					--  Determine if the Licence exists
+					select id
+					into l_licence_id
+					from mal_licence
+					where licence_number = l_file_rec.licence_number;
+					if l_licence_id is not null then
+						-- Determine the next sequential apiary Site ID
+						select coalesce(max(apiary_site_id) + 1, 100)
+						into l_apiary_site_id
+						from mal_site
+						where licence_id = l_licence_id;
+						--  Create a new Site.
+						insert into mal_site (
+							licence_id,
+							apiary_site_id,
+							region_id,
+							regional_district_id,
+							status_code_id,
+							address_line_1,							
+							premises_id
+							)
+							values (
+								l_licence_id,
+								l_apiary_site_id,
+								l_file_rec.region_id,
+								l_file_rec.regional_district_id,
+								l_active_status_id,
+								l_file_rec.site_address_line_1,
+								l_file_rec.source_premises_id)
+							returning id into l_site_id;
+						-- Update the Licence expiry date.
+						update mal_licence
+							set expiry_date = current_date + interval '2 years'
+						where id = l_licence_id;
+						l_process_comments  = concat(l_file_rec.process_comments, 
+													 to_char(current_timestamp, 'yyyy-mm-dd hh24:mi:ss'), 
+													' This row was successfully processed. ');
+						-- Update the file row with the new IDs.
+						update mal_premises_detail
+						set import_status         = 'SUCCESS',
+							licence_id            = l_licence_id,
+							site_id               = l_site_id,
+							apiary_site_id        = l_apiary_site_id,
+							site_action           = 'INSERT',
+							site_status           = 'SUCCESS',
+							process_comments      = l_process_comments,
+							site_status_timestamp = current_timestamp
+						where id = l_file_rec.id;
+						l_num_db_inserts = l_num_db_inserts + 1;
+					else
+						l_process_comments  = concat(l_file_rec.process_comments, 
+													 to_char(current_timestamp, 'yyyy-mm-dd hh24:mi:ss'), 
+													 ' The licence number ', l_licence_number, ' was not found in the Licence table. ');
+						update mal_premises_detail
+							set import_status    = 'NO_ACTION',
+								process_comments = l_process_comments
+							where id = l_file_rec.id;
+						
+					end if;
+		--  UPDATE (Licence and Site)
+				-- Process updates to licences and sites
+				elsif l_file_rec.import_action in ('UPDATE') then
+					select l.id, s.id
+					into l_licence_id, l_site_id
+					from mal_licence l
+					left join mal_site s 
+					on l.id = s.licence_id
+					inner join mal_licence_type_lu t
+					on l.licence_type_id = t.id
+					inner join mal_status_code_lu st
+					on s.status_code_id = st.id
+					where t.licence_type = 'APIARY'
+					and st.code_name = 'ACT'
+					and l.licence_number = l_file_rec.licence_number
+					and s.apiary_site_id = l_file_rec.apiary_site_id;
+					if l_site_id is not null then
+						update mal_licence
+							set region_id            = l_file_rec.region_id,
+								regional_district_id = l_file_rec.regional_district_id,
+								company_name         = l_file_rec.licence_company_name,
+								mail_address_line_1  = l_file_rec.licence_mail_address_line_1,
+								mail_address_line_2  = l_file_rec.licence_mail_address_line_2,
+								mail_city            = l_file_rec.licence_mail_city,
+								mail_province        = l_file_rec.licence_mail_province,
+								mail_postal_code     = l_file_rec.licence_mail_postal_code,	
+								issue_date           = current_date,
+								expiry_date          = current_date + interval '2 years',
+							    total_hives          = l_file_rec.licence_total_hives
+							where id = l_licence_id;
+						update mal_site
+							set region_id            = l_file_rec.region_id,
+								regional_district_id = l_file_rec.regional_district_id,
+								address_line_1       = l_file_rec.site_address_line_1,
+								premises_id          = l_file_rec.source_premises_id
+							where id = l_site_id;	
+						update mal_premises_detail
+							set licence_id       = l_licence_id,
+								site_id          = l_site_id,
+								import_status    = 'SUCCESS',
+								process_comments = concat(process_comments, 
+														  to_char(current_timestamp, 'yyyy-mm-dd hh24:mi:ss '), 
+														  'The Licence and Site were successfully updated.')
+							where id = l_file_rec.id;
+					l_num_db_updates = l_num_db_updates + 1;
+					else
+						update mal_premises_detail
+							set import_status    = 'NO_ACTION',
+								process_comments = concat(process_comments, 
+														  to_char(current_timestamp, 'yyyy-mm-dd hh24:mi:ss '), 
+														  'No data was found for the Licence Number and/or Apiary Site ID provided.')
+							where id = l_file_rec.id;
+					end if;
+				--
+				else
+				-- The import action is invalid
+					update mal_premises_detail
+						set import_status    = 'NO_ACTION',
+							process_comments = concat(process_comments, 
+													  to_char(current_timestamp, 'yyyy-mm-dd hh24:mi:ss '), 
+													  'The information supplied on this row is not a valid request.')
+						where id = l_file_rec.id;			
+				end if;				
+			exception
+				when others then
+	                get stacked diagnostics l_error_message = MESSAGE_TEXT;
+					l_process_comments  = concat(l_file_rec.process_comments, 
+												 to_char(current_timestamp, 'yyyy-mm-dd hh24:mi:ss'), 
+												' An error was made while processing this row. ');
+					update mal_premises_detail
+						set import_status    = 'ERROR',
+							process_comments = concat(process_comments, 
+													  to_char(current_timestamp, 'yyyy-mm-dd hh24:mi:ss '), 
+													  l_error_sqlstate, ' ',
+													  l_error_message, ' ',
+													  l_error_context)
+						where id = l_file_rec.id;
+					commit;
+			end;
+		end loop;
+	--	
+	-- Capture existing process comments, in case this is not the first time this row was processed.
+	case 
+		when l_num_file_inserts = l_num_db_inserts
+		 and l_num_file_updates = l_num_db_updates
+		then iop_job_status = 'SUCCESS';
+			 iop_process_comments = 'The rows were successfully processed.';
+		else iop_job_status = 'WARNING'; 
+			 iop_process_comments = 'One or more of the rows was not successfully processed. Check the mal_premises_detail table.';
+	end case;
+	-- Update the Job table.
+	update mal_premises_job 
+		set
+			job_status              = iop_job_status,
+			target_insert_count     = l_num_db_inserts,
+			target_update_count     = l_num_db_updates,
+			execution_end_time      = current_timestamp,
+			execution_comment       = iop_process_comments,
+			update_userid           = current_user,
+			update_timestamp        = current_timestamp
+		where id = ip_job_id;
+	-- 
+end; 
+$procedure$
+;
+
+
+--        MALS-1203 - Livestock Dealer Agent showing wrong Livestock Dealer Association
+--          Added AgentFor to the JSON output
+
+--
+-- PROCEDURE:  PR_PROCESS_PREMISES_IMPORT
+--
+
+CREATE OR REPLACE VIEW mals_app.mal_print_card_vw
+AS WITH licence_base AS (
+         SELECT lictyp.licence_type,
+            lic.company_name,
+            COALESCE(lic.company_name, NULLIF(concat(reg.first_name, ' ', reg.last_name), ' '::text)::character varying) AS derived_company_name,
+            NULLIF(concat(reg.first_name, ' ', reg.last_name), ' '::text) AS registrant_name,
+            CASE
+                WHEN reg.first_name IS NOT NULL AND reg.last_name IS NOT NULL THEN concat(reg.last_name, ', ', reg.first_name)::character varying
+                ELSE COALESCE(reg.last_name, reg.first_name)
+            END AS registrant_last_first,
+            CASE
+                WHEN prnt_lic.company_name_override AND prnt_lic.company_name IS NOT NULL THEN prnt_lic.company_name::text
+                ELSE NULLIF(btrim(concat(prnt_reg.first_name, ' ', prnt_reg.last_name)), ''::text)
+            END AS derived_parent_licence_holder_name,
+            lic.licence_number::character varying AS licence_number,
+            lic.issue_date,
+            lic.expiry_date,
+            to_char(lic.expiry_date::timestamp with time zone, 'FMMonth dd, yyyy'::text) AS expiry_date_display
+           FROM mals_app.mal_licence lic
+             JOIN mals_app.mal_licence_type_lu lictyp ON lic.licence_type_id = lictyp.id
+             JOIN mals_app.mal_status_code_lu licstat ON lic.status_code_id = licstat.id
+             JOIN mals_app.mal_registrant reg ON lic.primary_registrant_id = reg.id
+             LEFT JOIN mal_licence_parent_child_xref xref ON lic.id = xref.child_licence_id
+             LEFT JOIN mal_licence prnt_lic ON xref.parent_licence_id = prnt_lic.id
+             LEFT JOIN mal_registrant prnt_reg ON prnt_lic.primary_registrant_id = prnt_reg.id
+          WHERE lic.print_certificate = true AND licstat.code_name::text = 'ACT'::text
+        )
+ SELECT licence_base.licence_type,
+        CASE licence_base.licence_type
+            WHEN 'BULK TANK MILK GRADER'::text THEN json_agg(json_build_object('CardLabel', 'Bulk Tank Milk Grader''s Identification Card', 'LicenceHolderCompany', licence_base.company_name, 'LicenceHolderName', licence_base.registrant_name, 'LicenceNumber', licence_base.licence_number, 'ExpiryDate', licence_base.expiry_date_display) ORDER BY licence_base.company_name, licence_base.licence_number)
+            WHEN 'LIVESTOCK DEALER AGENT'::text THEN json_agg(json_build_object('CardType', 'Livestock Dealer Agent''s Identification Card', 'LicenceHolderName', licence_base.registrant_name, 'LastFirstName', licence_base.registrant_last_first, 'AgentFor', licence_base.derived_parent_licence_holder_name, 'LicenceNumber', licence_base.licence_number, 'StartDate', to_char(GREATEST(licence_base.issue_date::timestamp with time zone, date_trunc('year'::text, licence_base.expiry_date::timestamp with time zone) - '9 mons'::interval), 'FMMonth dd, yyyy'::text), 'ExpiryDate', licence_base.expiry_date_display) ORDER BY licence_base.registrant_name, licence_base.licence_number)
+            WHEN 'LIVESTOCK DEALER'::text THEN json_agg(json_build_object('CardType', 'Livestock Dealer''s Identification Card', 'LicenceHolderCompany', licence_base.derived_company_name, 'LicenceNumber', licence_base.licence_number, 'StartDate', to_char(GREATEST(licence_base.issue_date::timestamp with time zone, date_trunc('year'::text, licence_base.expiry_date::timestamp with time zone) - '9 mons'::interval), 'FMMonth dd, yyyy'::text), 'ExpiryDate', licence_base.expiry_date_display) ORDER BY licence_base.derived_company_name, licence_base.licence_number)
+            ELSE NULL::json
+        END AS card_json
+   FROM licence_base
+  WHERE licence_base.licence_type::text = ANY (ARRAY['BULK TANK MILK GRADER'::character varying::text, 'LIVESTOCK DEALER AGENT'::character varying::text, 'LIVESTOCK DEALER'::character varying::text])
+  GROUP BY licence_base.licence_type;
   
