@@ -55,8 +55,8 @@ export default function AdminManageSlaughterhouseSpecies() {
   function formatResultRow(result, showOptions = true) {
     return (
       <tr key={result.id}>
-        <td className="text-nowrap">{result.codeName}</td>
-        <td className="text-nowrap">{result.codeDescription}</td>
+        <td className="text-nowrap align-middle">{result.codeName}</td>
+        <td className="text-nowrap align-middle">{result.codeDescription}</td>
         {showOptions ? (
           <>
             <td className="text-nowrap">

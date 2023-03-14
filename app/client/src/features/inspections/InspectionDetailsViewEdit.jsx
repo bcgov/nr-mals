@@ -71,11 +71,12 @@ export default function InspectionDetailsViewEdit({
     inspectionComment: null,
   };
 
-  useEffect(() => {}, [dispatch]);
+  useEffect(() => { }, [dispatch]);
 
   useEffect(() => {
     setValue("inspectionDate", new Date(inspection.data.inspectionDate));
     setValue("inspectorId", formatNumber(inspection.data.inspectorId));
+    setValue("liveColonies", inspection.data.liveColonies);
     setValue("coloniesTested", inspection.data.coloniesTested);
     setValue("broodTested", inspection.data.broodTested);
     setValue("varroaTested", inspection.data.varroaTested);
@@ -104,6 +105,7 @@ export default function InspectionDetailsViewEdit({
     setValue,
     inspection.data.inspectionDate,
     inspection.data.inspectorId,
+    inspection.data.liveColonies,
     inspection.data.coloniesTested,
     inspection.data.broodTested,
     inspection.data.varroaTested,
@@ -160,6 +162,7 @@ export default function InspectionDetailsViewEdit({
           ...data,
           siteId: site.data.id,
           inspectorId: data.inspectorId.length === 0 ? null : data.inspectorId,
+          liveColonies: parseAsInt(data.liveColonies),
           coloniesTested: parseAsInt(data.coloniesTested),
           broodTested: parseAsInt(data.broodTested),
           varroaTested: parseAsInt(data.varroaTested),
@@ -181,6 +184,7 @@ export default function InspectionDetailsViewEdit({
           inspectionComment:
             data.inspectionComment.length === 0 ? null : data.inspectionComment,
         };
+        console.log(payload);
         dispatch(
           updateApiaryInspection({
             inspection: payload,

@@ -45,6 +45,7 @@ model mal_apiary_inspection {
   create_timestamp           DateTime @db.Timestamp(6)
   update_userid              String   @db.VarChar(30)
   update_timestamp           DateTime @db.Timestamp(6)
+  live_colonies_in_yard      Int?
 }
 
 model mal_application_role {
@@ -748,6 +749,7 @@ model mal_site {
   update_userid            String                    @db.VarChar(30)
   update_timestamp         DateTime                  @db.Timestamp(6)
   premises_id              String?                   @db.VarChar(24)
+  email_address            String?                   @db.VarChar(128)
   mal_licence              mal_licence               @relation(fields: [licence_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "site_lic_fk")
   mal_regional_district_lu mal_regional_district_lu? @relation(fields: [regional_district_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "site_regdist_fk")
   mal_status_code_lu       mal_status_code_lu?       @relation(fields: [status_code_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "site_stat_fk")
