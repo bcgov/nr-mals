@@ -1,5 +1,4 @@
 const { formatDate } = require("../utilities/formatting");
-const { parseAsInt } = require("../utilities/parsing");
 
 function convertApiaryInspectionToLogicalModel(input) {
   const output = {
@@ -7,6 +6,7 @@ function convertApiaryInspectionToLogicalModel(input) {
     siteId: input.site_id,
     inspectionDate: formatDate(input.inspection_date),
     inspectorId: input.inspector_id,
+    liveColonies: input.live_colonies_in_yard,
     coloniesTested: input.colonies_tested,
     broodTested: input.brood_tested,
     varroaTested: input.varroa_tested,
@@ -30,12 +30,10 @@ function convertApiaryInspectionToLogicalModel(input) {
 
 function convertApiaryInspectionToPhysicalModel(input) {
   const output = {
-    // mal_site: {
-    //   connect: { id: input.siteId },
-    // },
     site_id: input.siteId,
     inspection_date: input.inspectionDate,
     inspector_id: input.inspectorId,
+    live_colonies_in_yard: input.liveColonies,
     colonies_tested: input.coloniesTested,
     brood_tested: input.broodTested,
     varroa_tested: input.varroaTested,

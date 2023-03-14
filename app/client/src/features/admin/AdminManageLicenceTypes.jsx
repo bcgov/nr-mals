@@ -37,12 +37,6 @@ export default function AdminManageLicenceTypes() {
   function formatResultRow(result, showOptions = true) {
     return (
       <tr key={result.id}>
-        <td className="text-nowrap">{result.licenceType}</td>
-        <td className="text-nowrap">{result.standardFee}</td>
-        <td className="text-nowrap">{result.licenceTerm}</td>
-        <td className="text-nowrap">{result.standardIssueDate}</td>
-        <td className="text-nowrap">{result.standardExpiryDate}</td>
-        <td className="text-nowrap">{result.renewalNotice}</td>
         {showOptions ? (
           <>
             <td className="text-nowrap">
@@ -52,6 +46,12 @@ export default function AdminManageLicenceTypes() {
             </td>
           </>
         ) : null}
+        <td className="text-nowrap align-middle">{result.licenceType}</td>
+        <td className="text-nowrap align-middle">{result.standardFee}</td>
+        <td className="text-nowrap align-middle">{result.licenceTerm}</td>
+        <td className="text-nowrap align-middle">{result.standardIssueDate}</td>
+        <td className="text-nowrap align-middle">{result.standardExpiryDate}</td>
+        <td className="text-nowrap align-middle">{result.renewalNotice}</td>
       </tr>
     );
   }
@@ -68,13 +68,13 @@ export default function AdminManageLicenceTypes() {
       <Table striped size="sm" responsive className="mt-3" hover>
         <thead className="thead-dark">
           <tr>
+            <th className="text-nowrap" />
             <th className="text-nowrap">Licence Type</th>
             <th className="text-nowrap">Standard Fee ($)</th>
             <th className="text-nowrap">Licence Term (Years)</th>
             <th className="text-nowrap">Standard Issue Date</th>
             <th className="text-nowrap">Standard Expiry Date</th>
             <th className="text-nowrap">Renewal Notice Term</th>
-            <th className="text-nowrap" />
           </tr>
         </thead>
         {licenceTypes.status === REQUEST_STATUS.FULFILLED ? (

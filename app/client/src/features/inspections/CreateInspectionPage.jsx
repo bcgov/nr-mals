@@ -35,6 +35,7 @@ function submissionController(licence, site, setError, clearErrors, dispatch) {
           ...data,
           siteId: site.data.id,
           inspectorId: data.inspectorId.length === 0 ? null : data.inspectorId,
+          liveColonies: parseAsInt(data.liveColonies),
           coloniesTested: parseAsInt(data.coloniesTested),
           broodTested: parseAsInt(data.broodTested),
           varroaTested: parseAsInt(data.varroaTested),
@@ -71,6 +72,7 @@ const today = startOfToday();
 const initialFormValues = {
   inspectionDate: today,
   inspectorId: null,
+  liveColonies: null,
   coloniesTested: null,
   broodTested: null,
   varroaTested: null,
