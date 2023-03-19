@@ -65,7 +65,7 @@ export default function SiteDetailsViewEdit({ site, licence }) {
     lastName: site.data.lastName,
     primaryPhone: site.data.primaryPhone,
     secondaryPhone: site.data.secondaryPhone,
-    email: null,
+    emailAddress: null,
     legalDescriptionText: null,
     hiveCount: null,
     premisesId: null,
@@ -85,7 +85,7 @@ export default function SiteDetailsViewEdit({ site, licence }) {
     setValue("longitude", site.data.longitude);
     setValue("firstName", site.data.firstName);
     setValue("lastName", site.data.lastName);
-    setValue("email", site.data.email);
+    setValue("emailAddress", site.data.emailAddress);
     setValue("legalDescriptionText", site.data.legalDescriptionText);
     setValue("hiveCount", site.data.hiveCount);
     setValue("premisesId", site.data.premisesId);
@@ -104,7 +104,7 @@ export default function SiteDetailsViewEdit({ site, licence }) {
     site.data.longitude,
     site.data.firstName,
     site.data.lastName,
-    site.data.email,
+    site.data.emailAddress,
     site.data.legalDescriptionText,
     site.data.hiveCount,
     site.data.premisesId,

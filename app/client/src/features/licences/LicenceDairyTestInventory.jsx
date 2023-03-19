@@ -96,13 +96,22 @@ export default function LicenceDairyTestInventory({ licence }) {
         action: x.cryCorrespondenceDescription,
         levy: x.cryLevyPercentage,
       });
+
+      // ffa/water2
+      rows.push({
+        date: x.ffaDate,
+        testTypeId: DAIRY_TEST_THRESHOLD_IDS.FFA,
+        value: x.ffaValue,
+        action: x.ffaCorrespondenceDescription,
+        levy: x.ffaLevyPercentage,
+      });
     });
 
     const filtered = rows.filter((x) => x.date !== null);
     setInitialInventory(filtered);
   }, [dairyTestResults]);
 
-  useEffect(() => {}, [inventory]);
+  useEffect(() => { }, [inventory]);
 
   function addInventoryOnClick() {
     const obj = {
@@ -219,6 +228,17 @@ export default function LicenceDairyTestInventory({ licence }) {
           update.cryCorrespondenceCode = x.correspondence;
           update.cryCorrespondenceDescription = x.action;
           break;
+        case DAIRY_TEST_THRESHOLD_IDS.FFA:
+          update.ffaDate = formatDate(x.date);
+          update.ffaValue = parseAsFloat(x.value);
+          update.ffaPreviousInfractionFirstDate = x.previousInfractionFirstDate;
+          update.ffaPreviousInfractionCount = parseAsInt(
+            x.previousInfractionCount
+          );
+          update.ffaLevyPercentage = parseAsFloat(x.levy);
+          update.ffaCorrespondenceCode = x.correspondence;
+          update.ffaCorrespondenceDescription = x.action;
+          break;
       }
     });
 
@@ -307,6 +327,7 @@ export default function LicenceDairyTestInventory({ licence }) {
     { description: "SCC", value: DAIRY_TEST_THRESHOLD_IDS.SCC },
     { description: "IH", value: DAIRY_TEST_THRESHOLD_IDS.IH },
     { description: "WATER", value: DAIRY_TEST_THRESHOLD_IDS.WATER },
+    { description: "FFA", value: DAIRY_TEST_THRESHOLD_IDS.FFA },
   ];
 
   const filteredTestTypeOptions = testTypeOptions.filter(
@@ -526,7 +547,7 @@ export default function LicenceDairyTestInventory({ licence }) {
                   size="md"
                   type="button"
                   variant="secondary"
-                  onClick={() => {}}
+                  onClick={() => { }}
                   disabled={submitting || initialInventory.length === 0}
                   block
                 >
@@ -538,7 +559,7 @@ export default function LicenceDairyTestInventory({ licence }) {
                   size="md"
                   type="button"
                   variant="secondary"
-                  onClick={() => {}}
+                  onClick={() => { }}
                   disabled={submitting || initialInventory.length === 0}
                   block
                 >

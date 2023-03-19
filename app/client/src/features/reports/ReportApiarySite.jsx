@@ -52,11 +52,20 @@ export default function ReportApiarySite() {
   }, [pendingDocuments]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const onGenerateReport = () => {
+    let regionName;
+
+    if (parseAsInt(watchRegion) === 0) {
+      regionName = 'ALL';
+    }
+    else {
+      regionName = regions.data.regions.find(
+        (x) => x.id === parseAsInt(watchRegion)
+      ).region_name;
+    }
+
     dispatch(
       startApiarySiteJob({
-        region: regions.data.regions.find(
-          (x) => x.id === parseAsInt(watchRegion)
-        ).region_name,
+        region: regionName,
       })
     );
   };
@@ -69,6 +78,7 @@ export default function ReportApiarySite() {
             regions={regions}
             {...register("region")}
             defaultValue={null}
+            all
           />
         </Col>
         <Col sm={2}>

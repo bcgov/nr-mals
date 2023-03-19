@@ -51,6 +51,7 @@ function convertToLogicalModel(input) {
     primaryPhone: input.primary_phone,
     secondaryPhone: input.secondary_phone,
     faxNumber: input.fax_number,
+    emailAddress: input.email_address,
     legalDescriptionText: input.legal_description,
     hiveCount: input.hive_count,
     apiarySiteId: input.apiary_site_id,
@@ -58,9 +59,9 @@ function convertToLogicalModel(input) {
 
     dairyTanks: input.mal_dairy_farm_tank
       ? input.mal_dairy_farm_tank.map((xref, index) => ({
-          ...dairyTank.convertToLogicalModel(xref),
-          key: index,
-        }))
+        ...dairyTank.convertToLogicalModel(xref),
+        key: index,
+      }))
       : null,
 
     inspections: [],
@@ -150,8 +151,8 @@ function convertToPhysicalModel(input, update) {
       input.region === null
         ? emptyRegion
         : {
-            connect: { id: input.region },
-          },
+          connect: { id: input.region },
+        },
     mal_status_code_lu: {
       connect: { id: input.siteStatus },
     },
@@ -159,8 +160,8 @@ function convertToPhysicalModel(input, update) {
       input.regionalDistrict === null
         ? emptyRegionalDistrict
         : {
-            connect: { id: input.regionalDistrict },
-          },
+          connect: { id: input.regionalDistrict },
+        },
     address_line_1: input.addressLine1,
     address_line_2: input.addressLine2,
     city: input.city,
@@ -173,7 +174,7 @@ function convertToPhysicalModel(input, update) {
     primary_phone: input.primaryPhone,
     secondary_phone: input.secondaryPhone,
     fax_number: input.faxNumber,
-    //email: input.email,
+    email_address: input.emailAddress,
     legal_description: input.legalDescriptionText,
     hive_count: input.hiveCount,
     apiary_site_id: input.apiarySiteId,

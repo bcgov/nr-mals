@@ -98,7 +98,7 @@ export default function SiteDetailsEdit({ form, initialValues, licence }) {
           />
         </Col>
       </Row>
-      {licence.licenceTypeId === LICENCE_TYPE_ID_APIARY ? (
+      {licence.licenceTypeId === LICENCE_TYPE_ID_APIARY || licence.licenceTypeId === LICENCE_TYPE_ID_GAME_FARM ? (
         <Row className="mt-3">
           <Col lg={4}>
             <Form.Group controlId="hiveCount">
@@ -381,13 +381,13 @@ export default function SiteDetailsEdit({ form, initialValues, licence }) {
           </Form.Group>
         </Col>
         <Col lg={4}>
-          <Form.Group controlId="email">
+          <Form.Group controlId="emailAddress">
             <Form.Label>Email</Form.Label>
             <Form.Control
               type="text"
-              name="email"
-              defaultValue={initialValues.email}
-              {...register("email")}
+              name="emailAddress"
+              defaultValue={initialValues.emailAddress}
+              {...register("emailAddress")}
             />
           </Form.Group>
         </Col>
