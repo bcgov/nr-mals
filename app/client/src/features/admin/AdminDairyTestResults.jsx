@@ -149,9 +149,9 @@ export default function AdminDairyTestResults() {
           cryLevyPercentage: undefined,
           cryCorrespondenceCode: undefined,
           cryCorrespondenceDescription: undefined,
-          ffaDay: undefined,
+          ffaDay: validateStringValue(split[DAIRY_HEADER_IDS.WATER2_DAY]),
           ffaDate: undefined,
-          ffaValue: undefined,
+          ffaValue: parseAsFloat(split[DAIRY_HEADER_IDS.WATER2_VALUE]),
           ffaInfractionFlag: undefined,
           ffaPreviousInfractionFirstDate: undefined,
           ffaPreviousInfractionCount: undefined,
@@ -214,8 +214,8 @@ export default function AdminDairyTestResults() {
         <td className="text-nowrap">{result.sccValue}</td>
         <td className="text-nowrap">{result.cryDay}</td>
         <td className="text-nowrap">{result.cryValue}</td>
-        <td className="text-nowrap" />
-        <td className="text-nowrap" />
+        <td className="text-nowrap">{result.ffaDay}</td>
+        <td className="text-nowrap">{result.ffaValue}</td>
         <td className="text-nowrap">{result.ihDay}</td>
         <td className="text-nowrap">{result.ihValue}</td>
       </tr>

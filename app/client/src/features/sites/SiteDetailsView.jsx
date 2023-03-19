@@ -25,7 +25,7 @@ export default function SiteDetailsView({ site, licenceTypeId }) {
           <VerticalField label="District" value={site.regionalDistrict} />
         </Col>
       </Row>
-      {licenceTypeId === LICENCE_TYPE_ID_APIARY ? (
+      {licenceTypeId === LICENCE_TYPE_ID_APIARY || licenceTypeId === LICENCE_TYPE_ID_GAME_FARM ? (
         <Row className="mt-3">
           <Col lg={4}>
             <VerticalField label="Number of Hives" value={site.hiveCount} />
@@ -101,7 +101,7 @@ export default function SiteDetailsView({ site, licenceTypeId }) {
           />
         </Col>
         <Col lg={4}>
-          <VerticalField label="Email" value={site.email} />
+          <VerticalField label="Email" value={site.emailAddress} />
         </Col>
       </Row>
       {licenceTypeId === LICENCE_TYPE_ID_GAME_FARM ? (

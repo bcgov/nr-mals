@@ -5,7 +5,7 @@ import { Form, Alert, Spinner } from "react-bootstrap";
 import { REQUEST_STATUS } from "../../utilities/constants";
 
 const Regions = React.forwardRef((props, ref) => {
-  const { regions, isInvalid, onChange, defaultValue } = props;
+  const { regions, isInvalid, onChange, defaultValue, all } = props;
 
   let control = (
     <div>
@@ -27,6 +27,7 @@ const Regions = React.forwardRef((props, ref) => {
         custom
       >
         <option value={null} />
+        {all ? <option value={0}>0 ALL</option> : null}
         {regions.data.regions.map((region) => (
           <option key={region.id} value={region.id}>
             {region.region_number} {region.region_name}
@@ -54,11 +55,13 @@ Regions.propTypes = {
   isInvalid: PropTypes.object,
   onChange: PropTypes.func,
   defaultValue: PropTypes.string,
+  all: PropTypes.bool
 };
 Regions.defaultProps = {
   isInvalid: undefined,
   onChange: undefined,
   defaultValue: null,
+  all: false
 };
 
 export default Regions;
