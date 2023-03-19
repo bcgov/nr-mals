@@ -47,6 +47,7 @@ export default function LicenceTypeModal({ licenceType, closeModal, submit }) {
       renewalNotice: parseAsInt(data.renewalNotice),
       legislation: data.applicableAct,
       regulation: data.regulation,
+      active: data.active
     };
 
     submit(payload);
@@ -221,6 +222,22 @@ export default function LicenceTypeModal({ licenceType, closeModal, submit }) {
               <Form.Control.Feedback type="invalid">
                 Please enter a valid value.
               </Form.Control.Feedback>
+            </Form.Group>
+          </Col>
+        </Form.Row>
+        <Form.Row>
+          <Col>
+            <Form.Group controlId="regulation">
+              <Form.Label>Active</Form.Label>
+              <Form.Check
+                id="active"
+                defaultChecked={
+                  licenceType !== null ? licenceType.active : null
+                }
+                {...register("active", {
+                  required: false,
+                })}
+              />
             </Form.Group>
           </Col>
         </Form.Row>
