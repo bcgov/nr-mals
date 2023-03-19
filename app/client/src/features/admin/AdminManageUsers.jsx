@@ -49,12 +49,12 @@ export default function AdminManageUsers() {
   function formatResultRow(result, showOptions = true) {
     return (
       <tr key={result.id}>
-        <td className="text-nowrap">{displayPersonName(result, true)}</td>
-        <td className="text-nowrap">{result.userName}</td>
-        <td className="text-nowrap">
+        <td className="text-nowrap align-middle">{displayPersonName(result, true)}</td>
+        <td className="text-nowrap align-middle">{result.userName}</td>
+        <td className="text-nowrap align-middle">
           {roles.data.find((x) => x.id === result.roleId).description}
         </td>
-        <td className="text-nowrap">
+        <td className="text-nowrap align-middle">
           {result.active === true ? "Active" : "Inactive"}
         </td>
         {showOptions ? (
@@ -164,7 +164,7 @@ export default function AdminManageUsers() {
           </tr>
         </thead>
         {users.status === REQUEST_STATUS.FULFILLED &&
-        roles.status === REQUEST_STATUS.FULFILLED ? (
+          roles.status === REQUEST_STATUS.FULFILLED ? (
           <tbody>{users.data.map((user) => formatResultRow(user))}</tbody>
         ) : null}
       </Table>

@@ -38,9 +38,10 @@ export default function AdminPremisesId() {
     LICENCE_NUMBER: 14,
     PRN: 15,
     SITE_ADDRESS: 16,
-    CAPACITY: 17,
-    REGION_NAME: 18,
-    REGIONAL_DISTRICT_NAME: 19,
+    SITE_CITY: 17,
+    CAPACITY: 18,
+    REGION_NAME: 19,
+    REGIONAL_DISTRICT_NAME: 20,
   };
 
   const IMPORT_TYPE = {
@@ -157,6 +158,9 @@ export default function AdminPremisesId() {
         ),
         siteAddressLine1: validateStringValue(
           resultData[i][PREMISES_HEADER_IDS.SITE_ADDRESS]
+        ),
+        siteCity: validateStringValue(
+          resultData[i][PREMISES_HEADER_IDS.SITE_CITY]
         ),
         licenceTotalHives: validateIntValue(
           resultData[i][PREMISES_HEADER_IDS.CAPACITY]
@@ -287,9 +291,6 @@ export default function AdminPremisesId() {
         <td className="text-nowrap">{item.registrantFirstName}</td>
         <td className="text-nowrap">{item.registrantLastName}</td>
         <td className="text-nowrap">{item.licenceCompanyName}</td>
-        <td className="text-nowrap">{item.registrantEmail}</td>
-        <td className="text-nowrap">{item.sitePremisesNumber}</td>
-        <td className="text-nowrap">{item.siteAddressLine1}</td>
         <td className="text-nowrap">
           <Form.Control
             type="text"
@@ -342,6 +343,9 @@ export default function AdminPremisesId() {
             </option>
           </Form.Control>
         </td>
+        <td className="text-nowrap">{item.registrantEmail}</td>
+        <td className="text-nowrap">{item.siteAddressLine1}</td>
+        <td className="text-nowrap">{item.sitePremisesNumber}</td>
       </tr>
     );
   }
@@ -466,12 +470,12 @@ export default function AdminPremisesId() {
               <th className="text-nowrap">First Name</th>
               <th className="text-nowrap">Last Name</th>
               <th className="text-nowrap">Company</th>
-              <th className="text-nowrap">Email</th>
-              <th className="text-nowrap">Premises ID</th>
-              <th className="text-nowrap">Site Address</th>
               <th className="text-nowrap">Licence #</th>
               <th className="text-nowrap">Apiary Site ID</th>
               <th className="text-nowrap">Import Type</th>
+              <th className="text-nowrap">Email</th>
+              <th className="text-nowrap">Site Address</th>
+              <th className="text-nowrap">Premises ID</th>
             </tr>
           </thead>
           <tbody>{data.map((item) => formatResultRow(item))}</tbody>

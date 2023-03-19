@@ -253,14 +253,14 @@ router.post("/dairytestresults", async (req, res, next) => {
     Util.Error(`Dairy Data Load: ${error}`);
     if (jobId !== null) {
       // Delete any rows created in this job
-      const deleteResult = await prisma.$queryRaw(
+      const deleteResult = await prisma.$queryRawUnsafe(
         `DELETE FROM mals_app.mal_dairy_farm_test_result WHERE test_job_id = ${jobId}`
       );
       Util.Log(
         `Dairy Data Load: deleted job id ${jobId} rows in mal_dairy_farm_test_result`
       );
       // Mark job as failed and add comment
-      const updateResult = await prisma.$queryRaw(
+      const updateResult = await prisma.$queryRawUnsafe(
         `UPDATE mals_app.mal_dairy_farm_test_job SET job_status = 'FAILED', execution_comment = '${error.message}' WHERE id = ${jobId}`
       );
       Util.Log(
@@ -347,7 +347,7 @@ router.post("/premisesidresults", async (req, res, next) => {
     Util.Error(`Premises Data Load: ${error}`);
     if (jobId !== null) {
       // Delete any rows created in this job
-      const deleteResult = await prisma.$queryRaw(
+      const deleteResult = await prisma.$queryRawUnsafe(
         `DELETE FROM mals_app.mal_premises_detail WHERE premises_job_id = ${jobId}`
       );
       Util.Log(
@@ -356,7 +356,7 @@ router.post("/premisesidresults", async (req, res, next) => {
       // Mark job as failed and add comment
       const formattedErrorMessage = error.message.replace(/(\n)|(`)|(')/g, "");
       const updateQuery = `UPDATE mals_app.mal_premises_job SET job_status = 'FAILED', execution_comment = '${formattedErrorMessage}' WHERE id = ${jobId}`;
-      const updateResult = await prisma.$queryRaw(updateQuery);
+      const updateResult = await prisma.$queryRawUnsafe(updateQuery);
       Util.Log(
         `Premises Data Load: updated job id ${jobId} to FAILED in mal_premises_job`
       );

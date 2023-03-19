@@ -32,9 +32,9 @@ export default function AdminManageDairyTestValues() {
   function formatResultRow(result, showOptions = true) {
     return (
       <tr key={result.id}>
-        <td className="text-nowrap">{result.speciesCode}</td>
-        <td className="text-nowrap">{result.speciesSubCode}</td>
-        <td className="text-nowrap">{result.upperLimit}</td>
+        <td className="text-nowrap align-middle">{result.speciesCode}</td>
+        <td className="text-nowrap align-middle">{result.speciesSubCode}</td>
+        <td className="text-nowrap align-middle">{result.upperLimit}</td>
         {showOptions ? (
           <>
             <td className="text-nowrap">

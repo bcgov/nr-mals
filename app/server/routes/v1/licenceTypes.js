@@ -16,7 +16,9 @@ async function fetchLicenceTypes() {
       },
     ],
   });
-  return collection.map(records, (r) => ({
+  const sorted = records.filter(x => x.active_flag).concat(records.filter(x => !x.active_flag));
+
+  return collection.map(sorted, (r) => ({
     id: r.id,
     licenceType: r.licence_type,
     standardFee: r.standard_fee,
@@ -26,6 +28,7 @@ async function fetchLicenceTypes() {
     renewalNotice: r.renewal_notice,
     legislation: r.legislation,
     regulation: r.regulation,
+    active: r.active_flag
   }));
 }
 
@@ -52,8 +55,9 @@ router.post("/:id(\\d+)", async (req, res, next) => {
     renewal_notice: record.renewalNotice,
     legislation: record.legislation,
     regulation: record.regulation,
+    active_flag: record.active
   };
-  payloadWithAudit = populateAuditColumnsUpdate(payload, now, now);
+  const payloadWithAudit = populateAuditColumnsUpdate(payload, now, now);
   payload = {
     ...payload,
     update_userid: payloadWithAudit.updatedBy,
