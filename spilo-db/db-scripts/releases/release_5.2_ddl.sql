@@ -1373,12 +1373,16 @@ AS WITH licence_base AS (
 
 --        MALS-1223 - Apiary / Premises ID load - can licenses be set to "print" automatically
 --          Updated the mal_licence.print_certificate to true for NEW_LICENCE, NEW_SITE, and UPDATE.
+--        MALS-1194 - Apiary Premises ID transfer didn't load correctly
+--          Added site_city to populate mal_site.city, and 'BC' to populate mal_site.province.
 
 --
 -- PROCEDURE:  PR_PROCESS_PREMISES_IMPORT
 --
 
-  CREATE OR REPLACE PROCEDURE mals_app.pr_process_premises_import(IN ip_job_id integer, INOUT iop_job_status character varying, INOUT iop_process_comments character varying)
+alter table mal_premises_detail add column site_city varchar(35);
+
+CREATE OR REPLACE PROCEDURE mals_app.pr_process_premises_import(IN ip_job_id integer, INOUT iop_job_status character varying, INOUT iop_process_comments character varying)
  LANGUAGE plpgsql
 AS $procedure$
   declare  
@@ -1448,6 +1452,7 @@ raise notice 'num_file_rows (%)', l_num_file_rows;
 			p.site_region_name,
 			d.id as regional_district_id,
 			p.site_regional_district_name,
+			p.site_city,
 			p.registrant_first_name,
 			p.registrant_last_name,
 			p.registrant_primary_phone,
@@ -1529,7 +1534,9 @@ raise notice 'num_file_rows (%)', l_num_file_rows;
 						regional_district_id,
 						status_code_id,
 						address_line_1,							
-						premises_id
+						premises_id,
+						city,
+						province
 						)
 						values (
 							l_licence_id,
@@ -1538,7 +1545,9 @@ raise notice 'num_file_rows (%)', l_num_file_rows;
 							l_file_rec.regional_district_id,
 							l_active_status_id,
 							l_file_rec.site_address_line_1,
-							l_file_rec.source_premises_id)
+							l_file_rec.source_premises_id,
+							upper(l_file_rec.site_city),
+							'BC')
 						returning id into l_site_id;
 					-- Create a new Registrant
 					insert into mal_registrant(
@@ -1611,7 +1620,9 @@ raise notice 'num_file_rows (%)', l_num_file_rows;
 							regional_district_id,
 							status_code_id,
 							address_line_1,							
-							premises_id
+							premises_id,
+							city,
+							province
 							)
 							values (
 								l_licence_id,
@@ -1620,7 +1631,9 @@ raise notice 'num_file_rows (%)', l_num_file_rows;
 								l_file_rec.regional_district_id,
 								l_active_status_id,
 								l_file_rec.site_address_line_1,
-								l_file_rec.source_premises_id)
+								l_file_rec.source_premises_id,
+								upper(l_file_rec.site_city),
+								'BC')
 							returning id into l_site_id;
 						-- Update the Licence expiry date.
 						update mal_licence
@@ -1687,6 +1700,8 @@ raise notice 'num_file_rows (%)', l_num_file_rows;
 							set region_id            = l_file_rec.region_id,
 								regional_district_id = l_file_rec.regional_district_id,
 								address_line_1       = l_file_rec.site_address_line_1,
+								city                 = upper(l_file_rec.site_city),
+								province             = 'BC',
 								premises_id          = l_file_rec.source_premises_id
 							where id = l_site_id;	
 						update mal_premises_detail
