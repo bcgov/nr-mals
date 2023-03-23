@@ -561,6 +561,7 @@ model mal_premises_detail {
   create_timestamp            DateTime         @db.Timestamp(6)
   update_userid               String           @db.VarChar(63)
   update_timestamp            DateTime         @db.Timestamp(6)
+  site_city                   String?          @db.VarChar(35)
   mal_premises_job            mal_premises_job @relation(fields: [premises_job_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "premdtl_premjob_fk")
 }
 

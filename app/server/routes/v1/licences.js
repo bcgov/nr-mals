@@ -594,6 +594,7 @@ router.put("/:licenceId(\\d+)/associated", async (req, res, next) => {
       );
 
       await createLicenceAssociations(createAssociationsPayload);
+      console.log(createAssociationsPayload);
 
       const updatedRecord = await findLicence(licenceId);
       const payload = licence.convertToLogicalModel(updatedRecord);
