@@ -182,7 +182,7 @@ export default function InspectionDetailsViewEdit({
           supersInspected: parseAsInt(data.supersInspected),
           supersDestroyed: parseAsInt(data.supersDestroyed),
           inspectionComment:
-            data.inspectionComment.length === 0 ? null : data.inspectionComment,
+            data.inspectionComment?.length === 0 ? null : data.inspectionComment,
         };
         console.log(payload);
         dispatch(

@@ -145,7 +145,7 @@ export default function ApiaryInspectionDetailsView({ inspection, site }) {
         <Col lg={12}>
           <Form.Control
             disabled
-            value={inspection.inspectionComment}
+            value={inspection.inspectionComment ?? ""}
             as="textarea"
             rows={6}
             maxLength={2000}
