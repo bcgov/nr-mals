@@ -34,6 +34,7 @@ export default function LicenceDairyTestInventory({ licence }) {
 
   const [initialInventory, setInitialInventory] = useState([]);
   const [inventory, setInventory] = useState([]);
+  const [calculating, setCalculating] = useState(false);
 
   const submitting = dairyTestResults.status === REQUEST_STATUS.PENDING;
 
@@ -128,24 +129,25 @@ export default function LicenceDairyTestInventory({ licence }) {
     };
 
     // Set default values to override anything that may have been deleted
-    setValue(`inventoryDates[${inventory.length}].date`, parseAsDate(obj.date));
-    setValue(`inventory[${inventory.length}].testTypeId`, obj.testTypeId);
-    setValue(`inventory[${inventory.length}].value`, obj.value);
-    setValue(`inventory[${inventory.length}].action`, obj.action);
-    setValue(`inventory[${inventory.length}].levy`, obj.levy);
+    setValue(`inventoryDates.${inventory.length}.date`, parseAsDate(obj.date));
+    setValue(`inventory.${inventory.length}.testTypeId`, obj.testTypeId);
+    setValue(`inventory.${inventory.length}.value`, obj.value);
+    setValue(`inventory.${inventory.length}.action`, obj.action);
+    setValue(`inventory.${inventory.length}.levy`, obj.levy);
     setValue(
-      `inventory[${inventory.length}].previousInfractionFirstDate`,
+      `inventory.${inventory.length}.previousInfractionFirstDate`,
       obj.previousInfractionFirstDate
     );
     setValue(
-      `inventory[${inventory.length}].previousInfractionCount`,
+      `inventory.${inventory.length}.previousInfractionCount`,
       obj.previousInfractionCount
     );
     setValue(
-      `inventory[${inventory.length}].correspondence`,
+      `inventory.${inventory.length}.correspondence`,
       obj.correspondence
     );
 
+    console.log(obj);
     setInventory([...inventory, obj]);
   }
 
@@ -154,12 +156,16 @@ export default function LicenceDairyTestInventory({ licence }) {
   }
 
   function deleteRow(index) {
-    // Shift all the form values
-    for (let i = index; i < inventory.length - 1; i += 1) {
-      setValue(`inventory[${i}]`, inventory[i + 1]);
+    if (calculating) {
+      return;
     }
 
-    setValue(`inventory[${inventory.length}]`, undefined);
+    // Shift all the form values
+    for (let i = index; i < inventory.length - 1; i += 1) {
+      setValue(`inventory.${i}`, inventory[i + 1]);
+    }
+
+    setValue(`inventory.${inventory.length}`, undefined);
 
     const clone = [...inventory];
     clone.splice(index, 1);
@@ -284,6 +290,8 @@ export default function LicenceDairyTestInventory({ licence }) {
   };
 
   const calculateAction = async (index) => {
+    setCalculating(true);
+
     const clone = [...inventory];
     const item = { ...inventory[index] };
 
@@ -307,18 +315,20 @@ export default function LicenceDairyTestInventory({ licence }) {
         clone[index] = item;
         setInventory([...clone]);
 
-        setValue(`inventory[${index}].action`, item.action);
-        setValue(`inventory[${index}].levy`, item.levy);
+        setValue(`inventory.${index}.action`, item.action);
+        setValue(`inventory.${index}.levy`, item.levy);
         setValue(
-          `inventory[${index}].previousInfractionFirstDate`,
+          `inventory.${index}.previousInfractionFirstDate`,
           item.previousInfractionFirstDate
         );
         setValue(
-          `inventory[${index}].previousInfractionCount`,
+          `inventory.${index}.previousInfractionCount`,
           item.previousInfractionCount
         );
-        setValue(`inventory[${index}].correspondence`, item.correspondence);
+        setValue(`inventory.${index}.correspondence`, item.correspondence);
       }
+
+      setCalculating(false);
     });
   };
 
@@ -372,32 +382,36 @@ export default function LicenceDairyTestInventory({ licence }) {
       <Row key={index}>
         <Form.Control
           hidden
-          ref={register}
-          name={`inventory[${index}].action`}
-        />
-        <Form.Control hidden ref={register} name={`inventory[${index}].levy`} />
-        <Form.Control
-          hidden
-          ref={register}
-          name={`inventory[${index}].previousInfractionFirstDate`}
+          {...register(`inventory.${index}.action`)}
+          name={`inventory.${index}.action`}
         />
         <Form.Control
           hidden
-          ref={register}
-          name={`inventory[${index}].previousInfractionCount`}
+          {...register(`inventory.${index}.levy`)}
+          name={`inventory.${index}.levy`}
         />
         <Form.Control
           hidden
-          ref={register}
-          name={`inventory[${index}].correspondence`}
+          {...register(`inventory.${index}.previousInfractionFirstDate`)}
+          name={`inventory.${index}.previousInfractionFirstDate`}
+        />
+        <Form.Control
+          hidden
+          {...register(`inventory.${index}.previousInfractionCount`)}
+          name={`inventory.${index}.previousInfractionCount`}
+        />
+        <Form.Control
+          hidden
+          {...register(`inventory.${index}.correspondence`)}
+          name={`inventory.${index}.correspondence`}
         />
 
         <Col>
-          <Form.Group controlId={`inventoryDates[${index}].date`}>
+          <Form.Group controlId={`inventoryDates.${index}.date`}>
             <CustomDatePicker
-              id={`inventoryDates[${index}].date`}
+              id={`inventoryDates.${index}.date`}
               notifyOnChange={handleDateChange(
-                `inventoryDates[${index}].date`,
+                `inventoryDates.${index}.date`,
                 index
               )}
               notifyOnBlur={() => calculateAction(index)}
@@ -408,11 +422,11 @@ export default function LicenceDairyTestInventory({ licence }) {
         <Col>
           <Form.Control
             as="select"
-            name={`inventory[${index}].testTypeId`}
-            ref={register}
+            name={`inventory.${index}.testTypeId`}
+            {...register(`inventory.${index}.testTypeId`)}
             onChange={(e) =>
               handleTestTypeChange(
-                `inventory[${index}].testTypeId`,
+                `inventory.${index}.testTypeId`,
                 index,
                 e.target.value
               )
@@ -428,12 +442,12 @@ export default function LicenceDairyTestInventory({ licence }) {
           </Form.Control>
         </Col>
         <Col>
-          <Form.Group controlId={`inventory[${index}].value`}>
+          <Form.Group controlId={`inventory.${index}.value`}>
             <Form.Control
               type="text"
-              name={`inventory[${index}].value`}
+              name={`inventory.${index}.value`}
               defaultValue={row.value}
-              ref={register}
+              {...register(`inventory.${index}.value`)}
               onChange={(e) => handleValueChange(index, e.target.value)}
               onBlur={() => calculateAction(index)}
             />
@@ -446,7 +460,7 @@ export default function LicenceDairyTestInventory({ licence }) {
           <Form.Control type="text" defaultValue={row.levy} disabled />
         </Col>
         <Col>
-          <Button variant="link" onClick={() => deleteRow(index)}>
+          <Button variant="link" disabled={calculating} onClick={() => deleteRow(index)}>
             Delete
           </Button>
         </Col>
