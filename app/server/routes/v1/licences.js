@@ -935,26 +935,7 @@ router.put("/dairytestresults/:licenceId(\\d+)", async (req, res, next) => {
   );
 
   await updateLicenceDairyFarmTestResult(req.body.id, updatePayload)
-    .then(async () => {
-      const fetch = await fetchLicenceDairyFarmTestResult(licenceId);
-
-      const results = fetch.map((record) =>
-        dairyTestResult.convertToLogicalModel(record)
-      );
-
-      const latestTestJobId = Math.max.apply(
-        Math,
-        results.map(function (o) {
-          return o.testJobId;
-        })
-      );
-
-      const latestResults = results.filter(
-        (x) => x.testJobId === latestTestJobId
-      );
-
-      return res.send(latestResults);
-    })
+    .then(() => res.status(200).send())
     .catch(next)
     .finally(async () => prisma.$disconnect());
 });
