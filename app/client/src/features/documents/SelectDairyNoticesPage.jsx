@@ -225,7 +225,6 @@ export default function SelectDairyNoticesPage() {
           </thead>
           <tbody>
             {licences.map((item, index) => {
-              console.log(item);
               const url = `${LICENSES_PATHNAME}/${item.licenceId}`;
               const addCheck =
                 licenceIdsWithChecks.find((x) => x === item.licenceId) ===
