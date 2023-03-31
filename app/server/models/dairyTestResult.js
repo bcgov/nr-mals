@@ -24,7 +24,7 @@ function convertToLogicalModel(input) {
     ),
     spc1PreviousInfractionCount: input.spc1_previous_infraction_count,
     spc1LevyPercentage: input.spc1_levy_percentage,
-    spc1Correspondence: input.spc1_correspondence_code,
+    spc1CorrespondenceCode: input.spc1_correspondence_code,
     spc1CorrespondenceDescription: input.spc1_correspondence_description,
     sccDay: input.scc_day,
     sccDate: formatDate(input.scc_date),

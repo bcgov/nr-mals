@@ -4,6 +4,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { useForm } from "react-hook-form";
 import PropTypes from "prop-types";
 import { Alert, Container, Form, Row, Col, Button } from "react-bootstrap";
+import { lastDayOfMonth, setDay } from 'date-fns'
 
 import CustomDatePicker from "../../components/CustomDatePicker";
 import { parseAsDate, parseAsInt, parseAsFloat } from "../../utilities/parsing";
@@ -115,9 +116,12 @@ export default function LicenceDairyTestInventory({ licence }) {
   useEffect(() => { }, [inventory]);
 
   function addInventoryOnClick() {
+    const testMonth = dairyTestResults.data[0].testMonth;
+    const testYear = dairyTestResults.data[0].testYear;
+
     const obj = {
       id: -1,
-      date: formatDate(new Date(new Date().getFullYear() - 1, 2, 31)),
+      date: formatDate(lastDayOfMonth(new Date(testYear, testMonth - 1))),
       testTypeId: DAIRY_TEST_THRESHOLD_IDS.IH,
       value: undefined,
       action: undefined,
@@ -174,7 +178,6 @@ export default function LicenceDairyTestInventory({ licence }) {
   }
 
   const onSubmit = (data) => {
-    console.log(data);
     // Just make this array if it doesnt exist
     if (data.inventoryDates === undefined) {
       data.inventoryDates = [];

@@ -184,7 +184,7 @@ export default function InspectionDetailsViewEdit({
           inspectionComment:
             data.inspectionComment?.length === 0 ? null : data.inspectionComment,
         };
-        console.log(payload);
+
         dispatch(
           updateApiaryInspection({
             inspection: payload,
