@@ -4,6 +4,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { useForm } from "react-hook-form";
 import PropTypes from "prop-types";
 import { Alert, Container, Form, Row, Col, Button } from "react-bootstrap";
+import { lastDayOfMonth, setDay } from 'date-fns'
 
 import CustomDatePicker from "../../components/CustomDatePicker";
 import { parseAsDate, parseAsInt, parseAsFloat } from "../../utilities/parsing";
@@ -44,7 +45,7 @@ export default function LicenceDairyTestInventory({ licence }) {
     reValidateMode: "onBlur",
   });
 
-  const { handleSubmit, setValue, register } = form;
+  const { handleSubmit, setValue, register, formState: { errors } } = form;
 
   useEffect(() => {
     dispatch(fetchLicenceDairyTestResults(licence.data.id));
@@ -115,9 +116,12 @@ export default function LicenceDairyTestInventory({ licence }) {
   useEffect(() => { }, [inventory]);
 
   function addInventoryOnClick() {
+    const testMonth = dairyTestResults.data[0].testMonth;
+    const testYear = dairyTestResults.data[0].testYear;
+
     const obj = {
       id: -1,
-      date: formatDate(new Date(new Date().getFullYear() - 1, 2, 31)),
+      date: formatDate(lastDayOfMonth(new Date(testYear, testMonth - 1))),
       testTypeId: DAIRY_TEST_THRESHOLD_IDS.IH,
       value: undefined,
       action: undefined,
@@ -147,12 +151,13 @@ export default function LicenceDairyTestInventory({ licence }) {
       obj.correspondence
     );
 
-    console.log(obj);
     setInventory([...inventory, obj]);
   }
 
   function resetInventory() {
+    setInitialInventory([]);
     setInventory([]);
+    dispatch(fetchLicenceDairyTestResults(licence.data.id));
   }
 
   function deleteRow(index) {
@@ -165,7 +170,7 @@ export default function LicenceDairyTestInventory({ licence }) {
       setValue(`inventory.${i}`, inventory[i + 1]);
     }
 
-    setValue(`inventory.${inventory.length}`, undefined);
+    setValue(`inventory.${inventory.length - 1}`, undefined);
 
     const clone = [...inventory];
     clone.splice(index, 1);
@@ -184,6 +189,7 @@ export default function LicenceDairyTestInventory({ licence }) {
         ...(data.inventoryDates[index] ?? { date: undefined }),
       };
     });
+
 
     // Take original object and add/overwrite new values
     let update = { ...dairyTestResults.data[0] };
@@ -276,6 +282,7 @@ export default function LicenceDairyTestInventory({ licence }) {
     item.value = parseAsFloat(value);
     clone[index] = item;
     setInventory([...clone]);
+    setValue(`inventory.${index}.value`, value);
   };
 
   const handleDateChange = (field, index) => {
@@ -444,12 +451,13 @@ export default function LicenceDairyTestInventory({ licence }) {
         <Col>
           <Form.Group controlId={`inventory.${index}.value`}>
             <Form.Control
-              type="text"
+              type="number"
               name={`inventory.${index}.value`}
               defaultValue={row.value}
-              {...register(`inventory.${index}.value`)}
+              {...register(`inventory.${index}.value`, { required: true })}
               onChange={(e) => handleValueChange(index, e.target.value)}
               onBlur={() => calculateAction(index)}
+              isInvalid={errors.inventory && errors.inventory[index]}
             />
           </Form.Group>
         </Col>

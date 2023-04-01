@@ -129,7 +129,7 @@ export default function AdminDairyTestResults() {
           spc1PreviousInfractionFirstDate: undefined,
           spc1PreviousInfractionCount: undefined,
           spc1LevyPercentage: undefined,
-          spc1Correspondence: undefined,
+          spc1CorrespondenceCode: undefined,
           spc1CorrespondenceDescription: undefined,
           sccDay: validateStringValue(split[DAIRY_HEADER_IDS.SCC_DAY]),
           sccDate: undefined,

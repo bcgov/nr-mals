@@ -923,11 +923,11 @@ router.put("/dairytestresults/:licenceId(\\d+)", async (req, res, next) => {
 
   const now = new Date();
 
-  req.body.spc1InfractionFlag = req.body.spc1CorrespondenceCode !== undefined;
-  req.body.sccInfractionFlag = req.body.sccCorrespondenceCode !== undefined;
-  req.body.cryInfractionFlag = req.body.cryCorrespondenceCode !== undefined;
-  req.body.ffaInfractionFlag = req.body.ffaCorrespondenceCode !== undefined;
-  req.body.ihInfractionFlag = req.body.ihCorrespondenceCode !== undefined;
+  req.body.spc1InfractionFlag = !!req.body.spc1CorrespondenceCode;
+  req.body.sccInfractionFlag = !!req.body.sccCorrespondenceCode;
+  req.body.cryInfractionFlag = !!req.body.cryCorrespondenceCode;
+  req.body.ffaInfractionFlag = !!req.body.ffaCorrespondenceCode;
+  req.body.ihInfractionFlag = !!req.body.ihCorrespondenceCode;
 
   const updatePayload = dairyTestResult.convertToPhysicalModel(
     populateAuditColumnsUpdate(req.body, now),
@@ -935,26 +935,7 @@ router.put("/dairytestresults/:licenceId(\\d+)", async (req, res, next) => {
   );
 
   await updateLicenceDairyFarmTestResult(req.body.id, updatePayload)
-    .then(async () => {
-      const fetch = await fetchLicenceDairyFarmTestResult(licenceId);
-
-      const results = fetch.map((record) =>
-        dairyTestResult.convertToLogicalModel(record)
-      );
-
-      const latestTestJobId = Math.max.apply(
-        Math,
-        results.map(function (o) {
-          return o.testJobId;
-        })
-      );
-
-      const latestResults = results.filter(
-        (x) => x.testJobId === latestTestJobId
-      );
-
-      return res.send(latestResults);
-    })
+    .then(() => res.status(200).send())
     .catch(next)
     .finally(async () => prisma.$disconnect());
 });
@@ -995,31 +976,31 @@ router.put("/dairyactions/:licenceId(\\d+)", async (req, res, next) => {
 
     let infractionCount = 0;
 
-    if (req.body.thresholdId == constants.DAIRY_TEST_THRESHOLD_IDS.IBC) {
+    if (req.body.thresholdId === constants.DAIRY_TEST_THRESHOLD_IDS.IBC) {
       infractionCount = Math.min(
         filteredResults.filter((x) => x.spc1CorrespondenceDescription !== null)
           .length,
         3
       );
-    } else if (req.body.thresholdId == constants.DAIRY_TEST_THRESHOLD_IDS.SCC) {
+    } else if (req.body.thresholdId === constants.DAIRY_TEST_THRESHOLD_IDS.SCC) {
       infractionCount = Math.min(
         filteredResults.filter((x) => x.sccCorrespondenceDescription !== null)
           .length,
         3
       );
-    } else if (req.body.thresholdId == constants.DAIRY_TEST_THRESHOLD_IDS.FFA) {
+    } else if (req.body.thresholdId === constants.DAIRY_TEST_THRESHOLD_IDS.FFA) {
       infractionCount = Math.min(
         filteredResults.filter((x) => x.ffaCorrespondenceDescription !== null)
           .length,
         3
       );
-    } else if (req.body.thresholdId == constants.DAIRY_TEST_THRESHOLD_IDS.CRY) {
+    } else if (req.body.thresholdId === constants.DAIRY_TEST_THRESHOLD_IDS.CRY) {
       infractionCount = Math.min(
         filteredResults.filter((x) => x.cryCorrespondenceDescription !== null)
           .length,
         3
       );
-    } else if (req.body.thresholdId == constants.DAIRY_TEST_THRESHOLD_IDS.IH) {
+    } else if (req.body.thresholdId === constants.DAIRY_TEST_THRESHOLD_IDS.IH) {
       infractionCount = Math.min(
         filteredResults.filter((x) => x.ihCorrespondenceDescription !== null)
           .length,

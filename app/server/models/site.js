@@ -56,6 +56,7 @@ function convertToLogicalModel(input) {
     hiveCount: input.hive_count,
     apiarySiteId: input.apiary_site_id,
     premisesId: input.premises_id,
+    registrationDate: input.registration_date,
 
     dairyTanks: input.mal_dairy_farm_tank
       ? input.mal_dairy_farm_tank.map((xref, index) => ({
@@ -95,7 +96,7 @@ function convertSearchResultToLogicalModel(input) {
     registrantLastName: input.registrant_last_name,
     registrantFirstLast: input.registrant_first_last,
     registrantLastFirst: input.registrant_last_first,
-    registrantPrimaryghone: input.registrant_primary_phone,
+    registrantPrimaryPhone: input.registrant_primary_phone,
     registrantEmailAddress: input.registrant_email_address,
     licenceCity: input.licence_city,
     licenceRegionId: input.licence_region_number,
@@ -179,6 +180,7 @@ function convertToPhysicalModel(input, update) {
     hive_count: input.hiveCount,
     apiary_site_id: input.apiarySiteId,
     premises_id: input.premisesId,
+    registration_date: input.registrationDate,
 
     create_userid: input.createdBy,
     create_timestamp: input.createdOn,
