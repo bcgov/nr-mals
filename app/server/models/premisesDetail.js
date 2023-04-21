@@ -84,7 +84,7 @@ function convertToPhysicalModel(input, update) {
     site_status: input.siteStatus,
     site_status_timestamp: input.siteStatusTimestamp,
     site_address_line_1: input.siteAddressLine1,
-    site_city: input.siteCity.toUpperCase(),
+    site_city: input.siteCity ? input.siteCity.toUpperCase() : null,
     site_region_name: input.siteRegionalName,
     site_regional_district_name: input.siteRegionalDistrictName,
     registrant_id: input.registrantId,
