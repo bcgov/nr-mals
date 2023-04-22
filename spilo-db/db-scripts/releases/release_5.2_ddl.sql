@@ -19,13 +19,16 @@ update mal_site
 
 
 --        MALS-1181 - Apiary Site Report - including inactive and expired licenses
---          Added criteria to include only active licences.
+--          Added criteria to include only active Licences and Sites.
+--          Added Coalesce 0, for hive count.
+--          Changed INNER joins to LEFT joins for Region and District lookups, and added Coalesce 'UNKNOWN'.
 --        MALS-1128 - Entire Province Needs to be an option in reports
 --          Added criteria for 'ALL', to return data for all Regions
 
 --
 -- VIEW:  MAL_APIARY_PRODUCER_VW
 --
+DROP VIEW IF EXISTS mal_apiary_producer_vw;
 
 CREATE OR REPLACE VIEW mal_apiary_producer_vw as 
 	select site.id site_id,
@@ -40,15 +43,15 @@ CREATE OR REPLACE VIEW mal_apiary_producer_vw as
 		reg.primary_phone registrant_primary_phone,
 		reg.email_address registrant_email_address,	
 		lic.region_id site_region_id,
-		rgn.region_name site_region_name,
+		coalesce(rgn.region_name, 'UNKNOWN') site_region_name,
 		lic.regional_district_id site_regional_district_id,
-		dist.district_name site_district_name,
+		coalesce(dist.district_name, 'UNKNOWN') site_district_name,
 		trim(concat(site.address_line_1 , ' ', site.address_line_2)) site_address,
-		site.city site_city,
+		coalesce(site.city, 'UNKNOWN') site_city,
 		site.primary_phone site_primary_phone,
 		site.registration_date,
 	    lic.total_hives licence_hive_count,
-	    site.hive_count site_hive_count
+	    coalesce(site.hive_count, 0) site_hive_count
 	from mals_app.mal_licence lic
 	inner join mal_registrant reg
 	on lic.primary_registrant_id = reg.id
@@ -56,15 +59,17 @@ CREATE OR REPLACE VIEW mal_apiary_producer_vw as
 	on lic.id = site.licence_id
 	inner join mal_licence_type_lu lictyp
 	on lic.licence_type_id = lictyp.id
-	inner join mal_region_lu rgn
+	left join mal_region_lu rgn
 	on site.region_id = rgn.id
-	inner join mal_regional_district_lu dist
+	left join mal_regional_district_lu dist
 	on site.regional_district_id = dist.id
 	left join mals_app.mal_status_code_lu lic_stat
 	on lic.status_code_id = lic_stat.id
 	left join mals_app.mal_status_code_lu site_stat
 	on site.status_code_id = site_stat.id
 	where lictyp.licence_type = 'APIARY';
+
+GRANT SELECT ON TABLE mals_app.mal_apiary_producer_vw TO mals_app_role;
 	
  
 
@@ -1006,6 +1011,7 @@ raise notice 'num_file_rows (%)', l_num_file_rows;
 						region_id,
 						regional_district_id,
 						status_code_id,
+						registration_date,
 						address_line_1,							
 						premises_id
 						)
@@ -1015,6 +1021,7 @@ raise notice 'num_file_rows (%)', l_num_file_rows;
 							l_file_rec.region_id,
 							l_file_rec.regional_district_id,
 							l_active_status_id,
+							current_date,  -- registration_date,
 							l_file_rec.site_address_line_1,
 							l_file_rec.source_premises_id)
 						returning id into l_site_id;
@@ -1088,6 +1095,7 @@ raise notice 'num_file_rows (%)', l_num_file_rows;
 							region_id,
 							regional_district_id,
 							status_code_id,
+							registration_date,
 							address_line_1,							
 							premises_id
 							)
@@ -1097,6 +1105,7 @@ raise notice 'num_file_rows (%)', l_num_file_rows;
 								l_file_rec.region_id,
 								l_file_rec.regional_district_id,
 								l_active_status_id,
+								current_date,  -- registration_date,
 								l_file_rec.site_address_line_1,
 								l_file_rec.source_premises_id)
 							returning id into l_site_id;
