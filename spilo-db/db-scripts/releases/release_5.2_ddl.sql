@@ -20,11 +20,13 @@ update mal_site
 
 --        MALS-1181 - Apiary Site Report - including inactive and expired licenses
 --          Added criteria to include only active Licences and Sites.
+--        MALS-1189 - Producer Analysis Report by Region not calculating correctly
 --          Added Coalesce 0, for hive count.
 --          Changed INNER joins to LEFT joins for Region and District lookups, and added Coalesce 'UNKNOWN'.
 --        MALS-1128 - Entire Province Needs to be an option in reports
 --          Added criteria for 'ALL', to return data for all Regions
 
+	
 --
 -- VIEW:  MAL_APIARY_PRODUCER_VW
 --
@@ -42,9 +44,9 @@ CREATE OR REPLACE VIEW mal_apiary_producer_vw as
 		reg.first_name registrant_first_name,
 		reg.primary_phone registrant_primary_phone,
 		reg.email_address registrant_email_address,	
-		lic.region_id site_region_id,
+		site.region_id site_region_id,
 		coalesce(rgn.region_name, 'UNKNOWN') site_region_name,
-		lic.regional_district_id site_regional_district_id,
+		site.regional_district_id site_regional_district_id,
 		coalesce(dist.district_name, 'UNKNOWN') site_district_name,
 		trim(concat(site.address_line_1 , ' ', site.address_line_2)) site_address,
 		coalesce(site.city, 'UNKNOWN') site_city,
@@ -274,60 +276,64 @@ AS $procedure$
 			);
 	--
 	--  Insert the JSON into the output table
-	with registrant_summary as (
+	with registrant_district_summary as (
 			select registrant_id,
-				site_regional_district_id,
+				site_district_name,
 				--count(*) num_sites,
-				sum(site_hive_count) num_hives,
+				sum(site_hive_count) site_hive_count,
 				count(case when site_hive_count = 0 then 1 else null end) num_producers_hives_0
 			from mals_app.mal_apiary_producer_vw 
 			where licence_status = 'ACT'
 			and site_status = 'ACT'
 			group by registrant_id,
-				site_regional_district_id),
-		district_summary as (
-			select coalesce(dist.district_name, 'No Region Specified') district_name,
-				count(case when num_hives between 1 and  9 then 1 else null end) num_registrants_1to9,
-				count(case when num_hives >= 10            then 1 else null end) num_registrants_10plus,
-				count(case when num_hives between 1 and 19 then 1 else null end) num_registrants_1to19,
-				count(case when num_hives >= 20            then 1 else null end) num_registrants_20plus,
-				count(*) num_registrants,
-				sum(case when num_hives between 1 and  9 then num_hives else 0 end) num_hives_1to9,
-				sum(case when num_hives >= 10            then num_hives else 0 end) num_hives_10plus,
-				sum(case when num_hives between 1 and 19 then num_hives else 0 end) num_hives_1to19,
-				sum(case when num_hives >= 20            then num_hives else 0 end) num_hives_20plus,
-				sum(num_hives) num_hives,
-				sum(num_producers_hives_0) num_producers_hives_0
-			from registrant_summary rs
-			left join mal_regional_district_lu dist
-			on rs.site_regional_district_id = dist.id
-			group by dist.district_name),
-		report_summary as (
+				site_district_name),
+		district_json as (
 			select 
-				json_agg(json_build_object('DistrictName',       district_name,
+				json_agg(json_build_object('DistrictName',       site_district_name,
 										   'Producers1To9',      num_registrants_1to9,
 										   'Producers10Plus',    num_registrants_10plus,
 										   'Producers1To19',     num_registrants_1to19,
 										   'Producers20Plus',    num_registrants_20plus,
 										   'ProducersTotal',     num_registrants,
-										   'Colonies1To9',       num_hives_1to9,
-										   'Colonies10Plus',     num_hives_10plus,	
-										   'Colonies1To19',      num_hives_1to19,
-										   'Colonies20Plus',     num_hives_20plus,										   
-										   'ColoniesTotal',      num_hives)
-			                                order by district_name) district_json,
-				sum(num_registrants_1to9)    total_registrants_1To9,
-				sum(num_registrants_10plus)  total_registrants_10Plus,
-				sum(num_registrants_1to19)   total_registrants_1To19,
-				sum(num_registrants_20plus)  total_registrants_20Plus,
-				sum(num_registrants)         total_registrants,
-				sum(num_hives_1to9)          total_hives_1To9,
-				sum(num_hives_10plus)        total_hives_10Plus,
-				sum(num_hives_1to19)         total_hives_1To19,
-				sum(num_hives_20plus)        total_hives_20Plus,
-				sum(num_hives)               total_hives,
-				sum(num_producers_hives_0)   total_producers_hives_0
-			from district_summary)	
+										   'Colonies1To9',       site_hive_count_1to9,
+										   'Colonies10Plus',     site_hive_count_10plus,	
+										   'Colonies1To19',      site_hive_count_1to19,
+										   'Colonies20Plus',     site_hive_count_20plus,										   
+										   'ColoniesTotal',      site_hive_count)
+			                                order by site_district_name) json_doc
+			from (
+					select site_district_name,
+						count(case when site_hive_count between 1 and  9 then 1 else null end) num_registrants_1to9,
+						count(case when site_hive_count >= 10            then 1 else null end) num_registrants_10plus,
+						count(case when site_hive_count between 1 and 19 then 1 else null end) num_registrants_1to19,
+						count(case when site_hive_count >= 20            then 1 else null end) num_registrants_20plus,
+						count(*) num_registrants,
+						sum(case when site_hive_count between 1 and  9 then site_hive_count else 0 end) site_hive_count_1to9,
+						sum(case when site_hive_count >= 10            then site_hive_count else 0 end) site_hive_count_10plus,
+						sum(case when site_hive_count between 1 and 19 then site_hive_count else 0 end) site_hive_count_1to19,
+						sum(case when site_hive_count >= 20            then site_hive_count else 0 end) site_hive_count_20plus,
+						sum(site_hive_count) site_hive_count
+					from registrant_district_summary
+					group by site_district_name
+				  ) district_summary
+			),
+		report_summary as (
+			select 
+				count(distinct case when site_hive_count = 0              then registrant_id else null end) total_producers_hives_0,
+				count(distinct case when site_hive_count between 1 and  9 then registrant_id else null end) total_registrants_1To9,
+				count(distinct case when site_hive_count >= 10            then registrant_id else null end) total_registrants_10Plus,
+				count(distinct case when site_hive_count between 1 and 19 then registrant_id else null end) total_registrants_1To19,
+				count(distinct case when site_hive_count >= 20            then registrant_id else null end) total_registrants_20Plus,
+				count(*) total_registrants,
+				sum(case when site_hive_count between 1 and  9 then site_hive_count else 0 end) total_hives_1To9,
+				sum(case when site_hive_count >= 10            then site_hive_count else 0 end) total_hives_10Plus,
+				sum(case when site_hive_count between 1 and 19 then site_hive_count else 0 end) total_hives_1To19,
+				sum(case when site_hive_count >= 20            then site_hive_count else 0 end) total_hives_20Plus,
+				sum(site_hive_count) total_hives
+			from mals_app.mal_apiary_producer_vw
+			where licence_status = 'ACT'
+			and site_status = 'ACT'
+			)	
 	--
 	--  MAIN QUERY
 	--
@@ -348,35 +354,25 @@ AS $procedure$
 		null,
 		'APIARY_PRODUCER_DISTRICT',
 		json_build_object('DateTime',                  to_char(current_timestamp, 'fmyyyy-mm-dd hh24mi'),
-						  'District',                  district_json,
-						  'TotalProducers1To9',        total_registrants_1To9,
-						  'TotalProducers10Plus',      total_registrants_10Plus,
-						  'TotalProducers1To19',       total_registrants_1To19,
-						  'TotalProducers20Plus',      total_registrants_20Plus,
-						  'TotalNumProducers',         total_registrants,
-						  'TotalColonies1To9',         total_hives_1To9,
-						  'TotalColonies10Plus',       total_hives_10Plus,
-						  'TotalColonies1To19',        total_hives_1To19,
-						  'TotalColonies20Plus',       total_hives_20Plus,
-						  'TotalNumColonies',          total_hives,
-						  'ProducersWithNoColonies',   total_producers_hives_0) report_json,
+						  'District',                  dj.json_doc,
+						  'TotalProducers1To9',        rs.total_registrants_1To9,
+						  'TotalProducers10Plus',      rs.total_registrants_10Plus,
+						  'TotalProducers1To19',       rs.total_registrants_1To19,
+						  'TotalProducers20Plus',      rs.total_registrants_20Plus,
+						  'TotalNumProducers',         rs.total_registrants,
+						  'TotalColonies1To9',         rs.total_hives_1To9,
+						  'TotalColonies10Plus',       rs.total_hives_10Plus,
+						  'TotalColonies1To19',        rs.total_hives_1To19,
+						  'TotalColonies20Plus',       rs.total_hives_20Plus,
+						  'TotalNumColonies',          rs.total_hives,
+						  'ProducersWithNoColonies',   rs.total_producers_hives_0) report_json,
 		null,
 		current_user,
 		current_timestamp,
 		current_user,
 		current_timestamp
-	from report_summary;  
-	--
-	GET DIAGNOSTICS l_report_json_count = ROW_COUNT;	
-	--
-	-- Update the Print Job table.	 
-	update mal_print_job set
-		job_status                    = 'COMPLETE',
-		json_end_time                 = current_timestamp,
-		report_json_count             = l_report_json_count,
-		update_userid                 = current_user,
-		update_timestamp              = current_timestamp
-	where id = iop_print_job_id;
+	from district_json dj
+cross join report_summary rs; 
 end; 
 $procedure$
 ;
@@ -400,60 +396,64 @@ AS $procedure$
 			);
 	--
 	--  Insert the JSON into the output table
-	with registrant_summary as (
+	with registrant_region_summary as (
 			select registrant_id,
-				site_region_id,
+				site_region_name,
 				--count(*) num_sites,
-				sum(site_hive_count) num_hives,
+				sum(site_hive_count) site_hive_count,
 				count(case when site_hive_count = 0 then 1 else null end) num_producers_hives_0
-			from mal_apiary_producer_vw 
+			from mals_app.mal_apiary_producer_vw 
 			where licence_status = 'ACT'
 			and site_status = 'ACT'
 			group by registrant_id,
-				site_region_id),
+				site_region_name),
 		region_summary as (
-			select coalesce(rgn.region_name, 'No Region Specified') region_name,
-				count(case when num_hives between 1 and  9 then 1 else null end) num_registrants_1to9,
-				count(case when num_hives >= 10            then 1 else null end) num_registrants_10plus,
-				count(case when num_hives between 1 and 19 then 1 else null end) num_registrants_1to19,
-				count(case when num_hives >= 20            then 1 else null end) num_registrants_20plus,
+			select site_region_name,
+				count(case when site_hive_count between 1 and  9 then 1 else null end) num_registrants_1to9,
+				count(case when site_hive_count >= 10            then 1 else null end) num_registrants_10plus,
+				count(case when site_hive_count between 1 and 19 then 1 else null end) num_registrants_1to19,
+				count(case when site_hive_count >= 20            then 1 else null end) num_registrants_20plus,
 				count(*) num_registrants,
-				sum(case when num_hives between 1 and  9 then num_hives else 0 end) num_hives_1to9,
-				sum(case when num_hives >= 10            then num_hives else 0 end) num_hives_10plus,
-				sum(case when num_hives between 1 and 19 then num_hives else 0 end) num_hives_1to19,
-				sum(case when num_hives >= 20            then num_hives else 0 end) num_hives_20plus,
-				sum(num_hives) num_hives,
+				sum(case when site_hive_count between 1 and  9 then site_hive_count else 0 end) site_hive_count_1to9,
+				sum(case when site_hive_count >= 10            then site_hive_count else 0 end) site_hive_count_10plus,
+				sum(case when site_hive_count between 1 and 19 then site_hive_count else 0 end) site_hive_count_1to19,
+				sum(case when site_hive_count >= 20            then site_hive_count else 0 end) site_hive_count_20plus,
+				sum(site_hive_count) site_hive_count,
 				sum(num_producers_hives_0) num_producers_hives_0
-			from registrant_summary rs
-			left join mal_region_lu rgn
-			on rs.site_region_id = rgn.id
-			group by rgn.region_name),
-		report_summary as (
+			from registrant_region_summary
+			group by site_region_name),
+		region_json as (
 			select 
-				json_agg(json_build_object('RegionName',       region_name,
+				json_agg(json_build_object('RegionName',         site_region_name,
 										   'Producers1To9',      num_registrants_1to9,
 										   'Producers10Plus',    num_registrants_10plus,
 										   'Producers1To19',     num_registrants_1to19,
 										   'Producers20Plus',    num_registrants_20plus,
 										   'ProducersTotal',     num_registrants,
-										   'Colonies1To9',       num_hives_1to9,
-										   'Colonies10Plus',     num_hives_10plus,	
-										   'Colonies1To19',      num_hives_1to19,
-										   'Colonies20Plus',     num_hives_20plus,										   
-										   'ColoniesTotal',      num_hives)
-			                                order by region_name) region_json,
-				sum(num_registrants_1to9)   total_registrants_1To9,
-				sum(num_registrants_10plus) total_registrants_10Plus,
-				sum(num_registrants_1to19)  total_registrants_1To19,
-				sum(num_registrants_20plus) total_registrants_20Plus,
-				sum(num_registrants)        total_registrants,
-				sum(num_hives_1to9)         total_hives_1To9,
-				sum(num_hives_10plus)       total_hives_10Plus,
-				sum(num_hives_1to19)        total_hives_1To19,
-				sum(num_hives_20plus)       total_hives_20Plus,
-				sum(num_hives)              total_hives,
-				sum(num_producers_hives_0)  total_producers_hives_0
-			from region_summary)
+										   'Colonies1To9',       site_hive_count_1to9,
+										   'Colonies10Plus',     site_hive_count_10plus,	
+										   'Colonies1To19',      site_hive_count_1to19,
+										   'Colonies20Plus',     site_hive_count_20plus,										   
+										   'ColoniesTotal',      site_hive_count)
+			                                order by site_region_name) json_doc
+			from region_summary),
+		report_summary as (
+			select 
+				count(distinct case when site_hive_count = 0              then registrant_id else null end) total_producers_hives_0,
+				count(distinct case when site_hive_count between 1 and  9 then registrant_id else null end) total_registrants_1To9,
+				count(distinct case when site_hive_count >= 10            then registrant_id else null end) total_registrants_10Plus,
+				count(distinct case when site_hive_count between 1 and 19 then registrant_id else null end) total_registrants_1To19,
+				count(distinct case when site_hive_count >= 20            then registrant_id else null end) total_registrants_20Plus,
+				count(*) total_registrants,
+				sum(case when site_hive_count between 1 and  9 then site_hive_count else 0 end) total_hives_1To9,
+				sum(case when site_hive_count >= 10            then site_hive_count else 0 end) total_hives_10Plus,
+				sum(case when site_hive_count between 1 and 19 then site_hive_count else 0 end) total_hives_1To19,
+				sum(case when site_hive_count >= 20            then site_hive_count else 0 end) total_hives_20Plus,
+				sum(site_hive_count) total_hives
+			from mals_app.mal_apiary_producer_vw
+			where licence_status = 'ACT'
+			and site_status = 'ACT'
+			)	
 	--
 	--  MAIN QUERY
 	--
@@ -474,35 +474,25 @@ AS $procedure$
 		null,
 		'APIARY_PRODUCER_REGION',
 		json_build_object('DateTime',                  to_char(current_timestamp, 'fmyyyy-mm-dd hh24mi'),
-						  'Region',                    region_json,
-						  'TotalProducers1To9',        total_registrants_1To9,
-						  'TotalProducers10Plus',      total_registrants_10Plus,
-						  'TotalProducers1To19',       total_registrants_1To19,
-						  'TotalProducers20Plus',      total_registrants_20Plus,
-						  'TotalNumProducers',         total_registrants,
-						  'TotalColonies1To9',         total_hives_1To9,
-						  'TotalColonies10Plus',       total_hives_10Plus,
-						  'TotalColonies1To19',        total_hives_1To19,
-						  'TotalColonies20Plus',       total_hives_20Plus,
-						  'TotalNumColonies',          total_hives,
-						  'ProducersWithNoColonies',   total_producers_hives_0) report_json,
+						  'Region',                    dj.json_doc,
+						  'TotalProducers1To9',        rs.total_registrants_1To9,
+						  'TotalProducers10Plus',      rs.total_registrants_10Plus,
+						  'TotalProducers1To19',       rs.total_registrants_1To19,
+						  'TotalProducers20Plus',      rs.total_registrants_20Plus,
+						  'TotalNumProducers',         rs.total_registrants,
+						  'TotalColonies1To9',         rs.total_hives_1To9,
+						  'TotalColonies10Plus',       rs.total_hives_10Plus,
+						  'TotalColonies1To19',        rs.total_hives_1To19,
+						  'TotalColonies20Plus',       rs.total_hives_20Plus,
+						  'TotalNumColonies',          rs.total_hives,
+						  'ProducersWithNoColonies',   rs.total_producers_hives_0) report_json,
 		null,
 		current_user,
 		current_timestamp,
 		current_user,
 		current_timestamp
-	from report_summary;  
-	--
-	GET DIAGNOSTICS l_report_json_count = ROW_COUNT;	
-	--
-	-- Update the Print Job table.	 
-	update mal_print_job set
-		job_status                    = 'COMPLETE',
-		json_end_time                 = current_timestamp,
-		report_json_count             = l_report_json_count,
-		update_userid                 = current_user,
-		update_timestamp              = current_timestamp
-	where id = iop_print_job_id;
+	from region_json dj
+cross join report_summary rs;
 end; 
 $procedure$
 ;  
