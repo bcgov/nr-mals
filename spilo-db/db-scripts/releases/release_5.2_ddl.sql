@@ -19,13 +19,18 @@ update mal_site
 
 
 --        MALS-1181 - Apiary Site Report - including inactive and expired licenses
---          Added criteria to include only active licences.
+--          Added criteria to include only active Licences and Sites.
+--        MALS-1189 - Producer Analysis Report by Region not calculating correctly
+--          Added Coalesce 0, for hive count.
+--          Changed INNER joins to LEFT joins for Region and District lookups, and added Coalesce 'UNKNOWN'.
 --        MALS-1128 - Entire Province Needs to be an option in reports
 --          Added criteria for 'ALL', to return data for all Regions
 
+	
 --
 -- VIEW:  MAL_APIARY_PRODUCER_VW
 --
+DROP VIEW IF EXISTS mal_apiary_producer_vw;
 
 CREATE OR REPLACE VIEW mal_apiary_producer_vw as 
 	select site.id site_id,
@@ -39,16 +44,16 @@ CREATE OR REPLACE VIEW mal_apiary_producer_vw as
 		reg.first_name registrant_first_name,
 		reg.primary_phone registrant_primary_phone,
 		reg.email_address registrant_email_address,	
-		lic.region_id site_region_id,
-		rgn.region_name site_region_name,
-		lic.regional_district_id site_regional_district_id,
-		dist.district_name site_district_name,
+		site.region_id site_region_id,
+		coalesce(rgn.region_name, 'UNKNOWN') site_region_name,
+		site.regional_district_id site_regional_district_id,
+		coalesce(dist.district_name, 'UNKNOWN') site_district_name,
 		trim(concat(site.address_line_1 , ' ', site.address_line_2)) site_address,
-		site.city site_city,
+		coalesce(site.city, 'UNKNOWN') site_city,
 		site.primary_phone site_primary_phone,
 		site.registration_date,
 	    lic.total_hives licence_hive_count,
-	    site.hive_count site_hive_count
+	    coalesce(site.hive_count, 0) site_hive_count
 	from mals_app.mal_licence lic
 	inner join mal_registrant reg
 	on lic.primary_registrant_id = reg.id
@@ -56,15 +61,17 @@ CREATE OR REPLACE VIEW mal_apiary_producer_vw as
 	on lic.id = site.licence_id
 	inner join mal_licence_type_lu lictyp
 	on lic.licence_type_id = lictyp.id
-	inner join mal_region_lu rgn
+	left join mal_region_lu rgn
 	on site.region_id = rgn.id
-	inner join mal_regional_district_lu dist
+	left join mal_regional_district_lu dist
 	on site.regional_district_id = dist.id
 	left join mals_app.mal_status_code_lu lic_stat
 	on lic.status_code_id = lic_stat.id
 	left join mals_app.mal_status_code_lu site_stat
 	on site.status_code_id = site_stat.id
 	where lictyp.licence_type = 'APIARY';
+
+GRANT SELECT ON TABLE mals_app.mal_apiary_producer_vw TO mals_app_role;
 	
  
 
@@ -269,60 +276,64 @@ AS $procedure$
 			);
 	--
 	--  Insert the JSON into the output table
-	with registrant_summary as (
+	with registrant_district_summary as (
 			select registrant_id,
-				site_regional_district_id,
+				site_district_name,
 				--count(*) num_sites,
-				sum(site_hive_count) num_hives,
+				sum(site_hive_count) site_hive_count,
 				count(case when site_hive_count = 0 then 1 else null end) num_producers_hives_0
 			from mals_app.mal_apiary_producer_vw 
 			where licence_status = 'ACT'
 			and site_status = 'ACT'
 			group by registrant_id,
-				site_regional_district_id),
-		district_summary as (
-			select coalesce(dist.district_name, 'No Region Specified') district_name,
-				count(case when num_hives between 1 and  9 then 1 else null end) num_registrants_1to9,
-				count(case when num_hives >= 10            then 1 else null end) num_registrants_10plus,
-				count(case when num_hives between 1 and 19 then 1 else null end) num_registrants_1to19,
-				count(case when num_hives >= 20            then 1 else null end) num_registrants_20plus,
-				count(*) num_registrants,
-				sum(case when num_hives between 1 and  9 then num_hives else 0 end) num_hives_1to9,
-				sum(case when num_hives >= 10            then num_hives else 0 end) num_hives_10plus,
-				sum(case when num_hives between 1 and 19 then num_hives else 0 end) num_hives_1to19,
-				sum(case when num_hives >= 20            then num_hives else 0 end) num_hives_20plus,
-				sum(num_hives) num_hives,
-				sum(num_producers_hives_0) num_producers_hives_0
-			from registrant_summary rs
-			left join mal_regional_district_lu dist
-			on rs.site_regional_district_id = dist.id
-			group by dist.district_name),
-		report_summary as (
+				site_district_name),
+		district_json as (
 			select 
-				json_agg(json_build_object('DistrictName',       district_name,
+				json_agg(json_build_object('DistrictName',       site_district_name,
 										   'Producers1To9',      num_registrants_1to9,
 										   'Producers10Plus',    num_registrants_10plus,
 										   'Producers1To19',     num_registrants_1to19,
 										   'Producers20Plus',    num_registrants_20plus,
 										   'ProducersTotal',     num_registrants,
-										   'Colonies1To9',       num_hives_1to9,
-										   'Colonies10Plus',     num_hives_10plus,	
-										   'Colonies1To19',      num_hives_1to19,
-										   'Colonies20Plus',     num_hives_20plus,										   
-										   'ColoniesTotal',      num_hives)
-			                                order by district_name) district_json,
-				sum(num_registrants_1to9)    total_registrants_1To9,
-				sum(num_registrants_10plus)  total_registrants_10Plus,
-				sum(num_registrants_1to19)   total_registrants_1To19,
-				sum(num_registrants_20plus)  total_registrants_20Plus,
-				sum(num_registrants)         total_registrants,
-				sum(num_hives_1to9)          total_hives_1To9,
-				sum(num_hives_10plus)        total_hives_10Plus,
-				sum(num_hives_1to19)         total_hives_1To19,
-				sum(num_hives_20plus)        total_hives_20Plus,
-				sum(num_hives)               total_hives,
-				sum(num_producers_hives_0)   total_producers_hives_0
-			from district_summary)	
+										   'Colonies1To9',       site_hive_count_1to9,
+										   'Colonies10Plus',     site_hive_count_10plus,	
+										   'Colonies1To19',      site_hive_count_1to19,
+										   'Colonies20Plus',     site_hive_count_20plus,										   
+										   'ColoniesTotal',      site_hive_count)
+			                                order by site_district_name) json_doc
+			from (
+					select site_district_name,
+						count(case when site_hive_count between 1 and  9 then 1 else null end) num_registrants_1to9,
+						count(case when site_hive_count >= 10            then 1 else null end) num_registrants_10plus,
+						count(case when site_hive_count between 1 and 19 then 1 else null end) num_registrants_1to19,
+						count(case when site_hive_count >= 20            then 1 else null end) num_registrants_20plus,
+						count(*) num_registrants,
+						sum(case when site_hive_count between 1 and  9 then site_hive_count else 0 end) site_hive_count_1to9,
+						sum(case when site_hive_count >= 10            then site_hive_count else 0 end) site_hive_count_10plus,
+						sum(case when site_hive_count between 1 and 19 then site_hive_count else 0 end) site_hive_count_1to19,
+						sum(case when site_hive_count >= 20            then site_hive_count else 0 end) site_hive_count_20plus,
+						sum(site_hive_count) site_hive_count
+					from registrant_district_summary
+					group by site_district_name
+				  ) district_summary
+			),
+		report_summary as (
+			select 
+				count(distinct case when site_hive_count = 0              then registrant_id else null end) total_producers_hives_0,
+				count(distinct case when site_hive_count between 1 and  9 then registrant_id else null end) total_registrants_1To9,
+				count(distinct case when site_hive_count >= 10            then registrant_id else null end) total_registrants_10Plus,
+				count(distinct case when site_hive_count between 1 and 19 then registrant_id else null end) total_registrants_1To19,
+				count(distinct case when site_hive_count >= 20            then registrant_id else null end) total_registrants_20Plus,
+				count(*) total_registrants,
+				sum(case when site_hive_count between 1 and  9 then site_hive_count else 0 end) total_hives_1To9,
+				sum(case when site_hive_count >= 10            then site_hive_count else 0 end) total_hives_10Plus,
+				sum(case when site_hive_count between 1 and 19 then site_hive_count else 0 end) total_hives_1To19,
+				sum(case when site_hive_count >= 20            then site_hive_count else 0 end) total_hives_20Plus,
+				sum(site_hive_count) total_hives
+			from mals_app.mal_apiary_producer_vw
+			where licence_status = 'ACT'
+			and site_status = 'ACT'
+			)	
 	--
 	--  MAIN QUERY
 	--
@@ -343,35 +354,25 @@ AS $procedure$
 		null,
 		'APIARY_PRODUCER_DISTRICT',
 		json_build_object('DateTime',                  to_char(current_timestamp, 'fmyyyy-mm-dd hh24mi'),
-						  'District',                  district_json,
-						  'TotalProducers1To9',        total_registrants_1To9,
-						  'TotalProducers10Plus',      total_registrants_10Plus,
-						  'TotalProducers1To19',       total_registrants_1To19,
-						  'TotalProducers20Plus',      total_registrants_20Plus,
-						  'TotalNumProducers',         total_registrants,
-						  'TotalColonies1To9',         total_hives_1To9,
-						  'TotalColonies10Plus',       total_hives_10Plus,
-						  'TotalColonies1To19',        total_hives_1To19,
-						  'TotalColonies20Plus',       total_hives_20Plus,
-						  'TotalNumColonies',          total_hives,
-						  'ProducersWithNoColonies',   total_producers_hives_0) report_json,
+						  'District',                  dj.json_doc,
+						  'TotalProducers1To9',        rs.total_registrants_1To9,
+						  'TotalProducers10Plus',      rs.total_registrants_10Plus,
+						  'TotalProducers1To19',       rs.total_registrants_1To19,
+						  'TotalProducers20Plus',      rs.total_registrants_20Plus,
+						  'TotalNumProducers',         rs.total_registrants,
+						  'TotalColonies1To9',         rs.total_hives_1To9,
+						  'TotalColonies10Plus',       rs.total_hives_10Plus,
+						  'TotalColonies1To19',        rs.total_hives_1To19,
+						  'TotalColonies20Plus',       rs.total_hives_20Plus,
+						  'TotalNumColonies',          rs.total_hives,
+						  'ProducersWithNoColonies',   rs.total_producers_hives_0) report_json,
 		null,
 		current_user,
 		current_timestamp,
 		current_user,
 		current_timestamp
-	from report_summary;  
-	--
-	GET DIAGNOSTICS l_report_json_count = ROW_COUNT;	
-	--
-	-- Update the Print Job table.	 
-	update mal_print_job set
-		job_status                    = 'COMPLETE',
-		json_end_time                 = current_timestamp,
-		report_json_count             = l_report_json_count,
-		update_userid                 = current_user,
-		update_timestamp              = current_timestamp
-	where id = iop_print_job_id;
+	from district_json dj
+cross join report_summary rs; 
 end; 
 $procedure$
 ;
@@ -395,60 +396,64 @@ AS $procedure$
 			);
 	--
 	--  Insert the JSON into the output table
-	with registrant_summary as (
+	with registrant_region_summary as (
 			select registrant_id,
-				site_region_id,
+				site_region_name,
 				--count(*) num_sites,
-				sum(site_hive_count) num_hives,
+				sum(site_hive_count) site_hive_count,
 				count(case when site_hive_count = 0 then 1 else null end) num_producers_hives_0
-			from mal_apiary_producer_vw 
+			from mals_app.mal_apiary_producer_vw 
 			where licence_status = 'ACT'
 			and site_status = 'ACT'
 			group by registrant_id,
-				site_region_id),
+				site_region_name),
 		region_summary as (
-			select coalesce(rgn.region_name, 'No Region Specified') region_name,
-				count(case when num_hives between 1 and  9 then 1 else null end) num_registrants_1to9,
-				count(case when num_hives >= 10            then 1 else null end) num_registrants_10plus,
-				count(case when num_hives between 1 and 19 then 1 else null end) num_registrants_1to19,
-				count(case when num_hives >= 20            then 1 else null end) num_registrants_20plus,
+			select site_region_name,
+				count(case when site_hive_count between 1 and  9 then 1 else null end) num_registrants_1to9,
+				count(case when site_hive_count >= 10            then 1 else null end) num_registrants_10plus,
+				count(case when site_hive_count between 1 and 19 then 1 else null end) num_registrants_1to19,
+				count(case when site_hive_count >= 20            then 1 else null end) num_registrants_20plus,
 				count(*) num_registrants,
-				sum(case when num_hives between 1 and  9 then num_hives else 0 end) num_hives_1to9,
-				sum(case when num_hives >= 10            then num_hives else 0 end) num_hives_10plus,
-				sum(case when num_hives between 1 and 19 then num_hives else 0 end) num_hives_1to19,
-				sum(case when num_hives >= 20            then num_hives else 0 end) num_hives_20plus,
-				sum(num_hives) num_hives,
+				sum(case when site_hive_count between 1 and  9 then site_hive_count else 0 end) site_hive_count_1to9,
+				sum(case when site_hive_count >= 10            then site_hive_count else 0 end) site_hive_count_10plus,
+				sum(case when site_hive_count between 1 and 19 then site_hive_count else 0 end) site_hive_count_1to19,
+				sum(case when site_hive_count >= 20            then site_hive_count else 0 end) site_hive_count_20plus,
+				sum(site_hive_count) site_hive_count,
 				sum(num_producers_hives_0) num_producers_hives_0
-			from registrant_summary rs
-			left join mal_region_lu rgn
-			on rs.site_region_id = rgn.id
-			group by rgn.region_name),
-		report_summary as (
+			from registrant_region_summary
+			group by site_region_name),
+		region_json as (
 			select 
-				json_agg(json_build_object('RegionName',       region_name,
+				json_agg(json_build_object('RegionName',         site_region_name,
 										   'Producers1To9',      num_registrants_1to9,
 										   'Producers10Plus',    num_registrants_10plus,
 										   'Producers1To19',     num_registrants_1to19,
 										   'Producers20Plus',    num_registrants_20plus,
 										   'ProducersTotal',     num_registrants,
-										   'Colonies1To9',       num_hives_1to9,
-										   'Colonies10Plus',     num_hives_10plus,	
-										   'Colonies1To19',      num_hives_1to19,
-										   'Colonies20Plus',     num_hives_20plus,										   
-										   'ColoniesTotal',      num_hives)
-			                                order by region_name) region_json,
-				sum(num_registrants_1to9)   total_registrants_1To9,
-				sum(num_registrants_10plus) total_registrants_10Plus,
-				sum(num_registrants_1to19)  total_registrants_1To19,
-				sum(num_registrants_20plus) total_registrants_20Plus,
-				sum(num_registrants)        total_registrants,
-				sum(num_hives_1to9)         total_hives_1To9,
-				sum(num_hives_10plus)       total_hives_10Plus,
-				sum(num_hives_1to19)        total_hives_1To19,
-				sum(num_hives_20plus)       total_hives_20Plus,
-				sum(num_hives)              total_hives,
-				sum(num_producers_hives_0)  total_producers_hives_0
-			from region_summary)
+										   'Colonies1To9',       site_hive_count_1to9,
+										   'Colonies10Plus',     site_hive_count_10plus,	
+										   'Colonies1To19',      site_hive_count_1to19,
+										   'Colonies20Plus',     site_hive_count_20plus,										   
+										   'ColoniesTotal',      site_hive_count)
+			                                order by site_region_name) json_doc
+			from region_summary),
+		report_summary as (
+			select 
+				count(distinct case when site_hive_count = 0              then registrant_id else null end) total_producers_hives_0,
+				count(distinct case when site_hive_count between 1 and  9 then registrant_id else null end) total_registrants_1To9,
+				count(distinct case when site_hive_count >= 10            then registrant_id else null end) total_registrants_10Plus,
+				count(distinct case when site_hive_count between 1 and 19 then registrant_id else null end) total_registrants_1To19,
+				count(distinct case when site_hive_count >= 20            then registrant_id else null end) total_registrants_20Plus,
+				count(*) total_registrants,
+				sum(case when site_hive_count between 1 and  9 then site_hive_count else 0 end) total_hives_1To9,
+				sum(case when site_hive_count >= 10            then site_hive_count else 0 end) total_hives_10Plus,
+				sum(case when site_hive_count between 1 and 19 then site_hive_count else 0 end) total_hives_1To19,
+				sum(case when site_hive_count >= 20            then site_hive_count else 0 end) total_hives_20Plus,
+				sum(site_hive_count) total_hives
+			from mals_app.mal_apiary_producer_vw
+			where licence_status = 'ACT'
+			and site_status = 'ACT'
+			)	
 	--
 	--  MAIN QUERY
 	--
@@ -469,35 +474,25 @@ AS $procedure$
 		null,
 		'APIARY_PRODUCER_REGION',
 		json_build_object('DateTime',                  to_char(current_timestamp, 'fmyyyy-mm-dd hh24mi'),
-						  'Region',                    region_json,
-						  'TotalProducers1To9',        total_registrants_1To9,
-						  'TotalProducers10Plus',      total_registrants_10Plus,
-						  'TotalProducers1To19',       total_registrants_1To19,
-						  'TotalProducers20Plus',      total_registrants_20Plus,
-						  'TotalNumProducers',         total_registrants,
-						  'TotalColonies1To9',         total_hives_1To9,
-						  'TotalColonies10Plus',       total_hives_10Plus,
-						  'TotalColonies1To19',        total_hives_1To19,
-						  'TotalColonies20Plus',       total_hives_20Plus,
-						  'TotalNumColonies',          total_hives,
-						  'ProducersWithNoColonies',   total_producers_hives_0) report_json,
+						  'Region',                    dj.json_doc,
+						  'TotalProducers1To9',        rs.total_registrants_1To9,
+						  'TotalProducers10Plus',      rs.total_registrants_10Plus,
+						  'TotalProducers1To19',       rs.total_registrants_1To19,
+						  'TotalProducers20Plus',      rs.total_registrants_20Plus,
+						  'TotalNumProducers',         rs.total_registrants,
+						  'TotalColonies1To9',         rs.total_hives_1To9,
+						  'TotalColonies10Plus',       rs.total_hives_10Plus,
+						  'TotalColonies1To19',        rs.total_hives_1To19,
+						  'TotalColonies20Plus',       rs.total_hives_20Plus,
+						  'TotalNumColonies',          rs.total_hives,
+						  'ProducersWithNoColonies',   rs.total_producers_hives_0) report_json,
 		null,
 		current_user,
 		current_timestamp,
 		current_user,
 		current_timestamp
-	from report_summary;  
-	--
-	GET DIAGNOSTICS l_report_json_count = ROW_COUNT;	
-	--
-	-- Update the Print Job table.	 
-	update mal_print_job set
-		job_status                    = 'COMPLETE',
-		json_end_time                 = current_timestamp,
-		report_json_count             = l_report_json_count,
-		update_userid                 = current_user,
-		update_timestamp              = current_timestamp
-	where id = iop_print_job_id;
+	from region_json dj
+cross join report_summary rs;
 end; 
 $procedure$
 ;  
@@ -851,389 +846,6 @@ GROUP BY licence_base.licence_type;
   
 
 
---        MALS-1207 - Apiary Premises ID - update not functioning
---          Removed duplicate assignment of the total_hives clumn in the Update section
-
---
--- PROCEDURE:  PR_PROCESS_PREMISES_IMPORT
---
-
-CREATE OR REPLACE PROCEDURE mals_app.pr_process_premises_import(ip_job_id integer, INOUT iop_job_status character varying, INOUT iop_process_comments character varying)
- LANGUAGE plpgsql
-AS $procedure$
-  declare  
-	l_apiary_type_id          integer;
-	l_active_status_id        integer;
-	l_file_rec                record;
-	l_num_file_rows           integer := 0;
-	l_num_file_inserts        integer := 0;
-	l_num_file_updates        integer := 0;
-	l_num_file_do_not_imports integer := 0;
-	l_num_db_inserts          integer := 0;
-	l_num_db_updates          integer := 0;
-	-- 
-	l_licence_id              integer;
-	l_licence_number          integer;
-	l_site_id                 integer;
-	l_apiary_site_id          integer;
-	l_registrant_id           integer;
-	l_process_comments        varchar(2000);
-	l_error_sqlstate          text;
-	l_error_message           text;
-	l_error_context           text;
-  --
-  begin
-	--
-	select 
-		count(*) as num_file_rows,
-		count(case when import_action in ('NEW_LICENCE', 'NEW_SITE') then 1 else null end) num_file_inserts,
-		count(case when import_action = 'UPDATE' then 1 else null end) num_file_updates,
-		count(case when import_action = 'DO_NOT_IMPORT' then 1 else null end) num_do_not_imports
-	into l_num_file_rows, l_num_file_inserts, l_num_file_updates, l_num_file_do_not_imports
-	from mal_premises_detail
-	where premises_job_id = ip_job_id;
-raise notice 'num_file_rows (%)', l_num_file_rows;
-	update mal_premises_job
-		set source_row_count = l_num_file_rows,
-			source_insert_count = l_num_file_inserts,
-			source_update_count = l_num_file_updates,
-			source_do_not_import_count = l_num_file_do_not_imports
-	where id = ip_job_id;
-	--
-	select id
-	into l_apiary_type_id
-	from mal_licence_type_lu
-	where licence_type = 'APIARY';
-	select id
-	into l_active_status_id
-	from mal_status_code_lu
-	where code_name = 'ACT';
-	--
-	for l_file_rec in 
-		select 
-			p.id,
-			p.apiary_site_id,
-			p.import_action, 
-			p.licence_number,
-			p.licence_company_name,
-			p.licence_mail_address_line_1,
-			p.licence_mail_address_line_2,
-			p.licence_mail_city,
-			p.licence_mail_province,
-			p.licence_mail_postal_code,
-			p.licence_total_hives,
-			p.source_premises_id,
-			p.site_address_line_1,
-			r.id as region_id,
-			p.site_region_name,
-			d.id as regional_district_id,
-			p.site_regional_district_name,
-			p.registrant_first_name,
-			p.registrant_last_name,
-			p.registrant_primary_phone,
-			p.registrant_secondary_phone,
-			p.registrant_fax_number,
-			p.registrant_email_address,
-			p.process_comments
-		from mal_premises_detail p
-		left join mal_region_lu r
-		on p.site_region_name = r.region_name
-		left join mal_regional_district_lu d
-		on p.site_regional_district_name = d.district_name	
-		where p.premises_job_id = ip_job_id 
-		and p.import_status = 'PENDING' loop
-			l_licence_id            := null;
-			l_licence_number        := null;
-			l_site_id               := null;
-			l_apiary_site_id        := null;
-			l_registrant_id         := null;
-			l_process_comments      := null;
-			l_error_message         := null;
-			begin
-	--  DO_NOT_IMPORT
-				--
-				if l_file_rec.import_action in ('DO_NOT_IMPORT') then
-				-- Mark the Do Not Import rows.
-					update mal_premises_detail
-						set import_status    = 'NO_ACTION',
-							process_comments = concat(process_comments, 
-													  to_char(current_timestamp, 'yyyy-mm-dd hh24:mi:ss '), 
-													  'This row was marked as DO_NOT_IMPORT and was therefore not processed.')
-						where id = l_file_rec.id;
-	--  NEW_LICENCE (and Site, and Registrant)
-				-- Process new licences and sites
-				elsif l_file_rec.import_action in ('NEW_LICENCE' ) then
-					-- Create a new Licence.
-					insert into mal_licence(
-						licence_type_id,
-						status_code_id,
-						region_id,
-						regional_district_id,
-						company_name,
-						mail_address_line_1,
-						mail_address_line_2,
-						mail_city,
-						mail_province,
-						mail_postal_code,
-						application_date,
-						issue_date,
-						expiry_date,
-						total_hives
-						)
-						values(
-							l_apiary_type_id,
-							l_active_status_id,
-							l_file_rec.region_id,
-							l_file_rec.regional_district_id,
-							l_file_rec.licence_company_name,
-							l_file_rec.licence_mail_address_line_1,
-							l_file_rec.licence_mail_address_line_2,
-							l_file_rec.licence_mail_city,
-							l_file_rec.licence_mail_province,
-							l_file_rec.licence_mail_postal_code,
-							current_date,  -- application_date,
-							current_date,  -- issue_date,
-							current_date + interval '2 years',  -- expiry_date,
-							l_file_rec.licence_total_hives
-							)
-							returning id, licence_number into l_licence_id, l_licence_number;
-					-- First apiary site ID for new licence.
-					l_apiary_site_id = 100;
-					--  Create a new Site.
-					insert into mal_site (
-						licence_id,
-						apiary_site_id,
-						region_id,
-						regional_district_id,
-						status_code_id,
-						address_line_1,							
-						premises_id
-						)
-						values (
-							l_licence_id,
-							l_apiary_site_id,   
-							l_file_rec.region_id,
-							l_file_rec.regional_district_id,
-							l_active_status_id,
-							l_file_rec.site_address_line_1,
-							l_file_rec.source_premises_id)
-						returning id into l_site_id;
-					-- Create a new Registrant
-					insert into mal_registrant(
-						first_name,
-						last_name,
-						primary_phone,
-						secondary_phone,
-						fax_number,
-						email_address)
-						values(
-							l_file_rec.registrant_first_name,
-							l_file_rec.registrant_last_name,
-							l_file_rec.registrant_primary_phone,
-							l_file_rec.registrant_secondary_phone,
-							l_file_rec.registrant_fax_number,
-							l_file_rec.registrant_email_address
-							)
-							returning id into l_registrant_id;
-					-- Add a reference to the new Registrant on the new Licence
-					update mal_licence
-						set primary_registrant_id = l_registrant_id
-					where id = l_licence_id;
-					-- Add a row to the cross reference table for the new licence and registrant.
-					insert into mal_licence_registrant_xref(
-						licence_id,
-						registrant_id)
-						values(
-							l_licence_id,
-							l_registrant_id
-							);
-					l_process_comments  = concat(l_file_rec.process_comments, 
-												 to_char(current_timestamp, 'yyyy-mm-dd hh24:mi:ss'), 
-												' This row was successfully processed. ');
-					-- Update the imported row with the new Licence info.
-					update mal_premises_detail
-					set import_status            = 'SUCCESS',
-						licence_id               = l_licence_id,
-						licence_number           = l_licence_number,
-						site_id                  = l_site_id,
-						apiary_site_id           = l_apiary_site_id,
-						registrant_id            = l_registrant_id,
-						licence_action           = 'INSERT',
-						licence_status           = 'SUCCESS',
-						site_action              = 'INSERT',
-						site_status              = 'SUCCESS',
-						process_comments         = l_process_comments,
-						licence_status_timestamp = current_timestamp,
-						site_status_timestamp    = current_timestamp
-					where id = l_file_rec.id;
-					l_num_db_inserts = l_num_db_inserts + 1;
-	--  NEW_SITE (existing Licence)
-				-- New Site on exixsting Licence
-				elsif l_file_rec.import_action in ('NEW_SITE') then
-					--  Determine if the Licence exists
-					select id
-					into l_licence_id
-					from mal_licence
-					where licence_number = l_file_rec.licence_number;
-					if l_licence_id is not null then
-						-- Determine the next sequential apiary Site ID
-						select coalesce(max(apiary_site_id) + 1, 100)
-						into l_apiary_site_id
-						from mal_site
-						where licence_id = l_licence_id;
-						--  Create a new Site.
-						insert into mal_site (
-							licence_id,
-							apiary_site_id,
-							region_id,
-							regional_district_id,
-							status_code_id,
-							address_line_1,							
-							premises_id
-							)
-							values (
-								l_licence_id,
-								l_apiary_site_id,
-								l_file_rec.region_id,
-								l_file_rec.regional_district_id,
-								l_active_status_id,
-								l_file_rec.site_address_line_1,
-								l_file_rec.source_premises_id)
-							returning id into l_site_id;
-						-- Update the Licence expiry date.
-						update mal_licence
-							set expiry_date = current_date + interval '2 years'
-						where id = l_licence_id;
-						l_process_comments  = concat(l_file_rec.process_comments, 
-													 to_char(current_timestamp, 'yyyy-mm-dd hh24:mi:ss'), 
-													' This row was successfully processed. ');
-						-- Update the file row with the new IDs.
-						update mal_premises_detail
-						set import_status         = 'SUCCESS',
-							licence_id            = l_licence_id,
-							site_id               = l_site_id,
-							apiary_site_id        = l_apiary_site_id,
-							site_action           = 'INSERT',
-							site_status           = 'SUCCESS',
-							process_comments      = l_process_comments,
-							site_status_timestamp = current_timestamp
-						where id = l_file_rec.id;
-						l_num_db_inserts = l_num_db_inserts + 1;
-					else
-						l_process_comments  = concat(l_file_rec.process_comments, 
-													 to_char(current_timestamp, 'yyyy-mm-dd hh24:mi:ss'), 
-													 ' The licence number ', l_licence_number, ' was not found in the Licence table. ');
-						update mal_premises_detail
-							set import_status    = 'NO_ACTION',
-								process_comments = l_process_comments
-							where id = l_file_rec.id;
-						
-					end if;
-		--  UPDATE (Licence and Site)
-				-- Process updates to licences and sites
-				elsif l_file_rec.import_action in ('UPDATE') then
-					select l.id, s.id
-					into l_licence_id, l_site_id
-					from mal_licence l
-					left join mal_site s 
-					on l.id = s.licence_id
-					inner join mal_licence_type_lu t
-					on l.licence_type_id = t.id
-					inner join mal_status_code_lu st
-					on s.status_code_id = st.id
-					where t.licence_type = 'APIARY'
-					and st.code_name = 'ACT'
-					and l.licence_number = l_file_rec.licence_number
-					and s.apiary_site_id = l_file_rec.apiary_site_id;
-					if l_site_id is not null then
-						update mal_licence
-							set region_id            = l_file_rec.region_id,
-								regional_district_id = l_file_rec.regional_district_id,
-								company_name         = l_file_rec.licence_company_name,
-								mail_address_line_1  = l_file_rec.licence_mail_address_line_1,
-								mail_address_line_2  = l_file_rec.licence_mail_address_line_2,
-								mail_city            = l_file_rec.licence_mail_city,
-								mail_province        = l_file_rec.licence_mail_province,
-								mail_postal_code     = l_file_rec.licence_mail_postal_code,	
-								issue_date           = current_date,
-								expiry_date          = current_date + interval '2 years',
-							    total_hives          = l_file_rec.licence_total_hives
-							where id = l_licence_id;
-						update mal_site
-							set region_id            = l_file_rec.region_id,
-								regional_district_id = l_file_rec.regional_district_id,
-								address_line_1       = l_file_rec.site_address_line_1,
-								premises_id          = l_file_rec.source_premises_id
-							where id = l_site_id;	
-						update mal_premises_detail
-							set licence_id       = l_licence_id,
-								site_id          = l_site_id,
-								import_status    = 'SUCCESS',
-								process_comments = concat(process_comments, 
-														  to_char(current_timestamp, 'yyyy-mm-dd hh24:mi:ss '), 
-														  'The Licence and Site were successfully updated.')
-							where id = l_file_rec.id;
-					l_num_db_updates = l_num_db_updates + 1;
-					else
-						update mal_premises_detail
-							set import_status    = 'NO_ACTION',
-								process_comments = concat(process_comments, 
-														  to_char(current_timestamp, 'yyyy-mm-dd hh24:mi:ss '), 
-														  'No data was found for the Licence Number and/or Apiary Site ID provided.')
-							where id = l_file_rec.id;
-					end if;
-				--
-				else
-				-- The import action is invalid
-					update mal_premises_detail
-						set import_status    = 'NO_ACTION',
-							process_comments = concat(process_comments, 
-													  to_char(current_timestamp, 'yyyy-mm-dd hh24:mi:ss '), 
-													  'The information supplied on this row is not a valid request.')
-						where id = l_file_rec.id;			
-				end if;				
-			exception
-				when others then
-	                get stacked diagnostics l_error_message = MESSAGE_TEXT;
-					l_process_comments  = concat(l_file_rec.process_comments, 
-												 to_char(current_timestamp, 'yyyy-mm-dd hh24:mi:ss'), 
-												' An error was made while processing this row. ');
-					update mal_premises_detail
-						set import_status    = 'ERROR',
-							process_comments = concat(process_comments, 
-													  to_char(current_timestamp, 'yyyy-mm-dd hh24:mi:ss '), 
-													  l_error_sqlstate, ' ',
-													  l_error_message, ' ',
-													  l_error_context)
-						where id = l_file_rec.id;
-					commit;
-			end;
-		end loop;
-	--	
-	-- Capture existing process comments, in case this is not the first time this row was processed.
-	case 
-		when l_num_file_inserts = l_num_db_inserts
-		 and l_num_file_updates = l_num_db_updates
-		then iop_job_status = 'SUCCESS';
-			 iop_process_comments = 'The rows were successfully processed.';
-		else iop_job_status = 'WARNING'; 
-			 iop_process_comments = 'One or more of the rows was not successfully processed. Check the mal_premises_detail table.';
-	end case;
-	-- Update the Job table.
-	update mal_premises_job 
-		set
-			job_status              = iop_job_status,
-			target_insert_count     = l_num_db_inserts,
-			target_update_count     = l_num_db_updates,
-			execution_end_time      = current_timestamp,
-			execution_comment       = iop_process_comments,
-			update_userid           = current_user,
-			update_timestamp        = current_timestamp
-		where id = ip_job_id;
-	-- 
-end; 
-$procedure$
-;
 
 
 --        MALS-1163 - Dairy - Multiple Tanks - reversing order on certificate creation
@@ -1379,6 +991,8 @@ AS WITH licence_base AS (
   WHERE 1 = 1 AND base.licence_status::text = 'ACT'::text;
 
 
+--        MALS-1207 - Apiary Premises ID - update not functioning
+--          Removed duplicate assignment of the total_hives clumn in the Update section
 --        MALS-1223 - Apiary / Premises ID load - can licenses be set to "print" automatically
 --          Updated the mal_licence.print_certificate to true for NEW_LICENCE, NEW_SITE, and UPDATE.
 --        MALS-1194 - Apiary Premises ID transfer didn't load correctly
@@ -1541,6 +1155,7 @@ raise notice 'num_file_rows (%)', l_num_file_rows;
 						region_id,
 						regional_district_id,
 						status_code_id,
+						registration_date,
 						address_line_1,							
 						premises_id,
 						city,
@@ -1552,6 +1167,7 @@ raise notice 'num_file_rows (%)', l_num_file_rows;
 							l_file_rec.region_id,
 							l_file_rec.regional_district_id,
 							l_active_status_id,
+							current_date,  -- registration_date,
 							l_file_rec.site_address_line_1,
 							l_file_rec.source_premises_id,
 							upper(l_file_rec.site_city),
@@ -1627,6 +1243,7 @@ raise notice 'num_file_rows (%)', l_num_file_rows;
 							region_id,
 							regional_district_id,
 							status_code_id,
+							registration_date,
 							address_line_1,							
 							premises_id,
 							city,
@@ -1638,6 +1255,7 @@ raise notice 'num_file_rows (%)', l_num_file_rows;
 								l_file_rec.region_id,
 								l_file_rec.regional_district_id,
 								l_active_status_id,
+								current_date,  -- registration_date,
 								l_file_rec.site_address_line_1,
 								l_file_rec.source_premises_id,
 								upper(l_file_rec.site_city),
@@ -1645,7 +1263,7 @@ raise notice 'num_file_rows (%)', l_num_file_rows;
 							returning id into l_site_id;
 						-- Update the Licence expiry date.
 						update mal_licence
-							set expiry_date       = current_date + interval '2 years',
+							set expiry_date = current_date + interval '2 years',
 							    print_certificate = true
 						where id = l_licence_id;
 						l_process_comments  = concat(l_file_rec.process_comments, 
