@@ -38,7 +38,7 @@ import {
   LICENCE_TYPE_ID_APIARY,
 } from "../licences/constants";
 
-export default function ViewLicencePage() {
+export default function ViewSitePage() {
   const history = useHistory();
   const dispatch = useDispatch();
   const { id } = useParams();

@@ -160,10 +160,16 @@ export default function LicenceDetailsViewEdit({ licence }) {
     const licenceTypeConfig = licenceTypesConfig.data.find(x => x.id === licence.data.licenceTypeId);
 
     const today = startOfToday();
-    let expiryDate = add(startOfDay(new Date(licenceTypeConfig.standardExpiryDate)), { days: 1 });
+    let expiryDate;
 
-    if (config.replaceExpiryDateWithIrmaNumber) {
+    if (config.expiryInTwoYears) {
+      expiryDate = add(today, { years: 2 });
+    }
+    else if (config.replaceExpiryDateWithIrmaNumber) {
       expiryDate = undefined;
+    }
+    else {
+      expiryDate = add(startOfDay(new Date(licenceTypeConfig.standardExpiryDate)), { days: 1 });
     }
 
     return { issueDate: today, expiryDate };
