@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { useSelector, useDispatch } from "react-redux";
-import { NumericFormat } from "react-number-format";
+import { PatternFormat } from "react-number-format";
 import { Controller } from "react-hook-form";
 import { Button, Form, Col, InputGroup } from "react-bootstrap";
 
@@ -337,18 +337,27 @@ export default function LicenceDetailsEdit({
             <Form.Group controlId="irmaNumber">
               <Form.Label>IRMA Number</Form.Label>
               <Controller
-                as={NumericFormat}
-                name="irmaNumber"
+                render={({ field: { onChange } }) => (
+                  <>
+                    <PatternFormat
+                      customInput={Form.Control}
+                      format="##-###"
+                      mask="_"
+                      defaultValue={formatIrmaNumber(initialValues.irmaNumber)}
+                      onValueChange={(v) => {
+                        onChange(v.formattedValue);
+                      }}
+                      isInvalid={errors.irmaNumber}
+                    />
+                    <Form.Control.Feedback type="invalid">
+                      Please enter a valid IRMA number.
+                    </Form.Control.Feedback>
+                  </>
+                )}
+                name={'irmaNumber'}
                 control={control}
                 defaultValue={formatIrmaNumber(initialValues.irmaNumber)}
-                format="##-###"
-                mask="_"
-                customInput={Form.Control}
-                isInvalid={errors.irmaNumber}
               />
-              <Form.Control.Feedback type="invalid">
-                Please enter a valid IRMA number.
-              </Form.Control.Feedback>
             </Form.Group>
           ) : (
             <CustomDatePicker
