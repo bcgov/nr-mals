@@ -53,7 +53,7 @@ continuousArchive:
   #   AWS_ENDPOINT
   s3:
     bucket: baqmeq
-    secretName: mals-dev-spilo-s3
+    secretName: mals-prod-spilo-s3
     
   gcs:
       bucket: ~
