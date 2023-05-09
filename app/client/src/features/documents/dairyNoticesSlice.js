@@ -29,7 +29,7 @@ export const startDairyNoticeJob = createAsyncThunk(
   "dairyNotices/startDairyNoticeJob",
   async (data, thunkApi) => {
     try {
-      const response = await Api.post("documents/dairyNotices/startJob", data);
+      const response = await Api.post("documents/dairyNotices/startJob", data, 30000);
       return response.data;
     } catch (error) {
       if (error instanceof ApiError) {
