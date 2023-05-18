@@ -948,7 +948,8 @@ router.put("/dairyactions/:licenceId(\\d+)", async (req, res, next) => {
     where: { id: req.body.thresholdId },
   });
 
-  if (req.body.value > threshold.upper_limit.toFixed(2)) {
+  if (req.body.thresholdId !== constants.DAIRY_TEST_THRESHOLD_IDS.FFA && // No FFA infractions
+    req.body.value > threshold.upper_limit.toFixed(2)) {
     const infractions = await prisma.mal_dairy_farm_test_infraction_lu.findMany(
       {
         where: { test_threshold_id: req.body.thresholdId },
@@ -985,12 +986,6 @@ router.put("/dairyactions/:licenceId(\\d+)", async (req, res, next) => {
     } else if (req.body.thresholdId === constants.DAIRY_TEST_THRESHOLD_IDS.SCC) {
       infractionCount = Math.min(
         filteredResults.filter((x) => x.sccCorrespondenceDescription !== null)
-          .length,
-        3
-      );
-    } else if (req.body.thresholdId === constants.DAIRY_TEST_THRESHOLD_IDS.FFA) {
-      infractionCount = Math.min(
-        filteredResults.filter((x) => x.ffaCorrespondenceDescription !== null)
           .length,
         3
       );

@@ -308,6 +308,12 @@ export default function LicenceDairyTestInventory({ licence }) {
       value: item.value,
     };
 
+    // No FFA infractions
+    if (payload.thresholdId === DAIRY_TEST_THRESHOLD_IDS.FFA) {
+      setCalculating(false);
+      return;
+    }
+
     await dispatch(
       calculateWarningLevyNotice({ data: payload, id: licence.data.id })
     ).then((data) => {
