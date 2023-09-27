@@ -38,9 +38,10 @@ let licences = [];
 export default function SelectDairyNoticesPage() {
   const [isCheckAll, setIsCheckAll] = useState(true);
   const [isChecked, setIsChecked] = useState([]);
+  const [isRunningJob, setIsRunningJob] = useState(false);
 
   const queuedDairyNotices = useSelector(selectQueuedDairyNotices);
-  const dairyNoticeJob = useSelector(selectDairyNoticesJob);
+  const selectDairyNotice = useSelector(selectDairyNoticesJob);
 
   const dispatch = useDispatch();
   const history = useHistory();
@@ -93,7 +94,13 @@ export default function SelectDairyNoticesPage() {
     );
   }, [watchStartDate, watchEndDate]);
 
+  function timeout(delay) {
+    return new Promise(res => setTimeout(res, delay));
+  }
+
   const onSubmit = (data) => {
+    setIsRunningJob(true);
+
     let uniqueSelectedLicences;
     if (isCheckAll) {
       uniqueSelectedLicences = [
@@ -108,8 +115,12 @@ export default function SelectDairyNoticesPage() {
       startDate: data.startDate,
       endDate: data.endDate,
     };
-    dispatch(startDairyNoticeJob(payload));
-    history.push(DOWNLOAD_DAIRYNOTICES_PATHNAME);
+
+    // Somehow the call was being cancelled in PROD
+    // Adding a delay before the page transition allows the job to complete
+    dispatch(startDairyNoticeJob(payload))
+      .then(async () => await timeout(1000))
+      .then(() => history.push(DOWNLOAD_DAIRYNOTICES_PATHNAME));
   };
 
   const handleSelectAll = (e) => {
@@ -154,7 +165,8 @@ export default function SelectDairyNoticesPage() {
       variant="primary"
       type="submit"
       disabled={
-        !isCheckAll && (isChecked.length === 0 || dairyNoticeJob.status !== REQUEST_STATUS.IDLE)
+        (!isCheckAll && (isChecked.length === 0 || selectDairyNotice.status !== REQUEST_STATUS.IDLE)) ||
+        isRunningJob
       }
     >
       Generate
@@ -279,6 +291,14 @@ export default function SelectDairyNoticesPage() {
         <Row className="mt-3 d-flex justify-content-end">
           <Col md="auto">{generateButton}</Col>
         </Row>
+        {isRunningJob ?
+          <Row className="mt-3 d-flex justify-content-end">
+            <Col md="auto">
+              <Spinner animation="border" role="status">
+                <span className="sr-only"></span>
+              </Spinner>
+            </Col>
+          </Row> : null}
       </Form>
     );
   }
