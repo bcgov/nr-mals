@@ -1,5 +1,5 @@
 /* eslint-disable */
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import {
@@ -128,6 +128,30 @@ export default function SiteResultsPage() {
     dispatch(fetchSiteResults());
   }, [dispatch]);
 
+  const [filterText, setFilterText] = useState("");
+  const filterData = () => {
+    if (!filterText) {
+      return results.data;
+    }
+    const filterTextLower = filterText.toLowerCase();
+    
+    return results.data.filter((result) => {
+      const siteIdStr = result.siteId !== null ? result.siteId.toString() : "";
+      const licenceNumberStr = result.licenceNumber !== null ? result.licenceNumber.toString() : "";
+      return (
+        siteIdStr.includes(filterTextLower) ||
+        (result.registrantLastName && typeof result.registrantLastName === 'string' && result.registrantLastName.toLowerCase().includes(filterTextLower)) ||
+        (result.registrantCompanyName && typeof result.registrantCompanyName === 'string' && result.registrantCompanyName.toLowerCase().includes(filterTextLower)) ||
+        licenceNumberStr.includes(filterTextLower) ||
+        (result.licenceCity && typeof result.licenceCity === 'string' && result.licenceCity.toLowerCase().includes(filterTextLower)) ||
+        (result.licenceRegion && typeof result.licenceRegion === 'string' && result.licenceRegion.toLowerCase().includes(filterTextLower)) ||
+        (result.licenceDistrict && typeof result.licenceDistrict === 'string' && result.licenceDistrict.toLowerCase().includes(filterTextLower)) ||
+        (result.nextInspectionDate && typeof result.nextInspectionDate === 'string' && result.nextInspectionDate.toLowerCase().includes(filterTextLower))
+      );
+    });
+  };
+  const filteredData = filterData();
+
   let control = null;
 
   if (results.status === REQUEST_STATUS.PENDING) {
@@ -180,7 +204,7 @@ export default function SiteResultsPage() {
               <th className="text-nowrap">Next Inspection Date</th>
             </tr>
           </thead>
-          <tbody>{results.data.map((result) => formatResultRow(result))}</tbody>
+          <tbody>{filteredData.map((result) => formatResultRow(result))}</tbody>
         </Table>
         <Row className="mt-3">
           <Col md="auto">
@@ -223,7 +247,17 @@ export default function SiteResultsPage() {
   return (
     <section>
       <PageHeading>Site Search Results</PageHeading>
-      <Container>{control}</Container>
+      <Container>
+      <div className="mb-3">
+          <input
+            type="text"
+            placeholder="Filter results"
+            value={filterText}
+            onChange={(e) => setFilterText(e.target.value)}
+          />
+        </div>
+        {control}
+      </Container>
     </section>
   );
 }
