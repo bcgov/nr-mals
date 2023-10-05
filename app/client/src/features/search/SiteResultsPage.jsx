@@ -1,5 +1,5 @@
 /* eslint-disable */
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import {
@@ -42,9 +42,13 @@ import {
   selectSiteParameters,
 } from "./searchSlice";
 
-import { clearCurrentLicence } from "../licences/licencesSlice";
+import {
+  clearCurrentLicence
+} from "../licences/licencesSlice";
 
-import { clearCurrentSite } from "../sites/sitesSlice";
+import {
+  clearCurrentSite
+} from "../sites/sitesSlice";
 
 function formatResultRow(result) {
   const url = `${SITES_PATHNAME}/${result.siteId}`;
@@ -113,48 +117,16 @@ async function downloadSearchExport(parameters) {
 
 export default function SiteResultsPage() {
   const results = useSelector(selectSiteResults);
-  const parameters = useSelector(selectSiteParameters);
-  const dispatch = useDispatch();
 
-  const [filterText, setFilterText] = useState("");
+  const parameters = useSelector(selectSiteParameters);
+
+  const dispatch = useDispatch();
 
   useEffect(() => {
     dispatch(clearCurrentLicence());
     dispatch(clearCurrentSite());
     dispatch(fetchSiteResults());
   }, [dispatch]);
-
-  const filterData = () => {
-    if (!filterText) {
-      return results.data;
-    }
-    const filterTextLower = filterText.toLowerCase();
-
-    return results.data.filter((result) => {
-      const siteIdStr = result.siteId !== null ? result.siteId.toString() : "";
-      const licenceNumberStr =
-        result.licenceNumber !== null ? result.licenceNumber.toString() : "";
-      return (
-        siteIdStr.includes(filterTextLower) ||
-        (result.registrantLastName &&
-          result.registrantLastName.toLowerCase().includes(filterTextLower)) ||
-        (result.registrantCompanyName &&
-          result.registrantCompanyName
-            .toLowerCase()
-            .includes(filterTextLower)) ||
-        licenceNumberStr.includes(filterTextLower) ||
-        (result.licenceCity &&
-          result.licenceCity.toLowerCase().includes(filterTextLower)) ||
-        (result.licenceRegion &&
-          result.licenceRegion.toLowerCase().includes(filterTextLower)) ||
-        (result.licenceDistrict &&
-          result.licenceDistrict.toLowerCase().includes(filterTextLower)) ||
-        (result.nextInspectionDate &&
-          result.nextInspectionDate.toLowerCase().includes(filterTextLower))
-      );
-    });
-  };
-  const filteredData = filterData();
 
   let control = null;
 
@@ -208,7 +180,7 @@ export default function SiteResultsPage() {
               <th className="text-nowrap">Next Inspection Date</th>
             </tr>
           </thead>
-          <tbody>{filteredData.map((result) => formatResultRow(result))}</tbody>
+          <tbody>{results.data.map((result) => formatResultRow(result))}</tbody>
         </Table>
         <Row className="mt-3">
           <Col md="auto">
@@ -251,17 +223,7 @@ export default function SiteResultsPage() {
   return (
     <section>
       <PageHeading>Site Search Results</PageHeading>
-      <Container>
-        <div className="mb-3">
-          <input
-            type="text"
-            placeholder="Filter results"
-            value={filterText}
-            onChange={(e) => setFilterText(e.target.value)}
-          />
-        </div>
-        {control}
-      </Container>
+      <Container>{control}</Container>
     </section>
   );
 }

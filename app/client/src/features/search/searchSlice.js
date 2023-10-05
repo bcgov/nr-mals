@@ -13,6 +13,7 @@ export const selectLicenceResults = (state) => state.search.licences.results;
 export const selectSiteSearchType = (state) => state.search.sites.searchType;
 export const selectSiteParameters = (state) => state.search.sites.parameters;
 export const selectSiteResults = (state) => state.search.sites.results;
+export const selectSiteFilterText = (state) => state.search.sites.filter;
 
 export const selectInventoryHistorySearchType = (state) =>
   state.search.inventoryHistory.searchType;
@@ -286,6 +287,12 @@ export const searchSlice = createSlice({
     setSiteSearchPage: (state, action) => {
       state.sites.parameters.page = action.payload;
     },
+    setSiteFilterText: (state, action) => {
+      state.sites.parameters.filterText = action.payload;
+    },
+    clearSiteFilterText: (state) => {
+      state.sites.parameters.filterText = undefined;
+    },
 
     // Inventory History
     clearInventoryHistoryParameters: (state) => {
@@ -480,6 +487,8 @@ export const {
   toggleSiteSearchType,
   setSiteParameters,
   setSiteSearchPage,
+  setSiteFilterText,
+  clearSiteFilterText,
 
   clearInventoryHistoryParameters,
   clearInventoryHistoryResults,

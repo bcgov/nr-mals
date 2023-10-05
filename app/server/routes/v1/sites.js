@@ -92,6 +92,28 @@ function getSearchFilter(params) {
       });
     }
 
+    if (params.filterText) {
+      if (params.filterText === 'ACT' || params.filterText === 'INA') {
+        andArray.push({
+          site_status: {
+            contains: params.filterText,
+            mode: "insensitive"
+          }
+        })
+      } else {
+        andArray.push({
+          OR: [
+            { apiary_site_id_display: { contains: params.filterText, mode: "insensitive" } },
+            { registrant_last_name: { contains: params.filterText, mode: "insensitive" } },
+            { registrant_first_name: { contains: params.filterText, mode: "insensitive" } },
+            { site_address_line_1: { contains: params.filterText, mode: "insensitive" } },
+            { licence_region_name: { contains: params.filterText, mode: "insensitive" } },
+            { licence_regional_district_name: { contains: params.filterText, mode: "insensitive" } },
+          ],
+        });
+      }
+    }
+
     filter = {
       AND: andArray,
     };
