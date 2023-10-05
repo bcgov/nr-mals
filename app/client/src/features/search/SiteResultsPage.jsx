@@ -42,13 +42,9 @@ import {
   selectSiteParameters,
 } from "./searchSlice";
 
-import {
-  clearCurrentLicence
-} from "../licences/licencesSlice";
+import { clearCurrentLicence } from "../licences/licencesSlice";
 
-import {
-  clearCurrentSite
-} from "../sites/sitesSlice";
+import { clearCurrentSite } from "../sites/sitesSlice";
 
 function formatResultRow(result) {
   const url = `${SITES_PATHNAME}/${result.siteId}`;
@@ -117,10 +113,10 @@ async function downloadSearchExport(parameters) {
 
 export default function SiteResultsPage() {
   const results = useSelector(selectSiteResults);
-
   const parameters = useSelector(selectSiteParameters);
-
   const dispatch = useDispatch();
+
+  const [filterText, setFilterText] = useState("");
 
   useEffect(() => {
     dispatch(clearCurrentLicence());
@@ -128,25 +124,33 @@ export default function SiteResultsPage() {
     dispatch(fetchSiteResults());
   }, [dispatch]);
 
-  const [filterText, setFilterText] = useState("");
   const filterData = () => {
     if (!filterText) {
       return results.data;
     }
     const filterTextLower = filterText.toLowerCase();
-    
+
     return results.data.filter((result) => {
       const siteIdStr = result.siteId !== null ? result.siteId.toString() : "";
-      const licenceNumberStr = result.licenceNumber !== null ? result.licenceNumber.toString() : "";
+      const licenceNumberStr =
+        result.licenceNumber !== null ? result.licenceNumber.toString() : "";
       return (
         siteIdStr.includes(filterTextLower) ||
-        (result.registrantLastName && typeof result.registrantLastName === 'string' && result.registrantLastName.toLowerCase().includes(filterTextLower)) ||
-        (result.registrantCompanyName && typeof result.registrantCompanyName === 'string' && result.registrantCompanyName.toLowerCase().includes(filterTextLower)) ||
+        (result.registrantLastName &&
+          result.registrantLastName.toLowerCase().includes(filterTextLower)) ||
+        (result.registrantCompanyName &&
+          result.registrantCompanyName
+            .toLowerCase()
+            .includes(filterTextLower)) ||
         licenceNumberStr.includes(filterTextLower) ||
-        (result.licenceCity && typeof result.licenceCity === 'string' && result.licenceCity.toLowerCase().includes(filterTextLower)) ||
-        (result.licenceRegion && typeof result.licenceRegion === 'string' && result.licenceRegion.toLowerCase().includes(filterTextLower)) ||
-        (result.licenceDistrict && typeof result.licenceDistrict === 'string' && result.licenceDistrict.toLowerCase().includes(filterTextLower)) ||
-        (result.nextInspectionDate && typeof result.nextInspectionDate === 'string' && result.nextInspectionDate.toLowerCase().includes(filterTextLower))
+        (result.licenceCity &&
+          result.licenceCity.toLowerCase().includes(filterTextLower)) ||
+        (result.licenceRegion &&
+          result.licenceRegion.toLowerCase().includes(filterTextLower)) ||
+        (result.licenceDistrict &&
+          result.licenceDistrict.toLowerCase().includes(filterTextLower)) ||
+        (result.nextInspectionDate &&
+          result.nextInspectionDate.toLowerCase().includes(filterTextLower))
       );
     });
   };
@@ -248,7 +252,7 @@ export default function SiteResultsPage() {
     <section>
       <PageHeading>Site Search Results</PageHeading>
       <Container>
-      <div className="mb-3">
+        <div className="mb-3">
           <input
             type="text"
             placeholder="Filter results"
