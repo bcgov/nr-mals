@@ -103,6 +103,7 @@ function getSearchFilter(params) {
       } else {
         andArray.push({
           OR: [
+            { site_id_pk: { equals: isNaN(parseInt(params.filterText, 10)) ? 0 : parseInt(params.filterText, 10) } }, // unfortunately site id has to be an exact match
             { apiary_site_id_display: { contains: params.filterText, mode: "insensitive" } },
             { registrant_last_name: { contains: params.filterText, mode: "insensitive" } },
             { registrant_first_name: { contains: params.filterText, mode: "insensitive" } },
