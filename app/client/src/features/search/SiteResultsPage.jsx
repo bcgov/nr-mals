@@ -15,7 +15,6 @@ import {
 
 import {
   REQUEST_STATUS,
-  CREATE_LICENSES_PATHNAME,
   SITES_PATHNAME,
   LICENSES_PATHNAME,
 } from "../../utilities/constants";
@@ -25,7 +24,6 @@ import {
   formatListShorten,
 } from "../../utilities/formatting.ts";
 
-import LinkButton from "../../components/LinkButton";
 import PageHeading from "../../components/PageHeading";
 
 import Api from "../../utilities/api.ts";
@@ -40,6 +38,7 @@ import {
   selectSiteResults,
   setSiteSearchPage,
   selectSiteParameters,
+  clearSiteFilterText,
 } from "./searchSlice";
 
 import {
@@ -125,6 +124,7 @@ export default function SiteResultsPage() {
   useEffect(() => {
     dispatch(clearCurrentLicence());
     dispatch(clearCurrentSite());
+    dispatch(clearSiteFilterText()); // filter is only used on the LicenceSites page but can affect this page if not cleared
     dispatch(fetchSiteResults());
   }, [dispatch]);
 

@@ -1,5 +1,5 @@
 /* eslint-disable */
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
@@ -24,6 +24,8 @@ import {
   fetchSiteResults,
   selectSiteResults,
   setSiteSearchPage,
+  setSiteFilterText,
+  clearSiteFilterText
 } from "../search/searchSlice";
 
 import { selectLicenceStatuses } from "../lookups/licenceStatusesSlice";
@@ -74,11 +76,31 @@ export default function LicenceSites({ licence }) {
   const createdSite = useSelector(selectCreatedSite);
   const currentUser = useSelector(selectCurrentUser);
 
+  const [debouncedActionTimeout, setDebouncedActionTimeout] = useState(null);
+
   useEffect(() => {
     dispatch(clearSiteParameters());
+    dispatch(clearSiteFilterText());
     dispatch(setSiteParameters({ licenceNumber: licence.data.licenceNumber }));
     dispatch(fetchSiteResults());
   }, [dispatch]);
+
+  const handleFilterTextChange = (e) => {
+    const newFilterText = e.target.value;
+
+    if (debouncedActionTimeout) {
+      clearTimeout(debouncedActionTimeout);
+    }
+
+    const newTimeout = setTimeout(() => {
+      dispatch(setSiteSearchPage(1));
+      dispatch(setSiteFilterText(newFilterText));
+      dispatch(fetchSiteResults());
+
+    }, 700);
+
+    setDebouncedActionTimeout(newTimeout);
+  };
 
   function addSiteOnClick() {
     const payload = {
@@ -212,7 +234,16 @@ export default function LicenceSites({ licence }) {
   return (
     <>
       <SectionHeading>Sites</SectionHeading>
-      <Container className="mt-3 mb-4">{control}</Container>
+      <Container className="mt-3 mb-4">
+      <div className="mb-3">
+          <input
+            type="text"
+            placeholder="Filter sites"
+            onChange={handleFilterTextChange}
+          />
+        </div>
+        {control}
+        </Container>
     </>
   );
 }
