@@ -213,13 +213,33 @@ export default function AssociatedLicences({ licence }) {
     );
   }
 
-  function formatResultRow(result) {
+  function formatResultRow(result, licenceType) {
     const url = `${LICENSES_PATHNAME}/${result.id}`;
     return (
       <tr key={result.id}>
         <td className="text-nowrap">
           <Link to={url}>{result.licenceNumber}</Link>
         </td>
+        {licenceType === "VETERINARY DRUG" ? (
+          <td>
+            {result.licenceType === "DISPENSER" &&
+            result.registrants &&
+            result.registrants[0] &&
+            result.registrants[0].label !== "null, null"
+              ? result.registrants[0].label
+              : ""}
+          </td>
+        ) : null}
+        {licenceType === "LIVESTOCK DEALER" ? (
+          <td>
+            {result.licenceType === "LIVESTOCK DEALER AGENT" &&
+            result.registrants &&
+            result.registrants[0] &&
+            result.registrants[0].label !== "null, null"
+              ? result.registrants[0].label
+              : ""}
+          </td>
+        ) : null}
         <td className="text-nowrap">{result.licenceType}</td>
         <td className="text-nowrap">
           {formatDateString(result.associatedOnDate)}
@@ -295,19 +315,30 @@ export default function AssociatedLicences({ licence }) {
       </>
     );
   } else if (results.status === REQUEST_STATUS.FULFILLED && results.count > 0) {
+    console.log(licence.data);
     control = (
       <>
         <Table striped size="sm" responsive className="mt-3 mb-0" hover>
           <thead className="thead-dark">
             <tr>
               <th className="text-nowrap">Licence</th>
+              {licence.data.licenceType === "VETERINARY DRUG" ? (
+                <th className="text-nowrap">Dispenser</th>
+              ) : null}
+              {licence.data.licenceType === "LIVESTOCK DEALER" ? (
+                <th className="text-nowrap">Livestock Dealer Agent</th>
+              ) : null}
               <th className="text-nowrap">Licence Type</th>
               <th className="text-nowrap">Associated On</th>
               <th className="text-nowrap">Company/Registrant</th>
               <th />
             </tr>
           </thead>
-          <tbody>{results.data.map((result) => formatResultRow(result))}</tbody>
+          <tbody>
+            {results.data.map((result) =>
+              formatResultRow(result, licence.data.licenceType)
+            )}
+          </tbody>
         </Table>
         <Row className="mt-3">
           <Col lg={3}>{associateLicenceButton}</Col>
