@@ -21,7 +21,7 @@ export class ApiError extends Error {
   }
 }
 
-const DEFAULT_TIMEOUT = 10000;
+const DEFAULT_TIMEOUT = 30000;
 
 const axiosInstance = axios.create({
   baseURL: "/api/v1",
