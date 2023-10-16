@@ -58,6 +58,8 @@ async function request(
       err.response.data.code &&
       err.response.data.description
     ) {
+      console.log(err.response.data);
+      console.log(err.response.data.description);
       return Promise.reject(
         new ApiError(err.response.data.code, err.response.data.description)
       );
