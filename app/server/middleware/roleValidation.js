@@ -20,7 +20,7 @@ module.exports = function (roles) {
   return async function (req, res, next) {
     try {
       const data = await fetchUser(req.currentUser.idir_username.toUpperCase());
-      if (data !== undefined) {
+      if (data !== undefined && data !== null) {
         const logical = user.convertToLogicalModel(data);
 
         if (roles.some((role) => logical.roleId === role)) {

@@ -113,7 +113,7 @@ export default function ApiaryInspectionDetailsView({ inspection, site }) {
             <Form.Label>Other</Form.Label>
             <Form.Control
               disabled
-              value={inspection.otherResultDescription}
+              value={inspection.otherResultDescription ?? ""}
               as="textarea"
               rows={8}
               name="otherResultDescription"

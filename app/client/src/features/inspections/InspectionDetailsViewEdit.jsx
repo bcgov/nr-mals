@@ -81,6 +81,7 @@ export default function InspectionDetailsViewEdit({
     setValue("broodTested", inspection.data.broodTested);
     setValue("varroaTested", inspection.data.varroaTested);
     setValue("smallHiveBeetleTested", inspection.data.smallHiveBeetleTested);
+    setValue("smallHiveBeetleResult", inspection.data.smallHiveBeetleResult);
     setValue(
       "americanFoulbroodResult",
       inspection.data.americanFoulbroodResult
@@ -110,6 +111,7 @@ export default function InspectionDetailsViewEdit({
     inspection.data.broodTested,
     inspection.data.varroaTested,
     inspection.data.smallHiveBeetleTested,
+    inspection.data.smallHiveBeetleResult,
     inspection.data.americanFoulbroodResult,
     inspection.data.europeanFoulbroodResult,
     inspection.data.chalkbroodResult,
@@ -176,7 +178,7 @@ export default function InspectionDetailsViewEdit({
           varroaMiteResult: parseAsInt(data.varroaMiteResult),
           varroaMiteResultPercent: parseAsFloat(data.varroaMiteResultPercent),
           otherResultDescription:
-            data.otherResultDescription.length === 0
+            data.otherResultDescription?.length === 0
               ? null
               : data.otherResultDescription,
           supersInspected: parseAsInt(data.supersInspected),
