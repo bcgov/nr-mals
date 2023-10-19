@@ -81,6 +81,7 @@ export default function InspectionDetailsViewEdit({
     setValue("broodTested", inspection.data.broodTested);
     setValue("varroaTested", inspection.data.varroaTested);
     setValue("smallHiveBeetleTested", inspection.data.smallHiveBeetleTested);
+    setValue("smallHiveBeetleResult", inspection.data.smallHiveBeetleResult);
     setValue(
       "americanFoulbroodResult",
       inspection.data.americanFoulbroodResult
@@ -110,6 +111,7 @@ export default function InspectionDetailsViewEdit({
     inspection.data.broodTested,
     inspection.data.varroaTested,
     inspection.data.smallHiveBeetleTested,
+    inspection.data.smallHiveBeetleResult,
     inspection.data.americanFoulbroodResult,
     inspection.data.europeanFoulbroodResult,
     inspection.data.chalkbroodResult,
