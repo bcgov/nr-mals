@@ -176,7 +176,7 @@ export default function InspectionDetailsViewEdit({
           varroaMiteResult: parseAsInt(data.varroaMiteResult),
           varroaMiteResultPercent: parseAsFloat(data.varroaMiteResultPercent),
           otherResultDescription:
-            data.otherResultDescription.length === 0
+            data.otherResultDescription?.length === 0
               ? null
               : data.otherResultDescription,
           supersInspected: parseAsInt(data.supersInspected),
