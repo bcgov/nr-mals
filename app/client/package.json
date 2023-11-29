@@ -1,6 +1,6 @@
 {
   "name": "mals",
-  "version": "5.3.0",
+  "version": "5.3.1",
   "private": true,
   "dependencies": {
     "@hookform/error-message": "^2.0.0",
