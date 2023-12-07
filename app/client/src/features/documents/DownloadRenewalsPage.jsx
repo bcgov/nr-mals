@@ -25,7 +25,7 @@ async function download(jobId) {
       null,
       {
         responseType: "arraybuffer", // needed for binaries unless you want pain
-        timeout: 30000, // override default timeout as this call could take a while
+        timeout: 60000, // override default timeout as this call could take a while
       }
     );
 
