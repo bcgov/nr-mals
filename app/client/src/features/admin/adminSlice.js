@@ -82,7 +82,7 @@ export const updateDairyTestResults = createAsyncThunk(
   "admin/updateDairyTestResults",
   async (data, thunkApi) => {
     try {
-      const response = await Api.post(`admin/dairytestresults`, data, 120000); // Override timeout to 2 minutes
+      const response = await Api.post(`admin/dairytestresults`, data, 240000); // Override timeout to 4 minutes
       return response.data;
     } catch (error) {
       if (error instanceof ApiError) {
@@ -100,7 +100,7 @@ export const updateDairyTestResultCalculations = createAsyncThunk(
       const response = await Api.post(
         `admin/dairytestresultcalculations`,
         data,
-        60000
+        120000
       );
       return response.data;
     } catch (error) {
@@ -131,7 +131,7 @@ export const updatePremisesIdResults = createAsyncThunk(
   "admin/updatePremisesIdResults",
   async (data, thunkApi) => {
     try {
-      const response = await Api.post(`admin/premisesidresults`, data, 120000); // Override timeout to 2 minutes
+      const response = await Api.post(`admin/premisesidresults`, data, 240000); // Override timeout to 2 minutes
       return response.data;
     } catch (error) {
       if (error instanceof ApiError) {
