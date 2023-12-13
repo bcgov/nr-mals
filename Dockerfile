@@ -7,6 +7,8 @@ RUN npm run all:ci \
   && npm run all:build \
   && npm run client:purge
 EXPOSE 8000
+# Change ownership of the directory to 'node' user
+RUN chown -R node:node /opt/app-root/src
 # Switch to non-root user
 USER node
 CMD ["npm", "run", "start"]
