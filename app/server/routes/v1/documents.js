@@ -43,7 +43,7 @@ const templateBuffers = [];
 
 const cdogs = axios.create({
   baseURL: process.env.CDOGS_URL,
-  timeout: 10000,
+  timeout: 30000,
 });
 
 cdogs.interceptors.request.use(
