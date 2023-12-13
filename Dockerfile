@@ -7,6 +7,6 @@ RUN npm run all:ci \
   && npm run all:build \
   && npm run client:purge
 EXPOSE 8000
-# Non-privileged user
-USER app
+# Switch to non-root user
+USER node
 CMD ["npm", "run", "start"]
