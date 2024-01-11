@@ -27,4 +27,4 @@ RUN npm run all:ci \
 EXPOSE 8000
 
 # Start the application
-CMD ["npm", "run", "start"]
+CMD ["sh", "-c", "chown -R 1001:1001 /opt/app-root/src/app/.npm-cache && npm run start"]
