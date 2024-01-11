@@ -15,9 +15,6 @@ COPY . /opt/app-root/src
 # Create the npm cache directory and ensure the correct ownership
 RUN mkdir -p $NPM_CONFIG_CACHE && chown -R 1001:1001 /opt/app-root/src/app
 
-# Switch to a non-root user with UID and GID 1001
-USER 1001:1001
-
 # Install dependencies and build the application
 RUN npm run all:ci \
     && npm run all:build \
