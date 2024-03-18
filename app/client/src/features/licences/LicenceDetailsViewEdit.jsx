@@ -333,7 +333,7 @@ export default function LicenceDetailsViewEdit({ licence }) {
               <Col sm={2}>
                 <Button
                   type="button"
-                  onClick={onRenew}
+                  onClick={[onRenew, onLicenceDetailsCheckboxChange("printLicence", true)]}
                   disabled={submitting}
                   variant="secondary"
                   block
