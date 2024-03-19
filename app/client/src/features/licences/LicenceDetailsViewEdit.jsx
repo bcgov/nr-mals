@@ -175,10 +175,12 @@ export default function LicenceDetailsViewEdit({ licence }) {
     return { issueDate: today, expiryDate };
   };
 
+  const [isPrintLicenceChecked, setIsPrintLicenceChecked] = React.useState(initialFormValues.printLicence);
+
   const onRenewCallback = (data) => {
     const dates = data;
     dispatch(renewLicence({ data: dates, id: licence.data.id }));
-    setValue("printLicence", true);
+    setIsPrintLicenceChecked(true);
   };
 
   const onRenew = () => {
@@ -266,7 +268,7 @@ export default function LicenceDetailsViewEdit({ licence }) {
           <CustomCheckBox
             id="printLicence"
             label="Print Licence"
-            defaultChecked={initialFormValues.printLicence}
+            defaultChecked={isPrintLicenceChecked}
             onChange={(e) =>
               onLicenceDetailsCheckboxChange("printLicence", e.target.checked)
             }
