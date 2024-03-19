@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 import "./CustomCheckBox.scss";
 
 const CustomCheckBox = React.forwardRef((props, ref) => {
-  const { id, label, onChange, disabled, defaultChecked } = props;
+  const { id, label, onChange, disabled, defaultChecked, checked } = props;
 
   return (
     <div className="custom-control form-control-lg custom-checkbox">
@@ -17,6 +17,7 @@ const CustomCheckBox = React.forwardRef((props, ref) => {
         defaultChecked={defaultChecked}
         onChange={onChange}
         disabled={disabled}
+        checked={checked}
       />
       <label className="custom-control-label" htmlFor={id}>
         {label}
@@ -31,6 +32,7 @@ CustomCheckBox.propTypes = {
   onChange: PropTypes.func,
   disabled: PropTypes.bool,
   defaultChecked: PropTypes.bool,
+  checked: PropTypes.bool,
 };
 
 CustomCheckBox.defaultProps = {

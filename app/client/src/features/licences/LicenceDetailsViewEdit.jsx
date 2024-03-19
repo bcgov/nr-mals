@@ -268,7 +268,8 @@ export default function LicenceDetailsViewEdit({ licence }) {
           <CustomCheckBox
             id="printLicence"
             label="Print Licence"
-            defaultChecked={isPrintLicenceChecked}
+            defaultChecked={initialFormValues.printLicence}
+            checked={isPrintLicenceChecked}
             onChange={(e) =>
               onLicenceDetailsCheckboxChange("printLicence", e.target.checked)
             }
