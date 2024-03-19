@@ -178,6 +178,7 @@ export default function LicenceDetailsViewEdit({ licence }) {
   const onRenewCallback = (data) => {
     const dates = data;
     dispatch(renewLicence({ data: dates, id: licence.data.id }));
+    setValue("printLicence", true);
   };
 
   const onRenew = () => {
@@ -333,7 +334,7 @@ export default function LicenceDetailsViewEdit({ licence }) {
               <Col sm={2}>
                 <Button
                   type="button"
-                  onClick={[onRenew, onLicenceDetailsCheckboxChange("printLicence", true)]}
+                  onClick={onRenew}
                   disabled={submitting}
                   variant="secondary"
                   block
