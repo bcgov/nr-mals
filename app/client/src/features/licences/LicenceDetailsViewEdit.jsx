@@ -228,6 +228,7 @@ export default function LicenceDetailsViewEdit({ licence }) {
         break;
       case "printLicence":
         printLicence = value;
+        setIsPrintLicenceChecked(value);
         break;
       case "renewalNotice":
         renewalNotice = value;
