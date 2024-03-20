@@ -180,7 +180,12 @@ export default function LicenceDetailsViewEdit({ licence }) {
   const onRenewCallback = (data) => {
     const dates = data;
     dispatch(renewLicence({ data: dates, id: licence.data.id }));
-    setIsPrintLicenceChecked(true);
+
+    let actionRequired = getValues("actionRequired");
+    let printLicence = true
+    let renewalNotice = getValues("renewalNotice");
+    setIsPrintLicenceChecked(printLicence);
+    dispatch(updateLicenceCheckboxes({data: { actionRequired, printLicence, renewalNotice }, id: licence.data.id }));
   };
 
   const onRenew = () => {
