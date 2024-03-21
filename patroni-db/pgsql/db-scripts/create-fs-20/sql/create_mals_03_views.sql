@@ -1576,6 +1576,7 @@ CREATE OR REPLACE VIEW mal_print_dairy_farm_tank_recheck_vw as
 		    l.id licence_id,  
 		    l_t.licence_type,
 			apiary_site_id,
+			s.premises_id,
 		    concat(l.licence_number, '-', s.apiary_site_id) registration_number,
 		    trim(concat(s.address_line_1, ' ', s.address_line_2)) address,
 	        s.city,
@@ -1715,7 +1716,8 @@ CREATE OR REPLACE VIEW mal_print_dairy_farm_tank_recheck_vw as
 			                       'LicenceName',           base.licence_type,
 			                       'LicenceNumber',         base.licence_number,
 			                       'LicenceFee',            base.licence_fee_display,	
-			                       'SiteLegalDescription',  site.legal_description,			                       
+			                       'SiteLegalDescription',  site.legal_description,
+								   'SitePremisesId',        site.premises_id,			                       
 			                       'SpeciesInventory',      base.species_code)
 		    when 'HIDE DEALER' then
 		    	--
