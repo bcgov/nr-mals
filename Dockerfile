@@ -1,4 +1,4 @@
-FROM docker.io/node:16.15.1-alpine
+FROM docker.io/node:20-alpine
 
 # Set environment variable to avoid update notifications
 ENV NO_UPDATE_NOTIFIER=true
