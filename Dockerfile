@@ -24,10 +24,8 @@ USER 1001:1001
 # Install dependencies and build the application
 RUN npm run all:ci \
     && npm run all:build \
+    && npx prisma generate \
     && npm run client:purge
-
-# Testing prisma generate here...
-RUN npx prisma generate
 
 # Expose the port the app runs on
 EXPOSE 8000
