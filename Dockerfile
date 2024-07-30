@@ -1,4 +1,4 @@
-FROM docker.io/node:20-alpine
+FROM docker.io/node:18-alpine
 
 # Set environment variable to avoid update notifications
 ENV NO_UPDATE_NOTIFIER=true
@@ -24,7 +24,6 @@ USER 1001:1001
 # Install dependencies and build the application
 RUN npm run all:ci \
     && npm run all:build \
-    && npx prisma generate \
     && npm run client:purge
 
 # Expose the port the app runs on
