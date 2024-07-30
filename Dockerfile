@@ -26,6 +26,9 @@ RUN npm run all:ci \
     && npm run all:build \
     && npm run client:purge
 
+# Testing prisma generate here...
+RUN npx prisma generate
+
 # Expose the port the app runs on
 EXPOSE 8000
 
