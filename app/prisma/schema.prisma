@@ -1,5 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["views"]
 }
 
 datasource db {
@@ -366,6 +367,9 @@ model mal_licence {
   create_timestamp                                                                           DateTime                        @db.Timestamp(6)
   update_userid                                                                              String                          @db.VarChar(63)
   update_timestamp                                                                           DateTime                        @db.Timestamp(6)
+  mal_dairy_farm_test_result                                                                 mal_dairy_farm_test_result[]
+  mal_fur_farm_inventory                                                                     mal_fur_farm_inventory[]
+  mal_game_farm_inventory                                                                    mal_game_farm_inventory[]
   mal_licence_type_lu                                                                        mal_licence_type_lu             @relation(fields: [licence_type_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "lic_lictyp_fk")
   mal_licence_species_code_lu                                                                mal_licence_species_code_lu?    @relation(fields: [species_code_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "lic_lsc_fk")
   mal_plant_code_lu                                                                          mal_plant_code_lu?              @relation(fields: [plant_code_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "lic_plnt_fk")
@@ -373,9 +377,6 @@ model mal_licence {
   mal_regional_district_lu                                                                   mal_regional_district_lu?       @relation(fields: [regional_district_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "lic_regdist_fk")
   mal_registrant                                                                             mal_registrant?                 @relation(fields: [primary_registrant_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "lic_rgst_fk")
   mal_status_code_lu                                                                         mal_status_code_lu              @relation(fields: [status_code_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "lic_stat_fk")
-  mal_dairy_farm_test_result                                                                 mal_dairy_farm_test_result[]
-  mal_fur_farm_inventory                                                                     mal_fur_farm_inventory[]
-  mal_game_farm_inventory                                                                    mal_game_farm_inventory[]
   mal_licence_comment                                                                        mal_licence_comment[]
   mal_licence_parent_child_xref_mal_licenceTomal_licence_parent_child_xref_child_licence_id  mal_licence_parent_child_xref[] @relation("mal_licenceTomal_licence_parent_child_xref_child_licence_id")
   mal_licence_parent_child_xref_mal_licenceTomal_licence_parent_child_xref_parent_licence_id mal_licence_parent_child_xref[] @relation("mal_licenceTomal_licence_parent_child_xref_parent_licence_id")
@@ -444,8 +445,8 @@ model mal_licence_species_code_lu {
   create_timestamp                DateTime                          @db.Timestamp(6)
   update_userid                   String                            @db.VarChar(63)
   update_timestamp                DateTime                          @db.Timestamp(6)
-  mal_licence_type_lu             mal_licence_type_lu               @relation(fields: [licence_type_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "lsc_lictyp_fk")
   mal_licence                     mal_licence[]
+  mal_licence_type_lu             mal_licence_type_lu               @relation(fields: [licence_type_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "lsc_lictyp_fk")
   mal_licence_species_sub_code_lu mal_licence_species_sub_code_lu[]
 
   @@unique([licence_type_id, code_name], map: "mal_lsc_code_name_uk")
@@ -461,9 +462,9 @@ model mal_licence_species_sub_code_lu {
   create_timestamp            DateTime                    @db.Timestamp(6)
   update_userid               String                      @db.VarChar(63)
   update_timestamp            DateTime                    @db.Timestamp(6)
-  mal_licence_species_code_lu mal_licence_species_code_lu @relation(fields: [species_code_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "lssc_sc_fk")
   mal_fur_farm_inventory      mal_fur_farm_inventory[]
   mal_game_farm_inventory     mal_game_farm_inventory[]
+  mal_licence_species_code_lu mal_licence_species_code_lu @relation(fields: [species_code_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "lssc_sc_fk")
 
   @@unique([species_code_id, code_name], map: "mal_lssc_id_code_uk")
 }
@@ -643,8 +644,8 @@ model mal_regional_district_lu {
   create_timestamp DateTime      @db.Timestamp(6)
   update_userid    String        @db.VarChar(63)
   update_timestamp DateTime      @db.Timestamp(6)
-  mal_region_lu    mal_region_lu @relation(fields: [region_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "regdist_reg_fk")
   mal_licence      mal_licence[]
+  mal_region_lu    mal_region_lu @relation(fields: [region_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "regdist_reg_fk")
   mal_site         mal_site[]
 
   @@unique([region_id, district_number], map: "mal_regdist_region_district_uk")
@@ -711,8 +712,8 @@ model mal_sale_yard_species_sub_code_lu {
   create_timestamp              DateTime                      @db.Timestamp(6)
   update_userid                 String                        @db.VarChar(63)
   update_timestamp              DateTime                      @db.Timestamp(6)
-  mal_sale_yard_species_code_lu mal_sale_yard_species_code_lu @relation(fields: [species_code_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "syssc_sysc_fk")
   mal_sale_yard_inventory       mal_sale_yard_inventory[]
+  mal_sale_yard_species_code_lu mal_sale_yard_species_code_lu @relation(fields: [species_code_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "syssc_sysc_fk")
 
   @@unique([species_code_id, code_name], map: "mal_syssc_id_code_uk")
 }
@@ -751,11 +752,11 @@ model mal_site {
   update_timestamp         DateTime                  @db.Timestamp(6)
   premises_id              String?                   @db.VarChar(24)
   email_address            String?                   @db.VarChar(128)
+  mal_dairy_farm_tank      mal_dairy_farm_tank[]
   mal_licence              mal_licence               @relation(fields: [licence_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "site_lic_fk")
   mal_regional_district_lu mal_regional_district_lu? @relation(fields: [regional_district_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "site_regdist_fk")
   mal_status_code_lu       mal_status_code_lu?       @relation(fields: [status_code_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "site_stat_fk")
   mal_region_lu            mal_region_lu?            @relation(fields: [region_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "sitr_reg_fk")
-  mal_dairy_farm_tank      mal_dairy_farm_tank[]
 
   @@index([contact_name])
   @@index([licence_id], map: "mal_site_license_id_idx")
@@ -772,6 +773,61 @@ model mal_status_code_lu {
   update_timestamp DateTime      @db.Timestamp(6)
   mal_licence      mal_licence[]
   mal_site         mal_site[]
+}
+
+model mal_dairy_farm_trailer {
+  id                    Int       @id @default(autoincrement())
+  licence_id            Int
+  trailer_id            Int?
+  date_issued           DateTime? @db.Timestamp(6)
+  trailer_number        String?   @db.VarChar(50)
+  geographical_division String?   @db.VarChar(50)
+  serial_number_vin     String?   @db.VarChar(50)
+  license_plate         String?   @db.VarChar(10)
+  trailer_year          Int?      @db.SmallInt
+  trailer_make          String?   @db.VarChar(50)
+  trailer_type          String?   @db.VarChar(50)
+  trailer_capacity      Int?
+  trailer_compartments  Int?      @db.SmallInt
+  active_flag           Boolean   @default(true)
+  create_userid         String    @db.VarChar(63)
+  create_timestamp      DateTime  @db.Timestamp(6)
+  update_userid         String    @db.VarChar(63)
+  update_timestamp      DateTime  @db.Timestamp(6)
+
+  @@unique([licence_id, trailer_id], map: "mal_dairy_farm_trailer_ukey")
+}
+
+model mal_dairy_farm_trailer_vw {
+  dairy_farm_trailer_id       Int @unique
+  licence_id                  Int?
+  licence_number              Int?
+  irma_number                 String?   @db.VarChar(10)
+  licence_status              String?   @db.VarChar(50)
+  company_name                String?   @db.VarChar(200)
+  derived_licence_holder_name String?
+  registrant_last_first       String?   @db.VarChar
+  address                     String?
+  city                        String?   @db.VarChar(35)
+  province                    String?   @db.VarChar(4)
+  postal_code                 String?   @db.VarChar(6)
+  registrant_primary_phone    String?   @db.VarChar(10)
+  registrant_secondary_phone  String?   @db.VarChar(10)
+  registrant_fax_number       String?   @db.VarChar(10)
+  registrant_email_address    String?   @db.VarChar(128)
+  issue_date                  DateTime? @db.Date
+  issue_date_display          String?
+  trailer_id                  Int?
+  trailer_number              String?   @db.VarChar(50)
+  geographical_division       String?   @db.VarChar(50)
+  serial_number_vin           String?   @db.VarChar(50)
+  license_plate               String?   @db.VarChar(10)
+  trailer_year                Int?      @db.SmallInt
+  trailer_make                String?   @db.VarChar(50)
+  trailer_type                String?   @db.VarChar(50)
+  trailer_capacity            Int?
+  trailer_compartments        Int?      @db.SmallInt
+  trailer_active_flag         Boolean?
 }
 
 model mal_licence_summary_vw {

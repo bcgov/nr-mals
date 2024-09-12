@@ -86,3 +86,44 @@ model mal_print_dairy_farm_tank_recheck_vw {
   print_recheck_notice              Boolean
   recheck_notice_json               Json
 }
+
+view mal_print_dairy_farm_trailer_vw {
+  licence_type   String? @db.VarChar(50)
+  licence_id     Int?
+  licence_number Int?
+  irma_number    String? @db.VarChar(10)
+  last_name      String? @db.VarChar(200)
+  json_patload   Json?   @db.Json
+}
+
+view mal_dairy_farm_trailer_vw {
+  dairy_farm_trailer_id       Int @unique
+  licence_id                  Int?
+  licence_number              Int?
+  irma_number                 String?   @db.VarChar(10)
+  licence_status              String?   @db.VarChar(50)
+  company_name                String?   @db.VarChar(200)
+  derived_licence_holder_name String?
+  registrant_last_first       String?   @db.VarChar
+  address                     String?
+  city                        String?   @db.VarChar(35)
+  province                    String?   @db.VarChar(4)
+  postal_code                 String?   @db.VarChar(6)
+  registrant_primary_phone    String?   @db.VarChar(10)
+  registrant_secondary_phone  String?   @db.VarChar(10)
+  registrant_fax_number       String?   @db.VarChar(10)
+  registrant_email_address    String?   @db.VarChar(128)
+  issue_date                  DateTime? @db.Date
+  issue_date_display          String?
+  trailer_id                  Int?
+  trailer_number              String?   @db.VarChar(50)
+  geographical_division       String?   @db.VarChar(50)
+  serial_number_vin           String?   @db.VarChar(50)
+  license_plate               String?   @db.VarChar(10)
+  trailer_year                Int?      @db.SmallInt
+  trailer_make                String?   @db.VarChar(50)
+  trailer_type                String?   @db.VarChar(50)
+  trailer_capacity            Int?
+  trailer_compartments        Int?      @db.SmallInt
+  trailer_active_flag         Boolean?
+}
