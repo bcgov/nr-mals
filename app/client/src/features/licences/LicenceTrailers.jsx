@@ -17,15 +17,15 @@ import { startOfToday } from "date-fns";
 
 import SectionHeading from "../../components/SectionHeading";
 
-import { selectCreatedSite, createSite } from "../sites/sitesSlice";
+import { selectCreatedTrailer, createTrailer } from "../trailers/trailersSlice";
 import {
-  clearSiteParameters,
-  setSiteParameters,
-  fetchSiteResults,
-  selectSiteResults,
-  setSiteSearchPage,
-  setSiteFilterText,
-  clearSiteFilterText,
+  clearTrailerParameters,
+  setTrailerParameters,
+  fetchTrailerResults,
+  selectTrailerResults,
+  setTrailerSearchPage,
+  setTrailerFilterText,
+  clearTrailerFilterText,
 } from "../search/searchSlice";
 
 import { selectLicenceStatuses } from "../lookups/licenceStatusesSlice";
@@ -33,10 +33,10 @@ import { selectLicenceStatuses } from "../lookups/licenceStatusesSlice";
 import {
   REQUEST_STATUS,
   LICENCE_STATUS_TYPES,
-  SITES_PATHNAME,
   COUNTRIES,
   PROVINCES,
   SYSTEM_ROLES,
+  TRAILERS_PATHNAME,
 } from "../../utilities/constants";
 
 import ErrorMessageRow from "../../components/ErrorMessageRow";
@@ -44,49 +44,51 @@ import ErrorMessageRow from "../../components/ErrorMessageRow";
 import { selectCurrentUser } from "../../app/appSlice";
 
 function formatResultRow(result) {
-  const url = `${SITES_PATHNAME}/${result.siteId}`;
-  if (result.apiarySiteIdDisplay) {
-    console.log("apiarySiteIdDisplay");
-    console.log(result.apiarySiteIdDisplay);
-  }
+  const url = `${TRAILERS_PATHNAME}/${result.dairyFarmTrailerId}`;
   return (
-    <tr key={result.siteId}>
+    <tr key={result.dairyFarmTrailerId}>
       <td className="text-nowrap">
         <Link to={url}>
-          {result.apiarySiteIdDisplay
-            ? `${result.apiarySiteIdDisplay}`
-            : result.siteId}
+          {`${result.licenceNumber}-${result.trailerNumber}`}
         </Link>
       </td>
-      <td className="text-nowrap">{result.siteStatus}</td>
-      <td className="text-nowrap">{result.registrantLastName}</td>
-      <td className="text-nowrap">{result.registrantFirstName}</td>
-      <td className="text-nowrap">{result.siteAddressLine1}</td>
-      <td className="text-nowrap">{result.licenceRegion}</td>
-      <td className="text-nowrap">{result.licenceDistrict}</td>
+      <td className="text-nowrap">
+        {result.trailerActiveFlag === true ? "ACT" : "INA"}
+      </td>
+      <td className="text-nowrap">{result.registrantLastFirst}</td>
+      <td className="text-nowrap">{result.geographicalDivision}</td>
     </tr>
   );
 }
 
 function navigateToSearchPage(dispatch, page) {
-  dispatch(setSiteSearchPage(page));
-  dispatch(fetchSiteResults());
+  dispatch(setTrailerSearchPage(page));
+  dispatch(fetchTrailerResults());
 }
 
-export default function LicenceSites({ licence }) {
+export default function LicenceTrailers({ licence }) {
   const dispatch = useDispatch();
   const licenceStatuses = useSelector(selectLicenceStatuses);
-  const results = useSelector(selectSiteResults);
-  const createdSite = useSelector(selectCreatedSite);
+  const results = useSelector(selectTrailerResults);
+  const createdTrailer = useSelector(selectCreatedTrailer);
   const currentUser = useSelector(selectCurrentUser);
 
   const [debouncedActionTimeout, setDebouncedActionTimeout] = useState(null);
 
   useEffect(() => {
-    dispatch(clearSiteParameters());
-    dispatch(clearSiteFilterText());
-    dispatch(setSiteParameters({ licenceNumber: licence.data.licenceNumber }));
-    dispatch(fetchSiteResults());
+    if (results) {
+      console.log("results:");
+      console.log(results);
+    }
+  }, [results]);
+
+  useEffect(() => {
+    dispatch(clearTrailerParameters());
+    dispatch(clearTrailerFilterText());
+    dispatch(
+      setTrailerParameters({ licenceNumber: licence.data.licenceNumber })
+    );
+    dispatch(fetchTrailerResults());
   }, [dispatch]);
 
   const handleFilterTextChange = (e) => {
@@ -97,19 +99,19 @@ export default function LicenceSites({ licence }) {
     }
 
     const newTimeout = setTimeout(() => {
-      dispatch(setSiteSearchPage(1));
-      dispatch(setSiteFilterText(newFilterText));
-      dispatch(fetchSiteResults());
+      dispatch(setTrailerSearchPage(1));
+      dispatch(setTrailerFilterText(newFilterText));
+      dispatch(fetchTrailerResults());
     }, 700);
 
     setDebouncedActionTimeout(newTimeout);
   };
 
-  function addSiteOnClick() {
+  function addTrailerOnClick() {
     const payload = {
       licenceId: licence.data.id,
       licenceTypeId: licence.data.licenceTypeId,
-      siteStatus: licenceStatuses.data.find(
+      trailerStatus: licenceStatuses.data.find(
         (x) => x.code_description === LICENCE_STATUS_TYPES.ACTIVE
       ).id,
       country: COUNTRIES.CANADA,
@@ -118,18 +120,18 @@ export default function LicenceSites({ licence }) {
       regionalDistrict: null,
       registrationDate: startOfToday(),
     };
-    dispatch(createSite(payload));
+    dispatch(createTrailer(payload));
   }
 
-  const addSiteButton = (
+  const addTrailerButton = (
     <Button
       size="md"
       type="button"
       variant="primary"
-      onClick={addSiteOnClick}
+      onClick={addTrailerOnClick}
       block
     >
-      Add a Site
+      Add a Trailer
     </Button>
   );
 
@@ -153,14 +155,14 @@ export default function LicenceSites({ licence }) {
         </p>
       </Alert>
     );
-  } else if (createdSite.status === REQUEST_STATUS.REJECTED) {
+  } else if (createdTrailer.status === REQUEST_STATUS.REJECTED) {
     control = (
       <Alert variant="danger">
         <Alert.Heading>
-          An error was encountered while creating a site.
+          An error was encountered while creating a trailer.
         </Alert.Heading>
         <p>
-          {createdSite.error.code}: {createdSite.error.description}
+          {createdTrailer.error.code}: {createdTrailer.error.description}
         </p>
       </Alert>
     );
@@ -173,12 +175,12 @@ export default function LicenceSites({ licence }) {
         <ErrorMessageRow
           variant="success"
           errorHeading={null}
-          errorMessage={"There are no sites associated with this licence."}
+          errorMessage={"There are no trailers associated with this licence."}
         />
         {currentUser.data.roleId !== SYSTEM_ROLES.READ_ONLY &&
         currentUser.data.roleId !== SYSTEM_ROLES.INSPECTOR ? (
           <Row>
-            <Col lg={2}>{addSiteButton}</Col>
+            <Col lg={2}>{addTrailerButton}</Col>
           </Row>
         ) : null}
       </>
@@ -189,13 +191,10 @@ export default function LicenceSites({ licence }) {
         <Table striped size="sm" responsive className="mt-3" hover>
           <thead className="thead-dark">
             <tr>
-              <th>Site ID</th>
-              <th className="text-nowrap">Site Status</th>
-              <th className="text-nowrap">Last Name</th>
-              <th className="text-nowrap">First Name</th>
-              <th className="text-nowrap">Address</th>
-              <th>Region</th>
-              <th>District</th>
+              <th>Trailer ID</th>
+              <th className="text-nowrap">Trailer Status</th>
+              <th className="text-nowrap">Name</th>
+              <th className="text-nowrap">Division</th>
             </tr>
           </thead>
           <tbody>{results.data.map((result) => formatResultRow(result))}</tbody>
@@ -203,7 +202,7 @@ export default function LicenceSites({ licence }) {
         <Row className="mt-3">
           {currentUser.data.roleId !== SYSTEM_ROLES.READ_ONLY &&
           currentUser.data.roleId !== SYSTEM_ROLES.INSPECTOR ? (
-            <Col md="3">{addSiteButton}</Col>
+            <Col md="3">{addTrailerButton}</Col>
           ) : null}
           <Col className="d-flex justify-content-center">
             Showing {results.data.length} of {results.count} entries
@@ -236,12 +235,12 @@ export default function LicenceSites({ licence }) {
 
   return (
     <>
-      <SectionHeading>Sites</SectionHeading>
+      <SectionHeading>Trailers</SectionHeading>
       <Container className="mt-3 mb-4">
         <div className="mb-3">
           <input
             type="text"
-            placeholder="Filter sites"
+            placeholder="Filter trailers"
             onChange={handleFilterTextChange}
           />
         </div>
@@ -251,6 +250,6 @@ export default function LicenceSites({ licence }) {
   );
 }
 
-LicenceSites.propTypes = {
+LicenceTrailers.propTypes = {
   licence: PropTypes.object.isRequired,
 };

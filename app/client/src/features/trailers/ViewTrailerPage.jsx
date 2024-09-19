@@ -23,87 +23,82 @@ import PageHeading from "../../components/PageHeading";
 import SectionHeading from "../../components/SectionHeading";
 
 import {
-  fetchSite,
-  selectCurrentSite,
-  clearCreatedSite,
-  clearCurrentSite,
-} from "./sitesSlice";
+  fetchTrailer,
+  selectCurrentTrailer,
+  clearCreatedTrailer,
+  clearCurrentTrailer,
+} from "./trailersSlice";
 import {
   fetchLicence,
   selectCurrentLicence,
   clearCurrentLicence,
 } from "../licences/licencesSlice";
 
-import SiteHeader from "./SiteHeader";
+import TrailerHeader from "./TrailerHeader";
 import LicenceDetailsView from "../licences/LicenceDetailsView";
-import SiteDetailsViewEdit from "./SiteDetailsViewEdit";
+import TrailerDetailsViewEdit from "./TrailerDetailsViewEdit";
 
 import Comments from "../comments/Comments";
 
-import "./ViewSitePage.scss";
-import DairyTanksViewEdit from "./dairytanks/DairyTanksViewEdit";
-// import TrailerDetailsViewEdit from "../trailers/TrailerDetailsViewEdit";
+import "./ViewTrailerPage.scss";
 
-import {
-  LICENCE_TYPE_ID_DAIRY_FARM,
-  LICENCE_TYPE_ID_APIARY,
-  // LICENCE_TYPE_ID_DAIRY_TANK_TRUCK,
-} from "../licences/constants";
-
-export default function ViewSitePage() {
+export default function ViewTrailerPage() {
   const history = useHistory();
   const dispatch = useDispatch();
   const { id } = useParams();
-  const site = useSelector(selectCurrentSite);
+  const trailer = useSelector(selectCurrentTrailer);
   const licence = useSelector(selectCurrentLicence);
   useEffect(() => {
-    dispatch(clearCreatedSite());
+    dispatch(clearCreatedTrailer());
     dispatch(clearCurrentLicence());
-    dispatch(clearCurrentSite());
+    dispatch(clearCurrentTrailer());
 
-    dispatch(fetchSite(id)).then((record) => {
+    dispatch(fetchTrailer(id)).then((record) => {
       dispatch(fetchLicence(record.payload.licenceId));
     });
   }, [dispatch, id]);
 
-  function formatInspectionsResultRow(result) {
-    const url = `${INSPECTIONS_PATHNAME}/${result.id}`;
-    return (
-      <tr key={result.id}>
-        <td className="text-nowrap">{result.inspectionDate}</td>
-        <td className="text-nowrap">{result.inspectorId}</td>
-        <td className="text-nowrap">
-          <Link to={url}>View</Link>
-        </td>
-      </tr>
-    );
-  }
+  console.log("---ViewTrailerPage:");
+  console.log("trailer");
+  console.log(trailer);
+  console.log("licence");
+  console.log(licence);
+  console.log("ViewTrailerPage---");
 
-  function addInspectionOnClick() {
-    history.push(`${CREATE_INSPECTIONS_PATHNAME}/${id}`);
-  }
+  // function formatInspectionsResultRow(result) {
+  //   const url = `${INSPECTIONS_PATHNAME}/${result.id}`;
+  //   return (
+  //     <tr key={result.id}>
+  //       <td className="text-nowrap">{result.inspectionDate}</td>
+  //       <td className="text-nowrap">{result.inspectorId}</td>
+  //       <td className="text-nowrap">
+  //         <Link to={url}>View</Link>
+  //       </td>
+  //     </tr>
+  //   );
+  // }
 
-  const addInspectionButton = (
-    <Button
-      size="md"
-      type="button"
-      variant="primary"
-      onClick={addInspectionOnClick}
-      block
-    >
-      Create Inspection
-    </Button>
-  );
+  // function addInspectionOnClick() {
+  //   history.push(`${CREATE_INSPECTIONS_PATHNAME}/${id}`);
+  // }
 
-  console.log("ViewSitePage");
-  console.log("licence.data.licenceTypeId");
-  console.log("licence.data.licenceTypeId");
-  console.log(licence?.data?.licenceTypeId);
+  // const addInspectionButton = (
+  //   <Button
+  //     size="md"
+  //     type="button"
+  //     variant="primary"
+  //     onClick={addInspectionOnClick}
+  //     block
+  //   >
+  //     Create Inspection
+  //   </Button>
+  // );
+
   let content;
-  if (site.data && licence.data) {
+  if (trailer.data && licence.data) {
     content = (
       <>
-        <SiteHeader site={site.data} licence={licence.data} />
+        <TrailerHeader trailer={trailer.data} licence={licence.data} />
         <section>
           <SectionHeading>License Details</SectionHeading>
           <Container className="mt-3 mb-4">
@@ -111,18 +106,13 @@ export default function ViewSitePage() {
           </Container>
         </section>
 
-        <SiteDetailsViewEdit site={site} licence={licence.data} />
-        {licence.data.licenceTypeId === LICENCE_TYPE_ID_DAIRY_FARM ? (
-          <DairyTanksViewEdit site={site} />
-        ) : null}
-        {/* {licence.data.licenceTypeId === LICENCE_TYPE_ID_DAIRY_TANK_TRUCK ? (
-          <TrailerDetailsViewEdit site={site} licence={licence.data} />
-        ) : null} */}
-        {licence.data.licenceTypeId === LICENCE_TYPE_ID_APIARY ? (
-          <section>
+        <TrailerDetailsViewEdit trailer={trailer} licence={licence.data} />
+
+        {/** this inspections code is for apiary and will need to be re-written for trailer inspections */}
+        {/* <section>
             <SectionHeading>Inspections</SectionHeading>
             <Container className="mt-3 mb-4">
-              {site.data.inspections?.length > 0 ? (
+              {trailer.data.inspections?.length > 0 ? (
                 <>
                   <Table
                     striped
@@ -139,7 +129,7 @@ export default function ViewSitePage() {
                       </tr>
                     </thead>
                     <tbody>
-                      {site.data.inspections.map((result) =>
+                      {trailer.data.inspections.map((result) =>
                         formatInspectionsResultRow(result)
                       )}
                     </tbody>
@@ -162,7 +152,7 @@ export default function ViewSitePage() {
                     <Col>
                       <Alert variant="success" className="mt-3">
                         <div>
-                          There are no inspections associated with this site.
+                          There are no inspections associated with this trailer.
                         </div>
                       </Alert>
                     </Col>
@@ -181,14 +171,14 @@ export default function ViewSitePage() {
                 </>
               )}
             </Container>
-          </section>
-        ) : null}
+          </section> */}
+
         <Comments licence={licence.data} />
       </>
     );
   } else if (
-    site.status === REQUEST_STATUS.IDLE ||
-    site.status === REQUEST_STATUS.PENDING ||
+    trailer.status === REQUEST_STATUS.IDLE ||
+    trailer.status === REQUEST_STATUS.PENDING ||
     licence.status === REQUEST_STATUS.IDLE ||
     licence.status === REQUEST_STATUS.PENDING
   ) {
@@ -201,9 +191,11 @@ export default function ViewSitePage() {
     content = (
       <Alert variant="danger">
         <Alert.Heading>
-          An error was encountered while loading the site.
+          An error was encountered while loading the trailer.
         </Alert.Heading>
-        {site.error && <p>{`${site.error.code}: ${site.error.description}`}</p>}
+        {trailer.error && (
+          <p>{`${trailer.error.code}: ${trailer.error.description}`}</p>
+        )}
         {licence.error && (
           <p>{`${licence.error.code}: ${licence.error.description}`}</p>
         )}
@@ -213,7 +205,7 @@ export default function ViewSitePage() {
 
   return (
     <section>
-      <PageHeading>View a Site Record</PageHeading>
+      <PageHeading>View a Trailer Record</PageHeading>
       {content}
     </section>
   );

@@ -42,6 +42,8 @@ import AdminConfig from "./features/admin/AdminConfig";
 import AdminDairyTestResults from "./features/admin/AdminDairyTestResults";
 import AdminPremisesId from "./features/admin/AdminPremisesId";
 
+import ViewTrailerPage from "./features/trailers/ViewTrailerPage";
+
 import ModalComponent from "./components/ModalComponent";
 import keycloak from "./app/keycloak";
 import { fetchCurrentUser } from "./app/appSlice";
@@ -73,6 +75,9 @@ function App() {
         <ModalComponent />
         <Container id="main-content" className="mt-3">
           <Switch>
+            <ProtectedRoute path={`${Constant.TRAILERS_PATHNAME}/:id`}>
+              <ViewTrailerPage />
+            </ProtectedRoute>
             <ProtectedRoute path={`${Constant.SEARCH_LICENSES_PATHNAME}`}>
               <LicenceSearchPage />
             </ProtectedRoute>

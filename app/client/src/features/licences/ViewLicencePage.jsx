@@ -16,6 +16,7 @@ import { selectCreatedSite, clearCurrentSite } from "../sites/sitesSlice";
 import LicenceDetailsViewEdit from "./LicenceDetailsViewEdit";
 import LicenceHeader from "./LicenceHeader";
 import LicenceSites from "./LicenceSites";
+import LicenceTrailers from "./LicenceTrailers";
 import LicenceInventory from "./LicenceInventory";
 import LicenceInventoryHistory from "./LicenceInventoryHistory";
 import LicenceDairyTestInventory from "./LicenceDairyTestInventory";
@@ -30,6 +31,7 @@ import {
   LICENCE_TYPE_ID_VETERINARY_DRUG,
   LICENCE_TYPE_ID_MEDICATED_FEED,
   LICENCE_TYPE_ID_DAIRY_FARM,
+  LICENCE_TYPE_ID_DAIRY_TANK_TRUCK,
 } from "./constants";
 
 import Comments from "../comments/Comments";
@@ -65,21 +67,29 @@ export default function ViewLicencePage() {
   const showAssociatedLicence =
     licence.data &&
     associatedLicenceTypes.find((x) => x === licence.data.licenceTypeId) !==
-    undefined;
+      undefined;
 
+  console.log("ViewLicencePage");
   let content;
   if (licence.data) {
+    console.log("licence.data.licenceTypeId");
+    console.log(licence.data.licenceTypeId);
     content = (
       <>
         <LicenceHeader licence={licence.data} />
         <RegistrantsViewEdit licence={licence} />
         <LicenceDetailsViewEdit licence={licence} />
-        <LicenceSites licence={licence} />
+
+        {licence.data.licenceTypeId === LICENCE_TYPE_ID_DAIRY_TANK_TRUCK ? (
+          <LicenceTrailers licence={licence} />
+        ) : (
+          <LicenceSites licence={licence} />
+        )}
         {licence.data.licenceTypeId === LICENCE_TYPE_ID_DAIRY_FARM ? (
           <LicenceDairyTestInventory licence={licence} />
         ) : null}
         {licence.data.licenceTypeId === LICENCE_TYPE_ID_GAME_FARM ||
-          licence.data.licenceTypeId === LICENCE_TYPE_ID_FUR_FARM ? (
+        licence.data.licenceTypeId === LICENCE_TYPE_ID_FUR_FARM ? (
           <>
             <LicenceInventory licence={licence} />
             <LicenceInventoryHistory licence={licence} />

@@ -1,7 +1,7 @@
 require("dotenv").config();
 
 const express = require("express");
-const Problem = require('api-problem');
+const Problem = require("api-problem");
 const httpContext = require("express-http-context");
 const path = require("path");
 const cookieParser = require("cookie-parser");
@@ -9,14 +9,14 @@ const logger = require("morgan");
 const helmet = require("helmet");
 const cors = require("cors");
 
-const appRouter = require('./routes/v1');
-const { Error, Log, getGitRevision } = require('./utilities/util');
+const appRouter = require("./routes/v1");
+const { Error, Log, getGitRevision } = require("./utilities/util");
 
 const apiRouter = express.Router();
 const state = {
   gitRev: getGitRevision(),
   ready: false,
-  shutdown: false
+  shutdown: false,
 };
 
 const app = express();
@@ -43,7 +43,7 @@ app.use(
           "*.oidc.gov.bc.ca",
           "oidc.gov.bc.ca",
           "loginproxy.gov.bc.ca",
-          "*.loginproxy.gov.bc.ca/"
+          "*.loginproxy.gov.bc.ca/",
         ],
       },
     },
@@ -56,9 +56,11 @@ app.use(function (req, res, next) {
   next();
 });
 
-app.use(cors({
-  origin: true // Set true to dynamically set Access-Control-Allow-Origin based on Origin
-}));
+app.use(
+  cors({
+    origin: true, // Set true to dynamically set Access-Control-Allow-Origin based on Origin
+  })
+);
 app.use(logger("dev"));
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: false, limit: "50mb" }));
@@ -66,7 +68,7 @@ app.use(cookieParser());
 app.use(httpContext.middleware);
 
 // Skip if running tests
-if (process.env.NODE_ENV !== 'test') {
+if (process.env.NODE_ENV !== "test") {
   // Initialize connections and exit if unsuccessful
   initializeConnections();
 }
@@ -74,9 +76,9 @@ if (process.env.NODE_ENV !== 'test') {
 // Block requests until service is ready
 app.use((_req, res, next) => {
   if (state.shutdown) {
-    new Problem(503, { details: 'Server is shutting down' }).send(res);
+    new Problem(503, { details: "Server is shutting down" }).send(res);
   } else if (!state.ready) {
-    new Problem(503, { details: 'Server is not ready' }).send(res);
+    new Problem(503, { details: "Server is not ready" }).send(res);
   } else {
     next();
   }
@@ -92,11 +94,11 @@ apiRouter.use("/v1/config", (req, res) => {
   const response = {
     environment: process.env.ENVIRONMENT_LABEL || "dev",
     nodeVersion: process.version,
-    version: process.env.npm_package_version
+    version: process.env.npm_package_version,
   };
   return res.send(response);
 });
-apiRouter.use('/v1', appRouter);
+apiRouter.use("/v1", appRouter);
 
 // Root level Router
 app.use(/(\/api)?/, apiRouter);
@@ -139,12 +141,12 @@ app.use(function handleError(error, req, res, next) {
 });
 
 // Graceful shutdown support
-process.on('SIGTERM', shutdown);
-process.on('SIGINT', shutdown);
-process.on('SIGUSR1', shutdown);
-process.on('SIGUSR2', shutdown);
-process.on('exit', () => {
-  Log('Exiting...');
+process.on("SIGTERM", shutdown);
+process.on("SIGINT", shutdown);
+process.on("SIGUSR1", shutdown);
+process.on("SIGUSR2", shutdown);
+process.on("exit", () => {
+  Log("Exiting...");
 });
 
 /**
@@ -152,10 +154,10 @@ process.on('exit', () => {
  * Cleans up connections in this application.
  */
 function cleanup() {
-  Log('Service no longer accepting traffic');
+  Log("Service no longer accepting traffic");
   state.shutdown = true;
 
-  Log('Cleaning up...');
+  Log("Cleaning up...");
 
   // Wait 10 seconds max before hard exiting
   setTimeout(() => process.exit(), 10000);
@@ -166,7 +168,7 @@ function cleanup() {
  * Shuts down this application after at least 3 seconds.
  */
 function shutdown() {
-  Log('Received kill signal. Shutting down...');
+  Log("Received kill signal. Shutting down...");
   // Wait 3 seconds before starting cleanup
   if (!state.shutdown) setTimeout(cleanup, 3000);
 }
@@ -179,19 +181,17 @@ function shutdown() {
 function initializeConnections() {
   try {
     // Empty block
-  }
-  catch (error) {
-    Error('Connection initialization failure');
+  } catch (error) {
+    Error("Connection initialization failure");
     Error(error.message);
     if (!state.ready) {
       process.exitCode = 1;
       shutdown();
     }
-  }
-  finally {
+  } finally {
     state.ready = true;
     if (state.ready) {
-      Log('Service ready to accept traffic');
+      Log("Service ready to accept traffic");
     }
   }
 }

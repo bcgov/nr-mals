@@ -60,6 +60,48 @@ model mal_site_detail_vw {
   licence_regional_district_name    String?
 }
 
+model mal_site_detail_vw_mockup {
+  site_id_pk                        Int?
+  licence_id                        Int?
+  site_status                       String?
+  site_status_id                    Int?
+  licence_number                    Int?
+  licence_irma_number               String?
+  licence_type                      String
+  licence_type_id                   Int?
+  licence_status                    String?
+  licence_status_id                 Int?
+  apiary_site_id                    Int?
+  apiary_site_id_display            String?
+  site_contact_name                 String?
+  site_address_line_1               String?
+  registrant_first_name             String?
+  registrant_last_name              String?
+  registrant_first_last             String?
+  registrant_last_first             String?
+  registrant_primary_phone          String?
+  registrant_email_address          String?
+  licence_city                      String?
+  licence_region_number             String?
+  licence_region_name               String?
+  licence_regional_district_number  String?
+  licence_regional_district_name    String?
+entry_type String?
+company_name String?
+dairy_farm_trailer_id Int?
+licence_trailer_id String?
+trailer_number String?
+geographical_division String?
+serial_number_vin String?
+license_plate String?
+trailer_year Int?
+trailer_make String?
+trailer_type String?
+trailer_capacity Int?
+trailer_compartments Int?
+trailer_active_flag Boolean?
+}
+
 model mal_print_dairy_farm_infraction_vw {
   dairy_farm_test_result_id         Int
   licence_id                        Int 
@@ -87,16 +129,7 @@ model mal_print_dairy_farm_tank_recheck_vw {
   recheck_notice_json               Json
 }
 
-view mal_print_dairy_farm_trailer_vw {
-  licence_type   String? @db.VarChar(50)
-  licence_id     Int?
-  licence_number Int?
-  irma_number    String? @db.VarChar(10)
-  last_name      String? @db.VarChar(200)
-  json_patload   Json?   @db.Json
-}
-
-view mal_dairy_farm_trailer_vw {
+model mal_dairy_farm_trailer_vw {
   dairy_farm_trailer_id       Int @unique
   licence_id                  Int?
   licence_number              Int?
@@ -115,7 +148,7 @@ view mal_dairy_farm_trailer_vw {
   registrant_email_address    String?   @db.VarChar(128)
   issue_date                  DateTime? @db.Date
   issue_date_display          String?
-  trailer_id                  Int?
+  licence_trailer_seq         Int?
   trailer_number              String?   @db.VarChar(50)
   geographical_division       String?   @db.VarChar(50)
   serial_number_vin           String?   @db.VarChar(50)

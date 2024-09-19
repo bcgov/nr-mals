@@ -59,7 +59,35 @@ function convertApiaryInspectionToPhysicalModel(input) {
   return output;
 }
 
+function convertTrailerInspectionToLogicalModel(input) {
+  const output = {
+    id: input.id,
+    trailerId: input.trailer_id,
+    inspectionDate: formatDate(input.inspection_date),
+    inspectorId: input.inspector_id,
+    inspectionComment: input.inspection_comment,
+  };
+
+  return output;
+}
+
+function convertTrailerInspectionToPhysicalModel(input) {
+  const output = {
+    trailer_id: input.trailerId,
+    inspection_date: input.inspectionDate,
+    inspector_id: input.inspectorId,
+    inspection_comment: input.inspectionComment,
+    create_userid: input.createdBy,
+    create_timestamp: input.createdOn,
+    update_userid: input.updatedBy,
+    update_timestamp: input.updatedOn,
+  };
+  return output;
+}
+
 module.exports = {
   convertApiaryInspectionToLogicalModel,
   convertApiaryInspectionToPhysicalModel,
+  convertTrailerInspectionToLogicalModel,
+  convertTrailerInspectionToPhysicalModel,
 };
