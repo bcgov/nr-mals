@@ -45,10 +45,6 @@ import { selectCurrentUser } from "../../app/appSlice";
 
 function formatResultRow(result) {
   const url = `${SITES_PATHNAME}/${result.siteId}`;
-  if (result.apiarySiteIdDisplay) {
-    console.log("apiarySiteIdDisplay");
-    console.log(result.apiarySiteIdDisplay);
-  }
   return (
     <tr key={result.siteId}>
       <td className="text-nowrap">
