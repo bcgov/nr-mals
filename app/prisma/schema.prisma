@@ -374,6 +374,7 @@ model mal_licence {
   mal_registrant                                                                             mal_registrant?                 @relation(fields: [primary_registrant_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "lic_rgst_fk")
   mal_status_code_lu                                                                         mal_status_code_lu              @relation(fields: [status_code_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "lic_stat_fk")
   mal_dairy_farm_test_result                                                                 mal_dairy_farm_test_result[]
+  mal_dairy_farm_trailer                                                                     mal_dairy_farm_trailer[]
   mal_fur_farm_inventory                                                                     mal_fur_farm_inventory[]
   mal_game_farm_inventory                                                                    mal_game_farm_inventory[]
   mal_licence_comment                                                                        mal_licence_comment[]
@@ -775,26 +776,41 @@ model mal_status_code_lu {
 }
 
 model mal_dairy_farm_trailer {
-  id                    Int       @id @default(autoincrement())
-  licence_id            Int
-  licence_trailer_seq   Int?
-  date_issued           DateTime? @db.Timestamp(6)
-  trailer_number        String?   @db.VarChar(50)
-  geographical_division String?   @db.VarChar(50)
-  serial_number_vin     String?   @db.VarChar(50)
-  license_plate         String?   @db.VarChar(10)
-  trailer_year          Int?      @db.SmallInt
-  trailer_make          String?   @db.VarChar(50)
-  trailer_type          String?   @db.VarChar(50)
-  trailer_capacity      Int?
-  trailer_compartments  Int?      @db.SmallInt
-  active_flag           Boolean   @default(true)
-  create_userid         String    @db.VarChar(63)
-  create_timestamp      DateTime  @db.Timestamp(6)
-  update_userid         String    @db.VarChar(63)
-  update_timestamp      DateTime  @db.Timestamp(6)
+  id                                Int                                 @id @default(autoincrement())
+  licence_id                        Int
+  licence_trailer_seq               Int?
+  date_issued                       DateTime?                           @db.Timestamp(6)
+  trailer_number                    String?                             @db.VarChar(50)
+  geographical_division             String?                             @db.VarChar(50)
+  serial_number_vin                 String?                             @db.VarChar(50)
+  license_plate                     String?                             @db.VarChar(10)
+  trailer_year                      Int?                                @db.SmallInt
+  trailer_make                      String?                             @db.VarChar(50)
+  trailer_type                      String?                             @db.VarChar(50)
+  trailer_capacity                  Int?
+  trailer_compartments              Int?                                @db.SmallInt
+  active_flag                       Boolean                             @default(true)
+  create_userid                     String                              @db.VarChar(63)
+  create_timestamp                  DateTime                            @db.Timestamp(6)
+  update_userid                     String                              @db.VarChar(63)
+  update_timestamp                  DateTime                            @db.Timestamp(6)
+  mal_licence                       mal_licence                         @relation(fields: [licence_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "dftr_licence_fk")
+  mal_dairy_farm_trailer_inspection mal_dairy_farm_trailer_inspection[]
 
   @@unique([licence_id, licence_trailer_seq], map: "mal_dairy_farm_trailer_ukey")
+}
+
+model mal_dairy_farm_trailer_inspection {
+  id                     Int                    @id @default(autoincrement())
+  trailer_id             Int
+  inspection_date        DateTime?              @db.Timestamp(6)
+  inspector_id           String?                @db.VarChar(128)
+  inspection_comments    String?                @db.VarChar(4000)
+  create_userid          String                 @db.VarChar(63)
+  create_timestamp       DateTime               @db.Timestamp(6)
+  update_userid          String                 @db.VarChar(63)
+  update_timestamp       DateTime               @db.Timestamp(6)
+  mal_dairy_farm_trailer mal_dairy_farm_trailer @relation(fields: [trailer_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "dftri_trailer_fk")
 }
 
 model mal_licence_summary_vw {

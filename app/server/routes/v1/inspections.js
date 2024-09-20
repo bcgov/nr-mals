@@ -102,7 +102,7 @@ router.put("/apiary/:inspectionId(\\d+)", async (req, res, next) => {
 
 /*** Dairy Trailer Inspections ***/
 async function findTrailerInspection(inspectionId) {
-  return prisma.mal_dairy_trailer_inspection.findUnique({
+  return prisma.mal_dairy_farm_trailer_inspection.findUnique({
     where: {
       id: inspectionId,
     },
@@ -110,13 +110,13 @@ async function findTrailerInspection(inspectionId) {
 }
 
 async function createTrailerInspection(payload) {
-  return prisma.mal_dairy_trailer_inspection.create({
+  return prisma.mal_dairy_farm_trailer_inspection.create({
     data: payload,
   });
 }
 
 async function updateTrailerInspection(inspectionId, payload) {
-  return prisma.mal_dairy_trailer_inspection.update({
+  return prisma.mal_dairy_farm_trailer_inspection.update({
     data: payload,
     where: {
       id: inspectionId,

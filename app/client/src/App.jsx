@@ -44,6 +44,9 @@ import AdminPremisesId from "./features/admin/AdminPremisesId";
 
 import ViewTrailerPage from "./features/trailers/ViewTrailerPage";
 
+import ViewTrailerInspectionPage from "./features/trailerinspections/ViewTrailerInspectionPage";
+import CreateTrailerInspectionPage from "./features/trailerinspections/CreateTrailerInspectionPage";
+
 import ModalComponent from "./components/ModalComponent";
 import keycloak from "./app/keycloak";
 import { fetchCurrentUser } from "./app/appSlice";
@@ -75,9 +78,6 @@ function App() {
         <ModalComponent />
         <Container id="main-content" className="mt-3">
           <Switch>
-            <ProtectedRoute path={`${Constant.TRAILERS_PATHNAME}/:id`}>
-              <ViewTrailerPage />
-            </ProtectedRoute>
             <ProtectedRoute path={`${Constant.SEARCH_LICENSES_PATHNAME}`}>
               <LicenceSearchPage />
             </ProtectedRoute>
@@ -102,6 +102,9 @@ function App() {
             <ProtectedRoute path={`${Constant.SITES_PATHNAME}/:id`}>
               <ViewSitePage />
             </ProtectedRoute>
+            <ProtectedRoute path={`${Constant.TRAILERS_PATHNAME}/:id`}>
+              <ViewTrailerPage />
+            </ProtectedRoute>
             <ProtectedRoute path={`${Constant.CREATE_CONTACTS_PATHNAME}`}>
               <ContactsCreate />
             </ProtectedRoute>
@@ -115,6 +118,16 @@ function App() {
             </ProtectedRoute>
             <ProtectedRoute path={`${Constant.INSPECTIONS_PATHNAME}/:id`}>
               <ViewInspectionPage />
+            </ProtectedRoute>
+            <ProtectedRoute
+              path={`${Constant.CREATE_TRAILER_INSPECTIONS_PATHNAME}/:id`}
+            >
+              <CreateTrailerInspectionPage />
+            </ProtectedRoute>
+            <ProtectedRoute
+              path={`${Constant.TRAILER_INSPECTIONS_PATHNAME}/:id`}
+            >
+              <ViewTrailerInspectionPage />
             </ProtectedRoute>
             <ProtectedRoute path={`${Constant.REPORTS_PATHNAME}`}>
               <Reports />

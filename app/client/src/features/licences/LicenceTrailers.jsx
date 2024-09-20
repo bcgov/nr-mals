@@ -49,11 +49,12 @@ function formatResultRow(result) {
     <tr key={result.dairyFarmTrailerId}>
       <td className="text-nowrap">
         <Link to={url}>
-          {`${result.licenceNumber}-${result.trailerNumber}`}
+          {`${result.licenceNumber}-${result.licenceTrailerSeq}`}
         </Link>
       </td>
       <td className="text-nowrap">
         {result.trailerActiveFlag === true ? "ACT" : "INA"}
+        {/** should refer to trailer status not active flag */}
       </td>
       <td className="text-nowrap">{result.registrantLastFirst}</td>
       <td className="text-nowrap">{result.geographicalDivision}</td>
@@ -74,13 +75,6 @@ export default function LicenceTrailers({ licence }) {
   const currentUser = useSelector(selectCurrentUser);
 
   const [debouncedActionTimeout, setDebouncedActionTimeout] = useState(null);
-
-  useEffect(() => {
-    if (results) {
-      console.log("results:");
-      console.log(results);
-    }
-  }, [results]);
 
   useEffect(() => {
     dispatch(clearTrailerParameters());
