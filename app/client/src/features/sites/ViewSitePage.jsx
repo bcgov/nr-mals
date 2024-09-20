@@ -42,12 +42,10 @@ import Comments from "../comments/Comments";
 
 import "./ViewSitePage.scss";
 import DairyTanksViewEdit from "./dairytanks/DairyTanksViewEdit";
-// import TrailerDetailsViewEdit from "../trailers/TrailerDetailsViewEdit";
 
 import {
   LICENCE_TYPE_ID_DAIRY_FARM,
   LICENCE_TYPE_ID_APIARY,
-  // LICENCE_TYPE_ID_DAIRY_TANK_TRUCK,
 } from "../licences/constants";
 
 export default function ViewSitePage() {
@@ -95,10 +93,6 @@ export default function ViewSitePage() {
     </Button>
   );
 
-  console.log("ViewSitePage");
-  console.log("licence.data.licenceTypeId");
-  console.log("licence.data.licenceTypeId");
-  console.log(licence?.data?.licenceTypeId);
   let content;
   if (site.data && licence.data) {
     content = (
@@ -115,9 +109,6 @@ export default function ViewSitePage() {
         {licence.data.licenceTypeId === LICENCE_TYPE_ID_DAIRY_FARM ? (
           <DairyTanksViewEdit site={site} />
         ) : null}
-        {/* {licence.data.licenceTypeId === LICENCE_TYPE_ID_DAIRY_TANK_TRUCK ? (
-          <TrailerDetailsViewEdit site={site} licence={licence.data} />
-        ) : null} */}
         {licence.data.licenceTypeId === LICENCE_TYPE_ID_APIARY ? (
           <section>
             <SectionHeading>Inspections</SectionHeading>
