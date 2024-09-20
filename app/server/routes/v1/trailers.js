@@ -198,22 +198,21 @@ router.get("/:trailerId(\\d+)", async (req, res, next) => {
 
       const payload = trailer.convertToLogicalModel(record);
 
-      // not implemented in db yet
       // Grab inspections since they aren't linked by FKs
-      // if (payload.apiarySiteId !== null) {
-      //   const trailerInspections = await prisma.mal_dairy_trailer_inspection.findMany(
-      //     {
-      //       where: {
-      //         site_id: payload.id,
-      //       },
-      //     }
-      //   );
+      if (payload.apiarySiteId !== null) {
+        const trailerInspections = await prisma.mal_dairy_farm_trailer_inspection.findMany(
+          {
+            where: {
+              site_id: payload.id,
+            },
+          }
+        );
 
-      //   payload.inspections = trailerInspections.map((xref, index) => ({
-      //     ...inspection.convertTrailerInspectionToLogicalModel(xref),
-      //     key: index,
-      //   }));
-      // }
+        payload.inspections = trailerInspections.map((xref, index) => ({
+          ...inspection.convertTrailerInspectionToLogicalModel(xref),
+          key: index,
+        }));
+      }
 
       return res.send(payload);
     })
@@ -256,16 +255,16 @@ router.post("/", async (req, res, next) => {
   if (data.licenceTypeId === constants.LICENCE_TYPE_ID_DAIRY_TANK_TRUCK) {
     const trailers = await findTrailersByLicenceId(data.licenceId);
     if (trailers === null || trailers === undefined || trailers.length === 0) {
-      data.trailerNumber = 100;
+      data.licenceTrailerSeq = 100;
     } else {
       const high = Math.max.apply(
         Math,
         trailers.map(function (o) {
-          return o.trailer_number;
+          return o.licence_trailer_seq;
         })
       );
       const next = high + 1;
-      data.trailerNumber = next;
+      data.licenceTrailerSeq = next;
     }
   }
 
