@@ -763,21 +763,23 @@ model mal_site {
 }
 
 model mal_status_code_lu {
-  id               Int           @id @default(autoincrement())
-  code_name        String        @unique(map: "mal_statcd_code_name_uk") @db.VarChar(50)
-  code_description String?       @db.VarChar(120)
-  active_flag      Boolean
-  create_userid    String        @db.VarChar(63)
-  create_timestamp DateTime      @db.Timestamp(6)
-  update_userid    String        @db.VarChar(63)
-  update_timestamp DateTime      @db.Timestamp(6)
-  mal_licence      mal_licence[]
-  mal_site         mal_site[]
+  id                     Int                      @id @default(autoincrement())
+  code_name              String                   @unique(map: "mal_statcd_code_name_uk") @db.VarChar(50)
+  code_description       String?                  @db.VarChar(120)
+  active_flag            Boolean
+  create_userid          String                   @db.VarChar(63)
+  create_timestamp       DateTime                 @db.Timestamp(6)
+  update_userid          String                   @db.VarChar(63)
+  update_timestamp       DateTime                 @db.Timestamp(6)
+  mal_dairy_farm_trailer mal_dairy_farm_trailer[]
+  mal_licence            mal_licence[]
+  mal_site               mal_site[]
 }
 
 model mal_dairy_farm_trailer {
   id                                Int                                 @id @default(autoincrement())
   licence_id                        Int
+  status_code_id                    Int
   licence_trailer_seq               Int?
   date_issued                       DateTime?                           @db.Timestamp(6)
   trailer_number                    String?                             @db.VarChar(50)
@@ -789,12 +791,12 @@ model mal_dairy_farm_trailer {
   trailer_type                      String?                             @db.VarChar(50)
   trailer_capacity                  Int?
   trailer_compartments              Int?                                @db.SmallInt
-  active_flag                       Boolean                             @default(true)
   create_userid                     String                              @db.VarChar(63)
   create_timestamp                  DateTime                            @db.Timestamp(6)
   update_userid                     String                              @db.VarChar(63)
   update_timestamp                  DateTime                            @db.Timestamp(6)
   mal_licence                       mal_licence                         @relation(fields: [licence_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "dftr_licence_fk")
+  mal_status_code_lu                mal_status_code_lu                  @relation(fields: [status_code_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "dftr_site_fk")
   mal_dairy_farm_trailer_inspection mal_dairy_farm_trailer_inspection[]
 
   @@unique([licence_id, licence_trailer_seq], map: "mal_dairy_farm_trailer_ukey")
@@ -874,48 +876,6 @@ model mal_site_detail_vw {
   licence_regional_district_name    String?
 }
 
-model mal_site_detail_vw_mockup {
-  site_id_pk                        Int @unique
-  licence_id                        Int
-  site_status                       String
-  site_status_id                    Int
-  licence_number                    Int
-  licence_irma_number               String?
-  licence_type                      String
-  licence_type_id                   Int
-  licence_status                    String
-  licence_status_id                 Int
-  apiary_site_id                    Int?
-  apiary_site_id_display            String?
-  site_contact_name                 String?
-  site_address_line_1               String?
-  registrant_first_name             String?
-  registrant_last_name              String?
-  registrant_first_last             String?
-  registrant_last_first             String?
-  registrant_primary_phone          String?
-  registrant_email_address          String?
-  licence_city                      String?
-  licence_region_number             String?
-  licence_region_name               String?
-  licence_regional_district_number  String?
-  licence_regional_district_name    String?
-  entry_type String?
-company_name String?
-dairy_farm_trailer_id Int?
-licence_trailer_id String?
-trailer_number String?
-geographical_division String?
-serial_number_vin String?
-license_plate String?
-trailer_year Int?
-trailer_make String?
-trailer_type String?
-trailer_capacity Int?
-trailer_compartments Int?
-trailer_active_flag Boolean?
-}
-
 model mal_print_dairy_farm_infraction_vw {
   dairy_farm_test_result_id         Int
   licence_id                        Int 
@@ -972,5 +932,4 @@ model mal_dairy_farm_trailer_vw {
   trailer_type                String?   @db.VarChar(50)
   trailer_capacity            Int?
   trailer_compartments        Int?      @db.SmallInt
-  trailer_active_flag         Boolean?
 }
