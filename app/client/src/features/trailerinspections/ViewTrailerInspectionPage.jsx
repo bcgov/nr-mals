@@ -12,16 +12,16 @@ import {
   fetchTrailerInspection,
   selectCurrentInspection,
   clearCreatedInspection,
-} from "./inspectionsSlice";
+} from "./trailerInspectionsSlice";
 import { fetchTrailer, selectCurrentTrailer } from "../trailers/trailersSlice";
 import { fetchLicence, selectCurrentLicence } from "../licences/licencesSlice";
 
 import TrailerHeader from "../trailers/TrailerHeader";
 import LicenceDetailsView from "../licences/LicenceDetailsView";
 import TrailerDetailsView from "../trailers/TrailerDetailsView";
-import InspectionDetailsViewEdit from "./InspectionDetailsViewEdit";
+import TrailerInspectionDetailsViewEdit from "./TrailerInspectionDetailsViewEdit";
 
-export default function ViewLicencePage() {
+export default function ViewTrailerInspectionPage() {
   const dispatch = useDispatch();
   const { id } = useParams();
   const inspection = useSelector(selectCurrentInspection);
@@ -60,7 +60,7 @@ export default function ViewLicencePage() {
           </Container>
         </section>
         <section>
-          <InspectionDetailsViewEdit
+          <TrailerInspectionDetailsViewEdit
             inspection={inspection}
             trailer={trailer}
             licence={licence}

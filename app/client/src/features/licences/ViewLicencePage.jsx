@@ -3,7 +3,11 @@ import { useSelector, useDispatch } from "react-redux";
 import { useParams, Redirect } from "react-router-dom";
 import { Spinner, Alert } from "react-bootstrap";
 
-import { REQUEST_STATUS, SITES_PATHNAME } from "../../utilities/constants";
+import {
+  REQUEST_STATUS,
+  SITES_PATHNAME,
+  TRAILERS_PATHNAME,
+} from "../../utilities/constants";
 
 import PageHeading from "../../components/PageHeading";
 import RegistrantsViewEdit from "../registrants/RegistrantsViewEdit";
@@ -37,6 +41,10 @@ import {
 import Comments from "../comments/Comments";
 
 import "./ViewLicencePage.scss";
+import {
+  clearCurrentTrailer,
+  selectCreatedTrailer,
+} from "../trailers/trailersSlice";
 
 export default function ViewLicencePage() {
   const dispatch = useDispatch();
@@ -44,15 +52,20 @@ export default function ViewLicencePage() {
   const licence = useSelector(selectCurrentLicence);
 
   const createdSite = useSelector(selectCreatedSite);
+  const createdTrailer = useSelector(selectCreatedTrailer);
 
   useEffect(() => {
     dispatch(clearCurrentLicence());
     dispatch(clearCurrentSite());
+    dispatch(clearCurrentTrailer());
     dispatch(fetchLicence(id));
   }, [dispatch, id]);
 
   if (createdSite.status === REQUEST_STATUS.FULFILLED) {
     return <Redirect to={`${SITES_PATHNAME}/${createdSite.data.id}`} />;
+  }
+  if (createdTrailer.status === REQUEST_STATUS.FULFILLED) {
+    return <Redirect to={`${TRAILERS_PATHNAME}/${createdTrailer.data.id}`} />;
   }
 
   const associatedLicenceTypes = [
@@ -69,11 +82,8 @@ export default function ViewLicencePage() {
     associatedLicenceTypes.find((x) => x === licence.data.licenceTypeId) !==
       undefined;
 
-  console.log("ViewLicencePage");
   let content;
   if (licence.data) {
-    console.log("licence.data.licenceTypeId");
-    console.log(licence.data.licenceTypeId);
     content = (
       <>
         <LicenceHeader licence={licence.data} />

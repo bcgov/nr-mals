@@ -16,7 +16,6 @@ import ErrorMessageRow from "../../components/ErrorMessageRow";
 import SectionHeading from "../../components/SectionHeading";
 import SubmissionButtons from "../../components/SubmissionButtons";
 
-import { fetchRegions } from "../lookups/regionsSlice";
 import { fetchLicenceStatuses } from "../lookups/licenceStatusesSlice";
 import {
   setCurrentTrailerModeToEdit,
@@ -25,8 +24,6 @@ import {
 
 import TrailerDetailsEdit from "./TrailerDetailsEdit";
 import TrailerDetailsView from "./TrailerDetailsView";
-
-import { fetchCities } from "../lookups/citiesSlice";
 
 import { selectCurrentUser } from "../../app/appSlice";
 import { formatDateString } from "../../utilities/formatting";
@@ -41,9 +38,7 @@ export default function TrailerDetailsViewEdit({ trailer, licence }) {
   const currentUser = useSelector(selectCurrentUser);
 
   useEffect(() => {
-    dispatch(fetchRegions());
     dispatch(fetchLicenceStatuses());
-    dispatch(fetchCities());
   }, [dispatch]);
 
   const form = useForm({
@@ -52,6 +47,7 @@ export default function TrailerDetailsViewEdit({ trailer, licence }) {
   const { handleSubmit, setValue, setError } = form;
 
   const initialFormValues = {
+    licenceStatus: null,
     issueDate: null,
     trailerNumber: null,
     geographicalDivision: null,
@@ -62,24 +58,27 @@ export default function TrailerDetailsViewEdit({ trailer, licence }) {
     trailerType: null,
     trailerCapacity: null,
     trailerCompartments: null,
-    trailerActiveFlag: false,
   };
 
   //Date Issued, Trailer #, Division, Serial No / VIN; License Plate #, Year, Make, Trailer Type, Capacity, Compartments
   useEffect(() => {
+    setValue("licenceStatus", trailer.data.licenceStatusId);
     setValue("issueDate", formatDateString(trailer.data.issueDate));
     setValue("trailerNumber", trailer.data.trailerNumber);
     setValue("geographicalDivision", trailer.data.geographicalDivision);
     setValue("serialNumberVIN", trailer.data.serialNumberVIN);
     setValue("licencePlate", trailer.data.licencePlate);
-    setValue("trailerYear", trailer.data.trailerYear);
+    setValue("trailerYear", formatNumber(trailer.data.trailerYear));
     setValue("trailerMake", trailer.data.trailerMake);
     setValue("trailerType", trailer.data.trailerType);
-    setValue("trailerCapacity", trailer.data.trailerCapacity);
-    setValue("trailerCompartments", trailer.data.trailerCompartments);
-    setValue("trailerActiveFlag", trailer.data.trailerActiveFlag);
+    setValue("trailerCapacity", formatNumber(trailer.data.trailerCapacity));
+    setValue(
+      "trailerCompartments",
+      formatNumber(trailer.data.trailerCompartments)
+    );
   }, [
     setValue,
+    trailer.data.licenceStatusId,
     trailer.data.issueDate,
     trailer.data.trailerNumber,
     trailer.data.geographicalDivision,
@@ -90,7 +89,6 @@ export default function TrailerDetailsViewEdit({ trailer, licence }) {
     trailer.data.trailerType,
     trailer.data.trailerCapacity,
     trailer.data.trailerCompartments,
-    trailer.data.trailerActiveFlag,
     mode,
   ]);
 
@@ -115,7 +113,6 @@ export default function TrailerDetailsViewEdit({ trailer, licence }) {
       </section>
     );
   }
-  console.log("continuing");
 
   const submitting = status === REQUEST_STATUS.PENDING;
 
@@ -134,9 +131,13 @@ export default function TrailerDetailsViewEdit({ trailer, licence }) {
     if (errorCount > 0) {
       return;
     }
+    console.log("onsubmit");
+    console.log(data);
+    console.log(trailer.data);
 
     const payload = {
       ...data,
+      licenceStatus: parseAsInt(trailer.data.licenceStatus),
       issueDate: trailer.data.issueDate,
       trailerNumber: trailer.data.trailerNumber,
       geographicalDivision: trailer.data.geographicalDivision,
@@ -145,14 +146,12 @@ export default function TrailerDetailsViewEdit({ trailer, licence }) {
       trailerYear: parseAsInt(trailer.data.trailerYear),
       trailerMake: trailer.data.trailerMake,
       trailerType: trailer.data.trailerType,
-      trailerCapacity: trailer.data.trailerCapacity,
-      trailerCompartments: trailer.data.trailerCompartments,
-      trailerActiveFlag: trailer.data.trailerActiveFlag,
+      trailerCapacity: parseAsInt(trailer.data.trailerCapacity),
+      trailerCompartments: parseAsInt(trailer.data.trailerCompartments),
     };
 
-    dispatch(
-      updateTrailer({ trailer: payload, id: trailer.data.dairyFarmTrailerId })
-    );
+    console.log(trailer.data.id);
+    dispatch(updateTrailer({ trailer: payload, id: trailer.data.id }));
   };
 
   const onCancel = () => {

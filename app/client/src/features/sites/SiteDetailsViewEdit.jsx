@@ -170,6 +170,9 @@ export default function SiteDetailsViewEdit({ site, licence }) {
     if (errorCount > 0) {
       return;
     }
+    console.log("onsubmit");
+    console.log(data);
+    console.log(site.data);
 
     const payload = {
       ...data,

@@ -13,9 +13,9 @@ import SectionHeading from "../../components/SectionHeading";
 import SubmissionButtons from "../../components/SubmissionButtons";
 
 import {
-  selectCreatedTrailerInspection,
-  createDairyTrailerInspection,
-  clearCreatedTrailerInspection,
+  selectCreatedInspection,
+  createTrailerInspection,
+  clearCreatedInspection,
 } from "./trailerInspectionsSlice";
 import { fetchTrailer, selectCurrentTrailer } from "../trailers/trailersSlice";
 import { fetchLicence, selectCurrentLicence } from "../licences/licencesSlice";
@@ -24,6 +24,7 @@ import * as LicenceTypeConstants from "../licences/constants";
 import TrailerHeader from "../trailers/TrailerHeader";
 import TrailerDetailsView from "../trailers/TrailerDetailsView";
 import LicenceDetailsView from "../licences/LicenceDetailsView";
+import TrailerInspectionDetailsEdit from "./TrailerInspectionDetailsViewEdit";
 
 function submissionController(
   licence,
@@ -43,7 +44,7 @@ function submissionController(
           inspectionComment:
             data.inspectionComment.length === 0 ? null : data.inspectionComment,
         };
-        dispatch(createDairyTrailerInspection(payload));
+        dispatch(createTrailerInspection(payload));
         break;
       }
       default:
@@ -69,7 +70,7 @@ export default function CreateTrailerInspectionPage() {
 
   const trailer = useSelector(selectCurrentTrailer);
   const licence = useSelector(selectCurrentLicence);
-  const inspection = useSelector(selectCreatedTrailerInspection);
+  const inspection = useSelector(selectCreatedInspection);
 
   const form = useForm({
     reValidateMode: "onBlur",
@@ -79,7 +80,7 @@ export default function CreateTrailerInspectionPage() {
   useEffect(() => {
     setValue("inspectionDate", today);
 
-    dispatch(clearCreatedTrailerInspection());
+    dispatch(clearCreatedInspection());
 
     dispatch(fetchTrailer(id)).then((s) => {
       dispatch(fetchLicence(s.payload.licenceId));

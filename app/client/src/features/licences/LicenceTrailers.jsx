@@ -52,10 +52,7 @@ function formatResultRow(result) {
           {`${result.licenceNumber}-${result.licenceTrailerSeq}`}
         </Link>
       </td>
-      <td className="text-nowrap">
-        {result.trailerActiveFlag === true ? "ACT" : "INA"}
-        {/** should refer to trailer status not active flag */}
-      </td>
+      <td className="text-nowrap">{result.licenceStatus}</td>
       <td className="text-nowrap">{result.registrantLastFirst}</td>
       <td className="text-nowrap">{result.geographicalDivision}</td>
     </tr>
@@ -105,7 +102,7 @@ export default function LicenceTrailers({ licence }) {
     const payload = {
       licenceId: licence.data.id,
       licenceTypeId: licence.data.licenceTypeId,
-      trailerStatus: licenceStatuses.data.find(
+      licenceStatus: licenceStatuses.data.find(
         (x) => x.code_description === LICENCE_STATUS_TYPES.ACTIVE
       ).id,
       country: COUNTRIES.CANADA,

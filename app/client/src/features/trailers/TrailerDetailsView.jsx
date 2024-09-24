@@ -11,7 +11,7 @@ export default function TrailerDetailsView({ trailer }) {
     <>
       <Row className="mt-3">
         <Col lg={4}>
-          <VerticalField label="Trailer Status" value="" />
+          <VerticalField label="Trailer Status" value={trailer.licenceStatus} />
         </Col>
         <Col lg={4}>
           <VerticalField label="Date Issued" value={trailer.dateIssued} />

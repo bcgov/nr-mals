@@ -13,9 +13,11 @@ import {
 
 import {
   REQUEST_STATUS,
-  CREATE_INSPECTIONS_PATHNAME,
   INSPECTIONS_PATHNAME,
+  CREATE_INSPECTIONS_PATHNAME,
   SYSTEM_ROLES,
+  // TRAILER_INSPECTIONS_PATHNAME,
+  // CREATE_TRAILER_INSPECTIONS_PATHNAME,
 } from "../../utilities/constants";
 
 import RenderOnRole from "../../components/RenderOnRole";
@@ -58,41 +60,34 @@ export default function ViewTrailerPage() {
     });
   }, [dispatch, id]);
 
-  console.log("---ViewTrailerPage:");
-  console.log("trailer");
-  console.log(trailer);
-  console.log("licence");
-  console.log(licence);
-  console.log("ViewTrailerPage---");
+  function formatInspectionsResultRow(result) {
+    const url = `${INSPECTIONS_PATHNAME}/${result.id}`;
+    return (
+      <tr key={result.id}>
+        <td className="text-nowrap">{result.inspectionDate}</td>
+        <td className="text-nowrap">{result.inspectorId}</td>
+        <td className="text-nowrap">
+          <Link to={url}>View</Link>
+        </td>
+      </tr>
+    );
+  }
 
-  // function formatInspectionsResultRow(result) {
-  //   const url = `${INSPECTIONS_PATHNAME}/${result.id}`;
-  //   return (
-  //     <tr key={result.id}>
-  //       <td className="text-nowrap">{result.inspectionDate}</td>
-  //       <td className="text-nowrap">{result.inspectorId}</td>
-  //       <td className="text-nowrap">
-  //         <Link to={url}>View</Link>
-  //       </td>
-  //     </tr>
-  //   );
-  // }
+  function addInspectionOnClick() {
+    history.push(`${CREATE_INSPECTIONS_PATHNAME}/${id}`);
+  }
 
-  // function addInspectionOnClick() {
-  //   history.push(`${CREATE_INSPECTIONS_PATHNAME}/${id}`);
-  // }
-
-  // const addInspectionButton = (
-  //   <Button
-  //     size="md"
-  //     type="button"
-  //     variant="primary"
-  //     onClick={addInspectionOnClick}
-  //     block
-  //   >
-  //     Create Inspection
-  //   </Button>
-  // );
+  const addInspectionButton = (
+    <Button
+      size="md"
+      type="button"
+      variant="primary"
+      onClick={addInspectionOnClick}
+      block
+    >
+      Create Inspection
+    </Button>
+  );
 
   let content;
   if (trailer.data && licence.data) {
@@ -109,69 +104,63 @@ export default function ViewTrailerPage() {
         <TrailerDetailsViewEdit trailer={trailer} licence={licence.data} />
 
         {/** this inspections code is for apiary and will need to be re-written for trailer inspections */}
-        {/* <section>
-            <SectionHeading>Inspections</SectionHeading>
-            <Container className="mt-3 mb-4">
-              {trailer.data.inspections?.length > 0 ? (
-                <>
-                  <Table
-                    striped
-                    size="sm"
-                    responsive
-                    className="mt-3 mb-0"
-                    hover
-                  >
-                    <thead className="thead-dark">
-                      <tr>
-                        <th className="text-nowrap">Inspection Date</th>
-                        <th className="text-nowrap">Inspector ID</th>
-                        <th />
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {trailer.data.inspections.map((result) =>
-                        formatInspectionsResultRow(result)
-                      )}
-                    </tbody>
-                  </Table>
-                  <RenderOnRole
-                    roles={[
-                      SYSTEM_ROLES.USER,
-                      SYSTEM_ROLES.INSPECTOR,
-                      SYSTEM_ROLES.SYSTEM_ADMIN,
-                    ]}
-                  >
-                    <Row className="mt-3">
-                      <Col lg={3}>{addInspectionButton}</Col>
-                    </Row>
-                  </RenderOnRole>
-                </>
-              ) : (
-                <>
+        <section>
+          <SectionHeading>Inspections</SectionHeading>
+          <Container className="mt-3 mb-4">
+            {trailer.data.inspections?.length > 0 ? (
+              <>
+                <Table striped size="sm" responsive className="mt-3 mb-0" hover>
+                  <thead className="thead-dark">
+                    <tr>
+                      <th className="text-nowrap">Inspection Date</th>
+                      <th className="text-nowrap">Inspector ID</th>
+                      <th />
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {trailer.data.inspections.map((result) =>
+                      formatInspectionsResultRow(result)
+                    )}
+                  </tbody>
+                </Table>
+                <RenderOnRole
+                  roles={[
+                    SYSTEM_ROLES.USER,
+                    SYSTEM_ROLES.INSPECTOR,
+                    SYSTEM_ROLES.SYSTEM_ADMIN,
+                  ]}
+                >
                   <Row className="mt-3">
-                    <Col>
-                      <Alert variant="success" className="mt-3">
-                        <div>
-                          There are no inspections associated with this trailer.
-                        </div>
-                      </Alert>
-                    </Col>
+                    <Col lg={3}>{addInspectionButton}</Col>
                   </Row>
-                  <RenderOnRole
-                    roles={[
-                      SYSTEM_ROLES.USER,
-                      SYSTEM_ROLES.INSPECTOR,
-                      SYSTEM_ROLES.SYSTEM_ADMIN,
-                    ]}
-                  >
-                    <Row className="mt-3">
-                      <Col lg={3}>{addInspectionButton}</Col>
-                    </Row>
-                  </RenderOnRole>
-                </>
-              )}
-            </Container>
-          </section> */}
+                </RenderOnRole>
+              </>
+            ) : (
+              <>
+                <Row className="mt-3">
+                  <Col>
+                    <Alert variant="success" className="mt-3">
+                      <div>
+                        There are no inspections associated with this trailer.
+                      </div>
+                    </Alert>
+                  </Col>
+                </Row>
+                <RenderOnRole
+                  roles={[
+                    SYSTEM_ROLES.USER,
+                    SYSTEM_ROLES.INSPECTOR,
+                    SYSTEM_ROLES.SYSTEM_ADMIN,
+                  ]}
+                >
+                  <Row className="mt-3">
+                    <Col lg={3}>{addInspectionButton}</Col>
+                  </Row>
+                </RenderOnRole>
+              </>
+            )}
+          </Container>
+        </section>
 
         <Comments licence={licence.data} />
       </>

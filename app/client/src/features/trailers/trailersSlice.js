@@ -8,6 +8,8 @@ export const createTrailer = createAsyncThunk(
   async (trailer, thunkApi) => {
     try {
       const response = await Api.post("trailers", trailer);
+      console.log("createTrailer response");
+      console.log(response);
       return response.data;
     } catch (error) {
       if (error instanceof ApiError) {
@@ -21,6 +23,10 @@ export const createTrailer = createAsyncThunk(
 export const updateTrailer = createAsyncThunk(
   "trailers/updateTrailer",
   async ({ trailer, id }, thunkApi) => {
+    console.log("~trailer~");
+    console.log(trailer);
+    console.log("~id~");
+    console.log(id);
     try {
       const response = await Api.put(`trailers/${id}`, trailer);
       return response.data;

@@ -13,9 +13,13 @@ export const SITE_RESULTS_PATHNAME = "/sites/results";
 export const CONTACTS_PATHNAME = "/contacts";
 export const CREATE_CONTACTS_PATHNAME = "/contacts/create";
 export const INSPECTIONS_PATHNAME = "/inspections";
-export const TRAILER_INSPECTIONS_PATHNAME = "/trailerinspections";
 export const SEARCH_INSPECTIONS_PATHNAME = "/inspections/search";
 export const CREATE_INSPECTIONS_PATHNAME = "/inspections/create";
+
+export const TRAILER_INSPECTIONS_PATHNAME = "/trailerinspections";
+// export const SEARCH_TRAILER_INSPECTIONS_PATHNAME = "/trailerinspections/search"; // unused
+export const CREATE_TRAILER_INSPECTIONS_PATHNAME = "/trailerinspections/create";
+
 export const DOCUMENT_GENERATION_PATHNAME = "/documents";
 export const REPORTS_PATHNAME = "/documents/reports";
 export const SELECT_CERTIFICATES_PATHNAME = "/documents/certificates";
@@ -40,6 +44,7 @@ export const SITES_ADMIN_PATHNAME = "/admin/sites";
 export const INSPECTIONS_ADMIN_PATHNAME = "/admin/inspections";
 
 export const TRAILERS_PATHNAME = "/trailers";
+export const CREATE_TRAILERS_PATHNAME = "/trailers/create"; // not used?
 
 export const REQUEST_STATUS = {
   IDLE: "idle",

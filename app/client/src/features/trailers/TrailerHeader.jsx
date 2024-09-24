@@ -38,7 +38,7 @@ export default function TrailerHeader({ trailer, licence }) {
           <div className="w-100" />
           <HorizontalField
             label="Trailer ID"
-            value={`${licence.licenceNumber}-${trailer.trailerNumber}`}
+            value={`${licence.licenceNumber}-${trailer.licenceTrailerSeq}`}
           />
           <div className="w-100 d-xl-none" />
           <HorizontalField label="" value={null} />
