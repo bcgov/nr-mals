@@ -315,7 +315,6 @@ export default function AssociatedLicences({ licence }) {
       </>
     );
   } else if (results.status === REQUEST_STATUS.FULFILLED && results.count > 0) {
-    console.log(licence.data);
     control = (
       <>
         <Table striped size="sm" responsive className="mt-3 mb-0" hover>

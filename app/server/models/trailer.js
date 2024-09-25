@@ -1,11 +1,11 @@
 const { formatDate } = require("../utilities/formatting");
-const { parseAsInt } = require("../utilities/parsing");
+const { parseAsInt, parseAsDate } = require("../utilities/parsing");
 
-// This corresponds to mal_dairy_farm_trailer_vw
 function convertToLogicalModel(input) {
   const output = {
     id: input.id,
     licenceId: input.licence_id,
+
     licenceNumber: input.licence_number,
     irmaNumber: input.irma_number,
     licenceStatus:
@@ -24,13 +24,13 @@ function convertToLogicalModel(input) {
     registrantSecondaryPhone: input.registrant_secondary_phone,
     registrantFaxNumber: input.registrant_fax_number,
     registrantEmailAddress: input.registrant_email_address,
-    issueDate: input.issue_date ? formatDate(input.issue_date) : "",
+    dateIssued: input.date_issued ? formatDate(input.date_issued) : "",
     issueDateDisplay: input.issue_date_display,
     trailerNumber: input.trailer_number,
     licenceTrailerSeq: input.licence_trailer_seq,
     geographicalDivision: input.geographical_division,
     serialNumberVIN: input.serial_number_vin,
-    licencePlate: input.licence_plate,
+    licensePlate: input.license_plate,
     trailerYear: input.trailer_year,
     trailerMake: input.trailer_make,
     trailerType: input.trailer_type,
@@ -66,8 +66,8 @@ function convertSearchResultToLogicalModel(input) {
     registrantSecondaryPhone: input.registrant_secondary_phone,
     registrantFaxNumber: input.registrant_fax_number,
     registrantEmailAddress: input.registrant_email_address,
-    issueDate: input.date_issued,
-    issueDateDisplay: input.issue_date_display,
+    dateIssued: input.date_issued,
+    dateIssuedDisplay: input.date_issued_display, // ?
     licenceTrailerSeq: input.licence_trailer_seq,
     trailerNumber: input.trailer_number,
     licenceTrailerSeq: input.licence_trailer_seq,
@@ -85,11 +85,6 @@ function convertSearchResultToLogicalModel(input) {
 }
 
 function convertToPhysicalModel(input, update) {
-  const disconnectRelation = {
-    disconnect: true,
-  };
-  console.log(input);
-
   const output = {
     mal_licence: {
       connect: { id: input.licenceId },
@@ -99,9 +94,9 @@ function convertToPhysicalModel(input, update) {
     },
     trailer_number: input.trailerNumber,
     licence_trailer_seq: input.licenceTrailerSeq,
-    date_issued: input.issueDate,
+    date_issued: parseAsDate(input.dateIssued),
     geographical_division: input.geographicalDivision,
-    serial_number_vin: input.serialNumberVin,
+    serial_number_vin: input.serialNumberVIN,
     license_plate: input.licensePlate,
     trailer_year: input.trailerYear,
     trailer_make: input.trailerMake,

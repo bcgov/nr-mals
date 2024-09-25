@@ -34,7 +34,7 @@ export default function TrailerDetailsView({ trailer }) {
           />
         </Col>
         <Col lg={4}>
-          <VerticalField label="License Plate #" value={trailer.licencePlate} />
+          <VerticalField label="License Plate #" value={trailer.licensePlate} />
         </Col>
       </Row>
       <Row className="mt-3">
@@ -60,45 +60,6 @@ export default function TrailerDetailsView({ trailer }) {
         </Col>
         <Col lg={4}></Col>
       </Row>
-
-      {/* <SectionHeading>Site Contact Details</SectionHeading>
-      <Row className="mt-3">
-        <Col lg={4}>
-          <VerticalField label="First Name" value={site.firstName} />
-        </Col>
-        <Col lg={4}>
-          <VerticalField label="Last Name" value={site.lastName} />
-        </Col>
-        <Col lg={4}>
-          <VerticalField
-            label="Primary Phone"
-            value={
-              <PatternFormat
-                displayType="text"
-                format="(###) ###-####"
-                value={site.primaryPhone}
-              />
-            }
-          />
-        </Col>
-      </Row>
-      <Row className="mt-3">
-        <Col lg={4}>
-          <VerticalField
-            label="Secondary Phone"
-            value={
-              <PatternFormat
-                displayType="text"
-                format="(###) ###-####"
-                value={site.secondaryPhone}
-              />
-            }
-          />
-        </Col>
-        <Col lg={4}>
-          <VerticalField label="Email" value={site.emailAddress} />
-        </Col>
-      </Row> */}
     </>
   );
 }

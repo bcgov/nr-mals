@@ -102,12 +102,8 @@ export const fetchSiteResults = createAsyncThunk(
       const parsedParameters = {
         ...parameters,
       };
-      console.log("site parameters");
-      console.log(parameters);
 
       const response = await Api.get(`sites/search`, parsedParameters);
-      console.log("site response");
-      console.log(response.data);
       return response.data;
     } catch (error) {
       if (error instanceof ApiError) {
@@ -127,12 +123,8 @@ export const fetchTrailerResults = createAsyncThunk(
       const parsedParameters = {
         ...parameters,
       };
-      console.log("trailer parameters");
-      console.log(parameters);
 
       const response = await Api.get(`trailers/search`, parsedParameters);
-      console.log("trailer response");
-      console.log(response.data);
       return response.data;
     } catch (error) {
       if (error instanceof ApiError) {

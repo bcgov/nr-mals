@@ -10,7 +10,7 @@ import {
   SYSTEM_ROLES,
 } from "../../utilities/constants";
 import { formatNumber } from "../../utilities/formatting";
-import { parseAsInt } from "../../utilities/parsing";
+import { parseAsDate, parseAsInt } from "../../utilities/parsing";
 
 import ErrorMessageRow from "../../components/ErrorMessageRow";
 import SectionHeading from "../../components/SectionHeading";
@@ -48,11 +48,11 @@ export default function TrailerDetailsViewEdit({ trailer, licence }) {
 
   const initialFormValues = {
     licenceStatus: null,
-    issueDate: null,
+    dateIssued: trailer.data ? parseAsDate(trailer.data.dateIssued) : null,
     trailerNumber: null,
     geographicalDivision: null,
     serialNumberVIN: null,
-    licencePlate: null,
+    licensePlate: null,
     trailerYear: null,
     trailerMake: null,
     trailerType: null,
@@ -60,14 +60,13 @@ export default function TrailerDetailsViewEdit({ trailer, licence }) {
     trailerCompartments: null,
   };
 
-  //Date Issued, Trailer #, Division, Serial No / VIN; License Plate #, Year, Make, Trailer Type, Capacity, Compartments
   useEffect(() => {
     setValue("licenceStatus", trailer.data.licenceStatusId);
-    setValue("issueDate", formatDateString(trailer.data.issueDate));
+    setValue("dateIssued", formatDateString(trailer.data.dateIssued));
     setValue("trailerNumber", trailer.data.trailerNumber);
     setValue("geographicalDivision", trailer.data.geographicalDivision);
     setValue("serialNumberVIN", trailer.data.serialNumberVIN);
-    setValue("licencePlate", trailer.data.licencePlate);
+    setValue("licensePlate", trailer.data.licensePlate);
     setValue("trailerYear", formatNumber(trailer.data.trailerYear));
     setValue("trailerMake", trailer.data.trailerMake);
     setValue("trailerType", trailer.data.trailerType);
@@ -79,11 +78,11 @@ export default function TrailerDetailsViewEdit({ trailer, licence }) {
   }, [
     setValue,
     trailer.data.licenceStatusId,
-    trailer.data.issueDate,
+    trailer.data.dateIssued,
     trailer.data.trailerNumber,
     trailer.data.geographicalDivision,
     trailer.data.serialNumberVIN,
-    trailer.data.licencePlate,
+    trailer.data.licensePlate,
     trailer.data.trailerYear,
     trailer.data.trailerMake,
     trailer.data.trailerType,
@@ -131,26 +130,23 @@ export default function TrailerDetailsViewEdit({ trailer, licence }) {
     if (errorCount > 0) {
       return;
     }
-    console.log("onsubmit");
-    console.log(data);
-    console.log(trailer.data);
 
     const payload = {
       ...data,
-      licenceStatus: parseAsInt(trailer.data.licenceStatus),
-      issueDate: trailer.data.issueDate,
-      trailerNumber: trailer.data.trailerNumber,
-      geographicalDivision: trailer.data.geographicalDivision,
-      serialNumberVIN: trailer.data.serialNumberVIN,
-      licencePlate: trailer.data.licencePlate,
-      trailerYear: parseAsInt(trailer.data.trailerYear),
-      trailerMake: trailer.data.trailerMake,
-      trailerType: trailer.data.trailerType,
-      trailerCapacity: parseAsInt(trailer.data.trailerCapacity),
-      trailerCompartments: parseAsInt(trailer.data.trailerCompartments),
+      licenceId: parseAsInt(trailer.data.licenceId),
+      licenceStatus: parseAsInt(data.licenceStatus),
+      dateIssued: data.dateIssued ? data.dateIssued : null,
+      trailerNumber: data.trailerNumber,
+      geographicalDivision: data.geographicalDivision,
+      serialNumberVIN: data.serialNumberVIN,
+      licensePlate: data.licensePlate,
+      trailerYear: parseAsInt(data.trailerYear),
+      trailerMake: data.trailerMake,
+      trailerType: data.trailerType,
+      trailerCapacity: parseAsInt(data.trailerCapacity),
+      trailerCompartments: parseAsInt(data.trailerCompartments),
     };
 
-    console.log(trailer.data.id);
     dispatch(updateTrailer({ trailer: payload, id: trailer.data.id }));
   };
 

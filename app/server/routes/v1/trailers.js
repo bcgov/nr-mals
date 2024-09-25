@@ -79,6 +79,9 @@ async function updateTrailer(trailerId, payload) {
     where: {
       id: trailerId,
     },
+    include: {
+      mal_status_code_lu: true,
+    },
   });
 }
 
@@ -169,8 +172,6 @@ router.get("/:trailerId(\\d+)", async (req, res, next) => {
 // Update Trailer
 router.put("/:trailerId(\\d+)", async (req, res, next) => {
   const trailerId = parseInt(req.params.trailerId, 10);
-  console.log(req.body);
-  console.log(req.params);
   const now = new Date();
   const trailerPayload = trailer.convertToPhysicalModel(
     populateAuditColumnsUpdate(req.body, now),

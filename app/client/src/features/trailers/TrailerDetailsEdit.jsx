@@ -28,13 +28,13 @@ export default function TrailerDetailsEdit({ form, initialValues }) {
           />
         </Col>
         <Col lg={4}>
-          <Form.Group controlId="issueDate">
+          <Form.Group controlId="dateIssued">
             <CustomDatePicker
-              id="issueDate"
+              id="dateIssued"
               label="Date Issued"
-              notifyOnChange={handleFieldChange("issueDate")}
-              defaultValue={initialValues.issueDate}
-              isInvalid={errors.issueDate}
+              notifyOnChange={handleFieldChange("dateIssued")}
+              defaultValue={initialValues.dateIssued}
+              isInvalid={errors.dateIssued}
             />
           </Form.Group>
         </Col>
@@ -74,13 +74,13 @@ export default function TrailerDetailsEdit({ form, initialValues }) {
           </Form.Group>
         </Col>
         <Col lg={4}>
-          <Form.Group controlId="licencePlate">
+          <Form.Group controlId="licensePlate">
             <Form.Label>Licence Plate #</Form.Label>
             <Form.Control
               type="text"
-              name="licencePlate"
-              defaultValue={initialValues.licencePlate}
-              {...register("licencePlate")}
+              name="licensePlate"
+              defaultValue={initialValues.licensePlate}
+              {...register("licensePlate")}
             />
           </Form.Group>
         </Col>
@@ -90,7 +90,7 @@ export default function TrailerDetailsEdit({ form, initialValues }) {
           <Form.Group controlId="trailerYear">
             <Form.Label>Year</Form.Label>
             <Form.Control
-              type="text"
+              type="number"
               name="trailerYear"
               defaultValue={initialValues.trailerYear}
               {...register("trailerYear")}
@@ -125,7 +125,7 @@ export default function TrailerDetailsEdit({ form, initialValues }) {
           <Form.Group controlId="trailerCapacity">
             <Form.Label>Capacity</Form.Label>
             <Form.Control
-              type="text"
+              type="number"
               name="trailerCapacity"
               defaultValue={initialValues.trailerCapacity}
               {...register("trailerCapacity")}
@@ -136,7 +136,7 @@ export default function TrailerDetailsEdit({ form, initialValues }) {
           <Form.Group controlId="trailerCompartments">
             <Form.Label>Compartments</Form.Label>
             <Form.Control
-              type="text"
+              type="number"
               name="trailerCompartments"
               defaultValue={initialValues.trailerCompartments}
               {...register("trailerCompartments")}
