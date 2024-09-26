@@ -65,7 +65,7 @@ function convertTrailerInspectionToLogicalModel(input) {
     trailerId: input.trailer_id,
     inspectionDate: formatDate(input.inspection_date),
     inspectorId: input.inspector_id,
-    inspectionComment: input.inspection_comment,
+    inspectionComment: input.inspection_comments,
   };
 
   return output;
@@ -76,7 +76,7 @@ function convertTrailerInspectionToPhysicalModel(input) {
     trailer_id: input.trailerId,
     inspection_date: input.inspectionDate,
     inspector_id: input.inspectorId,
-    inspection_comment: input.inspectionComment,
+    inspection_comments: input.inspectionComment,
     create_userid: input.createdBy,
     create_timestamp: input.createdOn,
     update_userid: input.updatedBy,

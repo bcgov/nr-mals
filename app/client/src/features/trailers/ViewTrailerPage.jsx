@@ -13,11 +13,9 @@ import {
 
 import {
   REQUEST_STATUS,
-  INSPECTIONS_PATHNAME,
-  CREATE_INSPECTIONS_PATHNAME,
   SYSTEM_ROLES,
-  // TRAILER_INSPECTIONS_PATHNAME,
-  // CREATE_TRAILER_INSPECTIONS_PATHNAME,
+  CREATE_TRAILER_INSPECTIONS_PATHNAME,
+  TRAILER_INSPECTIONS_PATHNAME,
 } from "../../utilities/constants";
 
 import RenderOnRole from "../../components/RenderOnRole";
@@ -61,11 +59,17 @@ export default function ViewTrailerPage() {
   }, [dispatch, id]);
 
   function formatInspectionsResultRow(result) {
-    const url = `${INSPECTIONS_PATHNAME}/${result.id}`;
+    const url = `${TRAILER_INSPECTIONS_PATHNAME}/${result.id}`;
+    const comment =
+      result?.inspectionComment?.length > 50
+        ? result.inspectionComment.substring(0, 50) + "..."
+        : result.inspectionComment;
+
     return (
       <tr key={result.id}>
         <td className="text-nowrap">{result.inspectionDate}</td>
         <td className="text-nowrap">{result.inspectorId}</td>
+        <td className="text-nowrap">{comment}</td>
         <td className="text-nowrap">
           <Link to={url}>View</Link>
         </td>
@@ -74,7 +78,7 @@ export default function ViewTrailerPage() {
   }
 
   function addInspectionOnClick() {
-    history.push(`${CREATE_INSPECTIONS_PATHNAME}/${id}`);
+    history.push(`${CREATE_TRAILER_INSPECTIONS_PATHNAME}/${id}`);
   }
 
   const addInspectionButton = (
@@ -103,7 +107,6 @@ export default function ViewTrailerPage() {
 
         <TrailerDetailsViewEdit trailer={trailer} licence={licence.data} />
 
-        {/** this inspections code is for apiary and will need to be re-written for trailer inspections */}
         <section>
           <SectionHeading>Inspections</SectionHeading>
           <Container className="mt-3 mb-4">
@@ -114,6 +117,7 @@ export default function ViewTrailerPage() {
                     <tr>
                       <th className="text-nowrap">Inspection Date</th>
                       <th className="text-nowrap">Inspector ID</th>
+                      <th className="text-nowrap">Comments</th>
                       <th />
                     </tr>
                   </thead>

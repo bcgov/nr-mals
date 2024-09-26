@@ -129,9 +129,9 @@ export const trailerInspectionsSlice = createSlice({
 });
 
 export const selectCreatedInspection = (state) =>
-  state.inspections.createdInspection;
+  state.trailerinspections.createdInspection;
 export const selectCurrentInspection = (state) =>
-  state.inspections.currentInspection;
+  state.trailerinspections.currentInspection;
 
 const { actions, reducer } = trailerInspectionsSlice;
 

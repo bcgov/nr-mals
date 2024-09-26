@@ -24,7 +24,7 @@ import * as LicenceTypeConstants from "../licences/constants";
 import TrailerHeader from "../trailers/TrailerHeader";
 import TrailerDetailsView from "../trailers/TrailerDetailsView";
 import LicenceDetailsView from "../licences/LicenceDetailsView";
-import TrailerInspectionDetailsEdit from "./TrailerInspectionDetailsViewEdit";
+import TrailerInspectionDetailsEdit from "./TrailerInspectionDetailsEdit";
 
 function submissionController(
   licence,
@@ -33,6 +33,7 @@ function submissionController(
   clearErrors,
   dispatch
 ) {
+  console.log("CreateTrailerInspectionPage");
   const onSubmit = async (data) => {
     switch (licence.data.licenceTypeId) {
       case LicenceTypeConstants.LICENCE_TYPE_ID_DAIRY_TANK_TRUCK: {
@@ -108,6 +109,7 @@ export default function CreateTrailerInspectionPage() {
 
   const submissionLabel = submitting ? "Submitting..." : "Create";
 
+  console.log(inspection);
   if (inspection.status === REQUEST_STATUS.FULFILLED) {
     return <Redirect to={`${TRAILERS_PATHNAME}/${id}`} />;
   }

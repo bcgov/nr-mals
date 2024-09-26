@@ -12,7 +12,7 @@ export default function TrailerInspectionDetailsView({ inspection, trailer }) {
         <Col lg={3}>
           <VerticalField
             label="Dairy Trailer ID"
-            value={trailer.trailerNumber}
+            value={trailer.licenceTrailerSeq}
           />
         </Col>
         <Col lg={3}>

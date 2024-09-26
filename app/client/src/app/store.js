@@ -15,6 +15,7 @@ import adminReducer from "../features/admin/adminSlice";
 import reportsReducer from "../features/reports/reportsSlice";
 import inspectionsReducer from "../features/inspections/inspectionsSlice";
 import trailersReducer from "../features/trailers/trailersSlice";
+import trailerInspectionsReducer from "../features/trailerinspections/trailerInspectionsSlice";
 
 const reducer = {
   admin: adminReducer,
@@ -25,6 +26,7 @@ const reducer = {
   dairyTankNotices: dairyTankNoticesReducer,
   comments: commentsReducer,
   inspections: inspectionsReducer,
+  trailerinspections: trailerInspectionsReducer,
   licences: licencesReducer,
   lookups: lookupsReducer,
   reports: reportsReducer,

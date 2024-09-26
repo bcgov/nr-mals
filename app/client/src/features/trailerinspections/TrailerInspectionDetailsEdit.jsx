@@ -10,6 +10,7 @@ export default function TrailerInspectionDetailsEdit({
   initialValues,
   trailer,
 }) {
+  console.log("TrailerInspectionDetailsEdit");
   const {
     setValue,
     register,
@@ -26,12 +27,12 @@ export default function TrailerInspectionDetailsEdit({
     <>
       <Row className="mt-3">
         <Col lg={3}>
-          <Form.Group controlId="trailerNumber">
+          <Form.Group controlId="licenceTrailerSeq">
             <Form.Label>Dairy Trailer ID</Form.Label>
             <Form.Control
               type="text"
-              name="trailerNumber"
-              defaultValue={trailer.trailerNumber}
+              name="licenceTrailerSeq"
+              defaultValue={trailer.licenceTrailerSeq}
               readOnly
             />
           </Form.Group>
