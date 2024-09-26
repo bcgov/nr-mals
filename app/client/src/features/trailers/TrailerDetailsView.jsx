@@ -50,7 +50,7 @@ export default function TrailerDetailsView({ trailer }) {
       </Row>
       <Row className="mt-3">
         <Col lg={4}>
-          <VerticalField label="Capacity" value={trailer.trailerCapacity} />
+          <VerticalField label="Capacity (L)" value={trailer.trailerCapacity} />
         </Col>
         <Col lg={4}>
           <VerticalField

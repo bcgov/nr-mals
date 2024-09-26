@@ -123,7 +123,7 @@ export default function TrailerDetailsEdit({ form, initialValues }) {
       <Row className="mt-3">
         <Col lg={4}>
           <Form.Group controlId="trailerCapacity">
-            <Form.Label>Capacity</Form.Label>
+            <Form.Label>Capacity (L)</Form.Label>
             <Form.Control
               type="number"
               name="trailerCapacity"
