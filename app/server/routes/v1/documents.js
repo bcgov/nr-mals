@@ -31,12 +31,18 @@ const certificateTemplateDir = path.join(
   __dirname,
   "../../static/templates/certificates"
 );
-const renewalsTemplateDir = path.join(__dirname, "../../static/templates/notices");
+const renewalsTemplateDir = path.join(
+  __dirname,
+  "../../static/templates/notices"
+);
 const dairyNoticeTemplateDir = path.join(
   __dirname,
   "../../static/templates/notices/dairy"
 );
-const reportsTemplateDir = path.join(__dirname, "../../static/templates/reports");
+const reportsTemplateDir = path.join(
+  __dirname,
+  "../../static/templates/reports"
+);
 
 // As templates are converted to base 64 for the first time they will be pushed to this for reuse
 const templateBuffers = [];
@@ -60,7 +66,6 @@ cdogs.interceptors.request.use(
     })
   )
 );
-
 
 async function getPendingDocuments(jobId) {
   const documents = await prisma.mal_print_job_output.findMany({
@@ -253,11 +258,14 @@ async function startCertificateJob(licenceIds) {
 
 async function generateCertificate(documentId) {
   const document = await getDocument(documentId);
+  console.log("generateCertificate");
+  console.log(document);
 
   const templateFileName = getCertificateTemplateName(
     document.document_type,
     document.licence_type
   );
+  console.log("templateFileName: " + templateFileName);
 
   if (templateFileName === undefined) {
     return {
@@ -363,7 +371,7 @@ async function startRenewalJob(licenceIds) {
     },
   };
 
-  const [, , procedureResult,] = await prisma.$transaction([
+  const [, , procedureResult] = await prisma.$transaction([
     // ensure selected licences have print_renewal set to true
     prisma.mal_licence.updateMany({
       where: licenceFilterCriteria,
@@ -463,7 +471,6 @@ async function generateRenewal(documentId) {
 }
 
 async function getQueuedDairyNotices(startDate, endDate) {
-
   const andArray = [];
   andArray.push({ recorded_date: { gte: new Date(startDate) } });
   andArray.push({ recorded_date: { lte: new Date(endDate) } });
@@ -585,7 +592,6 @@ async function generateDairyNotice(documentId) {
 
   return result;
 }
-
 
 async function getQueuedDairyTankNotices() {
   return prisma.mal_print_dairy_farm_tank_recheck_vw.findMany({
@@ -730,6 +736,19 @@ async function startApiaryHiveInspectionJob(startDate, endDate) {
   return { jobId, documents };
 }
 
+async function startDairyTrailerInspectionJob(startDate, endDate) {
+  // waiting for implemenation of the stored procedure
+  const [procedureResult] = await prisma.$transaction([
+    prisma.$queryRawUnsafe(
+      `CALL mals_app.pr_generate_print_json_dairy_trailer_inspection('${startDate}', '${endDate}', NULL)`
+    ),
+  ]);
+
+  const jobId = procedureResult[0].iop_print_job_id;
+  const documents = await getPendingDocuments(jobId);
+  return { jobId, documents };
+}
+
 async function startProducersAnalysisRegionJob() {
   const [procedureResult] = await prisma.$transaction([
     prisma.$queryRawUnsafe(
@@ -862,6 +881,8 @@ async function startLicenceExpiryJob(startDate, endDate) {
 
 async function generateReport(documentId) {
   const document = await getDocument(documentId);
+  console.log("generateReport");
+  console.log(document);
 
   const templateFileName = getReportsTemplateName(document.document_type);
 
@@ -1202,6 +1223,26 @@ router.post(
     await startApiaryHiveInspectionJob(startDate, endDate)
       .then(({ jobId, documents }) => {
         return res.send({ jobId, documents, type: REPORTS.APIARY_INSPECTION });
+      })
+      .catch(next)
+      .finally(async () => prisma.$disconnect());
+  }
+);
+
+router.post(
+  "/reports/startJob/dairyTrailerInspection",
+  async (req, res, next) => {
+    const startDate = formatDate(new Date(req.body.startDate));
+    const endDate = formatDate(new Date(req.body.endDate));
+    console.log("startJob dairyTrailerInspection");
+
+    await startDairyTrailerInspectionJob(startDate, endDate)
+      .then(({ jobId, documents }) => {
+        return res.send({
+          jobId,
+          documents,
+          type: REPORTS.DAIRY_TRAILER_INSPECTION,
+        });
       })
       .catch(next)
       .finally(async () => prisma.$disconnect());

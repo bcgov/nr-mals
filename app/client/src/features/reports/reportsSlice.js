@@ -40,6 +40,24 @@ export const startApiaryHiveInspectionJob = createAsyncThunk(
   }
 );
 
+export const startDairyTrailerInspectionJob = createAsyncThunk(
+  "reports/startDairyTrailerInspection",
+  async (payload, thunkApi) => {
+    try {
+      const response = await Api.post(
+        `documents/reports/startJob/dairyTrailerInspection`,
+        payload
+      );
+      return response.data;
+    } catch (error) {
+      if (error instanceof ApiError) {
+        return thunkApi.rejectWithValue(error.serialize());
+      }
+      return thunkApi.rejectWithValue({ code: -1, description: error.message });
+    }
+  }
+);
+
 export const startProducersAnalysisRegionJob = createAsyncThunk(
   "reports/startProducersAnalysisRegionJob",
   async (_, thunkApi) => {

@@ -71,6 +71,8 @@ function getCertificateTemplateName(documentType, licenceType) {
       return "Veterinary-Drug-Outlet";
     case "DISPENSER":
       return "Veterinary-Drug-Dispenser";
+    case "DAIRY TANK TRUCK":
+      return "Dairy-Tank-Truck";
     default:
       return undefined;
   }
@@ -110,6 +112,8 @@ function getRenewalTemplateName(documentType, licenceType) {
       return "Renewal_VetDrugLicence_Template";
     case "DISPENSER":
       return "Renewal_VetDrugDispenser_Template";
+    case "DAIRY TANK TRUCK":
+      return "Renewal_DairyTankTruck_Template"; // not implemented
     default:
       return undefined;
   }
@@ -192,6 +196,8 @@ function getReportsTemplateName(documentType) {
       return "LicenceType_Location_Template";
     case constants.REPORTS.LICENCE_EXPIRY:
       return "Licence_Expiry_Species_NoSpecies_Template";
+    case constants.REPORTS.DAIRY_TRAILER_INSPECTION:
+      return "Dairy_Trailer_Inspection_Template";
     default:
       return null;
   }
