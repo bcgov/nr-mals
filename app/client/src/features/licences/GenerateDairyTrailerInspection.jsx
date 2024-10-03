@@ -44,7 +44,6 @@ export default function GenerateDairyTrailerInspection({ licenceNumber }) {
     <>
       <Row>
         <Col sm={3}>
-          <Form.Label>&nbsp;</Form.Label>
           <Button
             variant="primary"
             type="button"
