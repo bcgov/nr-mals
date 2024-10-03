@@ -64,6 +64,43 @@ async function findLicence(licenceId) {
   });
 }
 
+async function findLicenceByNumber(licenceNumber) {
+  return prisma.mal_licence.findFirst({
+    where: {
+      licence_number: licenceNumber,
+    },
+    include: {
+      mal_licence_type_lu: true,
+      mal_region_lu: true,
+      mal_regional_district_lu: true,
+      mal_status_code_lu: true,
+      mal_licence_registrant_xref: {
+        select: {
+          mal_registrant: true,
+        },
+      },
+      mal_licence_parent_child_xref_mal_licenceTomal_licence_parent_child_xref_parent_licence_id: {
+        select: {
+          create_timestamp: true,
+          mal_licence_mal_licenceTomal_licence_parent_child_xref_child_licence_id: {
+            include: {
+              mal_licence_type_lu: true,
+              mal_status_code_lu: true,
+              mal_licence_registrant_xref: {
+                select: {
+                  mal_registrant: true,
+                },
+              },
+            },
+          },
+        },
+      },
+      mal_game_farm_inventory: true,
+      mal_fur_farm_inventory: true,
+    },
+  });
+}
+
 async function findLicenceRegistrantXref(licenceId, registrantId) {
   if (licenceId === undefined || registrantId === undefined) {
     return null;
@@ -565,6 +602,25 @@ router.get("/:licenceId(\\d+)", async (req, res, next) => {
     .finally(async () => prisma.$disconnect());
 });
 
+router.get("/number/:licenceNumber(\\d+)", async (req, res, next) => {
+  const licenceNumber = parseInt(req.params.licenceNumber, 10);
+
+  await findLicenceByNumber(licenceNumber)
+    .then((record) => {
+      if (record === null) {
+        return res.status(404).send({
+          code: 404,
+          description: "The requested licence could not be found.",
+        });
+      }
+
+      const payload = licence.convertToLogicalModel(record);
+      return res.send(payload);
+    })
+    .catch(next)
+    .finally(async () => prisma.$disconnect());
+});
+
 router.put("/:licenceId(\\d+)/associated", async (req, res, next) => {
   const licenceId = parseInt(req.params.licenceId, 10);
 
@@ -948,8 +1004,10 @@ router.put("/dairyactions/:licenceId(\\d+)", async (req, res, next) => {
     where: { id: req.body.thresholdId },
   });
 
-  if (req.body.thresholdId !== constants.DAIRY_TEST_THRESHOLD_IDS.FFA && // No FFA infractions
-    req.body.value > threshold.upper_limit.toFixed(2)) {
+  if (
+    req.body.thresholdId !== constants.DAIRY_TEST_THRESHOLD_IDS.FFA && // No FFA infractions
+    req.body.value > threshold.upper_limit.toFixed(2)
+  ) {
     const infractions = await prisma.mal_dairy_farm_test_infraction_lu.findMany(
       {
         where: { test_threshold_id: req.body.thresholdId },
@@ -983,13 +1041,17 @@ router.put("/dairyactions/:licenceId(\\d+)", async (req, res, next) => {
           .length,
         3
       );
-    } else if (req.body.thresholdId === constants.DAIRY_TEST_THRESHOLD_IDS.SCC) {
+    } else if (
+      req.body.thresholdId === constants.DAIRY_TEST_THRESHOLD_IDS.SCC
+    ) {
       infractionCount = Math.min(
         filteredResults.filter((x) => x.sccCorrespondenceDescription !== null)
           .length,
         3
       );
-    } else if (req.body.thresholdId === constants.DAIRY_TEST_THRESHOLD_IDS.CRY) {
+    } else if (
+      req.body.thresholdId === constants.DAIRY_TEST_THRESHOLD_IDS.CRY
+    ) {
       infractionCount = Math.min(
         filteredResults.filter((x) => x.cryCorrespondenceDescription !== null)
           .length,
@@ -1172,8 +1234,8 @@ router.put("/:licenceId(\\d+)/registrants", async (req, res, next) => {
         a.createTimestamp > b.createTimestamp
           ? 1
           : b.createTimestamp > a.createTimestamp
-            ? -1
-            : 0
+          ? -1
+          : 0
       );
 
       let newPrimaryRegistrant = undefined;
@@ -1301,8 +1363,8 @@ router.post("/", async (req, res, next) => {
 
   const newRegistrants = req.body.registrants
     ? req.body.registrants.filter(
-      (r) => r && r.status === REGISTRANT_STATUS.NEW
-    )
+        (r) => r && r.status === REGISTRANT_STATUS.NEW
+      )
     : [];
 
   req.body.companyName =
@@ -1346,8 +1408,8 @@ router.post("/", async (req, res, next) => {
         a.createTimestamp > b.createTimestamp
           ? 1
           : b.createTimestamp > a.createTimestamp
-            ? -1
-            : 0
+          ? -1
+          : 0
       );
       updatedRecordLogical.primaryRegistrantId = registrants[0].id;
 

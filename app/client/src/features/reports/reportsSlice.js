@@ -44,11 +44,27 @@ export const startDairyTrailerInspectionJob = createAsyncThunk(
   "reports/startDairyTrailerInspection",
   async (payload, thunkApi) => {
     try {
-      const response = await Api.post(
-        `documents/reports/startJob/dairyTrailerInspection`,
-        payload
-      );
-      return response.data;
+      if (payload && payload.licenceNumber) {
+        const licenceDetails = await Api.get(
+          `licences/number/${payload.licenceNumber}`
+        );
+        if (
+          licenceDetails &&
+          licenceDetails.data &&
+          licenceDetails.data.licenceType &&
+          licenceDetails.data.licenceType === "DAIRY TANK TRUCK"
+        ) {
+          const response = await Api.post(
+            `documents/reports/startJob/dairyTrailerInspection`,
+            payload
+          );
+          return response.data;
+        } else {
+          throw new Error(
+            "Invalid licence type for dairy trailer inspection report."
+          );
+        }
+      }
     } catch (error) {
       if (error instanceof ApiError) {
         return thunkApi.rejectWithValue(error.serialize());
@@ -330,6 +346,9 @@ export const reportsSlice = createSlice({
     [startApiaryHiveInspectionJob.pending]: pendingStartJobReducer,
     [startApiaryHiveInspectionJob.fulfilled]: fulfilledStartJobReducer,
     [startApiaryHiveInspectionJob.rejected]: rejectionStartJobReducer,
+    [startDairyTrailerInspectionJob.pending]: pendingStartJobReducer,
+    [startDairyTrailerInspectionJob.fulfilled]: fulfilledStartJobReducer,
+    [startDairyTrailerInspectionJob.rejected]: rejectionStartJobReducer,
     [startProducersAnalysisRegionJob.pending]: pendingStartJobReducer,
     [startProducersAnalysisRegionJob.fulfilled]: fulfilledStartJobReducer,
     [startProducersAnalysisRegionJob.rejected]: rejectionStartJobReducer,

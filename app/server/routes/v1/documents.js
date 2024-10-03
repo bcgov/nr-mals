@@ -258,15 +258,11 @@ async function startCertificateJob(licenceIds) {
 
 async function generateCertificate(documentId) {
   const document = await getDocument(documentId);
-  console.log("generateCertificate");
-  console.log("document");
-  console.log(document);
 
   const templateFileName = getCertificateTemplateName(
     document.document_type,
     document.licence_type
   );
-  console.log("templateFileName: " + templateFileName);
 
   if (templateFileName === undefined) {
     return {
@@ -387,8 +383,7 @@ async function generateCertificate(documentId) {
 
     document.document_json = updatedJson;
   }
-  console.log("new document.document_json");
-  console.log(document.document_json);
+
   const generate = async () => {
     const { data, status } = await cdogs.post(
       "template/render",
@@ -399,7 +394,6 @@ async function generateCertificate(documentId) {
     );
 
     if (status !== 200) {
-      console.log(status);
       return {
         status,
         payload: {
@@ -832,11 +826,10 @@ async function startApiaryHiveInspectionJob(startDate, endDate) {
   return { jobId, documents };
 }
 
-async function startDairyTrailerInspectionJob(startDate, endDate) {
-  // waiting for implemenation of the stored procedure
+async function startDairyTrailerInspectionJob(licenceNumber) {
   const [procedureResult] = await prisma.$transaction([
     prisma.$queryRawUnsafe(
-      `CALL mals_app.pr_generate_print_json_dairy_trailer_inspection('${startDate}', '${endDate}', NULL)`
+      `CALL mals_app.pr_generate_print_json_dairy_farm_trailer_inspection('${licenceNumber}', NULL)`
     ),
   ]);
 
@@ -977,9 +970,6 @@ async function startLicenceExpiryJob(startDate, endDate) {
 
 async function generateReport(documentId) {
   const document = await getDocument(documentId);
-  console.log("generateReport");
-  console.log(document);
-
   const templateFileName = getReportsTemplateName(document.document_type);
 
   if (templateFileName === undefined) {
@@ -1328,11 +1318,9 @@ router.post(
 router.post(
   "/reports/startJob/dairyTrailerInspection",
   async (req, res, next) => {
-    const startDate = formatDate(new Date(req.body.startDate));
-    const endDate = formatDate(new Date(req.body.endDate));
-    console.log("startJob dairyTrailerInspection");
+    const licenceNumber = parseAsInt(req.body.licenceNumber);
 
-    await startDairyTrailerInspectionJob(startDate, endDate)
+    await startDairyTrailerInspectionJob(licenceNumber)
       .then(({ jobId, documents }) => {
         return res.send({
           jobId,

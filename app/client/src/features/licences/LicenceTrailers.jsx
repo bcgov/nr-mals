@@ -42,6 +42,7 @@ import {
 import ErrorMessageRow from "../../components/ErrorMessageRow";
 
 import { selectCurrentUser } from "../../app/appSlice";
+import GenerateDairyTrailerInspection from "./GenerateDairyTrailerInspection";
 
 function formatResultRow(result) {
   const url = `${TRAILERS_PATHNAME}/${result.dairyFarmTrailerId}`;
@@ -236,6 +237,12 @@ export default function LicenceTrailers({ licence }) {
           />
         </div>
         {control}
+      </Container>
+      <SectionHeading>Inspections Report</SectionHeading>
+      <Container className="mt-3 mb-4">
+        <GenerateDairyTrailerInspection
+          licenceNumber={licence?.data?.licenceNumber}
+        />
       </Container>
     </>
   );

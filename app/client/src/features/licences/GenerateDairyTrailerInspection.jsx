@@ -1,5 +1,4 @@
 import React, { useEffect } from "react";
-import { useForm } from "react-hook-form";
 import { useSelector, useDispatch } from "react-redux";
 import { Row, Col, Form, Button } from "react-bootstrap";
 
@@ -11,22 +10,15 @@ import {
   fetchReportJob,
   selectReportsJob,
   completeReportJob,
-} from "./reportsSlice";
+} from "../reports/reportsSlice";
 
 import { REPORTS } from "../../utilities/constants";
 
-export default function ReportDairyTrailerInspection() {
+export default function GenerateDairyTrailerInspection({ licenceNumber }) {
   const dispatch = useDispatch();
 
   const job = useSelector(selectReportsJob);
   const { pendingDocuments } = job;
-
-  const form = useForm({
-    reValidateMode: "onBlur",
-  });
-  const { register, watch } = form;
-
-  const watchLicenceNumber = watch("licenceNumber", null);
 
   useEffect(() => {
     if (job.id && job.type === REPORTS.DAIRY_TRAILER_INSPECTION) {
@@ -43,7 +35,7 @@ export default function ReportDairyTrailerInspection() {
   const onGenerateReport = () => {
     dispatch(
       startDairyTrailerInspectionJob({
-        licenceNumber: watchLicenceNumber,
+        licenceNumber: licenceNumber,
       })
     );
   };
@@ -51,25 +43,16 @@ export default function ReportDairyTrailerInspection() {
   return (
     <>
       <Row>
-        <Col lg={3}>
-          <Form.Label>Licence Number</Form.Label>
-          <Form.Control
-            id="licenceNumber"
-            type="number"
-            name="licenceNumber"
-            defaultValue={null}
-            {...register("licenceNumber")}
-          />
-        </Col>
-        <Col sm={2}>
+        <Col sm={3}>
           <Form.Label>&nbsp;</Form.Label>
           <Button
             variant="primary"
             type="button"
             onClick={() => onGenerateReport()}
             block
+            disabled={!licenceNumber}
           >
-            Generate Report
+            Generate Inspections Report
           </Button>
         </Col>
       </Row>
@@ -80,4 +63,4 @@ export default function ReportDairyTrailerInspection() {
   );
 }
 
-ReportDairyTrailerInspection.propTypes = {};
+GenerateDairyTrailerInspection.propTypes = {};
