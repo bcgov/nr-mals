@@ -35,6 +35,7 @@ export default function InspectionDetailsViewEdit({
   site,
   licence,
 }) {
+  console.log("InspectionDetailsViewEdit");
   const { status, error, mode } = inspection;
 
   const dispatch = useDispatch();
@@ -71,7 +72,7 @@ export default function InspectionDetailsViewEdit({
     inspectionComment: null,
   };
 
-  useEffect(() => { }, [dispatch]);
+  useEffect(() => {}, [dispatch]);
 
   useEffect(() => {
     setValue("inspectionDate", new Date(inspection.data.inspectionDate));
@@ -184,7 +185,9 @@ export default function InspectionDetailsViewEdit({
           supersInspected: parseAsInt(data.supersInspected),
           supersDestroyed: parseAsInt(data.supersDestroyed),
           inspectionComment:
-            data.inspectionComment?.length === 0 ? null : data.inspectionComment,
+            data.inspectionComment?.length === 0
+              ? null
+              : data.inspectionComment,
         };
 
         dispatch(

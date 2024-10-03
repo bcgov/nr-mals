@@ -31,12 +31,18 @@ const certificateTemplateDir = path.join(
   __dirname,
   "../../static/templates/certificates"
 );
-const renewalsTemplateDir = path.join(__dirname, "../../static/templates/notices");
+const renewalsTemplateDir = path.join(
+  __dirname,
+  "../../static/templates/notices"
+);
 const dairyNoticeTemplateDir = path.join(
   __dirname,
   "../../static/templates/notices/dairy"
 );
-const reportsTemplateDir = path.join(__dirname, "../../static/templates/reports");
+const reportsTemplateDir = path.join(
+  __dirname,
+  "../../static/templates/reports"
+);
 
 // As templates are converted to base 64 for the first time they will be pushed to this for reuse
 const templateBuffers = [];
@@ -60,7 +66,6 @@ cdogs.interceptors.request.use(
     })
   )
 );
-
 
 async function getPendingDocuments(jobId) {
   const documents = await prisma.mal_print_job_output.findMany({
@@ -286,6 +291,99 @@ async function generateCertificate(documentId) {
   const template = templateBuffers.find(
     (x) => x.templateFileName === templateFileName
   );
+  // check if certificate is CARD (3 templates), if so, split into two arrays
+  if (
+    document.document_type === "CARD" &&
+    (document.licence_type === "BULK TANK MILK GRADER" ||
+      document.licence_type === "LIVESTOCK DEALER" ||
+      document.licence_type === "LIVESTOCK DEALER AGENT")
+  ) {
+    /**
+     * The Card templates have a table that is 2 columns by N rows, this function effectively combines
+     * those two columns into one so that we don't have to deal with bi-directional looping
+     * (which cdogs doesn't support yet)  */
+
+    function combineEntries(licenceType, documentJson) {
+      let combinedJson = [];
+      switch (licenceType) {
+        case "BULK TANK MILK GRADER":
+          for (let i = 0; i < documentJson.length; i += 2) {
+            let combinedEntry = { ...documentJson[i] };
+            if (documentJson[i + 1]) {
+              combinedEntry.LicenceHolderName2 =
+                documentJson[i + 1].LicenceHolderName;
+              combinedEntry.LicenceHolderCompany2 =
+                documentJson[i + 1].LicenceHolderCompany;
+              combinedEntry.LicenceNumber2 = documentJson[i + 1].LicenceNumber;
+              combinedEntry.ExpiryDate2 = documentJson[i + 1].ExpiryDate;
+              combinedEntry.CardLabel2 = documentJson[i + 1].CardLabel;
+            } else {
+              combinedEntry.LicenceHolderName2 = null;
+              combinedEntry.LicenceHolderCompany2 = null;
+              combinedEntry.LicenceNumber2 = null;
+              combinedEntry.ExpiryDate2 = null;
+              combinedEntry.CardLabel2 = null;
+            }
+            combinedJson.push(combinedEntry);
+          }
+          return combinedJson;
+        case "LIVESTOCK DEALER AGENT":
+          for (let i = 0; i < documentJson.length; i += 2) {
+            let combinedEntry = { ...documentJson[i] };
+            if (documentJson[i + 1]) {
+              combinedEntry.CardType2 = documentJson[i + 1].CardType;
+              combinedEntry.LicenceHolderName2 =
+                documentJson[i + 1].LicenceHolderName;
+              combinedEntry.LastFirstName2 = documentJson[i + 1].LastFirstName;
+              combinedEntry.AgentFor2 = documentJson[i + 1].AgentFor;
+              combinedEntry.LicenceNumber2 = documentJson[i + 1].LicenceNumber;
+              combinedEntry.StartDate2 = documentJson[i + 1].StartDate;
+              combinedEntry.ExpiryDate2 = documentJson[i + 1].ExpiryDate;
+            } else {
+              combinedEntry.CardType2 = null;
+              combinedEntry.LicenceHolderName2 = null;
+              combinedEntry.LastFirstName2 = null;
+              combinedEntry.AgentFor2 = null;
+              combinedEntry.LicenceNumber2 = null;
+              combinedEntry.StartDate2 = null;
+              combinedEntry.ExpiryDate2 = null;
+            }
+            combinedJson.push(combinedEntry);
+          }
+          return combinedJson;
+        case "LIVESTOCK DEALER":
+          for (let i = 0; i < documentJson.length; i += 2) {
+            let combinedEntry = { ...documentJson[i] };
+            if (documentJson[i + 1]) {
+              combinedEntry.CardType2 = documentJson[i + 1].CardType;
+              combinedEntry.LicenceHolderCompany2 =
+                documentJson[i + 1].LicenceHolderCompany;
+              combinedEntry.LicenceNumber2 = documentJson[i + 1].LicenceNumber;
+              combinedEntry.StartDate2 = documentJson[i + 1].StartDate;
+              combinedEntry.ExpiryDate2 = documentJson[i + 1].ExpiryDate;
+            } else {
+              combinedEntry.CardType2 = null;
+              combinedEntry.LicenceHolderCompany2 = null;
+              combinedEntry.LicenceNumber2 = null;
+              combinedEntry.StartDate2 = null;
+              combinedEntry.ExpiryDate2 = null;
+            }
+            combinedJson.push(combinedEntry);
+          }
+          return combinedJson;
+        default:
+          return null;
+      }
+    }
+
+    let updatedJson = combineEntries(
+      document.licence_type,
+      document.document_json
+    );
+
+    document.document_json = updatedJson;
+  }
+
   const generate = async () => {
     const { data, status } = await cdogs.post(
       "template/render",
@@ -363,7 +461,7 @@ async function startRenewalJob(licenceIds) {
     },
   };
 
-  const [, , procedureResult,] = await prisma.$transaction([
+  const [, , procedureResult] = await prisma.$transaction([
     // ensure selected licences have print_renewal set to true
     prisma.mal_licence.updateMany({
       where: licenceFilterCriteria,
@@ -463,7 +561,6 @@ async function generateRenewal(documentId) {
 }
 
 async function getQueuedDairyNotices(startDate, endDate) {
-
   const andArray = [];
   andArray.push({ recorded_date: { gte: new Date(startDate) } });
   andArray.push({ recorded_date: { lte: new Date(endDate) } });
@@ -585,7 +682,6 @@ async function generateDairyNotice(documentId) {
 
   return result;
 }
-
 
 async function getQueuedDairyTankNotices() {
   return prisma.mal_print_dairy_farm_tank_recheck_vw.findMany({
@@ -730,6 +826,18 @@ async function startApiaryHiveInspectionJob(startDate, endDate) {
   return { jobId, documents };
 }
 
+async function startDairyTrailerInspectionJob(licenceNumber) {
+  const [procedureResult] = await prisma.$transaction([
+    prisma.$queryRawUnsafe(
+      `CALL mals_app.pr_generate_print_json_dairy_farm_trailer_inspection('${licenceNumber}', NULL)`
+    ),
+  ]);
+
+  const jobId = procedureResult[0].iop_print_job_id;
+  const documents = await getPendingDocuments(jobId);
+  return { jobId, documents };
+}
+
 async function startProducersAnalysisRegionJob() {
   const [procedureResult] = await prisma.$transaction([
     prisma.$queryRawUnsafe(
@@ -862,7 +970,6 @@ async function startLicenceExpiryJob(startDate, endDate) {
 
 async function generateReport(documentId) {
   const document = await getDocument(documentId);
-
   const templateFileName = getReportsTemplateName(document.document_type);
 
   if (templateFileName === undefined) {
@@ -1202,6 +1309,24 @@ router.post(
     await startApiaryHiveInspectionJob(startDate, endDate)
       .then(({ jobId, documents }) => {
         return res.send({ jobId, documents, type: REPORTS.APIARY_INSPECTION });
+      })
+      .catch(next)
+      .finally(async () => prisma.$disconnect());
+  }
+);
+
+router.post(
+  "/reports/startJob/dairyTrailerInspection",
+  async (req, res, next) => {
+    const licenceNumber = parseAsInt(req.body.licenceNumber);
+
+    await startDairyTrailerInspectionJob(licenceNumber)
+      .then(({ jobId, documents }) => {
+        return res.send({
+          jobId,
+          documents,
+          type: REPORTS.DAIRY_TRAILER_INSPECTION,
+        });
       })
       .catch(next)
       .finally(async () => prisma.$disconnect());

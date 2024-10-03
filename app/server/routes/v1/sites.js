@@ -10,7 +10,6 @@ const dairyTank = require("../../models/dairyTank");
 const inspection = require("../../models/inspection");
 const constants = require("../../utilities/constants");
 
-
 const router = express.Router();
 const prisma = new PrismaClient();
 
@@ -93,23 +92,59 @@ function getSearchFilter(params) {
     }
 
     if (params.filterText) {
-      if (params.filterText === 'ACT' || params.filterText === 'INA') {
+      if (params.filterText === "ACT" || params.filterText === "INA") {
         andArray.push({
           site_status: {
             contains: params.filterText,
-            mode: "insensitive"
-          }
-        })
+            mode: "insensitive",
+          },
+        });
       } else {
         andArray.push({
           OR: [
-            { site_id_pk: { equals: isNaN(parseInt(params.filterText, 10)) ? 0 : parseInt(params.filterText, 10) } }, // unfortunately site id has to be an exact match
-            { apiary_site_id_display: { contains: params.filterText, mode: "insensitive" } },
-            { registrant_last_name: { contains: params.filterText, mode: "insensitive" } },
-            { registrant_first_name: { contains: params.filterText, mode: "insensitive" } },
-            { site_address_line_1: { contains: params.filterText, mode: "insensitive" } },
-            { licence_region_name: { contains: params.filterText, mode: "insensitive" } },
-            { licence_regional_district_name: { contains: params.filterText, mode: "insensitive" } },
+            {
+              site_id_pk: {
+                equals: isNaN(parseInt(params.filterText, 10))
+                  ? 0
+                  : parseInt(params.filterText, 10),
+              },
+            }, // unfortunately site id has to be an exact match
+            {
+              apiary_site_id_display: {
+                contains: params.filterText,
+                mode: "insensitive",
+              },
+            },
+            {
+              registrant_last_name: {
+                contains: params.filterText,
+                mode: "insensitive",
+              },
+            },
+            {
+              registrant_first_name: {
+                contains: params.filterText,
+                mode: "insensitive",
+              },
+            },
+            {
+              site_address_line_1: {
+                contains: params.filterText,
+                mode: "insensitive",
+              },
+            },
+            {
+              licence_region_name: {
+                contains: params.filterText,
+                mode: "insensitive",
+              },
+            },
+            {
+              licence_regional_district_name: {
+                contains: params.filterText,
+                mode: "insensitive",
+              },
+            },
           ],
         });
       }
@@ -299,14 +334,15 @@ router.post("/search/export", async (req, res, next) => {
         "Site ID,Registrant Name,Company Name,Licence Number,City,Region,District,Next Inspection Date\n";
       const values = results
         .map((x) => {
-          return `${x.apiarySiteIdDisplay ? x.apiarySiteIdDisplay : x.siteId
-            },${formatValue(x.registrantLastName)},${formatValue(
-              x.registrantCompanyName
-            )},${formatValue(x.licenceNumber)},${formatValue(
-              x.licenceCity
-            )},${formatValue(x.licenceRegion)},${formatValue(
-              x.licenceDistrict
-            )},${formatValue(x.nextInspectionDate)}`;
+          return `${
+            x.apiarySiteIdDisplay ? x.apiarySiteIdDisplay : x.siteId
+          },${formatValue(x.registrantLastName)},${formatValue(
+            x.registrantCompanyName
+          )},${formatValue(x.licenceNumber)},${formatValue(
+            x.licenceCity
+          )},${formatValue(x.licenceRegion)},${formatValue(
+            x.licenceDistrict
+          )},${formatValue(x.nextInspectionDate)}`;
         })
         .join("\n");
       const payload = columnHeaders.concat(values);

@@ -14,6 +14,8 @@ import dairyTankNoticesReducer from "../features/documents/dairyTankNoticesSlice
 import adminReducer from "../features/admin/adminSlice";
 import reportsReducer from "../features/reports/reportsSlice";
 import inspectionsReducer from "../features/inspections/inspectionsSlice";
+import trailersReducer from "../features/trailers/trailersSlice";
+import trailerInspectionsReducer from "../features/trailerinspections/trailerInspectionsSlice";
 
 const reducer = {
   admin: adminReducer,
@@ -24,21 +26,24 @@ const reducer = {
   dairyTankNotices: dairyTankNoticesReducer,
   comments: commentsReducer,
   inspections: inspectionsReducer,
+  trailerinspections: trailerInspectionsReducer,
   licences: licencesReducer,
   lookups: lookupsReducer,
   reports: reportsReducer,
   search: searchReducer,
   sites: sitesReducer,
+  trailers: trailersReducer,
   config: configReducer,
 };
 
 export default configureStore({
   reducer,
-  middleware: (getDefaultMiddleware) => getDefaultMiddleware({
-    serializableCheck: {
-      // Ignore these action types
-      ignoredActions: ["app/SHOW_MODAL"],
-    },
-  }),
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: {
+        // Ignore these action types
+        ignoredActions: ["app/SHOW_MODAL"],
+      },
+    }),
   devTools: process.env.NODE_ENV !== "production",
 });

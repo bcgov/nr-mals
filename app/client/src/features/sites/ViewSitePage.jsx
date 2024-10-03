@@ -22,8 +22,17 @@ import RenderOnRole from "../../components/RenderOnRole";
 import PageHeading from "../../components/PageHeading";
 import SectionHeading from "../../components/SectionHeading";
 
-import { fetchSite, selectCurrentSite, clearCreatedSite, clearCurrentSite } from "./sitesSlice";
-import { fetchLicence, selectCurrentLicence, clearCurrentLicence } from "../licences/licencesSlice";
+import {
+  fetchSite,
+  selectCurrentSite,
+  clearCreatedSite,
+  clearCurrentSite,
+} from "./sitesSlice";
+import {
+  fetchLicence,
+  selectCurrentLicence,
+  clearCurrentLicence,
+} from "../licences/licencesSlice";
 
 import SiteHeader from "./SiteHeader";
 import LicenceDetailsView from "../licences/LicenceDetailsView";
@@ -33,6 +42,7 @@ import Comments from "../comments/Comments";
 
 import "./ViewSitePage.scss";
 import DairyTanksViewEdit from "./dairytanks/DairyTanksViewEdit";
+
 import {
   LICENCE_TYPE_ID_DAIRY_FARM,
   LICENCE_TYPE_ID_APIARY,

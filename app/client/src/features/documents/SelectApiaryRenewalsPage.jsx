@@ -75,12 +75,12 @@ export default function SelectApiaryRenewalsPage() {
   useEffect(() => {
     licences = queuedRenewals.data
       ? queuedRenewals.data.map((licence) => ({
-        ...licence,
-        licenceId: licence.licenceId,
-        issuedOnDate: formatDateString(licence.issuedOnDate),
-        expiryDate: formatDateString(licence.expiryDate),
-        selected: "true",
-      }))
+          ...licence,
+          licenceId: licence.licenceId,
+          issuedOnDate: formatDateString(licence.issuedOnDate),
+          expiryDate: formatDateString(licence.expiryDate),
+          selected: "true",
+        }))
       : [];
     setValue("licences", licences);
   }, [queuedRenewals.data]);
@@ -95,7 +95,9 @@ export default function SelectApiaryRenewalsPage() {
   }, [watchStartDate, watchEndDate]);
 
   const onSubmit = (data) => {
-    const checked = isCheckAll ? watchLicences.map((x) => x.licenceId) : isChecked;
+    const checked = isCheckAll
+      ? watchLicences.map((x) => x.licenceId)
+      : isChecked;
     dispatch(startRenewalJob(checked));
     history.push(DOWNLOAD_RENEWALS_PATHNAME);
   };
@@ -139,7 +141,8 @@ export default function SelectApiaryRenewalsPage() {
       variant="primary"
       type="submit"
       disabled={
-        !isCheckAll && (isChecked.length === 0 || renewalJob.status !== REQUEST_STATUS.IDLE)
+        !isCheckAll &&
+        (isChecked.length === 0 || renewalJob.status !== REQUEST_STATUS.IDLE)
       }
     >
       Generate
@@ -184,8 +187,12 @@ export default function SelectApiaryRenewalsPage() {
       <Form onSubmit={handleSubmit(onSubmit)}>
         <Row className="mt-3 d-flex justify-content-end">
           <Col md="auto">
-            {isCheckAll ? licences.length : isChecked.length} {pluralize(isCheckAll ? licences.length : isChecked.length, "renewal")} selected
-            for generation.
+            {isCheckAll ? licences.length : isChecked.length}{" "}
+            {pluralize(
+              isCheckAll ? licences.length : isChecked.length,
+              "renewal"
+            )}{" "}
+            selected for generation.
           </Col>
         </Row>
         <Table striped size="sm" responsive className="mt-3" hover>

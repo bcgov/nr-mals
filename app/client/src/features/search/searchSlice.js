@@ -15,6 +15,13 @@ export const selectSiteParameters = (state) => state.search.sites.parameters;
 export const selectSiteResults = (state) => state.search.sites.results;
 export const selectSiteFilterText = (state) => state.search.sites.filter;
 
+export const selectTrailerSearchType = (state) =>
+  state.search.trailers.searchType;
+export const selectTrailerParameters = (state) =>
+  state.search.trailers.parameters;
+export const selectTrailerResults = (state) => state.search.trailers.results;
+export const selectTrailerFilterText = (state) => state.search.trailers.filter;
+
 export const selectInventoryHistorySearchType = (state) =>
   state.search.inventoryHistory.searchType;
 export const selectInventoryHistoryParameters = (state) =>
@@ -97,6 +104,27 @@ export const fetchSiteResults = createAsyncThunk(
       };
 
       const response = await Api.get(`sites/search`, parsedParameters);
+      return response.data;
+    } catch (error) {
+      if (error instanceof ApiError) {
+        return thunkApi.rejectWithValue(error.serialize());
+      }
+      return thunkApi.rejectWithValue({ code: -1, description: error.message });
+    }
+  }
+);
+
+export const fetchTrailerResults = createAsyncThunk(
+  "search/fetchTrailerResults",
+  async (_, thunkApi) => {
+    try {
+      const parameters = selectTrailerParameters(thunkApi.getState());
+
+      const parsedParameters = {
+        ...parameters,
+      };
+
+      const response = await Api.get(`trailers/search`, parsedParameters);
       return response.data;
     } catch (error) {
       if (error instanceof ApiError) {
@@ -203,6 +231,17 @@ export const searchSlice = createSlice({
         status: REQUEST_STATUS.IDLE,
       },
     },
+    trailers: {
+      searchType: SEARCH_TYPE.SIMPLE,
+      parameters: {},
+      results: {
+        data: undefined,
+        page: undefined,
+        count: undefined,
+        error: undefined,
+        status: REQUEST_STATUS.IDLE,
+      },
+    },
     inventoryHistory: {
       searchType: SEARCH_TYPE.SIMPLE,
       parameters: {},
@@ -292,6 +331,37 @@ export const searchSlice = createSlice({
     },
     clearSiteFilterText: (state) => {
       state.sites.parameters.filterText = undefined;
+    },
+
+    // Trailers
+    clearTrailerParameters: (state) => {
+      state.trailers.parameters = {};
+      state.trailers.searchType = SEARCH_TYPE.SIMPLE;
+    },
+    clearTrailerResults: (state) => {
+      state.trailers.results.data = undefined;
+      state.trailers.results.error = undefined;
+      state.trailers.results.status = REQUEST_STATUS.IDLE;
+    },
+    toggleTrailerSearchType: (state) => {
+      const currentSearchType = state.trailers.searchType;
+      state.trailers.searchType =
+        currentSearchType === SEARCH_TYPE.SIMPLE
+          ? SEARCH_TYPE.ADVANCED
+          : SEARCH_TYPE.SIMPLE;
+    },
+    setTrailerParameters: (state, action) => {
+      state.trailers.parameters = action.payload;
+      state.trailers.results.status = REQUEST_STATUS.IDLE;
+    },
+    setTrailerSearchPage: (state, action) => {
+      state.trailers.parameters.page = action.payload;
+    },
+    setTrailerFilterText: (state, action) => {
+      state.trailers.parameters.filterText = action.payload;
+    },
+    clearTrailerFilterText: (state) => {
+      state.trailers.parameters.filterText = undefined;
     },
 
     // Inventory History
@@ -417,6 +487,24 @@ export const searchSlice = createSlice({
       state.sites.results.status = REQUEST_STATUS.REJECTED;
     },
 
+    // Trailers
+    [fetchTrailerResults.pending]: (state) => {
+      state.trailers.results.error = undefined;
+      state.trailers.results.status = REQUEST_STATUS.PENDING;
+    },
+    [fetchTrailerResults.fulfilled]: (state, action) => {
+      state.trailers.results.data = action.payload.results;
+      state.trailers.results.page = action.payload.page;
+      state.trailers.results.count = action.payload.count;
+      state.trailers.results.error = undefined;
+      state.trailers.results.status = REQUEST_STATUS.FULFILLED;
+    },
+    [fetchTrailerResults.rejected]: (state, action) => {
+      state.trailers.results.data = undefined;
+      state.trailers.results.error = action.payload;
+      state.trailers.results.status = REQUEST_STATUS.REJECTED;
+    },
+
     // Inventory History
     [fetchInventoryHistoryResults.pending]: (state) => {
       state.inventoryHistory.results.error = undefined;
@@ -489,6 +577,14 @@ export const {
   setSiteSearchPage,
   setSiteFilterText,
   clearSiteFilterText,
+
+  clearTrailerParameters,
+  clearTrailerResults,
+  toggleTrailerSearchType,
+  setTrailerParameters,
+  setTrailerSearchPage,
+  setTrailerFilterText,
+  clearTrailerFilterText,
 
   clearInventoryHistoryParameters,
   clearInventoryHistoryResults,
