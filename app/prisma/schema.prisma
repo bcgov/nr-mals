@@ -796,7 +796,7 @@ model mal_dairy_farm_trailer {
   update_userid                     String                              @db.VarChar(63)
   update_timestamp                  DateTime                            @db.Timestamp(6)
   mal_licence                       mal_licence                         @relation(fields: [licence_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "dftr_licence_fk")
-  mal_status_code_lu                mal_status_code_lu                  @relation(fields: [status_code_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "dftr_site_fk")
+  mal_status_code_lu                mal_status_code_lu                  @relation(fields: [status_code_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "dftr_status_code_id_fk")
   mal_dairy_farm_trailer_inspection mal_dairy_farm_trailer_inspection[]
 
   @@unique([licence_id, licence_trailer_seq], map: "mal_dairy_farm_trailer_ukey")
@@ -932,4 +932,29 @@ model mal_dairy_farm_trailer_vw {
   trailer_type                String?   @db.VarChar(50)
   trailer_capacity            Int?
   trailer_compartments        Int?      @db.SmallInt
+}
+
+model mal_dairy_farm_trailer_inspection_vw {
+  dairy_farm_trailer_inspection_id    Int @unique
+  dairy_farm_trailer_id               Int
+  licence_id                          Int?
+  licence_number                      Int?
+  irma_number                         String?   @db.VarChar(10)
+  licence_type                        String?
+  licence_status                      String?
+  company_name                        String?
+  licence_trailer_seq                 Int?
+  trailer_number                      String?
+  trailer_status                      String?
+  geographical_division               String?
+  serial_number_vin                   String?
+  license_plate                       String?
+  trailer_year                        Int?      @db.SmallInt
+  trailer_make                        String?                 
+  trailer_type                        String?
+  trailer_capacity                    Int?
+  trailer_compartments                Int?   @db.SmallInt
+  inspection_date                     DateTime?
+  inspector_id                        String?
+  inspection_comments                 String?
 }
