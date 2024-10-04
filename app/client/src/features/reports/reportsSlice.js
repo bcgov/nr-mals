@@ -234,6 +234,24 @@ export const startLicenceTypeLocationJob = createAsyncThunk(
   }
 );
 
+export const startLicenceCommentsJob = createAsyncThunk(
+  "reports/startLicenceCommentsJob",
+  async (payload, thunkApi) => {
+    try {
+      const response = await Api.post(
+        `documents/reports/startJob/licenceComments`,
+        payload
+      );
+      return response.data;
+    } catch (error) {
+      if (error instanceof ApiError) {
+        return thunkApi.rejectWithValue(error.serialize());
+      }
+      return thunkApi.rejectWithValue({ code: -1, description: error.message });
+    }
+  }
+);
+
 export const startLicenceExpiryJob = createAsyncThunk(
   "reports/startLicenceExpiryJob",
   async (payload, thunkApi) => {

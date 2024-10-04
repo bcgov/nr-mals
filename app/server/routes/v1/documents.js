@@ -954,6 +954,20 @@ async function startLicenceTypeLocationJob(licenceTypeId) {
   return { jobId, documents };
 }
 
+async function startLicenceCommentsJob(licenceNumber) {
+  const [procedureResult] = await prisma.$transaction([
+    prisma.$queryRawUnsafe(
+      `CALL mals_app.pr_generate_print_json_licence_comments(${licenceNumber}, NULL)`
+    ),
+  ]);
+
+  const jobId = procedureResult[0].iop_print_job_id;
+
+  const documents = await getPendingDocuments(jobId);
+
+  return { jobId, documents };
+}
+
 async function startLicenceExpiryJob(startDate, endDate) {
   const [procedureResult] = await prisma.$transaction([
     prisma.$queryRawUnsafe(
@@ -1456,6 +1470,17 @@ router.post("/reports/startJob/licenceTypeLocation", async (req, res, next) => {
   await startLicenceTypeLocationJob(licenceTypeId)
     .then(({ jobId, documents }) => {
       return res.send({ jobId, documents, type: REPORTS.LICENCE_LOCATION });
+    })
+    .catch(next)
+    .finally(async () => prisma.$disconnect());
+});
+
+router.post("/reports/startJob/licenceComments", async (req, res, next) => {
+  const licenceNumber = parseAsInt(req.body.licenceNumber);
+
+  await startLicenceCommentsJob(licenceNumber)
+    .then(({ jobId, documents }) => {
+      return res.send({ jobId, documents, type: REPORTS.LICENCE_COMMENTS });
     })
     .catch(next)
     .finally(async () => prisma.$disconnect());
