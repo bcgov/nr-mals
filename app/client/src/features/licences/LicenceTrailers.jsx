@@ -43,6 +43,7 @@ import ErrorMessageRow from "../../components/ErrorMessageRow";
 
 import { selectCurrentUser } from "../../app/appSlice";
 import GenerateDairyTrailerInspection from "./GenerateDairyTrailerInspection";
+import { clearReportsJob } from "../reports/reportsSlice";
 
 function formatResultRow(result) {
   const url = `${TRAILERS_PATHNAME}/${result.dairyFarmTrailerId}`;
@@ -81,6 +82,9 @@ export default function LicenceTrailers({ licence }) {
       setTrailerParameters({ licenceNumber: licence.data.licenceNumber })
     );
     dispatch(fetchTrailerResults());
+    return () => {
+      dispatch(clearReportsJob());
+    };
   }, [dispatch]);
 
   const handleFilterTextChange = (e) => {
