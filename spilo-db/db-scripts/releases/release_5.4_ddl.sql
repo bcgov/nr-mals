@@ -256,7 +256,7 @@ GRANT SELECT ON TABLE mals_app.mal_dairy_farm_trailer_inspection_vw TO mals_app_
 -- VIEW:  MAL_PRINT_DAIRY_FARM_TRAILER_INSPECTION_VW
 --
 
-CREATE VIEW mals_app.mal_print_dairy_farm_trailer_inspection_vw
+CREATE OR REPLACE VIEW mals_app.mal_print_dairy_farm_trailer_inspection_vw
 AS 
  SELECT lictyp.licence_type,
     to_char(insp.inspection_date, 'yyyy') inspection_year,
@@ -265,6 +265,7 @@ AS
     lic.irma_number,
     json_build_object(
     	'CurrentDate', to_char(CURRENT_DATE::timestamp with time zone, 'fmMonth dd, yyyy'::text), 
+    	'LicenceNumber', lic.licence_number,
     	'IRMA_Num', lic.irma_number, 
     	'LicenceStatus', licstat.code_name,
     	'LicenceHolderCompany', lic.company_name, 
