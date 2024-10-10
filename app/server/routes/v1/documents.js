@@ -829,7 +829,7 @@ async function startApiaryHiveInspectionJob(startDate, endDate) {
 async function startDairyTrailerInspectionJob(licenceNumber) {
   const [procedureResult] = await prisma.$transaction([
     prisma.$queryRawUnsafe(
-      `CALL mals_app.pr_generate_print_json_dairy_farm_trailer_inspection('${licenceNumber}', NULL)`
+      `CALL mals_app.pr_generate_print_json_dairy_farm_trailer_inspection(${licenceNumber}, NULL)`
     ),
   ]);
 

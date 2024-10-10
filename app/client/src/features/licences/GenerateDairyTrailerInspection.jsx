@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { Row, Col, Form, Button } from "react-bootstrap";
+import { Row, Col, Button } from "react-bootstrap";
 
 import DocGenDownloadBar from "../../components/DocGenDownloadBar";
 
