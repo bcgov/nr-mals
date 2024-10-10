@@ -256,7 +256,7 @@ GRANT SELECT ON TABLE mals_app.mal_dairy_farm_trailer_inspection_vw TO mals_app_
 -- VIEW:  MAL_PRINT_DAIRY_FARM_TRAILER_INSPECTION_VW
 --
 
-CREATE VIEW mals_app.mal_print_dairy_farm_trailer_inspection_vw
+CREATE OR REPLACE VIEW mals_app.mal_print_dairy_farm_trailer_inspection_vw
 AS 
  SELECT lictyp.licence_type,
     to_char(insp.inspection_date, 'yyyy') inspection_year,
@@ -265,6 +265,7 @@ AS
     lic.irma_number,
     json_build_object(
     	'CurrentDate', to_char(CURRENT_DATE::timestamp with time zone, 'fmMonth dd, yyyy'::text), 
+    	'LicenceNumber', lic.licence_number,
     	'IRMA_Num', lic.irma_number, 
     	'LicenceStatus', licstat.code_name,
     	'LicenceHolderCompany', lic.company_name, 
@@ -478,8 +479,8 @@ GRANT SELECT ON TABLE mals_app.mal_print_certificate_vw TO mals_app_role;
 -- PROCEDURE:  PR_GENERATE_PRINT_JSON_DAIRY_FARM_TRAILER_INSPECTION
 --
 
-CREATE OR REPLACE PROCEDURE mals_app.pr_generate_print_json_dairy_farm_trailer_inspection(
-	IN ip_irma_number character varying, 
+CREATE PROCEDURE mals_app.pr_generate_print_json_dairy_farm_trailer_inspection(
+	IN ip_licence_number   integer, 
 	INOUT iop_print_job_id integer)
  LANGUAGE plpgsql
 AS $procedure$
@@ -514,7 +515,7 @@ AS $procedure$
 					    'InspectorName', inspector_id,
 					    'InspectionComments', inspection_comments)) AS trailer_json
 		    FROM mal_dairy_farm_trailer_inspection_vw
-		    WHERE irma_number = ip_irma_number
+		    WHERE licence_number = ip_licence_number
 		  GROUP BY irma_number,
 		    licence_number,
 		    company_name)
