@@ -8,6 +8,12 @@ export const fetchLicenceTypes = createAsyncThunk(
   async (_, thunkApi) => {
     try {
       const response = await Api.get("licence-types");
+      if (response.data.length > 0) {
+        // sort the array by licenceType value alphabetically
+        response.data.sort((a, b) =>
+          a.licenceType.localeCompare(b.licenceType)
+        );
+      }
       return response.data;
     } catch (error) {
       if (error instanceof ApiError) {
