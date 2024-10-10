@@ -397,6 +397,9 @@ export const reportsSlice = createSlice({
     [startLicenceExpiryJob.pending]: pendingStartJobReducer,
     [startLicenceExpiryJob.fulfilled]: fulfilledStartJobReducer,
     [startLicenceExpiryJob.rejected]: rejectionStartJobReducer,
+    [startLicenceCommentsJob.pending]: pendingStartJobReducer,
+    [startLicenceCommentsJob.fulfilled]: fulfilledStartJobReducer,
+    [startLicenceCommentsJob.rejected]: rejectionStartJobReducer,
 
     [fetchReportJob.pending]: (state) => {
       state.job.status = REQUEST_STATUS.PENDING;
