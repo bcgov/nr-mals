@@ -479,8 +479,8 @@ GRANT SELECT ON TABLE mals_app.mal_print_certificate_vw TO mals_app_role;
 -- PROCEDURE:  PR_GENERATE_PRINT_JSON_DAIRY_FARM_TRAILER_INSPECTION
 --
 
-CREATE OR REPLACE PROCEDURE mals_app.pr_generate_print_json_dairy_farm_trailer_inspection(
-	IN ip_irma_number character varying, 
+CREATE PROCEDURE mals_app.pr_generate_print_json_dairy_farm_trailer_inspection(
+	IN ip_licence_number   integer, 
 	INOUT iop_print_job_id integer)
  LANGUAGE plpgsql
 AS $procedure$
@@ -515,7 +515,7 @@ AS $procedure$
 					    'InspectorName', inspector_id,
 					    'InspectionComments', inspection_comments)) AS trailer_json
 		    FROM mal_dairy_farm_trailer_inspection_vw
-		    WHERE irma_number = ip_irma_number
+		    WHERE licence_number = ip_licence_number
 		  GROUP BY irma_number,
 		    licence_number,
 		    company_name)
