@@ -16,6 +16,7 @@ import {
 import VerticalField from "../../components/VerticalField";
 
 import { getLicenceTypeConfiguration } from "./licenceTypeUtility";
+import { LICENCE_TYPE_ID_DAIRY_TANK_TRUCK } from "./constants";
 
 export default function LicenceDetailsView({ licence }) {
   const config = getLicenceTypeConfiguration(licence.licenceTypeId);
@@ -72,11 +73,13 @@ export default function LicenceDetailsView({ licence }) {
                 />
               }
             />
-          ) : (
+          ) : licence.licenceTypeId !== LICENCE_TYPE_ID_DAIRY_TANK_TRUCK ? (
             <VerticalField
               label="Expiry Date"
               value={formatDateString(licence.expiryDate)}
             />
+          ) : (
+            <></>
           )}
         </Col>
         <Col lg={8}>

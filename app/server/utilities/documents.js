@@ -112,8 +112,6 @@ function getRenewalTemplateName(documentType, licenceType) {
       return "Renewal_VetDrugLicence_Template";
     case "DISPENSER":
       return "Renewal_VetDrugDispenser_Template";
-    case "DAIRY TANK TRUCK":
-      return "Renewal_DairyTankTruck_Template"; // not implemented
     default:
       return undefined;
   }
