@@ -8,11 +8,19 @@ export const fetchLicenceTypes = createAsyncThunk(
   async (_, thunkApi) => {
     try {
       const response = await Api.get("licence-types");
+      // The Licence Types have no particular order but Dairy Tank Truck must appear after Dairy Farm
+      // This code finds the indexes of each and places the Dairy Tank Truck licence just after Dairy Farm
       if (response.data.length > 0) {
-        // sort the array by licenceType value alphabetically
-        response.data.sort((a, b) =>
-          a.licenceType.localeCompare(b.licenceType)
+        const dairyTankTruckIndex = response.data.findIndex(
+          (item) => item.licenceType === "DAIRY TANK TRUCK"
         );
+        const dairyFarmIndex = response.data.findIndex(
+          (item) => item.licenceType === "DAIRY FARM"
+        );
+        if (dairyTankTruckIndex !== -1 && dairyFarmIndex !== -1) {
+          const [dairyTankTruck] = response.data.splice(dairyTankTruckIndex, 1);
+          response.data.splice(dairyFarmIndex + 1, 0, dairyTankTruck);
+        }
       }
       return response.data;
     } catch (error) {
