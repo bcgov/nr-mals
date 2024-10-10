@@ -36,6 +36,7 @@ import Species from "../lookups/Species";
 import {
   LICENCE_TYPE_ID_GAME_FARM,
   LICENCE_TYPE_ID_FUR_FARM,
+  LICENCE_TYPE_ID_DAIRY_TANK_TRUCK,
 } from "./constants";
 
 import { selectLicenceSpecies } from "../lookups/licenceSpeciesSlice";
@@ -354,18 +355,20 @@ export default function LicenceDetailsEdit({
                     </Form.Control.Feedback>
                   </>
                 )}
-                name={'irmaNumber'}
+                name={"irmaNumber"}
                 control={control}
                 defaultValue={formatIrmaNumber(initialValues.irmaNumber)}
               />
             </Form.Group>
-          ) : (
+          ) : licence.licenceTypeId !== LICENCE_TYPE_ID_DAIRY_TANK_TRUCK ? (
             <CustomDatePicker
               id="expiryDate"
               label="Expiry Date"
               notifyOnChange={handleFieldChange("expiryDate")}
               defaultValue={initialValues.expiryDate}
             />
+          ) : (
+            <></>
           )}
         </Col>
         <Col lg={8}>
