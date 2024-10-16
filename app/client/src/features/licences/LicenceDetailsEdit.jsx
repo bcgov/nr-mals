@@ -177,7 +177,7 @@ export default function LicenceDetailsEdit({
   };
 
   const editPhone = () => {
-    // The watch doesnt seem to be updated when adding the initial entry to phone numbers
+    // The watch doesn't seem to be updated when adding the initial entry to phone numbers
     // So manually set the key here
     let selectedKey = watchPhoneKey;
     if (!selectedKey || selectedKey.length === 0) {
