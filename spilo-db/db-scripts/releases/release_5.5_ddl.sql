@@ -1,3 +1,9 @@
+--       MALS-17 - New report - to show comments by license number and or IRMA number
+--          Create a view and procedure to support Comments reporting.
+
+DROP PROCEDURE IF EXISTS  mals_app.pr_generate_print_json_licence_comments;
+DROP VIEW      IF EXISTS  mals_app.mal_licence_comment_vw;
+
 --
 -- VIEW:  MAL_LICENCE_COMMENT_VW
 --
