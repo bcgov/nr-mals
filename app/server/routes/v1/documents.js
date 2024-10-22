@@ -1568,7 +1568,17 @@ router.post("/download/:jobId(\\d+)", async (req, res, next) => {
       const zip = new AdmZip();
       let fileName = null;
       documents.forEach((document) => {
-        if (job.printCategory === constants.DOCUMENT_TYPE_REPORT) {
+        if (
+          job.printCategory === constants.DOCUMENT_TYPE_REPORT &&
+          document.document_type === constants.REPORTS.LICENCE_COMMENTS
+        ) {
+          fileName = `${document.document_json.Licence_Number}-${document.document_type}.xlsx`;
+        } else if (
+          job.printCategory === constants.DOCUMENT_TYPE_REPORT &&
+          document.document_type === constants.REPORTS.DAIRY_TRAILER_INSPECTION
+        ) {
+          fileName = `${document.document_json.LicenceNumber}-${document.document_type}.xlsx`;
+        } else if (job.printCategory === constants.DOCUMENT_TYPE_REPORT) {
           fileName = `${document.document_json.Licence_Type}-${document.document_type}.xlsx`;
         } else if (
           document.document_type === constants.DOCUMENT_TYPE_DAIRY_INFRACTION
@@ -1577,7 +1587,7 @@ router.post("/download/:jobId(\\d+)", async (req, res, next) => {
         } else {
           fileName = `${document.licence_number}-${document.document_type}.docx`;
         }
-
+        console.log(document);
         zip.addFile(fileName, document.document_binary);
       });
 
