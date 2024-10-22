@@ -196,6 +196,8 @@ function getReportsTemplateName(documentType) {
       return "Licence_Expiry_Species_NoSpecies_Template";
     case constants.REPORTS.DAIRY_TRAILER_INSPECTION:
       return "Dairy_Trailer_Inspection_Template";
+    case constants.REPORTS.LICENCE_COMMENTS:
+      return "Licence_Comments_Template";
     default:
       return null;
   }
