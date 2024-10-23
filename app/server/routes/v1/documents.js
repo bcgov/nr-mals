@@ -958,7 +958,8 @@ async function startLicenceTypeLocationJob(licenceTypeId) {
 async function startLicenceCommentsJob(licenceNumber) {
   const [procedureResult] = await prisma.$transaction([
     prisma.$queryRawUnsafe(
-      `CALL mals_app.pr_generate_print_json_licence_comments(${licenceNumber}, NULL)`
+      `CALL mals_app.pr_generate_print_json_licence_comments('${licenceNumber}', NULL)`,
+      licenceNumber
     ),
   ]);
 
@@ -1477,7 +1478,7 @@ router.post("/reports/startJob/licenceTypeLocation", async (req, res, next) => {
 });
 
 router.post("/reports/startJob/licenceComments", async (req, res, next) => {
-  const licenceNumber = parseAsInt(req.body.licenceNumber);
+  const licenceNumber = req.body.licenceNumber;
 
   await startLicenceCommentsJob(licenceNumber)
     .then(({ jobId, documents }) => {
