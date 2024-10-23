@@ -10,7 +10,6 @@ export default function ApiaryInspectionDetailsEdit({
   initialValues,
   site,
 }) {
-  console.log("ApiaryInspectionDetailsEdit");
   const {
     setValue,
     register,
