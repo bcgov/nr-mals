@@ -1588,7 +1588,6 @@ router.post("/download/:jobId(\\d+)", async (req, res, next) => {
         } else {
           fileName = `${document.licence_number}-${document.document_type}.docx`;
         }
-        console.log(document);
         zip.addFile(fileName, document.document_binary);
       });
 
