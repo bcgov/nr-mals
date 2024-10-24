@@ -955,6 +955,21 @@ async function startLicenceTypeLocationJob(licenceTypeId) {
   return { jobId, documents };
 }
 
+async function startLicenceCommentsJob(licenceNumber) {
+  const [procedureResult] = await prisma.$transaction([
+    prisma.$queryRawUnsafe(
+      `CALL mals_app.pr_generate_print_json_licence_comments('${licenceNumber}', NULL)`,
+      licenceNumber
+    ),
+  ]);
+
+  const jobId = procedureResult[0].iop_print_job_id;
+
+  const documents = await getPendingDocuments(jobId);
+
+  return { jobId, documents };
+}
+
 async function startLicenceExpiryJob(startDate, endDate) {
   const [procedureResult] = await prisma.$transaction([
     prisma.$queryRawUnsafe(
@@ -1462,6 +1477,17 @@ router.post("/reports/startJob/licenceTypeLocation", async (req, res, next) => {
     .finally(async () => prisma.$disconnect());
 });
 
+router.post("/reports/startJob/licenceComments", async (req, res, next) => {
+  const licenceNumber = req.body.licenceNumber;
+
+  await startLicenceCommentsJob(licenceNumber)
+    .then(({ jobId, documents }) => {
+      return res.send({ jobId, documents, type: REPORTS.LICENCE_COMMENTS });
+    })
+    .catch(next)
+    .finally(async () => prisma.$disconnect());
+});
+
 router.post("/reports/startJob/licenceExpiry", async (req, res, next) => {
   const startDate = formatDate(new Date(req.body.startDate));
   const endDate = formatDate(new Date(req.body.endDate));
@@ -1543,7 +1569,17 @@ router.post("/download/:jobId(\\d+)", async (req, res, next) => {
       const zip = new AdmZip();
       let fileName = null;
       documents.forEach((document) => {
-        if (job.printCategory === constants.DOCUMENT_TYPE_REPORT) {
+        if (
+          job.printCategory === constants.DOCUMENT_TYPE_REPORT &&
+          document.document_type === constants.REPORTS.LICENCE_COMMENTS
+        ) {
+          fileName = `${document.document_json.Licence_Number}-${document.document_type}.xlsx`;
+        } else if (
+          job.printCategory === constants.DOCUMENT_TYPE_REPORT &&
+          document.document_type === constants.REPORTS.DAIRY_TRAILER_INSPECTION
+        ) {
+          fileName = `${document.document_json.LicenceNumber}-${document.document_type}.xlsx`;
+        } else if (job.printCategory === constants.DOCUMENT_TYPE_REPORT) {
           fileName = `${document.document_json.Licence_Type}-${document.document_type}.xlsx`;
         } else if (
           document.document_type === constants.DOCUMENT_TYPE_DAIRY_INFRACTION
@@ -1552,7 +1588,6 @@ router.post("/download/:jobId(\\d+)", async (req, res, next) => {
         } else {
           fileName = `${document.licence_number}-${document.document_type}.docx`;
         }
-
         zip.addFile(fileName, document.document_binary);
       });
 
