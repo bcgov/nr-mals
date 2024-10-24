@@ -958,8 +958,7 @@ async function startLicenceTypeLocationJob(licenceTypeId) {
 async function startLicenceCommentsJob(licenceNumber) {
   const [procedureResult] = await prisma.$transaction([
     prisma.$queryRawUnsafe(
-      `CALL mals_app.pr_generate_print_json_licence_comments('${licenceNumber}', NULL)`,
-      licenceNumber
+      `CALL mals_app.pr_generate_print_json_licence_comments(${licenceNumber}, NULL)`
     ),
   ]);
 
@@ -1478,7 +1477,7 @@ router.post("/reports/startJob/licenceTypeLocation", async (req, res, next) => {
 });
 
 router.post("/reports/startJob/licenceComments", async (req, res, next) => {
-  const licenceNumber = req.body.licenceNumber;
+  const licenceNumber = parseAsInt(req.body.licenceNumber);
 
   await startLicenceCommentsJob(licenceNumber)
     .then(({ jobId, documents }) => {
@@ -1588,6 +1587,7 @@ router.post("/download/:jobId(\\d+)", async (req, res, next) => {
         } else {
           fileName = `${document.licence_number}-${document.document_type}.docx`;
         }
+        console.log(document);
         zip.addFile(fileName, document.document_binary);
       });
 

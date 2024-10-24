@@ -34,7 +34,7 @@ GRANT SELECT ON TABLE mals_app.mal_licence_comment_vw TO mals_app_role;
 -- PROCEDURE:  PR_GENERATE_PRINT_JSON_LICENCE_COMMENTS
 --
 
-CREATE OR REPLACE PROCEDURE mals_app.pr_generate_print_json_licence_comments(IN ip_licence_number character varying, INOUT iop_print_job_id integer)
+CREATE OR REPLACE PROCEDURE mals_app.pr_generate_print_json_licence_comments(IN ip_licence_number integer, INOUT iop_print_job_id integer)
  LANGUAGE plpgsql
 AS $procedure$
   declare  
@@ -63,7 +63,7 @@ AS $procedure$
 				                       order by lic.create_timestamp) licence_json,
 			count(*) num_rows
 		from mal_licence_comment_vw lic
-		where COALESCE(lic.irma_number, CAST(lic.licence_number AS varchar)) = ip_licence_number
+		where lic.licence_number = ip_licence_number
 		group by lic.licence_number, lic.licence_type
 	)
 	--

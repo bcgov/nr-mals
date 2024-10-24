@@ -35,6 +35,7 @@ export default function InspectionDetailsViewEdit({
   site,
   licence,
 }) {
+  console.log("InspectionDetailsViewEdit");
   const { status, error, mode } = inspection;
 
   const dispatch = useDispatch();

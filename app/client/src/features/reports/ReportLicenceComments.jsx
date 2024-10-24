@@ -55,7 +55,7 @@ export default function ReportLicenceComments() {
           <Form.Label>Licence Number</Form.Label>
           <Form.Control
             id="licenceNumber"
-            type="text"
+            type="number"
             name="licenceNumber"
             defaultValue={null}
             {...register("licenceNumber")}

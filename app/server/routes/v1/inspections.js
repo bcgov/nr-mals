@@ -144,6 +144,7 @@ router.get("/trailer/:inspectionId(\\d+)", async (req, res, next) => {
 });
 
 router.post("/trailer", async (req, res, next) => {
+  console.log("create trailer route");
   const now = new Date();
 
   const payload = inspection.convertTrailerInspectionToPhysicalModel(
