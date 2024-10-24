@@ -234,24 +234,6 @@ export const startLicenceTypeLocationJob = createAsyncThunk(
   }
 );
 
-export const startLicenceCommentsJob = createAsyncThunk(
-  "reports/startLicenceCommentsJob",
-  async (payload, thunkApi) => {
-    try {
-      const response = await Api.post(
-        `documents/reports/startJob/licenceComments`,
-        payload
-      );
-      return response.data;
-    } catch (error) {
-      if (error instanceof ApiError) {
-        return thunkApi.rejectWithValue(error.serialize());
-      }
-      return thunkApi.rejectWithValue({ code: -1, description: error.message });
-    }
-  }
-);
-
 export const startLicenceExpiryJob = createAsyncThunk(
   "reports/startLicenceExpiryJob",
   async (payload, thunkApi) => {
@@ -397,9 +379,6 @@ export const reportsSlice = createSlice({
     [startLicenceExpiryJob.pending]: pendingStartJobReducer,
     [startLicenceExpiryJob.fulfilled]: fulfilledStartJobReducer,
     [startLicenceExpiryJob.rejected]: rejectionStartJobReducer,
-    [startLicenceCommentsJob.pending]: pendingStartJobReducer,
-    [startLicenceCommentsJob.fulfilled]: fulfilledStartJobReducer,
-    [startLicenceCommentsJob.rejected]: rejectionStartJobReducer,
 
     [fetchReportJob.pending]: (state) => {
       state.job.status = REQUEST_STATUS.PENDING;
