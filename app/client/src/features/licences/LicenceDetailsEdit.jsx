@@ -360,7 +360,7 @@ export default function LicenceDetailsEdit({
                 defaultValue={formatIrmaNumber(initialValues.irmaNumber)}
               />
             </Form.Group>
-          ) : licence.licenceTypeId !== LICENCE_TYPE_ID_DAIRY_TANK_TRUCK ? (
+          ) : licence?.licenceTypeId !== LICENCE_TYPE_ID_DAIRY_TANK_TRUCK ? (
             <CustomDatePicker
               id="expiryDate"
               label="Expiry Date"

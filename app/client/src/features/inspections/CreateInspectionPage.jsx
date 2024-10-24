@@ -137,6 +137,8 @@ export default function CreateInspectionPage() {
 
   const submissionLabel = submitting ? "Submitting..." : "Create";
 
+  console.log(inspection.status);
+
   if (inspection.status === REQUEST_STATUS.FULFILLED) {
     return <Redirect to={`${SITES_PATHNAME}/${id}`} />;
   }
