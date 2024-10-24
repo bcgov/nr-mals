@@ -63,7 +63,7 @@ AS $procedure$
 				                       order by lic.create_timestamp) licence_json,
 			count(*) num_rows
 		from mal_licence_comment_vw lic
-		WHERE (lic.irma_number = ip_licence_number) OR (CAST(lic.licence_number AS varchar) = ip_licence_number)
+		where COALESCE(lic.irma_number, CAST(lic.licence_number AS varchar)) = ip_licence_number
 		group by lic.licence_number, lic.licence_type
 	)
 	--
