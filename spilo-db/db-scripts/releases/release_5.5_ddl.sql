@@ -268,6 +268,6 @@ $procedure$
 --       MALS-24 - Purchase Live Poultry License - Act & Reg wording needs updating
 --          Update the legislation column to reflec the new terminology.
 
-UPDATE mal_licence_type_lu
+UPDATE mals_app.mal_licence_type_lu
 SET legislation = 'Under the authority of the Animal Health Act and s.9(2) of the Poultry Health and Buying Regulation'
 WHERE licence_type = 'PURCHASE LIVE POULTRY';
