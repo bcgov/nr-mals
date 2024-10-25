@@ -291,98 +291,99 @@ async function generateCertificate(documentId) {
   const template = templateBuffers.find(
     (x) => x.templateFileName === templateFileName
   );
-  // check if certificate is CARD (3 templates), if so, split into two arrays
-  if (
-    document.document_type === "CARD" &&
-    (document.licence_type === "BULK TANK MILK GRADER" ||
-      document.licence_type === "LIVESTOCK DEALER" ||
-      document.licence_type === "LIVESTOCK DEALER AGENT")
-  ) {
-    /**
-     * The Card templates have a table that is 2 columns by N rows, this function effectively combines
-     * those two columns into one so that we don't have to deal with bi-directional looping
-     * (which cdogs doesn't support yet)  */
+  // MALS2-6 to re-apply this, uncomment this code and use the 3 updated templates
+  // // check if certificate is CARD (3 templates), if so, split into two arrays
+  // if (
+  //   document.document_type === "CARD" &&
+  //   (document.licence_type === "BULK TANK MILK GRADER" ||
+  //     document.licence_type === "LIVESTOCK DEALER" ||
+  //     document.licence_type === "LIVESTOCK DEALER AGENT")
+  // ) {
+  //   /**
+  //    * The Card templates have a table that is 2 columns by N rows, this function effectively combines
+  //    * those two columns into one so that we don't have to deal with bi-directional looping
+  //    * (which cdogs doesn't support yet)  */
 
-    function combineEntries(licenceType, documentJson) {
-      let combinedJson = [];
-      switch (licenceType) {
-        case "BULK TANK MILK GRADER":
-          for (let i = 0; i < documentJson.length; i += 2) {
-            let combinedEntry = { ...documentJson[i] };
-            if (documentJson[i + 1]) {
-              combinedEntry.LicenceHolderName2 =
-                documentJson[i + 1].LicenceHolderName;
-              combinedEntry.LicenceHolderCompany2 =
-                documentJson[i + 1].LicenceHolderCompany;
-              combinedEntry.LicenceNumber2 = documentJson[i + 1].LicenceNumber;
-              combinedEntry.ExpiryDate2 = documentJson[i + 1].ExpiryDate;
-              combinedEntry.CardLabel2 = documentJson[i + 1].CardLabel;
-            } else {
-              combinedEntry.LicenceHolderName2 = null;
-              combinedEntry.LicenceHolderCompany2 = null;
-              combinedEntry.LicenceNumber2 = null;
-              combinedEntry.ExpiryDate2 = null;
-              combinedEntry.CardLabel2 = null;
-            }
-            combinedJson.push(combinedEntry);
-          }
-          return combinedJson;
-        case "LIVESTOCK DEALER AGENT":
-          for (let i = 0; i < documentJson.length; i += 2) {
-            let combinedEntry = { ...documentJson[i] };
-            if (documentJson[i + 1]) {
-              combinedEntry.CardType2 = documentJson[i + 1].CardType;
-              combinedEntry.LicenceHolderName2 =
-                documentJson[i + 1].LicenceHolderName;
-              combinedEntry.LastFirstName2 = documentJson[i + 1].LastFirstName;
-              combinedEntry.AgentFor2 = documentJson[i + 1].AgentFor;
-              combinedEntry.LicenceNumber2 = documentJson[i + 1].LicenceNumber;
-              combinedEntry.StartDate2 = documentJson[i + 1].StartDate;
-              combinedEntry.ExpiryDate2 = documentJson[i + 1].ExpiryDate;
-            } else {
-              combinedEntry.CardType2 = null;
-              combinedEntry.LicenceHolderName2 = null;
-              combinedEntry.LastFirstName2 = null;
-              combinedEntry.AgentFor2 = null;
-              combinedEntry.LicenceNumber2 = null;
-              combinedEntry.StartDate2 = null;
-              combinedEntry.ExpiryDate2 = null;
-            }
-            combinedJson.push(combinedEntry);
-          }
-          return combinedJson;
-        case "LIVESTOCK DEALER":
-          for (let i = 0; i < documentJson.length; i += 2) {
-            let combinedEntry = { ...documentJson[i] };
-            if (documentJson[i + 1]) {
-              combinedEntry.CardType2 = documentJson[i + 1].CardType;
-              combinedEntry.LicenceHolderCompany2 =
-                documentJson[i + 1].LicenceHolderCompany;
-              combinedEntry.LicenceNumber2 = documentJson[i + 1].LicenceNumber;
-              combinedEntry.StartDate2 = documentJson[i + 1].StartDate;
-              combinedEntry.ExpiryDate2 = documentJson[i + 1].ExpiryDate;
-            } else {
-              combinedEntry.CardType2 = null;
-              combinedEntry.LicenceHolderCompany2 = null;
-              combinedEntry.LicenceNumber2 = null;
-              combinedEntry.StartDate2 = null;
-              combinedEntry.ExpiryDate2 = null;
-            }
-            combinedJson.push(combinedEntry);
-          }
-          return combinedJson;
-        default:
-          return null;
-      }
-    }
+  //   function combineEntries(licenceType, documentJson) {
+  //     let combinedJson = [];
+  //     switch (licenceType) {
+  //       case "BULK TANK MILK GRADER":
+  //         for (let i = 0; i < documentJson.length; i += 2) {
+  //           let combinedEntry = { ...documentJson[i] };
+  //           if (documentJson[i + 1]) {
+  //             combinedEntry.LicenceHolderName2 =
+  //               documentJson[i + 1].LicenceHolderName;
+  //             combinedEntry.LicenceHolderCompany2 =
+  //               documentJson[i + 1].LicenceHolderCompany;
+  //             combinedEntry.LicenceNumber2 = documentJson[i + 1].LicenceNumber;
+  //             combinedEntry.ExpiryDate2 = documentJson[i + 1].ExpiryDate;
+  //             combinedEntry.CardLabel2 = documentJson[i + 1].CardLabel;
+  //           } else {
+  //             combinedEntry.LicenceHolderName2 = null;
+  //             combinedEntry.LicenceHolderCompany2 = null;
+  //             combinedEntry.LicenceNumber2 = null;
+  //             combinedEntry.ExpiryDate2 = null;
+  //             combinedEntry.CardLabel2 = null;
+  //           }
+  //           combinedJson.push(combinedEntry);
+  //         }
+  //         return combinedJson;
+  //       case "LIVESTOCK DEALER AGENT":
+  //         for (let i = 0; i < documentJson.length; i += 2) {
+  //           let combinedEntry = { ...documentJson[i] };
+  //           if (documentJson[i + 1]) {
+  //             combinedEntry.CardType2 = documentJson[i + 1].CardType;
+  //             combinedEntry.LicenceHolderName2 =
+  //               documentJson[i + 1].LicenceHolderName;
+  //             combinedEntry.LastFirstName2 = documentJson[i + 1].LastFirstName;
+  //             combinedEntry.AgentFor2 = documentJson[i + 1].AgentFor;
+  //             combinedEntry.LicenceNumber2 = documentJson[i + 1].LicenceNumber;
+  //             combinedEntry.StartDate2 = documentJson[i + 1].StartDate;
+  //             combinedEntry.ExpiryDate2 = documentJson[i + 1].ExpiryDate;
+  //           } else {
+  //             combinedEntry.CardType2 = null;
+  //             combinedEntry.LicenceHolderName2 = null;
+  //             combinedEntry.LastFirstName2 = null;
+  //             combinedEntry.AgentFor2 = null;
+  //             combinedEntry.LicenceNumber2 = null;
+  //             combinedEntry.StartDate2 = null;
+  //             combinedEntry.ExpiryDate2 = null;
+  //           }
+  //           combinedJson.push(combinedEntry);
+  //         }
+  //         return combinedJson;
+  //       case "LIVESTOCK DEALER":
+  //         for (let i = 0; i < documentJson.length; i += 2) {
+  //           let combinedEntry = { ...documentJson[i] };
+  //           if (documentJson[i + 1]) {
+  //             combinedEntry.CardType2 = documentJson[i + 1].CardType;
+  //             combinedEntry.LicenceHolderCompany2 =
+  //               documentJson[i + 1].LicenceHolderCompany;
+  //             combinedEntry.LicenceNumber2 = documentJson[i + 1].LicenceNumber;
+  //             combinedEntry.StartDate2 = documentJson[i + 1].StartDate;
+  //             combinedEntry.ExpiryDate2 = documentJson[i + 1].ExpiryDate;
+  //           } else {
+  //             combinedEntry.CardType2 = null;
+  //             combinedEntry.LicenceHolderCompany2 = null;
+  //             combinedEntry.LicenceNumber2 = null;
+  //             combinedEntry.StartDate2 = null;
+  //             combinedEntry.ExpiryDate2 = null;
+  //           }
+  //           combinedJson.push(combinedEntry);
+  //         }
+  //         return combinedJson;
+  //       default:
+  //         return null;
+  //     }
+  //   }
 
-    let updatedJson = combineEntries(
-      document.licence_type,
-      document.document_json
-    );
+  //   let updatedJson = combineEntries(
+  //     document.licence_type,
+  //     document.document_json
+  //   );
 
-    document.document_json = updatedJson;
-  }
+  //   document.document_json = updatedJson;
+  // }
 
   const generate = async () => {
     const { data, status } = await cdogs.post(
@@ -954,6 +955,21 @@ async function startLicenceTypeLocationJob(licenceTypeId) {
   return { jobId, documents };
 }
 
+async function startLicenceCommentsJob(licenceNumber) {
+  const [procedureResult] = await prisma.$transaction([
+    prisma.$queryRawUnsafe(
+      `CALL mals_app.pr_generate_print_json_licence_comments('${licenceNumber}', NULL)`,
+      licenceNumber
+    ),
+  ]);
+
+  const jobId = procedureResult[0].iop_print_job_id;
+
+  const documents = await getPendingDocuments(jobId);
+
+  return { jobId, documents };
+}
+
 async function startLicenceExpiryJob(startDate, endDate) {
   const [procedureResult] = await prisma.$transaction([
     prisma.$queryRawUnsafe(
@@ -1461,6 +1477,17 @@ router.post("/reports/startJob/licenceTypeLocation", async (req, res, next) => {
     .finally(async () => prisma.$disconnect());
 });
 
+router.post("/reports/startJob/licenceComments", async (req, res, next) => {
+  const licenceNumber = req.body.licenceNumber;
+
+  await startLicenceCommentsJob(licenceNumber)
+    .then(({ jobId, documents }) => {
+      return res.send({ jobId, documents, type: REPORTS.LICENCE_COMMENTS });
+    })
+    .catch(next)
+    .finally(async () => prisma.$disconnect());
+});
+
 router.post("/reports/startJob/licenceExpiry", async (req, res, next) => {
   const startDate = formatDate(new Date(req.body.startDate));
   const endDate = formatDate(new Date(req.body.endDate));
@@ -1542,7 +1569,17 @@ router.post("/download/:jobId(\\d+)", async (req, res, next) => {
       const zip = new AdmZip();
       let fileName = null;
       documents.forEach((document) => {
-        if (job.printCategory === constants.DOCUMENT_TYPE_REPORT) {
+        if (
+          job.printCategory === constants.DOCUMENT_TYPE_REPORT &&
+          document.document_type === constants.REPORTS.LICENCE_COMMENTS
+        ) {
+          fileName = `${document.document_json.Licence_Number}-${document.document_type}.xlsx`;
+        } else if (
+          job.printCategory === constants.DOCUMENT_TYPE_REPORT &&
+          document.document_type === constants.REPORTS.DAIRY_TRAILER_INSPECTION
+        ) {
+          fileName = `${document.document_json.LicenceNumber}-${document.document_type}.xlsx`;
+        } else if (job.printCategory === constants.DOCUMENT_TYPE_REPORT) {
           fileName = `${document.document_json.Licence_Type}-${document.document_type}.xlsx`;
         } else if (
           document.document_type === constants.DOCUMENT_TYPE_DAIRY_INFRACTION
@@ -1551,7 +1588,6 @@ router.post("/download/:jobId(\\d+)", async (req, res, next) => {
         } else {
           fileName = `${document.licence_number}-${document.document_type}.docx`;
         }
-
         zip.addFile(fileName, document.document_binary);
       });
 

@@ -10,7 +10,6 @@ export default function TrailerInspectionDetailsEdit({
   initialValues,
   trailer,
 }) {
-  console.log("TrailerInspectionDetailsEdit");
   const {
     setValue,
     register,
