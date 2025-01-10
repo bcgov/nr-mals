@@ -9,17 +9,14 @@ ENV NPM_CONFIG_CACHE=/opt/app-root/src/app/.npm-cache
 # Set working directory
 WORKDIR /opt/app-root/src/app
 
+# Grant full permissions on working dir
+RUN chmod -R 777 /opt/app-root/src/app
+
 # Copy application source code
 COPY . /opt/app-root/src
 
-# Switch to root user to change ownership
-USER root
-
 # Create the npm cache directory and ensure the correct ownership
-RUN mkdir -p $NPM_CONFIG_CACHE && chown -R 1001:1001 /opt/app-root/src/app
-
-# Switch back to non-root user
-USER 1001:1001
+RUN mkdir -p $NPM_CONFIG_CACHE
 
 # Install dependencies and build the application
 RUN npm run all:ci \
