@@ -19,7 +19,7 @@ concurrency:
 jobs:
   build:
     name: Build & Push
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     timeout-minutes: 10
     steps:
       - name: Checkout
@@ -37,7 +37,7 @@ jobs:
     environment:
       name: dev
       url: https://${{ env.ACRONYM }}-app-dev.apps.silver.devops.gov.bc.ca
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: build
     timeout-minutes: 12
     steps:
@@ -60,7 +60,7 @@ jobs:
     environment:
       name: test
       url: https://${{ env.ACRONYM }}-app-test.apps.silver.devops.gov.bc.ca
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs:
       - build
       - deploy-dev
@@ -84,7 +84,7 @@ jobs:
     environment:
       name: prod
       url: https://${{ env.ACRONYM }}-app-prod.apps.silver.devops.gov.bc.ca
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs:
       - build
       - deploy-dev
