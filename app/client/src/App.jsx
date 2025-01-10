@@ -51,7 +51,7 @@ import ModalComponent from "./components/ModalComponent";
 import keycloak from "./app/keycloak";
 import { fetchCurrentUser } from "./app/appSlice";
 
-import "./App.scss";
+import "./App.scss";//
 
 function App() {
   const dispatch = useDispatch();
