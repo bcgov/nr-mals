@@ -23,6 +23,7 @@ import ReportLicenceExpiry from "./ReportLicenceExpiry";
 import { clearReportsJob } from "./reportsSlice";
 import RenderOnRole from "../../components/RenderOnRole";
 import ReportDairyTrailerInspection from "./ReportDairyTrailerInspection";
+import ReportLicenceComments from "./ReportLicenceComments";
 
 export default function Reports() {
   const dispatch = useDispatch();
@@ -69,6 +70,9 @@ export default function Reports() {
       break;
     case REPORTS.DAIRY_TEST_THRESHOLD:
       control = <ReportDairyThreshold />;
+      break;
+    case REPORTS.LICENCE_COMMENTS:
+      control = <ReportLicenceComments />;
       break;
     case REPORTS.LICENCE_LOCATION:
       control = <ReportLicenceTypeLocation />;
@@ -190,6 +194,18 @@ export default function Reports() {
               >
                 <option value={REPORTS.DAIRY_TRAILER_INSPECTION}>
                   Dairy Trailer Inspection
+                </option>
+              </RenderOnRole>
+
+              <RenderOnRole
+                roles={[
+                  SYSTEM_ROLES.READ_ONLY,
+                  SYSTEM_ROLES.USER,
+                  SYSTEM_ROLES.SYSTEM_ADMIN,
+                ]}
+              >
+                <option value={REPORTS.LICENCE_COMMENTS}>
+                  Licence Comments
                 </option>
               </RenderOnRole>
 
