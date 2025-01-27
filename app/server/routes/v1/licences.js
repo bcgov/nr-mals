@@ -1100,6 +1100,8 @@ router.put("/renew/:licenceId(\\d+)", async (req, res, next) => {
       // Update issued and expiry dates
       update.issuedOnDate = issueDate;
       update.expiryDate = expiryDate;
+      // on renewal, set printLicence to true
+      update.printLicence = true;
       if (update.bondContinuationExpiryDate !== null) {
         update.bondContinuationExpiryDate = new Date(
           update.bondContinuationExpiryDate
