@@ -127,6 +127,24 @@ export const startApiarySiteJob = createAsyncThunk(
   }
 );
 
+export const startApiarySiteSummaryJob = createAsyncThunk(
+  "reports/startApiarySiteSummaryJob",
+  async (payload, thunkApi) => {
+    try {
+      const response = await Api.post(
+        `documents/reports/startJob/apiarySiteSummary`,
+        payload
+      );
+      return response.data;
+    } catch (error) {
+      if (error instanceof ApiError) {
+        return thunkApi.rejectWithValue(error.serialize());
+      }
+      return thunkApi.rejectWithValue({ code: -1, description: error.message });
+    }
+  }
+);
+
 export const startClientDetailsJob = createAsyncThunk(
   "reports/startClientDetailsJob",
   async (_, thunkApi) => {
@@ -376,6 +394,9 @@ export const reportsSlice = createSlice({
     [startApiarySiteJob.pending]: pendingStartJobReducer,
     [startApiarySiteJob.fulfilled]: fulfilledStartJobReducer,
     [startApiarySiteJob.rejected]: rejectionStartJobReducer,
+    [startApiarySiteSummaryJob.pending]: pendingStartJobReducer,
+    [startApiarySiteSummaryJob.fulfilled]: fulfilledStartJobReducer,
+    [startApiarySiteSummaryJob.rejected]: rejectionStartJobReducer,
     [startClientDetailsJob.pending]: pendingStartJobReducer,
     [startClientDetailsJob.fulfilled]: fulfilledStartJobReducer,
     [startClientDetailsJob.rejected]: rejectionStartJobReducer,

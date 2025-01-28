@@ -1,4 +1,6 @@
--- MALS2-35 - licence summary report procedure
+-- MALS2-35 - apiary site summary report procedure
+-- DROP PROCEDURE mals_app.pr_generate_print_json_apiary_site_summary(in varchar, inout int4);
+
 CREATE OR REPLACE PROCEDURE mals_app.pr_generate_print_json_apiary_site_summary(IN ip_region_name character varying, INOUT iop_print_job_id integer)
  LANGUAGE plpgsql
 AS $procedure$
@@ -59,7 +61,7 @@ AS $procedure$
             COUNT(*) AS total_producers,
             SUM(total_hives_per_licence) AS total_hives
         FROM 
-            site_summary;
+            site_summary
     )
 	--
 	--  MAIN QUERY
