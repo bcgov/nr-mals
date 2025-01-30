@@ -184,6 +184,8 @@ function getReportsTemplateName(documentType) {
       return "Client_Details_Template";
     case constants.REPORTS.DAIRY_FARM_DETAIL:
       return "Dairy_Client_Details_Template";
+    case constants.REPORTS.DAIRY_FARM_PRODUCERS:
+      return "Dairy_Farm_Producers_Template";
     case constants.REPORTS.DAIRY_FARM_QUALITY:
       return "Dairy_Provincial_Producer_Farm_Quality_Template";
     case constants.REPORTS.DAIRY_FARM_TANK:
