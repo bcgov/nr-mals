@@ -23,7 +23,7 @@ const Cities = React.forwardRef((props, ref) => {
         ref={ref}
         isInvalid={isInvalid}
         onChange={onChange}
-        defaultValue={defaultValue}
+        value={defaultValue.toUpperCase()}
         custom
       >
         <option value={null} />
