@@ -143,7 +143,8 @@ AS WITH licence_base AS (
 			  WHERE disp_ltyp.licence_type IN ('MEDICATED FEED', 'VETERINARY DRUG')
 			GROUP BY prnt_lic.id
         )
- SELECT base.licence_id,
+ SELECT distinct on(base.licence_id)
+ 	base.licence_id,
     base.licence_number,
     base.licence_type,
     base.licence_status,
