@@ -24,6 +24,7 @@ import { clearReportsJob } from "./reportsSlice";
 import RenderOnRole from "../../components/RenderOnRole";
 import ReportDairyTrailerInspection from "./ReportDairyTrailerInspection";
 import ReportLicenceComments from "./ReportLicenceComments";
+import ReportApiarySiteSummary from "./ReportApiarySiteSummary";
 import ReportDairyProducers from "./ReportDairyProducers";
 
 export default function Reports() {
@@ -56,6 +57,9 @@ export default function Reports() {
       break;
     case REPORTS.APIARY_SITE:
       control = <ReportApiarySite />;
+      break;
+    case REPORTS.APIARY_SITE_SUMMARY:
+      control = <ReportApiarySiteSummary />;
       break;
     case REPORTS.CLIENT_DETAILS:
       control = <ReportClientDetails />;
@@ -139,6 +143,19 @@ export default function Reports() {
                 ]}
               >
                 <option value={REPORTS.APIARY_SITE}>Apiary Site</option>
+              </RenderOnRole>
+
+              <RenderOnRole
+                roles={[
+                  SYSTEM_ROLES.READ_ONLY,
+                  SYSTEM_ROLES.USER,
+                  SYSTEM_ROLES.INSPECTOR,
+                  SYSTEM_ROLES.SYSTEM_ADMIN,
+                ]}
+              >
+                <option value={REPORTS.APIARY_SITE_SUMMARY}>
+                  Apiary Site Summary
+                </option>
               </RenderOnRole>
 
               <RenderOnRole

@@ -180,6 +180,8 @@ function getReportsTemplateName(documentType) {
       return "Apiary_Producer_Report_City_Template";
     case constants.REPORTS.APIARY_SITE:
       return "Apiary_Sites_Template";
+    case constants.REPORTS.APIARY_SITE_SUMMARY:
+      return "Apiary_Sites_Summary_Template";
     case constants.REPORTS.CLIENT_DETAILS:
       return "Client_Details_Template";
     case constants.REPORTS.DAIRY_FARM_DETAIL:

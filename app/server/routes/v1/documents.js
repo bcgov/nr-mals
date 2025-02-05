@@ -875,6 +875,18 @@ async function startApiarySiteJob(region) {
   return { jobId, documents };
 }
 
+async function startApiarySiteSummaryJob(region) {
+  const [procedureResult] = await prisma.$transaction([
+    prisma.$queryRawUnsafe(
+      `CALL mals_app.pr_generate_print_json_apiary_site_summary('${region}', NULL)`
+    ),
+  ]);
+
+  const jobId = procedureResult[0].iop_print_job_id;
+  const documents = await getPendingDocuments(jobId);
+  return { jobId, documents };
+}
+
 async function startClientDetailsJob() {
   const [procedureResult] = await prisma.$transaction([
     prisma.$queryRawUnsafe(
@@ -1406,6 +1418,21 @@ router.post("/reports/startJob/apiarySite", async (req, res, next) => {
         jobId,
         documents,
         type: REPORTS.APIARY_SITE,
+      });
+    })
+    .catch(next)
+    .finally(async () => prisma.$disconnect());
+});
+
+router.post("/reports/startJob/apiarySiteSummary", async (req, res, next) => {
+  const { region } = req.body;
+
+  await startApiarySiteSummaryJob(region)
+    .then(({ jobId, documents }) => {
+      return res.send({
+        jobId,
+        documents,
+        type: REPORTS.APIARY_SITE_SUMMARY,
       });
     })
     .catch(next)
