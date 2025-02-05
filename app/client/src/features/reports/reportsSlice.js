@@ -180,6 +180,25 @@ export const startDairyClientDetailsJob = createAsyncThunk(
   }
 );
 
+export const startDairyFarmProducersJob = createAsyncThunk(
+  "reports/startDairyFarmProducersJob",
+  async (_, thunkApi) => {
+    try {
+      const response = await Api.post(
+        `documents/reports/startJob/dairyFarmProducers`
+      );
+      console.log("response.data");
+      console.log(response.data);
+      return response.data;
+    } catch (error) {
+      if (error instanceof ApiError) {
+        return thunkApi.rejectWithValue(error.serialize());
+      }
+      return thunkApi.rejectWithValue({ code: -1, description: error.message });
+    }
+  }
+);
+
 export const startProvincialFarmQualityJob = createAsyncThunk(
   "reports/startProvincialFarmQuality",
   async (payload, thunkApi) => {
@@ -388,6 +407,9 @@ export const reportsSlice = createSlice({
     [startProducersAnalysisRegionJob.pending]: pendingStartJobReducer,
     [startProducersAnalysisRegionJob.fulfilled]: fulfilledStartJobReducer,
     [startProducersAnalysisRegionJob.rejected]: rejectionStartJobReducer,
+    [startDairyFarmProducersJob.pending]: pendingStartJobReducer,
+    [startDairyFarmProducersJob.fulfilled]: fulfilledStartJobReducer,
+    [startDairyFarmProducersJob.rejected]: rejectionStartJobReducer,
     [startProducersAnalysisCityJob.pending]: pendingStartJobReducer,
     [startProducersAnalysisCityJob.fulfilled]: fulfilledStartJobReducer,
     [startProducersAnalysisCityJob.rejected]: rejectionStartJobReducer,

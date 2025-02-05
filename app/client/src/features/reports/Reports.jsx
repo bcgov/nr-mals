@@ -25,6 +25,7 @@ import RenderOnRole from "../../components/RenderOnRole";
 import ReportDairyTrailerInspection from "./ReportDairyTrailerInspection";
 import ReportLicenceComments from "./ReportLicenceComments";
 import ReportApiarySiteSummary from "./ReportApiarySiteSummary";
+import ReportDairyProducers from "./ReportDairyProducers";
 
 export default function Reports() {
   const dispatch = useDispatch();
@@ -65,6 +66,9 @@ export default function Reports() {
       break;
     case REPORTS.DAIRY_FARM_DETAIL:
       control = <ReportDairyClientDetails />;
+      break;
+    case REPORTS.DAIRY_FARM_PRODUCERS:
+      control = <ReportDairyProducers />;
       break;
     case REPORTS.DAIRY_FARM_QUALITY:
       control = <ReportProvincialFarmQuality />;
@@ -174,6 +178,19 @@ export default function Reports() {
               >
                 <option value={REPORTS.DAIRY_FARM_DETAIL}>
                   Dairy Client Details
+                </option>
+              </RenderOnRole>
+
+              <RenderOnRole
+                roles={[
+                  SYSTEM_ROLES.READ_ONLY,
+                  SYSTEM_ROLES.USER,
+                  SYSTEM_ROLES.INSPECTOR,
+                  SYSTEM_ROLES.SYSTEM_ADMIN,
+                ]}
+              >
+                <option value={REPORTS.DAIRY_FARM_PRODUCERS}>
+                  Dairy Farm Producers
                 </option>
               </RenderOnRole>
 

@@ -911,6 +911,18 @@ async function startDairyClientDetailsJob(irmaNumber, startDate, endDate) {
   return { jobId, documents };
 }
 
+async function startDairyFarmProducersJob() {
+  const [procedureResult] = await prisma.$transaction([
+    prisma.$queryRawUnsafe(
+      `CALL mals_app.pr_generate_print_json_dairy_farm_producers(NULL)`
+    ),
+  ]);
+
+  const jobId = procedureResult[0].iop_print_job_id;
+  const documents = await getPendingDocuments(jobId);
+  return { jobId, documents };
+}
+
 async function startProvincialFarmQualityJob(startDate, endDate) {
   const [procedureResult] = await prisma.$transaction([
     prisma.$queryRawUnsafe(
@@ -1457,6 +1469,19 @@ router.post("/reports/startJob/dairyClientDetails", async (req, res, next) => {
     .finally(async () => prisma.$disconnect());
 });
 
+router.post("/reports/startJob/dairyFarmProducers", async (req, res, next) => {
+  await startDairyFarmProducersJob()
+    .then(({ jobId, documents }) => {
+      return res.send({
+        jobId,
+        documents,
+        type: REPORTS.DAIRY_FARM_PRODUCERS,
+      });
+    })
+    .catch(next)
+    .finally(async () => prisma.$disconnect());
+});
+
 router.post(
   "/reports/startJob/provincialFarmQuality",
   async (req, res, next) => {
@@ -1595,6 +1620,14 @@ router.post("/download/:jobId(\\d+)", async (req, res, next) => {
     .then((documents) => {
       const zip = new AdmZip();
       let fileName = null;
+      const today = new Date()
+        .toLocaleDateString("en-US", {
+          timeZone: "America/Los_Angeles",
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+        })
+        .replace(/\//g, "_");
       documents.forEach((document) => {
         if (
           job.printCategory === constants.DOCUMENT_TYPE_REPORT &&
@@ -1606,6 +1639,11 @@ router.post("/download/:jobId(\\d+)", async (req, res, next) => {
           document.document_type === constants.REPORTS.DAIRY_TRAILER_INSPECTION
         ) {
           fileName = `${document.document_json.LicenceNumber}-${document.document_type}.xlsx`;
+        } else if (
+          job.printCategory === constants.DOCUMENT_TYPE_REPORT &&
+          document.document_type === constants.REPORTS.DAIRY_FARM_PRODUCERS
+        ) {
+          fileName = `${document.document_type}-${today}.xlsx`;
         } else if (job.printCategory === constants.DOCUMENT_TYPE_REPORT) {
           fileName = `${document.document_json.Licence_Type}-${document.document_type}.xlsx`;
         } else if (

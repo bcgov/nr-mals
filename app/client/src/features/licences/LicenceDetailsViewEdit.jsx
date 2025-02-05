@@ -27,7 +27,10 @@ import CustomCheckBox from "../../components/CustomCheckBox";
 
 import { fetchRegions } from "../lookups/regionsSlice";
 import { fetchLicenceStatuses } from "../lookups/licenceStatusesSlice";
-import { fetchLicenceTypes, selectLicenceTypes } from "../lookups/licenceTypesSlice";
+import {
+  fetchLicenceTypes,
+  selectLicenceTypes,
+} from "../lookups/licenceTypesSlice";
 import { fetchCities } from "../lookups/citiesSlice";
 
 import {
@@ -157,35 +160,35 @@ export default function LicenceDetailsViewEdit({ licence }) {
   const config = getLicenceTypeConfiguration(licence.data.licenceTypeId);
 
   const getRenewLicenceDates = () => {
-    const licenceTypeConfig = licenceTypesConfig.data.find(x => x.id === licence.data.licenceTypeId);
+    const licenceTypeConfig = licenceTypesConfig.data.find(
+      (x) => x.id === licence.data.licenceTypeId
+    );
 
     const today = startOfToday();
     let expiryDate;
 
     if (config.expiryInTwoYears) {
       expiryDate = add(today, { years: 2 });
-    }
-    else if (config.replaceExpiryDateWithIrmaNumber) {
+    } else if (config.replaceExpiryDateWithIrmaNumber) {
       expiryDate = undefined;
-    }
-    else {
-      expiryDate = add(startOfDay(new Date(licenceTypeConfig.standardExpiryDate)), { days: 1 });
+    } else {
+      expiryDate = add(
+        startOfDay(new Date(licenceTypeConfig.standardExpiryDate)),
+        { days: 1 }
+      );
     }
 
     return { issueDate: today, expiryDate };
   };
 
-  const [isPrintLicenceChecked, setIsPrintLicenceChecked] = React.useState(initialFormValues.printLicence);
+  const [isPrintLicenceChecked, setIsPrintLicenceChecked] = React.useState(
+    initialFormValues.printLicence
+  );
 
   const onRenewCallback = (data) => {
     const dates = data;
     dispatch(renewLicence({ data: dates, id: licence.data.id }));
-
-    let actionRequired = getValues("actionRequired");
-    let printLicence = true
-    let renewalNotice = getValues("renewalNotice");
-    setIsPrintLicenceChecked(printLicence);
-    dispatch(updateLicenceCheckboxes({data: { actionRequired, printLicence, renewalNotice }, id: licence.data.id }));
+    setIsPrintLicenceChecked(true);
   };
 
   const onRenew = () => {
@@ -201,8 +204,9 @@ export default function LicenceDetailsViewEdit({ licence }) {
               <Row>
                 <div className="justify-content-center">
                   The Issued On date will be updated to today&apos;s date, and
-                  the Expiry Date for Licence Number {licence.data.licenceNumber} will be
-                  updated to {formatDate(dates.expiryDate)}
+                  the Expiry Date for Licence Number{" "}
+                  {licence.data.licenceNumber} will be updated to{" "}
+                  {formatDate(dates.expiryDate)}
                 </div>
               </Row>
               <br />
@@ -338,7 +342,7 @@ export default function LicenceDetailsViewEdit({ licence }) {
         ) : null}
         <Container className="mt-3 mb-4">
           {currentUser.data.roleId !== SYSTEM_ROLES.READ_ONLY &&
-            currentUser.data.roleId !== SYSTEM_ROLES.INSPECTOR ? (
+          currentUser.data.roleId !== SYSTEM_ROLES.INSPECTOR ? (
             <Form.Row className="mt-3 mb-3">
               <Col sm={2}>
                 <Button
