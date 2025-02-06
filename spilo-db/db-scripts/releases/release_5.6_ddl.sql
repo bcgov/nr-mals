@@ -171,10 +171,64 @@ AS WITH licence_base AS (
      LEFT JOIN dispenser disp ON (base.licence_type::text = ANY (ARRAY['MEDICATED FEED'::character varying::text, 'VETERINARY DRUG'::character varying::text])) AND base.licence_id = disp.parent_licence_id
      LEFT JOIN disp_associated_licences disp_assoc ON (base.licence_type::text = ANY (ARRAY['DISPENSER'::character varying::text])) AND base.licence_id = disp_assoc.parent_licence_id
      LEFT JOIN licence_species species ON base.licence_type_id = species.licence_type_id;
+    
+GRANT SELECT ON mals_app.mal_print_renewal_vw TO mals_app_role;
 
 --
 -- MALS2-20 - Dairy Farm Producers report
 --
+-- Create the View
+CREATE OR REPLACE VIEW mals_app.mal_dairy_farm_producer_vw
+AS SELECT site.id AS site_id,
+    lic.id AS licence_id,
+    lic.licence_number,
+    lic.irma_number,
+    lic.primary_registrant_id,
+    lic_stat.code_name AS licence_status,
+    site_stat.code_name AS site_status,
+    reg.id AS registrant_id,
+    lic.company_name,
+        CASE
+            WHEN reg.first_name IS NOT NULL AND reg.last_name IS NOT NULL THEN concat(reg.first_name, ' ', reg.last_name)::character varying
+            ELSE COALESCE(reg.first_name, reg.last_name)
+        END AS registrant_first_last,
+        CASE
+            WHEN reg.first_name IS NOT NULL AND reg.last_name IS NOT NULL THEN concat(reg.last_name, ', ', reg.first_name)::character varying
+            ELSE COALESCE(reg.last_name, reg.first_name)
+        END AS registrant_last_first,
+    reg.primary_phone AS registrant_primary_phone,
+    reg.email_address AS registrant_email_address,
+    lic.region_id AS lic_region_id,
+    COALESCE(lic_rgn.region_name, 'UNKNOWN'::character varying) AS lic_region_name,
+    site.region_id AS site_region_id,
+    COALESCE(site_rgn.region_name, 'UNKNOWN'::character varying) AS site_region_name,
+    lic.regional_district_id AS lic_regional_district_id,
+    COALESCE(lic_dist.district_name, 'UNKNOWN'::character varying) AS lic_district_name,
+    site.regional_district_id AS site_regional_district_id,
+    COALESCE(site_dist.district_name, 'UNKNOWN'::character varying) AS site_district_name,
+    COALESCE(lic.city, 'UNKNOWN'::character varying) AS lic_city,
+    TRIM(BOTH FROM concat(site.address_line_1, ' ', site.address_line_2)) AS site_address,
+    COALESCE(site.city, 'UNKNOWN'::character varying) AS site_city,
+    COALESCE(site.postal_code, 'UNKNOWN'::character varying) AS site_postal_code,
+    concat(TRIM(BOTH FROM concat(site.address_line_1, ' ', site.address_line_2)), ', ', COALESCE(site.city, 'UNKNOWN'::character varying), ', ', COALESCE(site.postal_code, 'UNKNOWN'::character varying)) AS site_address_combined,
+    site.contact_name AS site_contact_name,
+    site.primary_phone AS site_primary_phone,
+    site.email_address AS site_email,
+    site.registration_date
+   FROM mals_app.mal_licence lic
+     JOIN mals_app.mal_registrant reg ON lic.primary_registrant_id = reg.id
+     JOIN mals_app.mal_site site ON lic.id = site.licence_id
+     JOIN mals_app.mal_licence_type_lu lictyp ON lic.licence_type_id = lictyp.id
+     LEFT JOIN mals_app.mal_region_lu lic_rgn ON lic.region_id = lic_rgn.id
+     LEFT JOIN mals_app.mal_region_lu site_rgn ON site.region_id = site_rgn.id
+     LEFT JOIN mals_app.mal_regional_district_lu lic_dist ON lic.regional_district_id = lic_dist.id
+     LEFT JOIN mals_app.mal_regional_district_lu site_dist ON site.regional_district_id = site_dist.id
+     LEFT JOIN mals_app.mal_status_code_lu lic_stat ON lic.status_code_id = lic_stat.id
+     LEFT JOIN mals_app.mal_status_code_lu site_stat ON site.status_code_id = site_stat.id
+  WHERE lictyp.licence_type::text = 'DAIRY FARM'::text;
+
+GRANT SELECT ON mals_app.mal_dairy_farm_producer_vw TO mals_app_role;
+-- Create the Procedure
 CREATE OR REPLACE PROCEDURE mals_app.pr_generate_print_json_dairy_farm_producers(INOUT iop_print_job_id integer)
  LANGUAGE plpgsql
 AS $procedure$
@@ -810,6 +864,8 @@ UNION ALL
         END AS infraction_json
    FROM base
   WHERE base.ih_infraction_flag = true;
+
+GRANT SELECT ON mals_app.mal_print_dairy_farm_infraction_vw TO mals_app_role;
 
 --
 -- MALS2-35 - apiary site summary report procedure
