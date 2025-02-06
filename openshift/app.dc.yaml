@@ -21,6 +21,7 @@ objects:
         app.kubernetes.io/name: nodejs
         app.kubernetes.io/part-of: "${APP_NAME}-${JOB_NAME}"
         app: "${APP_NAME}-${JOB_NAME}"
+        role: app
     spec:
       replicas: 2
       revisionHistoryLimit: 10
