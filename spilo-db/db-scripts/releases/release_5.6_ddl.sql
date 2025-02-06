@@ -178,6 +178,8 @@ GRANT SELECT ON mals_app.mal_print_renewal_vw TO mals_app_role;
 -- MALS2-20 - Dairy Farm Producers report
 --
 -- Create the View
+DROP VIEW IF EXISTS mals_app.mal_dairy_farm_producer_vw;
+
 CREATE OR REPLACE VIEW mals_app.mal_dairy_farm_producer_vw
 AS SELECT site.id AS site_id,
     lic.id AS licence_id,
