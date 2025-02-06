@@ -178,6 +178,8 @@ GRANT SELECT ON mals_app.mal_print_renewal_vw TO mals_app_role;
 -- MALS2-20 - Dairy Farm Producers report
 --
 -- Create the View
+DROP VIEW IF EXISTS mals_app.mal_dairy_farm_producer_vw;
+
 CREATE OR REPLACE VIEW mals_app.mal_dairy_farm_producer_vw
 AS SELECT site.id AS site_id,
     lic.id AS licence_id,
@@ -197,6 +199,7 @@ AS SELECT site.id AS site_id,
             ELSE COALESCE(reg.last_name, reg.first_name)
         END AS registrant_last_first,
     reg.primary_phone AS registrant_primary_phone,
+    reg.secondary_phone as registrant_secondary_phone,
     reg.email_address AS registrant_email_address,
     lic.region_id AS lic_region_id,
     COALESCE(lic_rgn.region_name, 'UNKNOWN'::character varying) AS lic_region_name,
@@ -213,6 +216,7 @@ AS SELECT site.id AS site_id,
     concat(TRIM(BOTH FROM concat(site.address_line_1, ' ', site.address_line_2)), ', ', COALESCE(site.city, 'UNKNOWN'::character varying), ', ', COALESCE(site.postal_code, 'UNKNOWN'::character varying)) AS site_address_combined,
     site.contact_name AS site_contact_name,
     site.primary_phone AS site_primary_phone,
+    site.secondary_phone as site_secondary_phone,
     site.email_address AS site_email,
     site.registration_date
    FROM mals_app.mal_licence lic
@@ -251,9 +255,11 @@ AS $procedure$
 										'PrincipalName',        producer.registrant_last_first,
 										'PrincipalFirstLast',   producer.registrant_first_last,
 										'PrincipalPhone',       producer.registrant_primary_phone,
+										'PrincipalPhone2',      producer.registrant_secondary_phone,
 										'PrincipalEmail',       producer.registrant_email_address,
 										'SiteContactName',      producer.site_contact_name,
 										'SiteContactPhone',     producer.site_primary_phone,
+										'SiteContactPhone2',    producer.site_secondary_phone,
 										'SiteContactEmail',     producer.site_email)
 		                                order by irma_number) producer_json,
 			count(licence_number) total_producers
@@ -717,6 +723,8 @@ $procedure$
 --
 drop view mals_app.mal_print_dairy_farm_infraction_vw;
 
+-- mals_app.mal_print_dairy_farm_infraction_vw source
+
 CREATE OR REPLACE VIEW mals_app.mal_print_dairy_farm_infraction_vw
 AS WITH base AS (
          SELECT rslt.id AS dairy_farm_test_result_id,
@@ -811,7 +819,7 @@ AS WITH base AS (
     base.spc1_correspondence_code AS correspondence_code,
     base.spc1_correspondence_description AS correspondence_description,
         CASE base.spc1_infraction_flag
-            WHEN true THEN json_build_object('CurrentDate', base.currentdate, 'IRMA_Num', base.irma_number, 'LicenceHolderCompany', base.licence_holder_company, 'MailingAddress', base.derived_mailing_address, 'MailingCity', base.derived_mailing_city, 'MailingProv', base.derived_mailing_province, 'PostCode', base.derived_mailing_postal_code, 'ReportedOnDate', base.reported_on_date, 'PreviousMonth', to_char((date_trunc('month'::text, base.test_result_create_date::date::timestamp with time zone) - '1 day'::interval)::date::timestamp with time zone, 'FMMonth DD, YYYY'::text), 'DairyTestDataLoadDate', base.test_result_create_date, 'LevyMonthYear', base.levy_month_year, 'SpeciesSubCode', 'SPC1', 'DairyTestIBC', base.spc1_value, 'CorrespondenceCode', base.spc1_correspondence_code, 'LevyPercent', base.spc1_levy_percentage, 'SiteAddress', base.site_address, 'SiteDetails', base.site_details, 'IssueDate', base.issue_date)
+            WHEN true THEN json_build_object('CurrentDate', base.currentdate, 'IRMA_Num', base.irma_number, 'LicenceHolderCompany', base.licence_holder_company, 'MailingAddress', base.derived_mailing_address, 'MailingCity', base.derived_mailing_city, 'MailingProv', base.derived_mailing_province, 'PostCode', base.derived_mailing_postal_code, 'ReportedOnDate', base.reported_on_date, 'PreviousMonth', to_char((date_trunc('month'::text, base.reported_on_date::date::timestamp with time zone) - '1 day'::interval)::date::timestamp with time zone, 'FMMonth DD, YYYY'::text), 'DairyTestDataLoadDate', base.test_result_create_date, 'LevyMonthYear', base.levy_month_year, 'SpeciesSubCode', 'SPC1', 'DairyTestIBC', base.spc1_value, 'CorrespondenceCode', base.spc1_correspondence_code, 'LevyPercent', base.spc1_levy_percentage, 'SiteAddress', base.site_address, 'SiteDetails', base.site_details, 'IssueDate', base.issue_date)
             ELSE NULL::json
         END AS infraction_json
    FROM base
@@ -827,7 +835,7 @@ UNION ALL
     base.scc_correspondence_code AS correspondence_code,
     base.scc_correspondence_description AS correspondence_description,
         CASE base.scc_infraction_flag
-            WHEN true THEN json_build_object('CurrentDate', base.currentdate, 'IRMA_Num', base.irma_number, 'LicenceHolderCompany', base.licence_holder_company, 'MailingAddress', base.derived_mailing_address, 'MailingCity', base.derived_mailing_city, 'MailingProv', base.derived_mailing_province, 'PostCode', base.derived_mailing_postal_code, 'ReportedOnDate', base.reported_on_date, 'PreviousMonth', to_char((date_trunc('month'::text, base.test_result_create_date::date::timestamp with time zone) - '1 day'::interval)::date::timestamp with time zone, 'FMMonth DD, YYYY'::text), 'DairyTestDataLoadDate', base.test_result_create_date, 'LevyMonthYear', base.levy_month_year, 'SpeciesSubCode', 'SCC', 'DairyTestSCC', base.scc_value, 'CorrespondenceCode', base.scc_correspondence_code, 'LevyPercent', base.scc_levy_percentage, 'SiteAddress', base.site_address, 'SiteDetails', base.site_details, 'IssueDate', base.issue_date)
+            WHEN true THEN json_build_object('CurrentDate', base.currentdate, 'IRMA_Num', base.irma_number, 'LicenceHolderCompany', base.licence_holder_company, 'MailingAddress', base.derived_mailing_address, 'MailingCity', base.derived_mailing_city, 'MailingProv', base.derived_mailing_province, 'PostCode', base.derived_mailing_postal_code, 'ReportedOnDate', base.reported_on_date, 'PreviousMonth', to_char((date_trunc('month'::text, base.reported_on_date::date::timestamp with time zone) - '1 day'::interval)::date::timestamp with time zone, 'FMMonth DD, YYYY'::text), 'DairyTestDataLoadDate', base.test_result_create_date, 'LevyMonthYear', base.levy_month_year, 'SpeciesSubCode', 'SCC', 'DairyTestSCC', base.scc_value, 'CorrespondenceCode', base.scc_correspondence_code, 'LevyPercent', base.scc_levy_percentage, 'SiteAddress', base.site_address, 'SiteDetails', base.site_details, 'IssueDate', base.issue_date)
             ELSE NULL::json
         END AS infraction_json
    FROM base
@@ -843,7 +851,7 @@ UNION ALL
     base.cry_correspondence_code AS correspondence_code,
     base.cry_correspondence_description AS correspondence_description,
         CASE base.cry_infraction_flag
-            WHEN true THEN json_build_object('CurrentDate', base.currentdate, 'IRMA_Num', base.irma_number, 'LicenceHolderCompany', base.licence_holder_company, 'MailingAddress', base.derived_mailing_address, 'MailingCity', base.derived_mailing_city, 'MailingProv', base.derived_mailing_province, 'PostCode', base.derived_mailing_postal_code, 'ReportedOnDate', base.reported_on_date, 'PreviousMonth', to_char((date_trunc('month'::text, base.test_result_create_date::date::timestamp with time zone) - '1 day'::interval)::date::timestamp with time zone, 'FMMonth DD, YYYY'::text), 'DairyTestDataLoadDate', base.test_result_create_date, 'LevyMonthYear', base.levy_month_year, 'SpeciesSubCode', 'CRY', 'DairyTestCryoPercent', base.cry_value, 'CorrespondenceCode', base.cry_correspondence_code, 'LevyPercent', base.cry_levy_percentage, 'SiteAddress', base.site_address, 'SiteDetails', base.site_details, 'IssueDate', base.issue_date, 'CryMonthYear', base.cry_month_year)
+            WHEN true THEN json_build_object('CurrentDate', base.currentdate, 'IRMA_Num', base.irma_number, 'LicenceHolderCompany', base.licence_holder_company, 'MailingAddress', base.derived_mailing_address, 'MailingCity', base.derived_mailing_city, 'MailingProv', base.derived_mailing_province, 'PostCode', base.derived_mailing_postal_code, 'ReportedOnDate', base.reported_on_date, 'PreviousMonth', to_char((date_trunc('month'::text, base.reported_on_date::date::timestamp with time zone) - '1 day'::interval)::date::timestamp with time zone, 'FMMonth DD, YYYY'::text), 'DairyTestDataLoadDate', base.test_result_create_date, 'LevyMonthYear', base.levy_month_year, 'SpeciesSubCode', 'CRY', 'DairyTestCryoPercent', base.cry_value, 'CorrespondenceCode', base.cry_correspondence_code, 'LevyPercent', base.cry_levy_percentage, 'SiteAddress', base.site_address, 'SiteDetails', base.site_details, 'IssueDate', base.issue_date, 'CryMonthYear', base.cry_month_year)
             ELSE NULL::json
         END AS infraction_json
    FROM base
@@ -859,7 +867,7 @@ UNION ALL
     base.ih_correspondence_code AS correspondence_code,
     base.ih_correspondence_description AS correspondence_description,
         CASE base.ih_infraction_flag
-            WHEN true THEN json_build_object('CurrentDate', base.currentdate, 'IRMA_Num', base.irma_number, 'LicenceHolderCompany', base.licence_holder_company, 'MailingAddress', base.derived_mailing_address, 'MailingCity', base.derived_mailing_city, 'MailingProv', base.derived_mailing_province, 'PostCode', base.derived_mailing_postal_code, 'ReportedOnDate', base.reported_on_date, 'PreviousMonth', to_char((date_trunc('month'::text, base.test_result_create_date::date::timestamp with time zone) - '1 day'::interval)::date::timestamp with time zone, 'FMMonth DD, YYYY'::text), 'DairyTestDataLoadDate', base.test_result_create_date, 'LevyMonthYear', base.levy_month_year, 'SpeciesSubCode', 'IH', 'DairyTestIH', base.ih_value, 'CorrespondenceCode', base.ih_correspondence_code, 'LevyPercent', base.ih_levy_percentage, 'SiteAddress', base.site_address, 'SiteDetails', base.site_details, 'IssueDate', base.issue_date)
+            WHEN true THEN json_build_object('CurrentDate', base.currentdate, 'IRMA_Num', base.irma_number, 'LicenceHolderCompany', base.licence_holder_company, 'MailingAddress', base.derived_mailing_address, 'MailingCity', base.derived_mailing_city, 'MailingProv', base.derived_mailing_province, 'PostCode', base.derived_mailing_postal_code, 'ReportedOnDate', base.reported_on_date, 'PreviousMonth', to_char((date_trunc('month'::text, base.reported_on_date::date::timestamp with time zone) - '1 day'::interval)::date::timestamp with time zone, 'FMMonth DD, YYYY'::text), 'DairyTestDataLoadDate', base.test_result_create_date, 'LevyMonthYear', base.levy_month_year, 'SpeciesSubCode', 'IH', 'DairyTestIH', base.ih_value, 'CorrespondenceCode', base.ih_correspondence_code, 'LevyPercent', base.ih_levy_percentage, 'SiteAddress', base.site_address, 'SiteDetails', base.site_details, 'IssueDate', base.issue_date)
             ELSE NULL::json
         END AS infraction_json
    FROM base
