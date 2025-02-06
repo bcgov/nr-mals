@@ -122,7 +122,6 @@ objects:
           targetPort: 8080
       selector:
         app: "${APP_NAME}-${JOB_NAME}"
-        deploymentconfig: "${APP_NAME}-${JOB_NAME}"
         role: app
       sessionAffinity: None
   - apiVersion: v1
