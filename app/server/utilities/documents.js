@@ -180,10 +180,14 @@ function getReportsTemplateName(documentType) {
       return "Apiary_Producer_Report_City_Template";
     case constants.REPORTS.APIARY_SITE:
       return "Apiary_Sites_Template";
+    case constants.REPORTS.APIARY_SITE_SUMMARY:
+      return "Apiary_Sites_Summary_Template";
     case constants.REPORTS.CLIENT_DETAILS:
       return "Client_Details_Template";
     case constants.REPORTS.DAIRY_FARM_DETAIL:
       return "Dairy_Client_Details_Template";
+    case constants.REPORTS.DAIRY_FARM_PRODUCERS:
+      return "Dairy_Farm_Producers_Template";
     case constants.REPORTS.DAIRY_FARM_QUALITY:
       return "Dairy_Provincial_Producer_Farm_Quality_Template";
     case constants.REPORTS.DAIRY_FARM_TANK:

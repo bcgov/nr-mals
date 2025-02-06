@@ -875,6 +875,18 @@ async function startApiarySiteJob(region) {
   return { jobId, documents };
 }
 
+async function startApiarySiteSummaryJob(region) {
+  const [procedureResult] = await prisma.$transaction([
+    prisma.$queryRawUnsafe(
+      `CALL mals_app.pr_generate_print_json_apiary_site_summary('${region}', NULL)`
+    ),
+  ]);
+
+  const jobId = procedureResult[0].iop_print_job_id;
+  const documents = await getPendingDocuments(jobId);
+  return { jobId, documents };
+}
+
 async function startClientDetailsJob() {
   const [procedureResult] = await prisma.$transaction([
     prisma.$queryRawUnsafe(
@@ -891,6 +903,18 @@ async function startDairyClientDetailsJob(irmaNumber, startDate, endDate) {
   const [procedureResult] = await prisma.$transaction([
     prisma.$queryRawUnsafe(
       `CALL mals_app.pr_generate_print_json_dairy_farm_details('${irmaNumber}', '${startDate}', '${endDate}', NULL)`
+    ),
+  ]);
+
+  const jobId = procedureResult[0].iop_print_job_id;
+  const documents = await getPendingDocuments(jobId);
+  return { jobId, documents };
+}
+
+async function startDairyFarmProducersJob() {
+  const [procedureResult] = await prisma.$transaction([
+    prisma.$queryRawUnsafe(
+      `CALL mals_app.pr_generate_print_json_dairy_farm_producers(NULL)`
     ),
   ]);
 
@@ -1400,6 +1424,21 @@ router.post("/reports/startJob/apiarySite", async (req, res, next) => {
     .finally(async () => prisma.$disconnect());
 });
 
+router.post("/reports/startJob/apiarySiteSummary", async (req, res, next) => {
+  const { region } = req.body;
+
+  await startApiarySiteSummaryJob(region)
+    .then(({ jobId, documents }) => {
+      return res.send({
+        jobId,
+        documents,
+        type: REPORTS.APIARY_SITE_SUMMARY,
+      });
+    })
+    .catch(next)
+    .finally(async () => prisma.$disconnect());
+});
+
 router.post("/reports/startJob/clientDetails", async (req, res, next) => {
   await startClientDetailsJob()
     .then(({ jobId, documents }) => {
@@ -1424,6 +1463,19 @@ router.post("/reports/startJob/dairyClientDetails", async (req, res, next) => {
         jobId,
         documents,
         type: REPORTS.DAIRY_FARM_DETAIL,
+      });
+    })
+    .catch(next)
+    .finally(async () => prisma.$disconnect());
+});
+
+router.post("/reports/startJob/dairyFarmProducers", async (req, res, next) => {
+  await startDairyFarmProducersJob()
+    .then(({ jobId, documents }) => {
+      return res.send({
+        jobId,
+        documents,
+        type: REPORTS.DAIRY_FARM_PRODUCERS,
       });
     })
     .catch(next)
@@ -1568,6 +1620,14 @@ router.post("/download/:jobId(\\d+)", async (req, res, next) => {
     .then((documents) => {
       const zip = new AdmZip();
       let fileName = null;
+      const today = new Date()
+        .toLocaleDateString("en-US", {
+          timeZone: "America/Los_Angeles",
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+        })
+        .replace(/\//g, "_");
       documents.forEach((document) => {
         if (
           job.printCategory === constants.DOCUMENT_TYPE_REPORT &&
@@ -1579,6 +1639,11 @@ router.post("/download/:jobId(\\d+)", async (req, res, next) => {
           document.document_type === constants.REPORTS.DAIRY_TRAILER_INSPECTION
         ) {
           fileName = `${document.document_json.LicenceNumber}-${document.document_type}.xlsx`;
+        } else if (
+          job.printCategory === constants.DOCUMENT_TYPE_REPORT &&
+          document.document_type === constants.REPORTS.DAIRY_FARM_PRODUCERS
+        ) {
+          fileName = `${document.document_type}-${today}.xlsx`;
         } else if (job.printCategory === constants.DOCUMENT_TYPE_REPORT) {
           fileName = `${document.document_json.Licence_Type}-${document.document_type}.xlsx`;
         } else if (

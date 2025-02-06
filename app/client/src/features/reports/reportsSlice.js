@@ -127,6 +127,24 @@ export const startApiarySiteJob = createAsyncThunk(
   }
 );
 
+export const startApiarySiteSummaryJob = createAsyncThunk(
+  "reports/startApiarySiteSummaryJob",
+  async (payload, thunkApi) => {
+    try {
+      const response = await Api.post(
+        `documents/reports/startJob/apiarySiteSummary`,
+        payload
+      );
+      return response.data;
+    } catch (error) {
+      if (error instanceof ApiError) {
+        return thunkApi.rejectWithValue(error.serialize());
+      }
+      return thunkApi.rejectWithValue({ code: -1, description: error.message });
+    }
+  }
+);
+
 export const startClientDetailsJob = createAsyncThunk(
   "reports/startClientDetailsJob",
   async (_, thunkApi) => {
@@ -152,6 +170,25 @@ export const startDairyClientDetailsJob = createAsyncThunk(
         `documents/reports/startJob/dairyClientDetails`,
         payload
       );
+      return response.data;
+    } catch (error) {
+      if (error instanceof ApiError) {
+        return thunkApi.rejectWithValue(error.serialize());
+      }
+      return thunkApi.rejectWithValue({ code: -1, description: error.message });
+    }
+  }
+);
+
+export const startDairyFarmProducersJob = createAsyncThunk(
+  "reports/startDairyFarmProducersJob",
+  async (_, thunkApi) => {
+    try {
+      const response = await Api.post(
+        `documents/reports/startJob/dairyFarmProducers`
+      );
+      console.log("response.data");
+      console.log(response.data);
       return response.data;
     } catch (error) {
       if (error instanceof ApiError) {
@@ -370,12 +407,18 @@ export const reportsSlice = createSlice({
     [startProducersAnalysisRegionJob.pending]: pendingStartJobReducer,
     [startProducersAnalysisRegionJob.fulfilled]: fulfilledStartJobReducer,
     [startProducersAnalysisRegionJob.rejected]: rejectionStartJobReducer,
+    [startDairyFarmProducersJob.pending]: pendingStartJobReducer,
+    [startDairyFarmProducersJob.fulfilled]: fulfilledStartJobReducer,
+    [startDairyFarmProducersJob.rejected]: rejectionStartJobReducer,
     [startProducersAnalysisCityJob.pending]: pendingStartJobReducer,
     [startProducersAnalysisCityJob.fulfilled]: fulfilledStartJobReducer,
     [startProducersAnalysisCityJob.rejected]: rejectionStartJobReducer,
     [startApiarySiteJob.pending]: pendingStartJobReducer,
     [startApiarySiteJob.fulfilled]: fulfilledStartJobReducer,
     [startApiarySiteJob.rejected]: rejectionStartJobReducer,
+    [startApiarySiteSummaryJob.pending]: pendingStartJobReducer,
+    [startApiarySiteSummaryJob.fulfilled]: fulfilledStartJobReducer,
+    [startApiarySiteSummaryJob.rejected]: rejectionStartJobReducer,
     [startClientDetailsJob.pending]: pendingStartJobReducer,
     [startClientDetailsJob.fulfilled]: fulfilledStartJobReducer,
     [startClientDetailsJob.rejected]: rejectionStartJobReducer,
