@@ -189,6 +189,11 @@ AS SELECT site.id AS site_id,
     lic_stat.code_name AS licence_status,
     site_stat.code_name AS site_status,
     reg.id AS registrant_id,
+    CASE
+        WHEN lic.primary_phone IS NULL THEN COALESCE(lic.secondary_phone, '')
+        WHEN lic.secondary_phone IS NULL THEN lic.primary_phone
+        ELSE CONCAT(lic.primary_phone, ', ', lic.secondary_phone)
+    END AS licence_phones,
     lic.company_name,
         CASE
             WHEN reg.first_name IS NOT NULL AND reg.last_name IS NOT NULL THEN concat(reg.first_name, ' ', reg.last_name)::character varying
@@ -199,7 +204,7 @@ AS SELECT site.id AS site_id,
             ELSE COALESCE(reg.last_name, reg.first_name)
         END AS registrant_last_first,
     reg.primary_phone AS registrant_primary_phone,
-    reg.secondary_phone as registrant_secondary_phone,
+    reg.secondary_phone AS registrant_secondary_phone,
     reg.email_address AS registrant_email_address,
     lic.region_id AS lic_region_id,
     COALESCE(lic_rgn.region_name, 'UNKNOWN'::character varying) AS lic_region_name,
@@ -216,7 +221,7 @@ AS SELECT site.id AS site_id,
     concat(TRIM(BOTH FROM concat(site.address_line_1, ' ', site.address_line_2)), ', ', COALESCE(site.city, 'UNKNOWN'::character varying), ', ', COALESCE(site.postal_code, 'UNKNOWN'::character varying)) AS site_address_combined,
     site.contact_name AS site_contact_name,
     site.primary_phone AS site_primary_phone,
-    site.secondary_phone as site_secondary_phone,
+    site.secondary_phone AS site_secondary_phone,
     site.email_address AS site_email,
     site.registration_date
    FROM mals_app.mal_licence lic
