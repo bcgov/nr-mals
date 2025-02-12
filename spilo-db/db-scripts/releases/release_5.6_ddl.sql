@@ -237,7 +237,10 @@ AS SELECT site.id AS site_id,
   WHERE lictyp.licence_type::text = 'DAIRY FARM'::text;
 
 GRANT SELECT ON mals_app.mal_dairy_farm_producer_vw TO mals_app_role;
--- Create the Procedure
+
+-- drop old procedure if it exists
+DROP PROCEDURE IF EXISTS mals_app.pr_generate_print_json_dairy_farm_producers(inout int4);
+-- create new procedure
 CREATE OR REPLACE PROCEDURE mals_app.pr_generate_print_json_dairy_farm_producers(INOUT iop_print_job_id integer)
  LANGUAGE plpgsql
 AS $procedure$
@@ -260,7 +263,7 @@ AS $procedure$
 										'PrincipalName',        producer.registrant_last_first,
 										'PrincipalFirstLast',   producer.registrant_first_last,
 										'PrincipalPhone',       producer.registrant_primary_phone,
-										'PrincipalPhone2',      producer.registrant_secondary_phone,
+										'PrincipalPhone2',      producer.licence_phones,
 										'PrincipalEmail',       producer.registrant_email_address,
 										'SiteContactName',      producer.site_contact_name,
 										'SiteContactPhone',     producer.site_primary_phone,
