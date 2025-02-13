@@ -305,7 +305,9 @@ export default function Reports() {
             </Form.Control>
           </Col>
         </Row>
-        <div className="mt-3">{control}</div>
+        <div className="mt-3" style={{ minHeight: "200px" }}>
+          {control}
+        </div>
       </Container>
     </>
   );
