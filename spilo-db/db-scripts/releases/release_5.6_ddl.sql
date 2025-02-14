@@ -237,7 +237,10 @@ AS SELECT site.id AS site_id,
   WHERE lictyp.licence_type::text = 'DAIRY FARM'::text;
 
 GRANT SELECT ON mals_app.mal_dairy_farm_producer_vw TO mals_app_role;
--- Create the Procedure
+
+-- drop old procedure if it exists
+DROP PROCEDURE IF EXISTS mals_app.pr_generate_print_json_dairy_farm_producers(inout int4);
+-- create new procedure
 CREATE OR REPLACE PROCEDURE mals_app.pr_generate_print_json_dairy_farm_producers(INOUT iop_print_job_id integer)
  LANGUAGE plpgsql
 AS $procedure$
@@ -260,7 +263,7 @@ AS $procedure$
 										'PrincipalName',        producer.registrant_last_first,
 										'PrincipalFirstLast',   producer.registrant_first_last,
 										'PrincipalPhone',       producer.registrant_primary_phone,
-										'PrincipalPhone2',      producer.registrant_secondary_phone,
+										'PrincipalPhone2',      producer.licence_phones,
 										'PrincipalEmail',       producer.registrant_email_address,
 										'SiteContactName',      producer.site_contact_name,
 										'SiteContactPhone',     producer.site_primary_phone,
@@ -1053,6 +1056,235 @@ AS $procedure$
 		current_user,
 		current_timestamp
 	from tank_details;
+	--
+	GET DIAGNOSTICS l_report_json_count = ROW_COUNT;	
+	--
+	-- Update the Print Job table.	 
+	update mal_print_job set
+		job_status                    = 'COMPLETE',
+		json_end_time                 = current_timestamp,
+		report_json_count             = l_report_json_count,
+		update_userid                 = current_user,
+		update_timestamp              = current_timestamp
+	where id = iop_print_job_id;
+end; 
+$procedure$
+;
+
+--
+-- MALS2-38/39 - Update the Apiary Site Inspection report with Region, Other, and Inspector columns
+--
+DROP VIEW mals_app.mal_apiary_inspection_vw;
+
+-- add other and inspector to view, filter out non-apiary licences
+CREATE OR REPLACE VIEW mals_app.mal_apiary_inspection_vw
+AS SELECT insp.id AS apiary_inspection_id,
+    lic.id AS licence_id,
+    lic.licence_number,
+    stat.code_description AS licence_status,
+    site.apiary_site_id,
+    rgn.region_name,
+    reg.last_name,
+    reg.first_name,
+    insp.inspection_date,
+    insp.colonies_tested,
+    insp.brood_tested,
+    insp.american_foulbrood_result,
+    insp.european_foulbrood_result,
+    insp.nosema_result,
+    insp.chalkbrood_result,
+    insp.sacbrood_result,
+    insp.varroa_tested,
+    insp.varroa_mite_result,
+    insp.varroa_mite_result_percent,
+    insp.small_hive_beetle_tested,
+    insp.small_hive_beetle_result,
+    insp.supers_inspected,
+    insp.supers_destroyed,
+    insp.live_colonies_in_yard,
+    lic.hives_per_apiary,
+    site.hive_count,
+    insp.other_result_description,
+    insp.inspector_id
+   FROM mals_app.mal_apiary_inspection insp
+     JOIN mals_app.mal_site site ON insp.site_id = site.id
+     JOIN mals_app.mal_licence lic ON site.licence_id = lic.id
+     JOIN mals_app.mal_status_code_lu stat ON lic.status_code_id = stat.id
+     JOIN mals_app.mal_registrant reg ON lic.primary_registrant_id = reg.id
+     JOIN mals_app.mal_region_lu rgn ON site.region_id = rgn.id
+     where lic.licence_type_id=113;
+
+-- grant view access to the service account
+GRANT SELECT ON mals_app.mal_apiary_inspection_vw TO mals_app_role;
+
+-- add region, other, inspector to licence json
+CREATE OR REPLACE PROCEDURE mals_app.pr_generate_print_json_apiary_inspection(IN ip_start_date date, IN ip_end_date date, INOUT iop_print_job_id integer)
+ LANGUAGE plpgsql
+AS $procedure$
+  declare  
+	l_report_json_count       integer default 0;  
+  begin	  	  
+	--
+	-- Start a row in the mal_print_job table
+	call pr_start_print_job(
+			ip_print_category   => 'REPORT', 
+			iop_print_job_id    => iop_print_job_id
+			);
+	--
+	--  Insert the JSON into the output table
+	with details as (   
+		select 			
+			licence_id,
+			licence_number,
+			apiary_site_id,
+			region_name,
+			last_name,
+			first_name,
+			inspection_date,
+			colonies_tested,
+			brood_tested,
+			american_foulbrood_result,
+			european_foulbrood_result,
+			nosema_result,
+			chalkbrood_result,
+			sacbrood_result,
+			varroa_tested,
+			varroa_mite_result,
+			varroa_mite_result_percent,
+			small_hive_beetle_tested,
+			small_hive_beetle_result,
+			supers_inspected,
+			supers_destroyed,
+			hives_per_apiary,
+			hive_count,
+			other_result_description,
+			inspector_id
+		from mal_apiary_inspection_vw
+		where inspection_date between ip_start_date and ip_end_date
+		),
+	licence_summary as (
+		select 
+			json_agg(json_build_object('LicenceNumber',          licence_number,
+									   'SiteID',                 apiary_site_id,
+									   'LastName',               last_name,
+									   'FirstName',              first_name,
+									   'ColoniesInspected',      colonies_tested,
+									   'BroodsInspected',        brood_tested,
+									   'AFB',                    american_foulbrood_result,
+									   'EFB',                    european_foulbrood_result,
+									   'Nosema',                 nosema_result,
+									   'Chalkbrood',             chalkbrood_result,
+									   'Sacbrood',               sacbrood_result,
+									   'VarroaColoniesTested',   varroa_tested,
+									   'VarroaMites',            varroa_mite_result,
+									   'VarroaMitesPercent',     varroa_mite_result_percent,
+									   'SHBColoniesTested',      small_hive_beetle_tested,
+									   'SHB',                    small_hive_beetle_result,
+									   'SupersInspected',        supers_inspected,
+									   'SupersDestroyed',        supers_destroyed,
+									   'HivesInApiary',          hives_per_apiary,
+									   'TotalNumHives',          hive_count,
+									   'Other',     			 other_result_description,
+									   'Inspector', 			 inspector_id,
+									   'Region',				 region_name)
+									   order by licence_number) licence_json
+		from details),
+	region_summary as (
+		select 
+			json_agg(json_build_object('RegionName',             region_name,
+							           'ColoniesInspected',      region_colonies_tested,
+									   'BroodsInspected',        region_brood_tested,
+							           'AFB',                    region_american_foulbrood_result,
+							           'EFB',                    region_european_foulbrood_result,
+							           'Nosema',                 region_nosema_result,
+							           'Chalkbrood',             region_chalkbrood_result,
+							           'Sacbrood',               region_sacbrood_result,
+							           'VarroaColoniesTested',   region_varroa_tested,
+							           'VarroaMites',            region_varroa_mite_result,
+							           'SHBColoniesTested',      region_small_hive_beetle_tested,
+							           'SHB',                    region_small_hive_beetle_result,
+							           'SupersInspected',        region_supers_inspected,
+							           'SupersDestroyed',        region_supers_destroyed)
+									   order by region_name) region_json
+		from (
+				select 
+					region_name,
+					coalesce(sum(colonies_tested), 0) region_colonies_tested,
+					coalesce(sum(brood_tested), 0) region_brood_tested,
+					coalesce(sum(american_foulbrood_result), 0) region_american_foulbrood_result,
+					coalesce(sum(european_foulbrood_result), 0) region_european_foulbrood_result,
+					coalesce(sum(nosema_result), 0) region_nosema_result,
+					coalesce(sum(chalkbrood_result), 0) region_chalkbrood_result,
+					coalesce(sum(sacbrood_result), 0) region_sacbrood_result,
+					coalesce(sum(varroa_tested), 0) region_varroa_tested,
+					coalesce(sum(varroa_mite_result), 0) region_varroa_mite_result,
+					coalesce(sum(small_hive_beetle_tested), 0) region_small_hive_beetle_tested,
+					coalesce(sum(small_hive_beetle_result), 0) region_small_hive_beetle_result,
+					coalesce(sum(supers_inspected), 0) region_supers_inspected,
+					coalesce(sum(supers_destroyed), 0) region_supers_destroyed
+				from details
+				group by region_name) region_totals),
+	report_summary as ( 
+		select 
+			coalesce(sum(colonies_tested), 0) tot_colonies_tested,
+			coalesce(sum(brood_tested), 0) tot_brood_tested,
+			coalesce(sum(american_foulbrood_result), 0) tot_american_foulbrood_result,
+			coalesce(sum(european_foulbrood_result), 0) tot_european_foulbrood_result,
+			coalesce(sum(nosema_result), 0) tot_nosema_result,
+			coalesce(sum(chalkbrood_result), 0) tot_chalkbrood_result,
+			coalesce(sum(sacbrood_result), 0) tot_sacbrood_result,
+			coalesce(sum(varroa_tested), 0) tot_varroa_tested,
+			coalesce(sum(varroa_mite_result), 0) tot_varroa_mite_result,
+			coalesce(sum(small_hive_beetle_tested), 0) tot_small_hive_beetle_tested,
+			coalesce(sum(small_hive_beetle_result), 0) tot_small_hive_beetle_result,
+			coalesce(sum(supers_inspected), 0) tot_supers_inspected,
+			coalesce(sum(supers_destroyed), 0) tot_supers_destroyed
+		from details)
+	--
+	--  MAIN QUERY
+	--
+	insert into mal_print_job_output(
+		print_job_id,
+		licence_type,
+		licence_number,
+		document_type,
+		document_json,
+		document_binary,
+		create_userid,
+		create_timestamp,
+		update_userid,
+		update_timestamp)
+	select 
+		iop_print_job_id,
+		'APIARY',
+		null,
+		'APIARY_INSPECTION',
+		   json_build_object('DateTime',                     to_char(current_timestamp, 'fmyyyy-mm-dd hh24mi'),
+							 'DateRangeStart',               to_char(ip_start_date, 'fmyyyy-mm-dd hh24mi'),
+							 'DateRangeEnd',                 to_char(ip_end_date, 'fmyyyy-mm-dd hh24mi'),
+							 'Licence',                      lic_sum.licence_json,		
+							 'Region',                       rgn_sum.region_json,
+							 'Tot_Colonies_Inspected',       rpt_sum.tot_colonies_tested,
+							 'Tot_Broods_Inspected',         rpt_sum.tot_brood_tested,
+							 'Tot_AFB',                      rpt_sum.tot_american_foulbrood_result,
+							 'Tot_EFB',                      rpt_sum.tot_european_foulbrood_result,
+							 'Tot_Nosema',                   rpt_sum.tot_nosema_result,
+							 'Tot_Chalkbrood',               rpt_sum.tot_chalkbrood_result,
+							 'Tot_Sacbrood',                 rpt_sum.tot_sacbrood_result,
+							 'Tot_Colonies_Tested_Varroa',   rpt_sum.tot_varroa_tested,
+							 'Tot_Varroa_Mites',             rpt_sum.tot_varroa_mite_result,
+							 'Tot_Colonies_Tested_SHB',      rpt_sum.tot_small_hive_beetle_tested,
+							 'Tot_SHB',                      rpt_sum.tot_small_hive_beetle_result,
+							 'Tot_SupersInspected',          rpt_sum.tot_supers_inspected,
+						     'Tot_SupersDestroyed',          rpt_sum.tot_supers_destroyed) report_json,
+		null,
+		current_user,
+		current_timestamp,
+		current_user,
+		current_timestamp
+	from licence_summary lic_sum
+	cross join region_summary rgn_sum
+	cross join report_summary rpt_sum;
 	--
 	GET DIAGNOSTICS l_report_json_count = ROW_COUNT;	
 	--
