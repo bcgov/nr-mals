@@ -1,7 +1,6 @@
 --
 -- MALS2-14 - add medicated feed and veterinary drug information to dispenser renewals
 --
--- drop view
 DROP VIEW mals_app.mal_print_renewal_vw;
 
 -- recreate view with updates
@@ -172,8 +171,6 @@ AS WITH licence_base AS (
      LEFT JOIN disp_associated_licences disp_assoc ON (base.licence_type::text = ANY (ARRAY['DISPENSER'::character varying::text])) AND base.licence_id = disp_assoc.parent_licence_id
      LEFT JOIN licence_species species ON base.licence_type_id = species.licence_type_id;
     
-GRANT SELECT ON mals_app.mal_print_renewal_vw TO mals_app_role;
-
 --
 -- MALS2-20 - Dairy Farm Producers report
 --
@@ -236,10 +233,6 @@ AS SELECT site.id AS site_id,
      LEFT JOIN mals_app.mal_status_code_lu site_stat ON site.status_code_id = site_stat.id
   WHERE lictyp.licence_type::text = 'DAIRY FARM'::text;
 
-GRANT SELECT ON mals_app.mal_dairy_farm_producer_vw TO mals_app_role;
-
--- drop old procedure if it exists
-DROP PROCEDURE IF EXISTS mals_app.pr_generate_print_json_dairy_farm_producers(inout int4);
 -- create new procedure
 CREATE OR REPLACE PROCEDURE mals_app.pr_generate_print_json_dairy_farm_producers(INOUT iop_print_job_id integer)
  LANGUAGE plpgsql
@@ -316,8 +309,6 @@ AS $procedure$
 end; 
 $procedure$
 ;
-
-GRANT SELECT ON mals_app.mal_dairy_farm_producer_vw TO mals_app_role;
 
 --
 -- MALS2-27 - set default country value to Canada when performing a Premises ID import
@@ -731,8 +722,6 @@ $procedure$
 --
 drop view mals_app.mal_print_dairy_farm_infraction_vw;
 
--- mals_app.mal_print_dairy_farm_infraction_vw source
-
 CREATE OR REPLACE VIEW mals_app.mal_print_dairy_farm_infraction_vw
 AS WITH base AS (
          SELECT rslt.id AS dairy_farm_test_result_id,
@@ -884,8 +873,6 @@ UNION ALL
    FROM base
   WHERE base.ih_infraction_flag = true
   and base.ih_correspondence_code is not null;
-
-GRANT SELECT ON mals_app.mal_print_dairy_farm_infraction_vw TO mals_app_role;
 
 --
 -- MALS2-35 - apiary site summary report procedure
@@ -1114,9 +1101,6 @@ AS SELECT insp.id AS apiary_inspection_id,
      JOIN mals_app.mal_region_lu rgn ON site.region_id = rgn.id
      where lic.licence_type_id=113;
 
--- grant view access to the service account
-GRANT SELECT ON mals_app.mal_apiary_inspection_vw TO mals_app_role;
-
 -- add region, other, inspector to licence json
 CREATE OR REPLACE PROCEDURE mals_app.pr_generate_print_json_apiary_inspection(IN ip_start_date date, IN ip_end_date date, INOUT iop_print_job_id integer)
  LANGUAGE plpgsql
@@ -1299,3 +1283,9 @@ AS $procedure$
 end; 
 $procedure$
 ;
+
+-- Update grants
+GRANT SELECT ON mals_app.mal_apiary_inspection_vw TO mals_app_role;
+GRANT SELECT ON mals_app.mal_print_renewal_vw TO mals_app_role;
+GRANT SELECT ON mals_app.mal_dairy_farm_producer_vw TO mals_app_role;
+GRANT SELECT ON mals_app.mal_print_dairy_farm_infraction_vw TO mals_app_role;
