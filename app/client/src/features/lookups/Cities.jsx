@@ -5,7 +5,7 @@ import { Form, Alert, Spinner } from "react-bootstrap";
 import { REQUEST_STATUS } from "../../utilities/constants";
 
 const Cities = React.forwardRef((props, ref) => {
-  const { cities, isInvalid, onChange, defaultValue } = props;
+  const { cities, isInvalid, onChange, value } = props;
 
   let control = (
     <div>
@@ -23,7 +23,7 @@ const Cities = React.forwardRef((props, ref) => {
         ref={ref}
         isInvalid={isInvalid}
         onChange={onChange}
-        value={defaultValue.toUpperCase()}
+        value={value || ""}
         custom
       >
         <option value={null} />
