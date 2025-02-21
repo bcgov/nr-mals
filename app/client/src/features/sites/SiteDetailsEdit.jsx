@@ -98,8 +98,7 @@ export default function SiteDetailsEdit({ form, initialValues, licence }) {
           />
         </Col>
       </Row>
-      {licence.licenceTypeId === LICENCE_TYPE_ID_APIARY ||
-      licence.licenceTypeId === LICENCE_TYPE_ID_GAME_FARM ? (
+      {licence.licenceTypeId === LICENCE_TYPE_ID_APIARY || licence.licenceTypeId === LICENCE_TYPE_ID_GAME_FARM ? (
         <Row className="mt-3">
           <Col lg={4}>
             <Form.Group controlId="hiveCount">
@@ -173,8 +172,7 @@ export default function SiteDetailsEdit({ form, initialValues, licence }) {
             ) : (
               <Cities
                 cities={cities}
-                value={watch("city")}
-                onChange={(e) => setValue("city", e.target.value)}
+                {...register("city")}
                 defaultValue={initialValues.city ?? "BC"}
                 isInvalid={errors.city}
               />

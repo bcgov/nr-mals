@@ -159,8 +159,8 @@ export default function AddressModal({
               ) : (
                 <Cities
                   cities={cities}
-                  value={watch("city", address.city)}
-                  onChange={(e) => setValue("city", e.target.value)}
+                  {...register("city", { required: true })}
+                  defaultValue={address.city ?? "BC"}
                   isInvalid={errors.city}
                 />
               )}
