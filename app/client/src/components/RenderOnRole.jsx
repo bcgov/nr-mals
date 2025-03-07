@@ -1,15 +1,12 @@
 import PropTypes from "prop-types";
-import { useSelector } from "react-redux";
-import { selectCurrentUser } from "../app/appSlice";
+import UserService from "../app/user-service";
 
 export default function RenderOnRole({ roles, children }) {
-  const currentUser = useSelector(selectCurrentUser);
-
-  if (currentUser.data === undefined) {
+  if (UserService.getToken() === undefined) {
     return null;
   }
 
-  if (!roles.some((role) => currentUser.data.roleId === role)) {
+  if (!UserService.hasRole(roles)) {
     return null;
   }
 
@@ -17,5 +14,5 @@ export default function RenderOnRole({ roles, children }) {
 }
 
 RenderOnRole.propTypes = {
-  roles: PropTypes.arrayOf(PropTypes.number).isRequired,
+  roles: PropTypes.arrayOf(PropTypes.string).isRequired,
 };

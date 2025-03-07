@@ -1,6 +1,6 @@
 import React from "react";
 import { Button } from "react-bootstrap";
-import keycloak from "../app/keycloak";
+import UserService from "../app/user-service";
 
 function HeaderBranding() {
   return (
@@ -24,11 +24,11 @@ function HeaderBranding() {
         </a>
         <div className="navbar-brand">Agriculture Licensing System</div>
         <div className="ml-auto">
-          {keycloak.getKeycloak()?.token ? (
+          {UserService.getToken() ? (
             <Button
               variant="primary"
               type="button"
-              onClick={() => keycloak.logout()}
+              onClick={() => UserService.doLogout()}
             >
               Log out
             </Button>
@@ -36,7 +36,7 @@ function HeaderBranding() {
             <Button
               variant="primary"
               type="button"
-              onClick={() => keycloak.login()}
+              onClick={() => UserService.doLogin()}
             >
               Log in
             </Button>

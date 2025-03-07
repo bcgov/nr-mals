@@ -17,24 +17,111 @@ const premisesDetail = require("../../models/premisesDetail");
 const prisma = new PrismaClient();
 const router = express.Router();
 
+const axios = require("axios");
+const {
+  SYSTEM_ROLES,
+  SYSTEM_ROLES_ARRAY,
+} = require("../../utilities/constants");
+
+async function getToken() {
+  const url = process.env.USERS_API_TOKEN_URL;
+  const token = `${process.env.USERS_API_CLIENT_ID}:${process.env.USERS_API_CLIENT_SECRET}`;
+  const encodedToken = Buffer.from(token).toString("base64");
+  const config = {
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      Authorization: "Basic " + encodedToken,
+    },
+  };
+  const grantTypeParam = new URLSearchParams();
+  grantTypeParam.append("grant_type", "client_credentials");
+  return axios
+    .post(url, grantTypeParam, config)
+    .then((response) => {
+      return response.data.access_token;
+    })
+    .catch((error) => {
+      console.log(error.response);
+    });
+}
+
+/**
+ *
+ * @returns list of users with roles in the MALS app
+ */
 async function fetchUsers() {
-  return prisma.mal_application_user.findMany({
+  const bearerToken = await getToken();
+  const baseUrl = `${process.env.USERS_API_BASE_URL}/integrations/${process.env.USERS_API_INTEGRATION_ID}/${process.env.USERS_API_CSS_ENVIRONMENT}/roles`;
+
+  const urls = [
+    `${baseUrl}/${SYSTEM_ROLES.SYSTEM_ADMIN}/users`,
+    `${baseUrl}/${SYSTEM_ROLES.INSPECTOR}/users`,
+    `${baseUrl}/${SYSTEM_ROLES.USER}/users`,
+    `${baseUrl}/${SYSTEM_ROLES.READ_ONLY}/users`,
+  ];
+
+  const roles = [
+    SYSTEM_ROLES.SYSTEM_ADMIN,
+    SYSTEM_ROLES.INSPECTOR,
+    SYSTEM_ROLES.USER,
+    SYSTEM_ROLES.READ_ONLY,
+  ];
+
+  const userList = [];
+  const uniqueUsers = new Set();
+
+  const dbUsers = await prisma.mal_application_user.findMany({
     orderBy: [
       {
         id: "asc",
       },
     ],
   });
+
+  // extract a mapping of the user id from the database and their idir username
+  const mappingArray = dbUsers.reduce((map, user) => {
+    map[user.user_name] = user.id;
+    return map;
+  }, {});
+
+  for (let i = 0; i < urls.length; i++) {
+    try {
+      const res = await axios.get(urls[i], {
+        headers: { Authorization: "Bearer " + bearerToken },
+      });
+      const users = res.data.data;
+      users.forEach((user) => {
+        if (!uniqueUsers.has(user.email)) {
+          uniqueUsers.add(user.email);
+          userList.push({
+            id: mappingArray[user.attributes.idir_username[0]], // the css user also exists in the database
+            email: user.email,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            idirUsername: user.attributes.idir_username[0],
+            username: user.username,
+            displayName: user.attributes.display_name[0],
+            role: roles[i],
+          });
+        }
+      });
+    } catch (err) {
+      console.log(err.response.data);
+    }
+  }
+
+  return userList;
 }
 
 async function fetchRoles() {
-  return prisma.mal_application_role.findMany({
-    orderBy: [
-      {
-        id: "asc",
-      },
-    ],
-  });
+  return SYSTEM_ROLES_ARRAY;
+  // return prisma.mal_application_role.findMany({
+  //   orderBy: [
+  //     {
+  //       id: "asc",
+  //     },
+  //   ],
+  // });
 }
 
 async function createUser(payload) {
@@ -44,15 +131,70 @@ async function createUser(payload) {
 }
 
 async function updateUser(id, payload) {
+  const bearerToken = await getToken();
+  const { idirUsername, username, role, previousRole } = payload;
+  console.log(payload);
+
+  const config = {
+    headers: { Authorization: "Bearer " + bearerToken },
+  };
+
+  // skip user api calls if there are no changes to the role
+  if (role == previousRole) return;
+
+  // add the new role
+  const addRolesUrl = `${process.env.USERS_API_BASE_URL}/integrations/${process.env.USERS_API_INTEGRATION_ID}/${process.env.USERS_API_CSS_ENVIRONMENT}/users/${username}/roles`;
+  try {
+    await axios.post(
+      addRolesUrl,
+      [
+        {
+          name: role,
+        },
+      ],
+      config
+    );
+  } catch (err) {
+    console.log(err);
+    throw new Error(`Failed to add ${role} role to user ${idirUsername}`);
+  }
+
+  // remove the old role
+  const removeRolesUrl = `${process.env.USERS_API_BASE_URL}/integrations/${process.env.USERS_API_INTEGRATION_ID}/${process.env.USERS_API_CSS_ENVIRONMENT}/users/${username}/roles/${previousRole}`;
+  try {
+    await axios.delete(removeRolesUrl, config);
+  } catch (err) {
+    throw new Error(
+      `Failed to remove ${previousRole} role from user ${idirUsername}`
+    );
+  }
+
+  const roleId = getRoleIdFromRole(role);
+
   return prisma.mal_application_user.update({
-    data: payload,
+    data: { application_role_id: roleId },
     where: {
       id: id,
     },
   });
 }
 
-async function deleteUser(id) {
+async function deleteUser(id, payload) {
+  const bearerToken = await getToken();
+  const { idirUsername, username, role, previousRole } = payload;
+
+  const config = {
+    headers: { Authorization: "Bearer " + bearerToken },
+  };
+  const removeRolesUrl = `${process.env.USERS_API_BASE_URL}/integrations/${process.env.USERS_API_INTEGRATION_ID}/${process.env.USERS_API_CSS_ENVIRONMENT}/users/${username}/roles/${role}`;
+  try {
+    await axios.delete(removeRolesUrl, config);
+  } catch (err) {
+    throw new Error(
+      `Failed to remove ${previousRole} role from user ${idirUsername}`
+    );
+  }
+
   return prisma.mal_application_user.delete({
     where: {
       id: id,
@@ -77,12 +219,27 @@ async function fetchPremisesJobById(jobId) {
   });
 }
 
+// helper function
+function getRoleIdFromRole(roleDescription) {
+  const role = SYSTEM_ROLES_ARRAY.find(
+    (role) => role.description === roleDescription
+  );
+  return role ? role.id : null;
+}
+
+// helper function
+function getRoleFromRoleId(roleId) {
+  const role = SYSTEM_ROLES_ARRAY.find((role) => role.id === roleId);
+  return role ? role.description : null;
+}
+
 router.get("/users", async (req, res, next) => {
   const now = new Date();
 
   await fetchUsers()
     .then((users) => {
-      const payload = users.map((x) => user.convertToLogicalModel(x));
+      // const payload = users.map((x) => user.convertToLogicalModel(x));
+      const payload = users;
 
       return res.send(payload);
     })
@@ -95,8 +252,8 @@ router.get("/roles", async (req, res, next) => {
 
   await fetchRoles()
     .then((roles) => {
-      const payload = roles.map((x) => role.convertToLogicalModel(x));
-
+      // const payload = roles.map((x) => role.convertToLogicalModel(x));
+      const payload = roles;
       return res.send(payload);
     })
     .catch(next)
@@ -135,26 +292,28 @@ router.put("/user/:id(\\d+)", async (req, res, next) => {
 
   const id = parseInt(req.params.id, 10);
 
-  const updatePayload = user.convertToPhysicalModel(
-    populateAuditColumnsUpdate(req.body, now)
-  );
+  const updatePayload = populateAuditColumnsUpdate(req.body, now);
+  // const updatePayload = user.convertToPhysicalModel(
+  //   populateAuditColumnsUpdate(req.body, now)
+  // );
 
-  const current = await fetchUsers();
-  const existing =
-    current.find(
-      (x) => x.user_name === updatePayload.user_name && x.id !== id
-    ) !== undefined;
-  if (existing) {
-    return res.status(500).send({
-      code: 500,
-      description: "A user with the given IDIR already exists.",
-    });
-  }
+  // const current = await fetchUsers();
+  // const existing =
+  //   current.find(
+  //     (x) => x.user_name === updatePayload.user_name && x.id !== id
+  //   ) !== undefined;
+  // if (existing) {
+  //   return res.status(500).send({
+  //     code: 500,
+  //     description: "A user with the given IDIR already exists.",
+  //   });
+  // }
 
   await updateUser(id, updatePayload)
     .then(async () => {
       const users = await fetchUsers();
-      const payload = users.map((x) => user.convertToLogicalModel(x));
+      // const payload = users.map((x) => user.convertToLogicalModel(x));
+      const payload = users;
       return res.send(payload);
     })
     .catch(next)
@@ -163,11 +322,13 @@ router.put("/user/:id(\\d+)", async (req, res, next) => {
 
 router.put("/user/delete/:id(\\d+)", async (req, res, next) => {
   const id = parseInt(req.params.id, 10);
+  const payload = req.body;
 
-  await deleteUser(id)
+  await deleteUser(id, payload)
     .then(async () => {
       const users = await fetchUsers();
-      const payload = users.map((x) => user.convertToLogicalModel(x));
+      // const payload = users.map((x) => user.convertToLogicalModel(x));
+      const payload = users;
       return res.send(payload);
     })
     .catch(next)

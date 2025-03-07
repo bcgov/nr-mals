@@ -8,6 +8,8 @@ const prisma = new PrismaClient();
 // Compare role against allowed roles for the endpoint
 // Deny if role requirement is not met
 
+// The users table in the database is still used for this validation as the css api is too slow
+
 async function fetchUser(username) {
   return prisma.mal_application_user.findFirst({
     where: {

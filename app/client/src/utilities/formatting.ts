@@ -104,20 +104,14 @@ export const pluralize = (count: number, singular: string, plural?: string) => {
 };
 
 export const displayPersonName = (person: any, displayMiddleName = false) => {
-  let name: string = person.surname || "";
+  let name: string = "";
 
-  if (person.givenName1 || person.givenName2 || person.givenName3) {
-    name += ", ";
-    if (person.givenName1) {
-      name += `${person.givenName1} `;
+  if (person.firstName || person.lastName) {
+    if (person.lastName) {
+      name += `${person.lastName}, `;
     }
-    if (displayMiddleName) {
-      if (person.givenName2) {
-        name += `${person.givenName2} `;
-      }
-      if (person.givenName3) {
-        name += `${person.givenName3} `;
-      }
+    if (person.firstName) {
+      name += `${person.firstName}`;
     }
   }
 

@@ -28,10 +28,11 @@ export default function UserModal({ user, closeModal, submit }) {
 
     if (
       users.data.find(
-        (x) => x.userName === data.userName && x.id !== parseAsInt(data.id)
+        (x) =>
+          x.idirUsername === data.idirUsername && x.id !== parseAsInt(data.id)
       ) !== undefined
     ) {
-      setError("userName", {
+      setError("idirUsername", {
         type: "invalid",
       });
       valid = false;
@@ -42,9 +43,10 @@ export default function UserModal({ user, closeModal, submit }) {
     }
 
     const payload = {
-      ...data,
-      roleId: parseAsInt(data.roleId),
-      active: data.active === "true",
+      id: user.id,
+      username: user.username,
+      role: data.role,
+      previousRole: user.role,
     };
 
     submit(payload);
@@ -54,11 +56,19 @@ export default function UserModal({ user, closeModal, submit }) {
     <Form onSubmit={handleSubmit(onSubmit)} noValidate>
       <Form.Control
         hidden
-        type="number"
+        type="text"
         id="id"
         name="id"
-        defaultValue={user !== null ? user.id : null}
-        {...register("id")}
+        value={user !== null ? user.id : null}
+        readOnly
+      />
+      <Form.Control
+        hidden
+        type="text"
+        id="username"
+        name="username"
+        value={user !== null ? user.username : null}
+        readOnly
       />
       <Modal.Header closeButton>
         <Modal.Title>{user ? "Edit a  user" : "Add a new user"}</Modal.Title>
@@ -66,132 +76,60 @@ export default function UserModal({ user, closeModal, submit }) {
       <Modal.Body>
         <Form.Row>
           <Col>
-            <Form.Group controlId="surname">
+            <Form.Group controlId="lastName">
               <Form.Label>Last Name</Form.Label>
               <Form.Control
                 type="text"
-                name="surname"
-                defaultValue={user !== null ? user.surname : null}
-                {...register("surname", {
-                  required: true,
-                })}
-                isInvalid={errors.surname}
+                name="lastName"
+                value={user !== null ? user.lastName : null}
+                readOnly
               />
-              <Form.Control.Feedback type="invalid">
-                Please enter a valid last name.
-              </Form.Control.Feedback>
             </Form.Group>
           </Col>
         </Form.Row>
         <Form.Row>
           <Col>
-            <Form.Group controlId="givenName1">
-              <Form.Label>Given Name 1</Form.Label>
+            <Form.Group controlId="firstName">
+              <Form.Label>First Name</Form.Label>
               <Form.Control
                 type="text"
-                name="givenName1"
-                defaultValue={user !== null ? user.givenName1 : null}
-                {...register("givenName1", {
-                  required: true,
-                })}
-                isInvalid={errors.givenName1}
+                name="firstName"
+                value={user !== null ? user.firstName : null}
+                readOnly
               />
-              <Form.Control.Feedback type="invalid">
-                Please enter a valid given name.
-              </Form.Control.Feedback>
             </Form.Group>
           </Col>
         </Form.Row>
         <Form.Row>
           <Col>
-            <Form.Group controlId="givenName2">
-              <Form.Label>Given Name 2 (Optional)</Form.Label>
-              <Form.Control
-                type="text"
-                name="givenName2"
-                defaultValue={user !== null ? user.givenName2 : null}
-                {...register("givenName2")}
-                isInvalid={errors.givenName2}
-              />
-              <Form.Control.Feedback type="invalid">
-                Please enter a valid given name.
-              </Form.Control.Feedback>
-            </Form.Group>
-          </Col>
-        </Form.Row>
-        <Form.Row>
-          <Col>
-            <Form.Group controlId="givenName3">
-              <Form.Label>Given Name 3 (Optional)</Form.Label>
-              <Form.Control
-                type="text"
-                name="givenName3"
-                defaultValue={user !== null ? user.givenName3 : null}
-                {...register("givenName3")}
-                isInvalid={errors.givenName3}
-              />
-              <Form.Control.Feedback type="invalid">
-                Please enter a valid given name.
-              </Form.Control.Feedback>
-            </Form.Group>
-          </Col>
-        </Form.Row>
-        <Form.Row>
-          <Col>
-            <Form.Group controlId="userName">
+            <Form.Group controlId="idirUsername">
               <Form.Label>IDIR</Form.Label>
               <Form.Control
                 type="text"
-                name="userName"
-                defaultValue={user !== null ? user.userName : null}
-                {...register("userName", {
-                  required: true,
-                })}
-                isInvalid={errors.userName}
+                name="idirUsername"
+                defaultValue={user !== null ? user.idirUsername : null}
+                readOnly
               />
-              <Form.Control.Feedback type="invalid">
-                IDIR name is an invalid format or already in use.
-              </Form.Control.Feedback>
             </Form.Group>
           </Col>
         </Form.Row>
         <Form.Row>
           <Col>
-            <Form.Group controlId="roleId">
+            <Form.Group controlId="role">
               <Form.Label>Role</Form.Label>
               <Form.Control
                 as="select"
-                name="roleId"
-                {...register("roleId")}
-                defaultValue={user !== null ? user.roleId : null}
+                name="role"
+                {...register("role")}
+                defaultValue={user !== null ? user.role : null}
               >
                 {roles.data.map((x) => {
                   return (
-                    <option key={x.id} value={x.id}>
+                    <option key={x.id} value={x.description}>
                       {x.description}
                     </option>
                   );
                 })}
-              </Form.Control>
-            </Form.Group>
-          </Col>
-        </Form.Row>
-        <Form.Row>
-          <Col>
-            <Form.Group controlId="active">
-              <Form.Label>Status</Form.Label>
-              <Form.Control
-                as="select"
-                name="active"
-                {...register("active")}
-                defaultValue={user !== null ? user.active : null}
-              >
-                <option key={1} value="true">
-                  Active
-                </option>
-                <option key={0} value="false">
-                  Inactive
-                </option>
               </Form.Control>
             </Form.Group>
           </Col>

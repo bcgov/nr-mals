@@ -1,5 +1,5 @@
 import axios, { Method } from "axios";
-import keycloak from "../app/keycloak";
+import UserService from "../app/user-service";
 
 export class ApiError extends Error {
   code: string;
@@ -29,9 +29,9 @@ const axiosInstance = axios.create({
 });
 
 axiosInstance.interceptors.request.use(function (config) {
-  if (keycloak.getKeycloak()?.token) {
+  if (UserService.getToken()) {
     if (config.headers) {
-      config.headers.Authorization = `Bearer ${keycloak.getKeycloak()?.token}`;
+      config.headers.Authorization = `Bearer ${UserService.getToken()}`;
     }
   }
 

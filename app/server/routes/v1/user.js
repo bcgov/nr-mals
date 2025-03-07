@@ -21,6 +21,7 @@ async function fetchUser(username) {
 
 router.post("/currentUser", async (req, res, next) => {
   const userName = req.body.idir;
+  console.log(req.body);
 
   await fetchUser(userName.toUpperCase())
     .then((data) => {
@@ -31,7 +32,11 @@ router.post("/currentUser", async (req, res, next) => {
         });
       }
 
+      console.log("user data");
+      console.log(data);
       const logical = user.convertToLogicalModel(data);
+      console.log("logical");
+      console.log(logical);
       return res.send(logical);
     })
     .catch(next)

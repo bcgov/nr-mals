@@ -101,8 +101,8 @@ export default function DairyTanksViewEdit({ site }) {
           Dairy Tank Details
         </SectionHeading>
         {dairyTanks === undefined ||
-          dairyTanks === null ||
-          dairyTanks.length === 0 ? (
+        dairyTanks === null ||
+        dairyTanks.length === 0 ? (
           <Row className="mt-3">
             <Col>
               <Alert variant="success" className="mt-3">

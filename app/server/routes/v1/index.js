@@ -59,146 +59,146 @@ router.use("/user", userRouter);
 router.use(
   "/licence-types",
   roleValidation([
-    constants.SYSTEM_ROLES.READ_ONLY,
-    constants.SYSTEM_ROLES.USER,
-    constants.SYSTEM_ROLES.INSPECTOR,
-    constants.SYSTEM_ROLES.SYSTEM_ADMIN,
+    constants.SYSTEM_ROLES_DB.READ_ONLY,
+    constants.SYSTEM_ROLES_DB.USER,
+    constants.SYSTEM_ROLES_DB.INSPECTOR,
+    constants.SYSTEM_ROLES_DB.SYSTEM_ADMIN,
   ]),
   licenceTypesRouter
 );
 router.use(
   "/licence-statuses",
   roleValidation([
-    constants.SYSTEM_ROLES.READ_ONLY,
-    constants.SYSTEM_ROLES.USER,
-    constants.SYSTEM_ROLES.INSPECTOR,
-    constants.SYSTEM_ROLES.SYSTEM_ADMIN,
+    constants.SYSTEM_ROLES_DB.READ_ONLY,
+    constants.SYSTEM_ROLES_DB.USER,
+    constants.SYSTEM_ROLES_DB.INSPECTOR,
+    constants.SYSTEM_ROLES_DB.SYSTEM_ADMIN,
   ]),
   licenceStatusesRouter
 );
 router.use(
   "/licences",
   roleValidation([
-    constants.SYSTEM_ROLES.READ_ONLY,
-    constants.SYSTEM_ROLES.USER,
-    constants.SYSTEM_ROLES.INSPECTOR,
-    constants.SYSTEM_ROLES.SYSTEM_ADMIN,
+    constants.SYSTEM_ROLES_DB.READ_ONLY,
+    constants.SYSTEM_ROLES_DB.USER,
+    constants.SYSTEM_ROLES_DB.INSPECTOR,
+    constants.SYSTEM_ROLES_DB.SYSTEM_ADMIN,
   ]),
   licencesRouter
 );
 router.use(
   "/sites",
   roleValidation([
-    constants.SYSTEM_ROLES.READ_ONLY,
-    constants.SYSTEM_ROLES.USER,
-    constants.SYSTEM_ROLES.INSPECTOR,
-    constants.SYSTEM_ROLES.SYSTEM_ADMIN,
+    constants.SYSTEM_ROLES_DB.READ_ONLY,
+    constants.SYSTEM_ROLES_DB.USER,
+    constants.SYSTEM_ROLES_DB.INSPECTOR,
+    constants.SYSTEM_ROLES_DB.SYSTEM_ADMIN,
   ]),
   sitesRouter
 );
 router.use(
   "/trailers",
   roleValidation([
-    constants.SYSTEM_ROLES.READ_ONLY,
-    constants.SYSTEM_ROLES.USER,
-    constants.SYSTEM_ROLES.INSPECTOR,
-    constants.SYSTEM_ROLES.SYSTEM_ADMIN,
+    constants.SYSTEM_ROLES_DB.READ_ONLY,
+    constants.SYSTEM_ROLES_DB.USER,
+    constants.SYSTEM_ROLES_DB.INSPECTOR,
+    constants.SYSTEM_ROLES_DB.SYSTEM_ADMIN,
   ]),
   trailersRouter
 );
 router.use(
   "/regional-districts",
   roleValidation([
-    constants.SYSTEM_ROLES.READ_ONLY,
-    constants.SYSTEM_ROLES.USER,
-    constants.SYSTEM_ROLES.INSPECTOR,
-    constants.SYSTEM_ROLES.SYSTEM_ADMIN,
+    constants.SYSTEM_ROLES_DB.READ_ONLY,
+    constants.SYSTEM_ROLES_DB.USER,
+    constants.SYSTEM_ROLES_DB.INSPECTOR,
+    constants.SYSTEM_ROLES_DB.SYSTEM_ADMIN,
   ]),
   regionalDistrictsRouter
 );
 router.use(
   "/regions",
   roleValidation([
-    constants.SYSTEM_ROLES.READ_ONLY,
-    constants.SYSTEM_ROLES.USER,
-    constants.SYSTEM_ROLES.INSPECTOR,
-    constants.SYSTEM_ROLES.SYSTEM_ADMIN,
+    constants.SYSTEM_ROLES_DB.READ_ONLY,
+    constants.SYSTEM_ROLES_DB.USER,
+    constants.SYSTEM_ROLES_DB.INSPECTOR,
+    constants.SYSTEM_ROLES_DB.SYSTEM_ADMIN,
   ]),
   regionsRouter
 );
 router.use(
   "/comments",
   roleValidation([
-    constants.SYSTEM_ROLES.READ_ONLY,
-    constants.SYSTEM_ROLES.USER,
-    constants.SYSTEM_ROLES.INSPECTOR,
-    constants.SYSTEM_ROLES.SYSTEM_ADMIN,
+    constants.SYSTEM_ROLES_DB.READ_ONLY,
+    constants.SYSTEM_ROLES_DB.USER,
+    constants.SYSTEM_ROLES_DB.INSPECTOR,
+    constants.SYSTEM_ROLES_DB.SYSTEM_ADMIN,
   ]),
   commentsRouter.router
 );
 router.use(
   "/licence-species",
   roleValidation([
-    constants.SYSTEM_ROLES.READ_ONLY,
-    constants.SYSTEM_ROLES.USER,
-    constants.SYSTEM_ROLES.INSPECTOR,
-    constants.SYSTEM_ROLES.SYSTEM_ADMIN,
+    constants.SYSTEM_ROLES_DB.READ_ONLY,
+    constants.SYSTEM_ROLES_DB.USER,
+    constants.SYSTEM_ROLES_DB.INSPECTOR,
+    constants.SYSTEM_ROLES_DB.SYSTEM_ADMIN,
   ]),
   licenceSpeciesRouter
 );
 router.use(
   "/slaughterhouse-species",
   roleValidation([
-    constants.SYSTEM_ROLES.READ_ONLY,
-    constants.SYSTEM_ROLES.USER,
-    constants.SYSTEM_ROLES.INSPECTOR,
-    constants.SYSTEM_ROLES.SYSTEM_ADMIN,
+    constants.SYSTEM_ROLES_DB.READ_ONLY,
+    constants.SYSTEM_ROLES_DB.USER,
+    constants.SYSTEM_ROLES_DB.INSPECTOR,
+    constants.SYSTEM_ROLES_DB.SYSTEM_ADMIN,
   ]),
   slaughterhouseSpeciesRouter
 );
 router.use(
   "/documents",
   roleValidation([
-    constants.SYSTEM_ROLES.READ_ONLY,
-    constants.SYSTEM_ROLES.USER,
-    constants.SYSTEM_ROLES.INSPECTOR,
-    constants.SYSTEM_ROLES.SYSTEM_ADMIN,
+    constants.SYSTEM_ROLES_DB.READ_ONLY,
+    constants.SYSTEM_ROLES_DB.USER,
+    constants.SYSTEM_ROLES_DB.INSPECTOR,
+    constants.SYSTEM_ROLES_DB.SYSTEM_ADMIN,
   ]),
   documentsRouter
 );
 router.use(
   "/cities",
   roleValidation([
-    constants.SYSTEM_ROLES.READ_ONLY,
-    constants.SYSTEM_ROLES.USER,
-    constants.SYSTEM_ROLES.INSPECTOR,
-    constants.SYSTEM_ROLES.SYSTEM_ADMIN,
+    constants.SYSTEM_ROLES_DB.READ_ONLY,
+    constants.SYSTEM_ROLES_DB.USER,
+    constants.SYSTEM_ROLES_DB.INSPECTOR,
+    constants.SYSTEM_ROLES_DB.SYSTEM_ADMIN,
   ]),
   citiesRouter
 );
 router.use(
   "/dairyfarmtestthresholds",
   roleValidation([
-    constants.SYSTEM_ROLES.READ_ONLY,
-    constants.SYSTEM_ROLES.USER,
-    constants.SYSTEM_ROLES.INSPECTOR,
-    constants.SYSTEM_ROLES.SYSTEM_ADMIN,
+    constants.SYSTEM_ROLES_DB.READ_ONLY,
+    constants.SYSTEM_ROLES_DB.USER,
+    constants.SYSTEM_ROLES_DB.INSPECTOR,
+    constants.SYSTEM_ROLES_DB.SYSTEM_ADMIN,
   ]),
   dairyFarmTestThresholdsRouter
 );
 router.use(
   "/inspections",
   roleValidation([
-    constants.SYSTEM_ROLES.READ_ONLY,
-    constants.SYSTEM_ROLES.USER,
-    constants.SYSTEM_ROLES.INSPECTOR,
-    constants.SYSTEM_ROLES.SYSTEM_ADMIN,
+    constants.SYSTEM_ROLES_DB.READ_ONLY,
+    constants.SYSTEM_ROLES_DB.USER,
+    constants.SYSTEM_ROLES_DB.INSPECTOR,
+    constants.SYSTEM_ROLES_DB.SYSTEM_ADMIN,
   ]),
   inspectionsRouter
 );
 router.use(
   "/admin",
-  roleValidation([constants.SYSTEM_ROLES.SYSTEM_ADMIN]),
+  roleValidation([constants.SYSTEM_ROLES_DB.SYSTEM_ADMIN]),
   adminRouter
 );
 

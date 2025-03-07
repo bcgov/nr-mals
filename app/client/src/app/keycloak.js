@@ -1,94 +1,73 @@
 import Keycloak from "keycloak-js";
 
-function GetKeycloakConfig(environment) {
-  let kcConfig = null;
+let _kc = null;
+let isAuthenticated = false;
 
-  if (environment === "dev") {
-    kcConfig = "/keycloak_dev.json";
-  } else if (environment === "test") {
-    kcConfig = "/keycloak_test.json";
-  } else if (environment === "prod") {
-    kcConfig = "/keycloak_prod.json";
-  }
+const initializeKeycloak = async () => {
+  try {
+    if (_kc) {
+      return { keycloak: _kc, authenticated: isAuthenticated };
+    }
 
-  return kcConfig;
-}
+    const environment = process.env.ENVIRONMENT_LABEL;
 
+    let keycloakConfig;
+    switch (environment) {
+      case "prod":
+        keycloakConfig = await import("./keycloak-config/keycloak_prod.json");
+        break;
+      case "test":
+        keycloakConfig = await import("./keycloak-config/keycloak_test.json");
+        break;
+      case "dev":
+      default:
+        keycloakConfig = await import("./keycloak-config/keycloak_dev.json");
+        break;
+    }
 
-let _keycloak = undefined;
-let ready = false;
-let refreshJobInterval = undefined;
-
-function login() {
-  window.location.replace(_keycloak.createLoginUrl({
-    redirectUri: `${window.location.origin}/`,
-  }));
-}
-
-function logout() {
-  if (ready) {
-    window.location.replace(
-      _keycloak.createLogoutUrl({
-        redirectUri: `${window.location.origin}/`,
-      })
-    );
-  }
-}
-
-const getKeycloak = () => _keycloak;
-
-async function init(environment) {
-  _keycloak = new Keycloak(GetKeycloakConfig(environment));
-
-  // Once KC is set up and connected flag it as 'ready'
-  _keycloak.onReady = function (authenticated) {
-    ready = authenticated;
-  };
-
-  // After a refresh token fetch success
-  _keycloak.onAuthRefreshSuccess = function () {
-    // console.log(_keycloak.value.token);
-  };
-
-  await _keycloak
-    .init({
-      onLoad: 'check-sso',
-      pkceMethod: 'S256'
-    })
-    .then(() => {
-      // Set the state field to the inited keycloak instance
-
-      // Token Refresh
-      // Check token validity every 10s and, if necessary, update the token.
-      // Refresh token if it's valid for less then 70 seconds
-      refreshJobInterval = window.setInterval(() => {
-        _keycloak.updateToken(70) // If the token expires within 70 seconds from now get a refreshed
-          .then((refreshed) => {
-            if (refreshed) {
-              console.log('Token refreshed ' + refreshed);
-            } else {
-              // Don't need to log this unless debugging
-              // It's for when the token doesn't need to refresh because not expired enough
-              // console.log('Token not refreshed');
-            }
-          })
-          .catch(() => {
-            console.error('Failed to refresh token');
-          });
-      }, 10000); // Check every 10s
-    })
-    .catch((err) => {
-      console.error(`Authenticated Failed ${JSON.stringify(err)}`);
+    _kc = new Keycloak({
+      url: keycloakConfig["auth-server-url"],
+      realm: keycloakConfig["realm"],
+      clientId: keycloakConfig["resource"],
     });
+
+    isAuthenticated = await _kc.init({
+      onLoad: "check-sso",
+      pkceMethod: "S256",
+      checkLoginIframe: false,
+    });
+
+    if (isAuthenticated) {
+      setInterval(() => {
+        _kc.updateToken(70).catch(() => {
+          console.log("Token refresh failed");
+          _kc.logout();
+        });
+      }, 30000); // 30 seconds
+
+      _kc.onTokenExpired = async () => {
+        try {
+          const refreshed = await _kc.updateToken(5);
+          if (refreshed) {
+            console.log("Token refreshed");
+            localStorage.setItem("__auth_token", _kc.token);
+          }
+        } catch (error) {
+          console.error("Token refresh failed", error);
+          // _kc.login();
+        }
+      };
+    }
+
+    return { keycloak: _kc, authenticated: isAuthenticated };
+  } catch (error) {
+    console.error("Failed to initialize Keycloak:", error);
+    throw error;
+  }
 };
 
-const keycloak = {
-  GetKeycloakConfig,
-  init,
-  login,
-  logout,
-  getKeycloak,
-  ready
+const getKeycloak = () => {
+  return _kc;
 };
 
-export default keycloak;
+export { initializeKeycloak, getKeycloak };

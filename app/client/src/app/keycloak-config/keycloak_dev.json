@@ -4,5 +4,5 @@
   "realm": "standard",
   "ssl-required": "external",
   "public-client": true,
-  "resource": "mals-4443"
+  "resource": "mals-2-5959"
 }

@@ -40,11 +40,25 @@ module.exports = Object.freeze({
 
   // System Roles
   SYSTEM_ROLES: {
+    SYSTEM_ADMIN: "SYSTEM_ADMIN",
+    INSPECTOR: "INSPECTOR",
+    USER: "USER",
+    READ_ONLY: "READ_ONLY",
+  },
+
+  SYSTEM_ROLES_DB: {
     SYSTEM_ADMIN: 1,
     INSPECTOR: 2,
     USER: 3,
     READ_ONLY: 4,
   },
+
+  SYSTEM_ROLES_ARRAY: [
+    { id: 1, description: "SYSTEM_ADMIN" },
+    { id: 2, description: "INSPECTOR" },
+    { id: 3, description: "USER" },
+    { id: 4, description: "READ_ONLY" },
+  ],
 
   // Front end page access levels
   ACCESS_LEVEL: {
