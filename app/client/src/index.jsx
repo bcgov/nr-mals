@@ -7,8 +7,9 @@ import Footer from "./components/Footer";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import store from "./app/store";
+import keycloak from "./app/keycloak";
 import * as serviceWorker from "./serviceWorker";
-import UserService from "./app/user-service";
+import Api from "./utilities/api.ts";
 
 const renderApp = () => {
   const root = ReactDOM.createRoot(document.getElementById("root"));
@@ -23,12 +24,13 @@ const renderApp = () => {
           <Footer />
         </footer>
       </div>
-    </Provider>
+    </Provider>,
   );
 };
 
 async function init() {
-  await UserService.initKeycloak();
+  const response = await Api.get("config");
+  await keycloak.init(response.data.environment);
   renderApp();
 }
 

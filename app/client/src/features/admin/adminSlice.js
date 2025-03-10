@@ -52,7 +52,7 @@ export const deleteUser = createAsyncThunk(
   "admin/deleteUser",
   async ({ user }, thunkApi) => {
     try {
-      const response = await Api.put(`admin/user/delete/${user.id}`, user);
+      const response = await Api.put(`admin/user/delete/${user.id}`);
       return response.data;
     } catch (error) {
       if (error instanceof ApiError) {

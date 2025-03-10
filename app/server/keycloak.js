@@ -7,12 +7,11 @@ const getKeycloakConfig = () => {
       bearerOnly: true,
       "confidential-port": 0,
       "auth-server-url": "https://dev.loginproxy.gov.bc.ca/auth",
-      realm: "standard",
+      "realm": "standard",
       "ssl-required": "external",
-      resource: "mals-2-5959",
-      "public-client": true,
-      credentials: {
-        secret: process.env.KEYCLOAK_SECRET,
+      "resource": "mals-4444",
+      "credentials": {
+        "secret": process.env.KEYCLOAK_SECRET,
       },
       realmPublicKey: process.env.KEYCLOAK_PUBLIC_KEY,
     };
@@ -22,11 +21,11 @@ const getKeycloakConfig = () => {
       bearerOnly: true,
       "confidential-port": 0,
       "auth-server-url": "https://test.loginproxy.gov.bc.ca/auth",
-      realm: "standard",
+      "realm": "standard",
       "ssl-required": "external",
-      resource: "mals-2-5959",
-      credentials: {
-        secret: process.env.KEYCLOAK_SECRET,
+      "resource": "mals-4444",
+      "credentials": {
+        "secret": process.env.KEYCLOAK_SECRET,
       },
       realmPublicKey: process.env.KEYCLOAK_PUBLIC_KEY,
     };
@@ -36,11 +35,11 @@ const getKeycloakConfig = () => {
       bearerOnly: true,
       "confidential-port": 0,
       "auth-server-url": "https://loginproxy.gov.bc.ca/auth",
-      realm: "standard",
+      "realm": "standard",
       "ssl-required": "external",
-      resource: "mals-2-5959",
-      credentials: {
-        secret: process.env.KEYCLOAK_SECRET,
+      "resource": "mals-4444",
+      "credentials": {
+        "secret": process.env.KEYCLOAK_SECRET,
       },
       realmPublicKey: process.env.KEYCLOAK_PUBLIC_KEY,
     };

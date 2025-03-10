@@ -48,10 +48,10 @@ import ViewTrailerInspectionPage from "./features/trailerinspections/ViewTrailer
 import CreateTrailerInspectionPage from "./features/trailerinspections/CreateTrailerInspectionPage";
 
 import ModalComponent from "./components/ModalComponent";
-
-import "./App.scss";
-import UserService from "./app/user-service";
+import keycloak from "./app/keycloak";
 import { fetchCurrentUser } from "./app/appSlice";
+
+import "./App.scss";//
 
 function App() {
   const dispatch = useDispatch();
@@ -59,10 +59,10 @@ function App() {
   useEffect(() => {
     dispatch(fetchConfig());
 
-    if (UserService.getToken()) {
+    if (keycloak.getKeycloak()?.tokenParsed) {
       dispatch(
         fetchCurrentUser({
-          data: { idir: UserService.getIdirUsername() },
+          data: { idir: keycloak.getKeycloak().tokenParsed.idir_username },
         })
       );
     }

@@ -1,6 +1,7 @@
 import React from "react";
 import { useSelector } from "react-redux";
 import { Container, Nav, Navbar } from "react-bootstrap";
+import keycloak from "../app/keycloak";
 import * as Constant from "../utilities/constants";
 
 import DropdownNavLink from "./DropdownNavLink";
@@ -9,7 +10,6 @@ import HeaderDropdown from "./HeaderDropdown";
 import "./HeaderNavigation.scss";
 
 import RenderOnRole from "./RenderOnRole";
-import UserService from "../app/user-service";
 
 function HeaderNavigation() {
   const { environment } = useSelector((state) => state.config.data);
@@ -23,7 +23,7 @@ function HeaderNavigation() {
     environmentClass = "env-uat";
   }
 
-  if (UserService.getToken()) {
+  if (keycloak.getKeycloak().token) {
     return (
       <header>
         <Navbar expand="lg" id="main-menu" className={environmentClass}>
@@ -40,6 +40,15 @@ function HeaderNavigation() {
                     Search Licenses
                   </DropdownNavLink>
                 </HeaderDropdown>
+                {/* <HeaderDropdown
+                id="registrants-dropdown"
+                title="Registrants"
+                pathPrefix={Constant.REGISTRANTS_PATHNAME}
+              >
+                <DropdownNavLink to={Constant.SEARCH_REGISTRANTS_PATHNAME}>
+                  Search Registrants
+                </DropdownNavLink>
+              </HeaderDropdown> */}
                 <HeaderDropdown
                   id="sites-and-contacts-dropdown"
                   title="Sites"
@@ -52,6 +61,18 @@ function HeaderNavigation() {
                     Search Sites
                   </DropdownNavLink>
                 </HeaderDropdown>
+                {/* <HeaderDropdown
+                id="inspections-dropdown"
+                title="Inspections"
+                pathPrefix={Constant.INSPECTIONS_PATHNAME}
+              >
+                <DropdownNavLink to={Constant.SEARCH_INSPECTIONS_PATHNAME}>
+                  Search Inspections
+                </DropdownNavLink>
+                <DropdownNavLink to={Constant.CREATE_INSPECTIONS_PATHNAME}>
+                  Create Inspection
+                </DropdownNavLink>
+              </HeaderDropdown> */}
                 <HeaderDropdown
                   id="document-generation-dropdown"
                   title="Document Generation"

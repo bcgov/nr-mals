@@ -1,16 +1,21 @@
 import React from "react";
+import { useSelector } from "react-redux";
 import { Redirect, Route } from "react-router-dom";
 import PropTypes from "prop-types";
-import UserService from "../app/user-service";
+import keycloak from "../app/keycloak";
+
+import { selectCurrentUser } from "../app/appSlice";
 
 export default function ProtectedRoute({
   children,
   path,
   validRoles = undefined,
 }) {
+  const currentUser = useSelector(selectCurrentUser);
   const valid =
-    UserService.getToken() &&
-    (!validRoles || validRoles.some((role) => UserService.hasRole([role])));
+    keycloak.getKeycloak().token &&
+    (!validRoles ||
+      validRoles.some((role) => currentUser.data.roleId === role));
 
   return (
     <Route

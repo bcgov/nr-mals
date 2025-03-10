@@ -159,10 +159,10 @@ export const REPORTS = {
 };
 
 export const SYSTEM_ROLES = {
-  SYSTEM_ADMIN: "SYSTEM_ADMIN",
-  INSPECTOR: "INSPECTOR",
-  USER: "USER",
-  READ_ONLY: "READ_ONLY",
+  SYSTEM_ADMIN: 1,
+  INSPECTOR: 2,
+  USER: 3,
+  READ_ONLY: 4,
 };
 
 export const DAIRY_TEST_THRESHOLD_IDS = {
