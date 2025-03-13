@@ -36,7 +36,6 @@ async function logout() {
 }
 
 const getKeycloak = () => {
-  console.log(_keycloak);
   return _keycloak;
 };
 
@@ -49,8 +48,6 @@ async function init(environment) {
       pkceMethod: "S256",
       checkLoginIframe: false,
     });
-
-    console.log("Keycloak Initialized:", authenticated);
 
     if (authenticated) {
       ready = true;
