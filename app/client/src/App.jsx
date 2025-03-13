@@ -51,7 +51,7 @@ import ModalComponent from "./components/ModalComponent";
 import keycloak from "./app/keycloak";
 import { fetchCurrentUser } from "./app/appSlice";
 
-import "./App.scss";//
+import "./App.scss"; //
 
 function App() {
   const dispatch = useDispatch();
@@ -59,10 +59,10 @@ function App() {
   useEffect(() => {
     dispatch(fetchConfig());
 
-    if (keycloak.getKeycloak()?.tokenParsed) {
+    if (keycloak.getKeycloak()?.idTokenParsed) {
       dispatch(
         fetchCurrentUser({
-          data: { idir: keycloak.getKeycloak().tokenParsed.idir_username },
+          data: { idir: keycloak.getKeycloak().idTokenParsed.idir_username },
         })
       );
     }

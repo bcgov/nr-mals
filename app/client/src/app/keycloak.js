@@ -14,73 +14,70 @@ function GetKeycloakConfig(environment) {
   return kcConfig;
 }
 
-
 let _keycloak = undefined;
 let ready = false;
 let refreshJobInterval = undefined;
 
-function login() {
-  window.location.replace(_keycloak.createLoginUrl({
+async function login() {
+  const redirectUrl = await _keycloak.createLoginUrl({
     redirectUri: `${window.location.origin}/`,
-  }));
+  });
+  window.location.replace(redirectUrl);
 }
 
-function logout() {
+async function logout() {
   if (ready) {
     window.location.replace(
-      _keycloak.createLogoutUrl({
+      await _keycloak.createLogoutUrl({
         redirectUri: `${window.location.origin}/`,
       })
     );
   }
 }
 
-const getKeycloak = () => _keycloak;
+const getKeycloak = () => {
+  return _keycloak;
+};
 
 async function init(environment) {
-  _keycloak = new Keycloak(GetKeycloakConfig(environment));
+  try {
+    _keycloak = new Keycloak(GetKeycloakConfig(environment));
 
-  // Once KC is set up and connected flag it as 'ready'
-  _keycloak.onReady = function (authenticated) {
-    ready = authenticated;
-  };
-
-  // After a refresh token fetch success
-  _keycloak.onAuthRefreshSuccess = function () {
-    // console.log(_keycloak.value.token);
-  };
-
-  await _keycloak
-    .init({
-      onLoad: 'check-sso',
-      pkceMethod: 'S256'
-    })
-    .then(() => {
-      // Set the state field to the inited keycloak instance
-
-      // Token Refresh
-      // Check token validity every 10s and, if necessary, update the token.
-      // Refresh token if it's valid for less then 70 seconds
-      refreshJobInterval = window.setInterval(() => {
-        _keycloak.updateToken(70) // If the token expires within 70 seconds from now get a refreshed
-          .then((refreshed) => {
-            if (refreshed) {
-              console.log('Token refreshed ' + refreshed);
-            } else {
-              // Don't need to log this unless debugging
-              // It's for when the token doesn't need to refresh because not expired enough
-              // console.log('Token not refreshed');
-            }
-          })
-          .catch(() => {
-            console.error('Failed to refresh token');
-          });
-      }, 10000); // Check every 10s
-    })
-    .catch((err) => {
-      console.error(`Authenticated Failed ${JSON.stringify(err)}`);
+    const authenticated = await _keycloak.init({
+      onLoad: "check-sso",
+      pkceMethod: "S256",
+      checkLoginIframe: false,
     });
-};
+
+    if (authenticated) {
+      ready = true;
+    } else {
+      ready = false;
+    }
+
+    _keycloak.onTokenExpired = async () => {
+      try {
+        await _keycloak.updateToken(5);
+      } catch (error) {
+        console.error("Failed to refresh token:", error);
+        clearInterval(refreshJobInterval);
+      }
+    };
+
+    refreshJobInterval = setInterval(async () => {
+      if (_keycloak && _keycloak.token) {
+        try {
+          await _keycloak.updateToken(70);
+        } catch (error) {
+          console.error("Failed to refresh token:", error);
+          clearInterval(refreshJobInterval);
+        }
+      }
+    }, 10000);
+  } catch (err) {
+    console.error("Keycloak initialization failed:", err);
+  }
+}
 
 const keycloak = {
   GetKeycloakConfig,
@@ -88,7 +85,7 @@ const keycloak = {
   login,
   logout,
   getKeycloak,
-  ready
+  ready,
 };
 
 export default keycloak;

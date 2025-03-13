@@ -13,7 +13,7 @@ export default function ProtectedRoute({
 }) {
   const currentUser = useSelector(selectCurrentUser);
   const valid =
-    keycloak.getKeycloak().token &&
+    keycloak.getKeycloak().idToken &&
     (!validRoles ||
       validRoles.some((role) => currentUser.data.roleId === role));
 

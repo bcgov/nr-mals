@@ -29,9 +29,10 @@ const axiosInstance = axios.create({
 });
 
 axiosInstance.interceptors.request.use(function (config) {
-  if (keycloak.getKeycloak()?.token) {
+  const token = keycloak.getKeycloak()?.token;
+  if (token) {
     if (config.headers) {
-      config.headers.Authorization = `Bearer ${keycloak.getKeycloak()?.token}`;
+      config.headers.Authorization = `Bearer ${token}`;
     }
   }
 
