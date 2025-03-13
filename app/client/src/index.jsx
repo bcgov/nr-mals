@@ -24,12 +24,13 @@ const renderApp = () => {
           <Footer />
         </footer>
       </div>
-    </Provider>,
+    </Provider>
   );
 };
 
 async function init() {
   const response = await Api.get("config");
+  console.log(response.data);
   await keycloak.init(response.data.environment);
   renderApp();
 }

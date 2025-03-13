@@ -42,12 +42,15 @@ const getKeycloak = () => {
 async function init(environment) {
   try {
     _keycloak = new Keycloak(GetKeycloakConfig(environment));
-
+    console.log("keycloak 1");
+    console.log(_keycloak);
     const authenticated = await _keycloak.init({
       onLoad: "check-sso",
       pkceMethod: "S256",
       checkLoginIframe: false,
     });
+    console.log("keycloak 2");
+    console.log(_keycloak);
 
     if (authenticated) {
       ready = true;
