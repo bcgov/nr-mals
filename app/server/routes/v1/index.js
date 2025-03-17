@@ -1,5 +1,6 @@
 const router = require("express").Router();
 const httpContext = require("express-http-context");
+const rateLimit = require("express-rate-limit");
 const { currentUser } = require("../../middleware/authentication");
 
 const userRouter = require("./user");
@@ -21,7 +22,15 @@ const inspectionsRouter = require("./inspections");
 const constants = require("../../utilities/constants");
 const roleValidation = require("../../middleware/roleValidation");
 
+const authLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000,
+  max: 300,
+  message: "Too many authentication attempts",
+  headers: true,
+});
+
 router.use(currentUser);
+router.use(authLimiter);
 
 router.use((req, res, next) => {
   if (req.currentUser) {

@@ -36,7 +36,6 @@ const currentUser = async (req, res, next) => {
         algorithms: ["RS256"],
       });
 
-      console.log("Decoded JWT Payload:", isValid);
       if (isValid) {
         const user = jwt.decode(bearerToken);
         req.currentUser = Object.freeze(user);
