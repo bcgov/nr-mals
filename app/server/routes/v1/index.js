@@ -25,12 +25,11 @@ const roleValidation = require("../../middleware/roleValidation");
 const authLimiter = rateLimit({
   windowMs: 1 * 60 * 1000,
   max: 300,
-  message: "Too many authentication attempts",
+  message: "Too many authentication attempts.",
   headers: true,
 });
 
-router.use(currentUser);
-router.use(authLimiter);
+router.use(authLimiter, currentUser);
 
 router.use((req, res, next) => {
   if (req.currentUser) {
