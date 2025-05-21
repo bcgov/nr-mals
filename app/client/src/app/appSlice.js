@@ -33,7 +33,7 @@ export const fetchCurrentUser = createAsyncThunk(
 export const appSlice = createSlice({
   name: "app",
   initialState: {
-    // modal props
+    // modal props-
     modal: {
       open: false,
       data: null,
