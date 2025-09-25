@@ -4,7 +4,7 @@ FROM node:22.19.0-slim AS build
 # Copy, build static files; see .dockerignore for exclusions
 WORKDIR /app
 COPY . ./
-ENV PRISMA_CLI_BINARY_TARGETS=debian-openssl-3.0.x
+ENV PRISMA_CLI_BINARY_TARGETS=debian-openssl-1.1.x,debian-openssl-3.0.x
 RUN npm run deploy
 
 # Dependencies
@@ -13,7 +13,7 @@ FROM node:22.19.0-slim AS dependencies
 # Copy, build static files; see .dockerignore for exclusions
 WORKDIR /app
 COPY . ./
-ENV PRISMA_CLI_BINARY_TARGETS=debian-openssl-3.0.x
+ENV PRISMA_CLI_BINARY_TARGETS=debian-openssl-1.1.x,debian-openssl-3.0.x
 RUN npm ci --ignore-scripts --no-update-notifier --omit=dev
 
 # Deploy using minimal Distroless image
@@ -31,7 +31,7 @@ COPY --from=build /app/static ./static
 
 # Boilerplate, not used in OpenShift/Kubernetes
 EXPOSE 3000
-HEALTHCHECK --interval=30s --timeout=3s CMD curl -f http://localhost:3000/hc
+# Note: Distroless doesn't include curl, health checks handled by Kubernetes/OpenShift
 
 # Nonroot user, limit heap size to 50 MB  
 USER nonroot
