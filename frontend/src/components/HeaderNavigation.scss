@@ -1,0 +1,113 @@
+@import "../styles/mixins.scss";
+
+$nav-background-color: #38598a;
+$nav-background-color-train: #539636;
+$nav-background-color-uat: #3aa384;
+$nav-background-color-test: #744e91;
+$nav-background-color-dev: #8a3844;
+
+$nav-active-background-color: #5475a7;
+$nav-active-background-color-train: #67b352;
+$nav-active-background-color-uat: #56bfa5;
+$nav-active-background-color-test: #8b57bd;
+$nav-active-background-color-dev: #b3526a;
+
+#main-menu {
+  margin-bottom: 0;
+  background-color: $nav-background-color;
+  border-radius: 0;
+  border: 0;
+  padding: 0;
+  -webkit-box-shadow: 0 3px 3px 1px rgba(51, 51, 51, 0.5);
+  -moz-box-shadow: 0 3px 3px 1px rgba(51, 51, 51, 0.5);
+  box-shadow: 0 3px 3px 1px rgba(51, 51, 51, 0.5);
+
+  .nav-link {
+    color: #fff;
+    padding: 1em;
+  }
+  .show .nav-link,
+  .nav-link:hover,
+  .nav-link:focus {
+    color: #fff;
+    background-color: $nav-active-background-color;
+    text-decoration: none;
+  }
+  .dropdown-menu {
+    color: #fff;
+    background-color: $nav-active-background-color;
+    font-size: 0.875em;
+    border: 0;
+    border-radius: 0;
+  }
+  .dropdown-item {
+    color: #fff;
+    text-decoration: none;
+  }
+
+  .dropdown-item.active,
+  .dropdown-item:active,
+  .dropdown-item:hover,
+  .dropdown-item:focus {
+    color: #fff;
+    background-color: $nav-active-background-color;
+    text-decoration: underline;
+  }
+
+  &.env-uat {
+    background-color: $nav-background-color-uat;
+
+    .dropdown-menu {
+      background-color: $nav-active-background-color-uat;
+    }
+
+    .dropdown-item:hover,
+    .dropdown-item:focus,
+    .dropdown-item.active,
+    .dropdown-item:active,
+    .active > .nav-link,
+    .show .nav-link,
+    .nav-link:hover,
+    .nav-link:focus {
+      background-color: $nav-active-background-color-uat;
+    }
+  }
+
+  &.env-test {
+    background-color: $nav-background-color-test;
+
+    .dropdown-menu {
+      background-color: $nav-active-background-color-test;
+    }
+
+    .dropdown-item:hover,
+    .dropdown-item:focus,
+    .dropdown-item.active,
+    .dropdown-item:active,
+    .active > .nav-link,
+    .show .nav-link,
+    .nav-link:hover,
+    .nav-link:focus {
+      background-color: $nav-active-background-color-test;
+    }
+  }
+
+  &.env-dev {
+    background-color: $nav-background-color-dev;
+
+    .dropdown-menu {
+      background-color: $nav-active-background-color-dev;
+    }
+
+    .dropdown-item:hover,
+    .dropdown-item:focus,
+    .dropdown-item.active,
+    .dropdown-item:active,
+    .active > .nav-link,
+    .show .nav-link,
+    .nav-link:hover,
+    .nav-link:focus {
+      background-color: $nav-active-background-color-dev;
+    }
+  }
+}

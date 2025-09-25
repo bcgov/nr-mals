@@ -1,0 +1,17 @@
+.comment-row {
+  border-bottom: 2px solid rgba(0, 0, 0, 0.3);
+  display: flex;
+}
+
+.comment-user-name {
+  font-weight: bolder;
+}
+
+.comment-delete-btn {
+  padding: 0;
+  color: blue;
+}
+
+.comment-date {
+  text-align: right;
+}
