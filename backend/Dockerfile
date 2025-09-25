@@ -1,29 +1,19 @@
 # Build
 FROM node:22.19.0-slim AS build
 
-# Install OpenSSL 1.1 for Prisma compatibility
-RUN apt-get update && apt-get install -y \
-    libssl1.1 \
-    && rm -rf /var/lib/apt/lists/*
-
 # Copy, build static files; see .dockerignore for exclusions
 WORKDIR /app
 COPY . ./
-ENV PRISMA_CLI_BINARY_TARGETS=debian-openssl-1.1.x,debian-openssl-3.0.x
+ENV PRISMA_CLI_BINARY_TARGETS=debian-openssl-3.0.x
 RUN npm run deploy
 
 # Dependencies
 FROM node:22.19.0-slim AS dependencies
 
-# Install OpenSSL 1.1 for Prisma compatibility
-RUN apt-get update && apt-get install -y \
-    libssl1.1 \
-    && rm -rf /var/lib/apt/lists/*
-
 # Copy, build static files; see .dockerignore for exclusions
 WORKDIR /app
 COPY . ./
-ENV PRISMA_CLI_BINARY_TARGETS=debian-openssl-1.1.x,debian-openssl-3.0.x
+ENV PRISMA_CLI_BINARY_TARGETS=debian-openssl-3.0.x
 RUN npm ci --ignore-scripts --no-update-notifier --omit=dev
 
 # Deploy using minimal Distroless image
