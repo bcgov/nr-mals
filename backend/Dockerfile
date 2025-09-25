@@ -25,7 +25,6 @@ COPY --from=build /app/node_modules/@prisma ./node_modules/@prisma
 COPY --from=build /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=build /app/node_modules/prisma ./node_modules/prisma
 COPY --from=build /app/src ./src
-COPY --from=build /app/static ./static
 
 # Boilerplate, not used in OpenShift/Kubernetes
 EXPOSE 3000
