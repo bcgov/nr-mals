@@ -1,17 +1,11 @@
 # Build
 FROM node:22.19.0-slim AS build
 
-# Set Prisma binary target before copying files
-ENV PRISMA_CLI_BINARY_TARGETS=debian-openssl-3.0.x
-
 # Copy, build static files; see .dockerignore for exclusions
 WORKDIR /app
 COPY . ./
-
-# Debug: Check OpenSSL version and force clean Prisma generation
-RUN openssl version && \
-    npm ci --omit=dev && \
-    npx prisma generate --generator client
+ENV PRISMA_CLI_BINARY_TARGETS=debian-openssl-3.0.x
+RUN npm run deploy
 
 # Dependencies
 FROM node:22.19.0-slim AS dependencies
@@ -37,8 +31,7 @@ COPY --from=build /app/static ./static
 
 # Boilerplate, not used in OpenShift/Kubernetes
 EXPOSE 3000
-HEALTHCHECK --interval=30s --timeout=3s --retries=3 \
-  CMD ["node", "-e", "require('http').get('http://localhost:3000/hc', (res) => process.exit(res.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"]
+HEALTHCHECK --interval=30s --timeout=3s CMD curl -f http://localhost:3000/hc
 
 # Nonroot user, limit heap size to 50 MB  
 USER nonroot
