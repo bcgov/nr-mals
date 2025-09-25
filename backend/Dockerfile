@@ -1,6 +1,11 @@
 # Build
 FROM node:22.19.0-slim AS build
 
+# Install OpenSSL 1.1 for Prisma compatibility
+RUN apt-get update && apt-get install -y \
+    libssl1.1 \
+    && rm -rf /var/lib/apt/lists/*
+
 # Copy, build static files; see .dockerignore for exclusions
 WORKDIR /app
 COPY . ./
@@ -9,6 +14,11 @@ RUN npm run deploy
 
 # Dependencies
 FROM node:22.19.0-slim AS dependencies
+
+# Install OpenSSL 1.1 for Prisma compatibility
+RUN apt-get update && apt-get install -y \
+    libssl1.1 \
+    && rm -rf /var/lib/apt/lists/*
 
 # Copy, build static files; see .dockerignore for exclusions
 WORKDIR /app
