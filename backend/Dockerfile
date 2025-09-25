@@ -1,12 +1,17 @@
 # Build
 FROM node:22.19.0-slim AS build
 
+# Set Prisma binary target before copying files
+ENV PRISMA_CLI_BINARY_TARGETS=debian-openssl-3.0.x
+
 # Copy, build static files; see .dockerignore for exclusions
 WORKDIR /app
 COPY . ./
-ENV PRISMA_CLI_BINARY_TARGETS=debian-openssl-3.0.x
-# Clean install and force regenerate Prisma binaries
-RUN rm -rf node_modules .prisma && npm ci --omit=dev && npx prisma generate
+
+# Debug: Check OpenSSL version and force clean Prisma generation
+RUN openssl version && \
+    npm ci --omit=dev && \
+    npx prisma generate --generator client
 
 # Dependencies
 FROM node:22.19.0-slim AS dependencies
