@@ -5,7 +5,8 @@ FROM node:22.19.0-slim AS build
 WORKDIR /app
 COPY . ./
 ENV PRISMA_CLI_BINARY_TARGETS=debian-openssl-3.0.x
-RUN npm run deploy
+# Clean install and force regenerate Prisma binaries
+RUN rm -rf node_modules .prisma && npm ci --omit=dev && npx prisma generate
 
 # Dependencies
 FROM node:22.19.0-slim AS dependencies
@@ -31,7 +32,8 @@ COPY --from=build /app/static ./static
 
 # Boilerplate, not used in OpenShift/Kubernetes
 EXPOSE 3000
-# Note: Distroless doesn't include curl, health checks handled by Kubernetes/OpenShift
+HEALTHCHECK --interval=30s --timeout=3s --retries=3 \
+  CMD ["node", "-e", "require('http').get('http://localhost:3000/hc', (res) => process.exit(res.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"]
 
 # Nonroot user, limit heap size to 50 MB  
 USER nonroot
