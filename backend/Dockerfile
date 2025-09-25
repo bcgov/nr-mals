@@ -25,6 +25,7 @@ COPY --from=build /app/node_modules/@prisma ./node_modules/@prisma
 COPY --from=build /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=build /app/node_modules/prisma ./node_modules/prisma
 COPY --from=build /app/src ./src
+COPY --from=build /app/keycloak.json ./keycloak.json
 
 # Boilerplate, not used in OpenShift/Kubernetes
 EXPOSE 3000
