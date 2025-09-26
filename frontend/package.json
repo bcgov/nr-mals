@@ -49,8 +49,8 @@
     "lint:fix": "npm run lint -- --fix",
     "format": "prettier --write src",
     "format:check": "prettier src --check",
-    "test:unit": "vitest --mode test",
-    "test:cov": "vitest run --mode test --coverage",
+    "test": "react-scripts test --watchAll=false",
+    "test:cov": "react-scripts test --coverage --watchAll=false",
     "eject": "react-scripts eject",
     "purge": "rm -rf node_modules"
   },
@@ -97,6 +97,11 @@
       "last 1 chrome version",
       "last 1 firefox version",
       "last 1 safari version"
+    ]
+  },
+  "jest": {
+    "transformIgnorePatterns": [
+      "node_modules/(?!(keycloak-js)/)"
     ]
   }
 }
