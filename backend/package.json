@@ -83,6 +83,9 @@
     "nodemon": "^2.0.20",
     "prettier": "^2.0.5",
     "prisma": "^6.3.0",
-    "shx": "^0.3.3"
+    "shx": "^0.3.3",
+    "vitest": "^1.6.0",
+    "@vitest/coverage-v8": "^1.6.0",
+    "istanbul-badges-readme": "^1.8.5"
   }
 }
