@@ -3,7 +3,6 @@ require("dotenv").config();
 const express = require("express");
 const Problem = require("api-problem");
 const httpContext = require("express-http-context");
-const path = require("path");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
 const helmet = require("helmet");
