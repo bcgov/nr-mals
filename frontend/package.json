@@ -48,7 +48,8 @@
     "lint:fix": "npm run lint -- --fix",
     "format": "prettier --write src",
     "format:check": "prettier src --check",
-    "test": "react-scripts test",
+    "test:unit": "vitest --mode test",
+    "test:cov": "vitest run --mode test --coverage",
     "eject": "react-scripts eject",
     "purge": "rm -rf node_modules"
   },
