@@ -1,10 +1,8 @@
 import { defineConfig } from "vitest/config";
-import swc from "unplugin-swc";
 
-// https://vitejs.dev/config/
 export default defineConfig({
   test: {
-    include: ["**/*.e2e-spec.ts", "**/*.spec.ts"],
+    include: ["**/*.test.js", "**/*.spec.js"],
     exclude: ["**/node_modules/**"],
     globals: true,
     environment: "node",
@@ -13,5 +11,4 @@ export default defineConfig({
       reporter: ["lcov", "text-summary", "text", "json", "html"],
     },
   },
-  plugins: [swc.vite()],
 });

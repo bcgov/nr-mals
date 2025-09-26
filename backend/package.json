@@ -11,11 +11,9 @@
     "lint:fix": "eslint --ext js,jsx src --fix",
     "format": "prettier --write src",
     "format:check": "prettier src --check",
-    "make-badges": "istanbul-badges-readme --logo=vitest --exitCode=1",
-    "make-badges:ci": "npm run make-badges -- --ci",
-    "test": "vitest --dir src",
-    "test:cov": "prisma generate && vitest run --coverage",
-    "test:e2e": "vitest --dir test",
+    "test": "vitest run",
+    "test:cov": "vitest run --coverage",
+    "test:watch": "vitest",
     "introspect": "npx prisma db pull && shx cat prisma/views.prisma >> prisma/schema.prisma"
   },
   "eslintConfig": {
@@ -86,7 +84,6 @@
     "shx": "^0.3.3",
     "vitest": "^1.6.0",
     "@vitest/coverage-v8": "^1.6.0",
-    "istanbul-badges-readme": "^1.8.5",
-    "unplugin-swc": "^1.5.1"
+    "istanbul-badges-readme": "^1.8.5"
   }
 }
