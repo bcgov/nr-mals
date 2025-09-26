@@ -1,7 +1,7 @@
 // Test scaffolding - to be implemented in future branches
 describe('App Component', () => {
   test.skip('should render main application', () => {
-    // TODO: Implement App component rendering test
+    // TODO: Implement App component rendering tests
   })
 
   test.skip('should handle authentication flow', () => {
