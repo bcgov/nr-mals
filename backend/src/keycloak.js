@@ -1,6 +1,7 @@
 const Keycloak = require("keycloak-connect");
 
 const getKeycloakConfig = () => {
+  console.log(`DEBUG: ENVIRONMENT_LABEL = ${process.env.ENVIRONMENT_LABEL}`);
   let config;
   if (process.env.ENVIRONMENT_LABEL === "dev") {
     config = {
@@ -45,6 +46,7 @@ const getKeycloakConfig = () => {
     };
   }
 
+  console.log(`DEBUG: Keycloak config = ${config ? "configured" : "undefined - will use keycloak.json"}`);
   return config;
 };
 
