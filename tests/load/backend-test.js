@@ -4,6 +4,9 @@ import { Rate } from "k6/metrics";
 
 export let errorRate = new Rate("errors");
 
+// Global flag to prevent console spam during load testing
+let hasLoggedOnce = false;
+
 function checkStatus(response, checkName, statusCode = 200) {
   let success = check(response, {
     [checkName]: (r) => {
@@ -19,8 +22,13 @@ function checkStatus(response, checkName, statusCode = 200) {
 }
 
 export default function () {
-  console.log("🚧 Backend load tests are scaffolded but not yet implemented");
-  console.log(`🎯 Target URL: ${__ENV.BACKEND_URL}`);
+  // Only log scaffolding message once to prevent spam
+  if (!hasLoggedOnce) {
+    console.log("🚧 Backend load tests are scaffolded but not yet implemented");
+    console.log(`🎯 Target URL: ${__ENV.BACKEND_URL}`);
+    console.log("✅ Load test will run silently for configured duration");
+    hasLoggedOnce = true;
+  }
 
   // TODO: Implement proper MALS backend load tests
   // Example endpoints to test:
@@ -29,10 +37,9 @@ export default function () {
   // - ${__ENV.BACKEND_URL}/v1/user
   // - ${__ENV.BACKEND_URL}/v1/documents
 
-  // Placeholder test - just check if backend is reachable
-  let healthUrl = `${__ENV.BACKEND_URL}/health`; // Assuming health endpoint exists
-  // let res = http.get(healthUrl);
-  // checkStatus(res, "backend-health-check", 200);
-
-  console.log("✅ Backend load test scaffolding complete");
+  // For now, just sleep to simulate load test duration without actual requests
+  // Remove this when implementing real load tests
+  let healthUrl = `${__ENV.BACKEND_URL}/hc`;
+  let res = http.get(healthUrl);
+  checkStatus(res, "backend-health-check", 200);
 }
