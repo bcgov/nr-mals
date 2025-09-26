@@ -86,6 +86,7 @@
     "shx": "^0.3.3",
     "vitest": "^1.6.0",
     "@vitest/coverage-v8": "^1.6.0",
-    "istanbul-badges-readme": "^1.8.5"
+    "istanbul-badges-readme": "^1.8.5",
+    "unplugin-swc": "^1.5.1"
   }
 }
