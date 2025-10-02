@@ -130,3 +130,124 @@ AS $procedure$
 end; 
 $procedure$
 ;
+
+
+----
+-- MALS2-45 - Don't include inactive sites in the Dairy Client Details report
+----
+CREATE OR REPLACE PROCEDURE mals_app.pr_generate_print_json_dairy_farm_details(IN ip_irma_number character varying, IN ip_start_date date, IN ip_end_date date, INOUT iop_print_job_id integer)
+ LANGUAGE plpgsql
+AS $procedure$
+  declare  
+	l_report_json_count       integer default 0;  
+  begin	  	  
+	--
+	-- Start a row in the mal_print_job table
+	call pr_start_print_job(
+			ip_print_category   => 'REPORT', 
+			iop_print_job_id    => iop_print_job_id
+			);
+	--
+	--  Insert the JSON into the output table
+	with tank_details as (
+		select licence_id,
+			json_agg(json_build_object('Date',  to_char(greatest(spc1_date,scc_date,cry_date,ffa_date,ih_date), 'fmyyyy-mm-dd'),
+									   'IBC',   spc1_value,
+									   'SCC',   scc_value,
+									   'CRY',   cry_value,
+									   'FFA',   ffa_value,
+									   'IH',    ih_value)
+		                                order by greatest(spc1_date,scc_date,cry_date,ffa_date,ih_date)) test_json,
+		    avg(spc1_value) average_spc1,
+		    avg(scc_value) average_scc,
+		    avg(cry_value) average_cry,
+		    avg(ffa_value) average_ffa,
+		    avg(ih_value) average_ih
+		from mal_dairy_farm_test_result
+		where irma_number = ip_irma_number
+		and greatest(spc1_date,scc_date,cry_date,ffa_date,ih_date) 
+			between ip_start_date and ip_end_date  
+		group by licence_id
+		),
+	licence_details as (
+		select 
+			json_agg(json_build_object('IRMA_NUM',               tank.irma_number,
+										'Status',                tank.licence_status,
+										'LicenceHolderCompany',  tank.company_name,
+										'LastnameFirstName',     tank.registrant_last_first,
+										'Address',               tank.address,
+										'City',                  tank.city,
+										'Province',              tank.province,
+										'Postcode',              tank.postal_code,
+										'Phone',                 tank.registrant_primary_phone,
+										'Fax',                   tank.registrant_fax_number,
+										'Cell',                  tank.registrant_secondary_phone,
+										'Email',                 tank.registrant_email_address,
+										'IssueDate',             tank.issue_date_display,
+										'SiteStatus',            tank.site_status,
+										'SiteAddress',           tank.site_address,
+										'SiteCity',              tank.site_city,
+										'SiteProvince',          tank.site_province,
+										'SitePostcode',          tank.site_postal_code,
+										'TankCompany',           tank.tank_company_name,
+										'TankModel',             tank.tank_model_number,
+										'TankSerial',            tank.tank_serial_number,
+										'TankCapacity',          tank.tank_capacity,
+										'LastInspectionDate',    to_char(tank.inspection_date, 'fmyyyy-mm-dd hh24mi'),
+										'LastInspector',         tank.inspector_name,
+										'Insp',                  dtl.test_json,
+										'Avg_IBC',               to_char(dtl.average_spc1,'fm9999990.0'),
+										'Avg_SCC',               to_char(dtl.average_scc,'fm9999990.0'),
+										'Avg_CRY',               to_char(dtl.average_cry,'fm9999990.0'),
+										'Avg_FFA',               to_char(dtl.average_ffa,'fm9999990.0'),
+										'Avg_IH',                to_char(dtl.average_ih,'fm9999990.0'))
+		                                order by licence_number, tank_create_timestamp) licence_json
+		from mal_dairy_farm_tank_vw tank
+		left join tank_details dtl
+		on tank.licence_id = dtl.licence_id
+		where tank.irma_number = ip_irma_number
+		and tank.site_status='ACT'
+		)
+	--
+	--  MAIN QUERY
+	--
+	insert into mal_print_job_output(
+		print_job_id,
+		licence_type,
+		licence_number,
+		document_type,
+		document_json,
+		document_binary,
+		create_userid,
+		create_timestamp,
+		update_userid,
+		update_timestamp)
+	select 
+		iop_print_job_id,
+		'DAIRY FARM',
+		null,
+		'DAIRY_FARM_DETAIL',
+		json_build_object('DateTime',            to_char(current_timestamp, 'fmyyyy-mm-dd hh24mi'),
+						  'DateRangeStart',      to_char(ip_start_date, 'fmyyyy-mm-dd'),
+						  'DateRangeEnd',        to_char(ip_end_date, 'fmyyyy-mm-dd'),
+						  'Client',              licence_json) report_json,
+		null,
+		current_user,
+		current_timestamp,
+		current_user,
+		current_timestamp
+	from licence_details;
+	--
+	GET DIAGNOSTICS l_report_json_count = ROW_COUNT;	
+	--
+	-- Update the Print Job table.	 
+	update mal_print_job set
+		job_status                    = 'COMPLETE',
+		json_end_time                 = current_timestamp,
+		report_json_count             = l_report_json_count,
+		update_userid                 = current_user,
+		update_timestamp              = current_timestamp
+	where id = iop_print_job_id;
+end; 
+$procedure$
+;
