@@ -58,6 +58,7 @@ app.use(function (req, res, next) {
 app.use(
   cors({
     origin: true, // Set true to dynamically set Access-Control-Allow-Origin based on Origin
+    exposedHeaders: ['content-disposition'],
   }),
 );
 app.use(logger("dev"));
