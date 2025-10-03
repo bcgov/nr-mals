@@ -52,7 +52,7 @@
     "@types/axios-token-interceptor": "^0.2.1",
     "adm-zip": "^0.5.3",
     "api-problem": "^9.0.0",
-    "axios": "^0.21.0",
+    "axios": "^1.12.2",
     "axios-oauth-client": "^1.4.0",
     "axios-token-interceptor": "^0.2.0",
     "cookie-parser": "~1.4.4",
