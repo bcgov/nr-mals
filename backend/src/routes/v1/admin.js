@@ -194,6 +194,14 @@ router.post("/dairytestresults", async (req, res, next) => {
   const now = new Date();
   const data = req.body;
 
+  // Ensure that data is an array before continuing, to prevent type confusion attacks
+  if (!Array.isArray(data)) {
+    return res.status(400).send({
+      code: 400,
+      description: "Bad request: data must be an array."
+    });
+  }
+
   let jobId = null;
 
   try {
