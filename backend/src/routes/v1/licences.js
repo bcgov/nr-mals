@@ -141,8 +141,16 @@ function getSearchFilter(params) {
     const regionalDistrictId = parseInt(params.regionalDistrict, 10);
 
     if (params.licenceTypeIdArray !== undefined) {
-      for (let i = 0; i < params.licenceTypeIdArray.length; ++i) {
-        orArray.push({ licence_type_id: params.licenceTypeIdArray[i] });
+      let arr;
+      if (Array.isArray(params.licenceTypeIdArray)) {
+        arr = params.licenceTypeIdArray;
+      } else if (typeof params.licenceTypeIdArray === 'string' && params.licenceTypeIdArray.length > 0) {
+        arr = [params.licenceTypeIdArray];
+      } else {
+        arr = [];
+      }
+      for (let i = 0; i < arr.length; ++i) {
+        orArray.push({ licence_type_id: arr[i] });
       }
     }
 
