@@ -30,7 +30,7 @@ const axiosInstance = axios.create({
 })
 
 axiosRetry(axiosInstance, {
-  retries: 3,
+  retries: 1,
   retryDelay: axiosRetry.exponentialDelay,
   retryCondition: (error) => {
     // Retry on network errors or 5xx status codes

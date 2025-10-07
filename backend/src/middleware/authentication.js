@@ -19,6 +19,7 @@ const getKey = async (header) => {
 };
 
 const currentUser = async (req, res, next) => {
+  console.log(`Auth middleware: ${req.method} ${req.path}`);
   const authorization = req.get("Authorization");
   let isValid = null;
 
@@ -41,17 +42,20 @@ const currentUser = async (req, res, next) => {
         req.currentUser = Object.freeze(user);
       }
     } catch (err) {
-      console.error("JWT Validation Error:", err.message);
+      console.error(`Auth error for ${req.method} ${req.path}:`, err.message);
       return new Problem(403, { detail: err.message }).send(res);
     }
   } else {
+    console.error(`No authorization header for ${req.method} ${req.path}`);
     return new Problem(403, { detail: "Invalid authorization token" }).send(
       res
     );
   }
   if (isValid) {
+    console.log(`Auth success for ${req.method} ${req.path}`);
     next();
   } else {
+    console.error(`Auth failed for ${req.method} ${req.path}: invalid token`);
     return new Problem(403, { detail: "Invalid authorization token" }).send(
       res
     );
