@@ -1,4 +1,5 @@
 import axios, { Method } from 'axios'
+import axiosRetry from 'axios-retry'
 import keycloak from '../app/keycloak'
 
 export class ApiError extends Error {
@@ -26,6 +27,25 @@ const DEFAULT_TIMEOUT = 120000
 const axiosInstance = axios.create({
   baseURL: `${process.env.REACT_APP_API_BASE_URL || ''}/api/v1`,
   timeout: DEFAULT_TIMEOUT,
+})
+
+axiosRetry(axiosInstance, {
+  retries: 3,
+  retryDelay: axiosRetry.exponentialDelay,
+  retryCondition: (error) => {
+    // Retry on network errors or 5xx status codes
+    return (
+      axiosRetry.isNetworkOrIdempotentRequestError(error) ||
+      !!(error.response && error.response.status >= 500)
+    )
+  },
+  onRetry: (retryCount, error, requestConfig) => {
+    console.log(
+      `Retrying request to ${requestConfig.url} (attempt ${
+        retryCount + 1
+      }) due to: ${error.message}`,
+    )
+  },
 })
 
 axiosInstance.interceptors.request.use(function (config) {
