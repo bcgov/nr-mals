@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 // Request will add the current users IDIR from Keycloak in the headers
 // Validate IDIR against database and get user role if applicable
 // Compare role against allowed roles for the endpoint
-// Deny if role requirement is not met
+// Deny if role requirement is not met //
 
 async function fetchUser(username) {
   return prisma.mal_application_user.findFirst({
