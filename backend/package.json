@@ -48,7 +48,7 @@
   },
   "homepage": "https://github.com/bcgov/nr-mals#readme",
   "dependencies": {
-    "@prisma/client": "^6.3.0",
+    "@prisma/client": "^4.5.0",
     "@types/axios-token-interceptor": "^0.2.1",
     "adm-zip": "^0.5.3",
     "api-problem": "^9.0.0",
