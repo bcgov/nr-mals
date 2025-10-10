@@ -561,3 +561,25 @@ AS WITH licence_base AS (
      LEFT JOIN dispenser disp ON (base.licence_type::text = ANY (ARRAY['MEDICATED FEED'::character varying::text, 'VETERINARY DRUG'::character varying::text])) AND base.licence_id = disp.parent_licence_id
      LEFT JOIN disp_associated_licences disp_assoc ON (base.licence_type::text = ANY (ARRAY['DISPENSER'::character varying::text])) AND base.licence_id = disp_assoc.parent_licence_id
      LEFT JOIN licence_species species ON base.licence_type_id = species.licence_type_id;
+
+----
+-- MALS2-46 - Dairy Farm License Reissue Date
+----
+-- Add table to track reissue_licence dates, this table is used by the dairy client details report
+CREATE TABLE mals_app.mal_licence_reissue_date (
+    id integer generated always as identity (start with 1 increment by 1) NOT NULL,
+    reissue_date DATE NOT NULL,
+    licence_id INTEGER NOT NULL REFERENCES mals_app.mal_licence(id),
+    licence_number VARCHAR(30) NOT NULL,
+    licence_type_id INTEGER NOT NULL REFERENCES mals_app.mal_licence_type_lu(id),
+    irma_number VARCHAR(5),
+    create_userid varchar(63) NOT NULL,
+    create_timestamp timestamp NOT NULL,
+    update_userid varchar(63) NOT NULL,
+    update_timestamp timestamp NOT NULL
+);
+ALTER TABLE mals_app.mal_licence_reissue_date ADD PRIMARY KEY (id);
+-- Grant roles
+grant select, insert, update, delete on mal_licence_reissue_date to mals_app_role;
+-- Add reissue_licence column
+ALTER TABLE mals_app.mal_licence ADD COLUMN reissue_licence boolean DEFAULT false;

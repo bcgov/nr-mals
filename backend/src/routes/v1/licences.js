@@ -1090,6 +1090,7 @@ router.put("/checkboxes/:licenceId(\\d+)", async (req, res, next) => {
           action_required: req.body.actionRequired,
           print_certificate: req.body.printLicence,
           print_renewal: req.body.renewalNotice,
+          reissue_licence: req.body.reissueLicence,
         },
       });
 

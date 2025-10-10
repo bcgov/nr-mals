@@ -367,6 +367,7 @@ model mal_licence {
   create_timestamp                                                                           DateTime                        @db.Timestamp(6)
   update_userid                                                                              String                          @db.VarChar(63)
   update_timestamp                                                                           DateTime                        @db.Timestamp(6)
+  reissue_licence                                                                            Boolean?
   mal_licence_type_lu                                                                        mal_licence_type_lu             @relation(fields: [licence_type_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "lic_lictyp_fk")
   mal_licence_species_code_lu                                                                mal_licence_species_code_lu?    @relation(fields: [species_code_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "lic_lsc_fk")
   mal_plant_code_lu                                                                          mal_plant_code_lu?              @relation(fields: [plant_code_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "lic_plnt_fk")
@@ -384,6 +385,7 @@ model mal_licence {
   mal_licence_registrant_xref                                                                mal_licence_registrant_xref[]
   mal_sale_yard_inventory                                                                    mal_sale_yard_inventory[]
   mal_site                                                                                   mal_site[]
+  mal_licence_reissue_date                                                                   mal_licence_reissue_date[]
 
   @@index([company_name], map: "mal_lic_company_name_idx")
   @@index([irma_number], map: "mal_lic_irma_number_idx")
@@ -814,6 +816,22 @@ model mal_dairy_farm_trailer_inspection {
   update_userid          String                 @db.VarChar(63)
   update_timestamp       DateTime               @db.Timestamp(6)
   mal_dairy_farm_trailer mal_dairy_farm_trailer @relation(fields: [trailer_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "dftri_trailer_fk")
+}
+
+model mal_licence_reissue_date {
+  id               Int         @id @default(autoincrement())
+  reissue_date     DateTime    @db.Date
+  licence_id       Int
+  licence_number   String      @db.VarChar(30)
+  licence_type_id  Int
+  irma_number      String      @db.VarChar(5)
+  create_userid    String      @db.VarChar(63)
+  create_timestamp DateTime    @db.Timestamp(6)
+  update_userid    String      @db.VarChar(63)
+  update_timestamp DateTime    @db.Timestamp(6)
+  mal_licence      mal_licence @relation(fields: [licence_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "reissue_lic_fk")
+
+  @@index([licence_id], map: "mal_reissue_licence_id_idx")
 }
 
 model mal_licence_summary_vw {
