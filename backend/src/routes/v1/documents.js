@@ -230,6 +230,60 @@ async function startCertificateJob(licenceIds) {
     },
   };
 
+  /** */
+  // Reissue licences Logic
+  const today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Los_Angeles', year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '-');
+  const licencesToReissue = await prisma.mal_licence.findMany({
+    where: {
+      id: { in: licenceIds },
+      reissue_licence: true
+    },
+    select: {
+      id: true,
+      licence_number: true,
+      licence_type_id: true,
+      irma_number: true,
+    }
+  });
+
+  const currentUser = getCurrentUser();
+  const now = new Date();
+
+  await prisma.$transaction(async (tx) => {
+    for (const licence of licencesToReissue) {
+      console.log(licence)
+      console.log(licence.irma_number)
+      await tx.mal_licence.update({
+        where: { id: licence.id },
+        data: { reissue_date: new Date(today), reissue_licence: false }
+      });
+      // don't create duplicate reissue dates for a license
+      const existing = await tx.mal_licence_reissue_date.findFirst({
+        where: {
+          licence_id: licence.id,
+          reissue_date: new Date(today)
+        }
+      });
+      // if no duplicates, create an entry in the mal_licence_reissue_date table
+      if (!existing) {
+        await tx.mal_licence_reissue_date.create({
+          data: {
+            reissue_date: new Date(today),
+            licence_id: licence.id,
+            licence_number: licence.licence_number.toString(),
+            licence_type_id: licence.licence_type_id,
+            irma_number: licence.irma_number,
+            create_userid: currentUser.idir,
+            create_timestamp: now,
+            update_userid: currentUser.idir,
+            update_timestamp: now
+          }
+        });
+      }
+    }
+  });
+  /** */
+
   const [, , procedureResult, ,] = await prisma.$transaction([
     // ensure selected licences have print_certificate set to true
     prisma.mal_licence.updateMany({
