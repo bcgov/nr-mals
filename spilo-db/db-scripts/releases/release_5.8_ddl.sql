@@ -745,7 +745,7 @@ AS SELECT dft.id AS dairy_farm_tank_id,
     dft.tank_capacity,
     dft.recheck_year,
     dft.create_timestamp AS tank_create_timestamp,
-    (SELECT json_agg(reissue_date ORDER BY reissue_date DESC) FROM mals_app.mal_licence_reissue_date WHERE licence_id = lic.id) AS reissue_dates
+    (SELECT string_agg(to_char(reissue_date, 'FMMon FMDD YYYY'), ', ' ORDER BY reissue_date DESC) FROM mals_app.mal_licence_reissue_date WHERE licence_id = lic.id) AS reissue_dates
    FROM mals_app.mal_licence lic
      JOIN mals_app.mal_licence_type_lu lictyp ON lic.licence_type_id = lictyp.id
      JOIN mals_app.mal_status_code_lu licstat ON lic.status_code_id = licstat.id
