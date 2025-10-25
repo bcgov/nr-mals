@@ -3,7 +3,6 @@ import { describe, it, expect, afterEach, vi } from "vitest";
 const ORIGINAL_ENV = {
   ENVIRONMENT_LABEL: process.env.ENVIRONMENT_LABEL,
   KEYCLOAK_CLIENT_ID: process.env.KEYCLOAK_CLIENT_ID,
-  KEYCLOAK_ALLOWED_AUDIENCES: process.env.KEYCLOAK_ALLOWED_AUDIENCES,
 };
 
 const restoreEnvKey = (key) => {
@@ -24,7 +23,6 @@ afterEach(() => {
   vi.restoreAllMocks();
   restoreEnvKey("ENVIRONMENT_LABEL");
   restoreEnvKey("KEYCLOAK_CLIENT_ID");
-  restoreEnvKey("KEYCLOAK_ALLOWED_AUDIENCES");
 });
 
 describe("keycloak configuration helpers", () => {
@@ -46,6 +44,12 @@ describe("keycloak configuration helpers", () => {
     expect(keycloak.getIssuerUrl()).toBe("https://loginproxy.gov.bc.ca/auth/realms/standard");
   });
 
+  it("defaults client id to mals-4443", async () => {
+    delete process.env.KEYCLOAK_CLIENT_ID;
+    const keycloak = await loadKeycloak();
+    expect(keycloak.config.clientId).toBe("mals-4443");
+  });
+
   it("reads client id override from environment", async () => {
     process.env.KEYCLOAK_CLIENT_ID = "custom-client";
     const keycloak = await loadKeycloak();
@@ -55,19 +59,5 @@ describe("keycloak configuration helpers", () => {
   it("throws when verifying without a token", async () => {
     const keycloak = await loadKeycloak();
     await expect(keycloak.verifyAccessToken()).rejects.toThrow("Missing access token");
-  });
-
-  it("builds an allowed audience list with environment values", async () => {
-    process.env.KEYCLOAK_ALLOWED_AUDIENCES = "mals-4443, custom-aud";
-    const keycloak = await loadKeycloak();
-
-    const audiences = keycloak.__test.buildAllowedAudiences("explicit");
-
-    expect(audiences).toEqual([
-      "explicit",
-      "mals-4443",
-      "custom-aud",
-      keycloak.config.clientId,
-    ]);
   });
 });

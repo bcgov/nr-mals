@@ -1,7 +1,7 @@
 const { discovery, ClientSecretBasic, None } = require('openid-client');
 const jwksClient = require('jwks-rsa');
 const jwt = require('jsonwebtoken');
-const DEFAULT_CLIENT_ID = 'mals-4444';
+const DEFAULT_CLIENT_ID = 'mals-4443';
 
 const getEnvironmentLabel = () => process.env.ENVIRONMENT_LABEL?.toLowerCase() || 'dev';
 const getIssuerUrl = () => {
@@ -25,30 +25,16 @@ const config = {
   },
 };
 
-const parseEnvAudiences = () =>
-  (process.env.KEYCLOAK_ALLOWED_AUDIENCES || '')
-    .split(',')
-    .map((value) => value.trim())
-    .filter(Boolean);
-
-const normalizeAudienceInput = (input) => {
-  if (!input) return [];
-  if (Array.isArray(input)) {
-    return input
-      .map((value) => `${value}`.trim())
-      .filter(Boolean);
+const resolveAudience = (audienceOverride) => {
+  if (!audienceOverride) {
+    return config.clientId;
   }
-  return [`${input}`.trim()].filter(Boolean);
-};
 
-const buildAllowedAudiences = (optionsAudience) => {
-  const audiencesInPriorityOrder = [
-    ...normalizeAudienceInput(optionsAudience),
-    ...parseEnvAudiences(),
-    config.clientId,
-  ];
+  if (Array.isArray(audienceOverride)) {
+    return audienceOverride.filter(Boolean);
+  }
 
-  return Array.from(new Set(audiencesInPriorityOrder)).filter(Boolean);
+  return `${audienceOverride}`.trim();
 };
 
 let cachedEnv;
@@ -129,17 +115,13 @@ const verifyAccessToken = async (token, options = {}) => {
   const header = decodeHeader(token);
   const key = await getJwksClient().getSigningKey(header.kid);
   const publicKey = key.getPublicKey();
-  const allowedAudiences = buildAllowedAudiences(options.audience);
 
   const verifyOptions = {
     issuer: config.realmUrl,
     algorithms: ['RS256'],
     clockTolerance: options.clockToleranceSeconds || 5,
+    audience: resolveAudience(options.audience),
   };
-
-  if (allowedAudiences.length) {
-    verifyOptions.audience = allowedAudiences.length === 1 ? allowedAudiences[0] : allowedAudiences;
-  }
   return jwt.verify(token, publicKey, verifyOptions);
 };
 
@@ -170,9 +152,4 @@ module.exports = {
   verifyAccessToken,
   validateToken,
   config,
-  __test: {
-    parseEnvAudiences,
-    normalizeAudienceInput,
-    buildAllowedAudiences,
-  },
 };
