@@ -71,8 +71,8 @@ app.use(httpContext.middleware);
 // Skip if running tests
 if (process.env.NODE_ENV !== "test") {
   // Initialize connections and exit if unsuccessful
-  initializeConnections().catch(() => {
-    // Errors handled within initializeConnections; prevent unhandled rejection.
+  initializeConnections().catch((err) => {
+    console.error(err);
   });
 }
 
