@@ -37,20 +37,10 @@ const resolveAudience = (audienceOverride) => {
   return `${audienceOverride}`.trim();
 };
 
-let cachedEnv;
 let client;
 let jwks;
-const resetCachedClientsIfNeeded = () => {
-  const currentEnv = getEnvironmentLabel();
-  if (cachedEnv && currentEnv !== cachedEnv) {
-    client = undefined;
-    jwks = undefined;
-  }
-  cachedEnv = currentEnv;
-};
 
 const getJwksClient = () => {
-  resetCachedClientsIfNeeded();
   if (!jwks) {
     jwks = jwksClient({
       jwksUri: config.jwksUri,
@@ -82,7 +72,6 @@ const buildClientAuth = () => {
 };
 
 const initClient = async () => {
-  resetCachedClientsIfNeeded();
   if (client) {
     return client;
   }
@@ -99,20 +88,8 @@ const initClient = async () => {
   }
 };
 
-const decodeHeader = (token) => {
-  const decoded = jwt.decode(token, { complete: true });
-  if (!decoded || !decoded.header || !decoded.header.kid) {
-    throw new Error('Invalid token header');
-  }
-  return decoded.header;
-};
-
 const verifyAccessToken = async (token, options = {}) => {
-  if (!token) {
-    throw new Error('Missing access token');
-  }
-
-  const header = decodeHeader(token);
+  const header = jwt.decode(token, { complete: true }).header;
   const key = await getJwksClient().getSigningKey(header.kid);
   const publicKey = key.getPublicKey();
 
