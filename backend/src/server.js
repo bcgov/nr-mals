@@ -7,6 +7,7 @@ const cookieParser = require("cookie-parser");
 const logger = require("morgan");
 const helmet = require("helmet");
 const cors = require("cors");
+const keycloak = require("./keycloak");
 
 const appRouter = require("./routes/v1");
 const { Error, Log, getGitRevision } = require("./utilities/util");
@@ -70,7 +71,9 @@ app.use(httpContext.middleware);
 // Skip if running tests
 if (process.env.NODE_ENV !== "test") {
   // Initialize connections and exit if unsuccessful
-  initializeConnections();
+  initializeConnections().catch((err) => {
+    console.error(err);
+  });
 }
 
 // Block requests until service is ready
@@ -189,21 +192,20 @@ function shutdown() {
  * Initializes any connections
  * This will force the application to exit if it fails
  */
-function initializeConnections() {
+async function initializeConnections() {
   try {
-    // Empty block
+    await keycloak.initClient();
+    state.ready = true;
+    Log("Service ready to accept traffic");
   } catch (error) {
     Error("Connection initialization failure");
     Error(error.message);
+    state.ready = false;
     if (!state.ready) {
       process.exitCode = 1;
       shutdown();
     }
-  } finally {
-    state.ready = true;
-    if (state.ready) {
-      Log("Service ready to accept traffic");
-    }
+    throw error;
   }
 }
 
