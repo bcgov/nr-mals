@@ -1,5 +1,6 @@
 const express = require("express");
 const { PrismaClient } = require("@prisma/client");
+const { withPrisma } = require("../../db/prisma");
 const collection = require("lodash/collection");
 
 const { populateAuditColumnsCreate, populateAuditColumnsUpdate } = require("../../utilities/auditing");
@@ -1073,31 +1074,39 @@ router.put("/renew/:licenceId(\\d+)", async (req, res, next) => {
 router.put("/checkboxes/:licenceId(\\d+)", async (req, res, next) => {
   const licenceId = parseInt(req.params.licenceId, 10);
 
-  const now = new Date();
+  console.log("DEBUG: Updating checkboxes for licence", licenceId, "by user", req.currentUser?.idir_username);
+  console.log("DEBUG: Request body:", req.body);
 
-  await findLicence(licenceId)
-    .then(async (record) => {
-      if (record === null) {
-        return res.status(404).send({
-          code: 404,
-          description: "The requested licence could not be found.",
-        });
-      }
+  await withPrisma(async (client) => {
+    const record = await client.mal_licence.findUnique({
+      where: {
+        id: licenceId,
+      },
+    });
 
-      await prisma.mal_licence.update({
-        where: { id: licenceId },
-        data: {
-          action_required: req.body.actionRequired,
-          print_certificate: req.body.printLicence,
-          print_renewal: req.body.renewalNotice,
-          reissue_licence: req.body.reissueLicence,
-        },
+    if (record === null) {
+      res.status(404).send({
+        code: 404,
+        description: "The requested licence could not be found.",
       });
+      return;
+    }
 
-      return res.send(true);
-    })
-    .catch(next)
-    .finally(async () => prisma.$disconnect());
+    const data = {};
+    if (req.body.actionRequired !== undefined) data.action_required = req.body.actionRequired;
+    if (req.body.printLicence !== undefined) data.print_certificate = req.body.printLicence;
+    if (req.body.renewalNotice !== undefined) data.print_renewal = req.body.renewalNotice;
+    if (req.body.reissueLicence !== undefined) data.reissue_licence = req.body.reissueLicence;
+
+    console.log("DEBUG: Prisma update data:", data);
+
+    await client.mal_licence.update({
+      where: { id: licenceId },
+      data,
+    });
+
+    res.send(true);
+  }).catch(next);
 });
 
 router.put("/:licenceId(\\d+)", async (req, res, next) => {
