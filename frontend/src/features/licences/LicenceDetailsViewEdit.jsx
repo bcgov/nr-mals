@@ -256,9 +256,14 @@ export default function LicenceDetailsViewEdit({ licence }) {
         break
     }
 
+    const data = { actionRequired, printLicence, renewalNotice }
+    if (licence.data.licenceTypeId === LICENCE_TYPE_ID_DAIRY_FARM) {
+      data.reissueLicence = reissueLicence
+    }
+
     dispatch(
       updateLicenceCheckboxes({
-        data: { actionRequired, printLicence, renewalNotice, reissueLicence },
+        data,
         id: licence.data.id,
       }),
     )
