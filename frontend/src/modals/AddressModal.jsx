@@ -55,13 +55,26 @@ export default function AddressModal({
 
   const form = useForm({
     reValidateMode: "onBlur",
+    defaultValues: {
+      addressKey: address.key,
+      id: address.id,
+      addressLine1: address.addressLine1,
+      addressLine2: address.addressLine2,
+      addressType: address.addressType ?? ADDRESS_TYPES.PRIMARY,
+      city: address.city,
+      country: address.country ?? COUNTRIES.CANADA,
+      phoneFax: address.phoneFax,
+      postalCode: address.postalCode,
+      printToCertificate: address.printToCertificate,
+      province: address.province ?? "BC",
+    },
   });
   const {
     register,
     handleSubmit,
     setValue,
     formState: { errors },
-    watch,
+    watch
   } = form;
 
   const addressTypes = [
@@ -112,7 +125,6 @@ export default function AddressModal({
               <Form.Control
                 type="text"
                 name="addressLine1"
-                defaultValue={address.addressLine1 ?? null}
                 {...register("addressLine1", {
                   required: true,
                 })}
@@ -131,7 +143,6 @@ export default function AddressModal({
               <Form.Control
                 type="text"
                 name="addressLine2"
-                defaultValue={address.addressLine2 ?? null}
                 {...register("addressLine2")}
               />
             </Form.Group>
@@ -146,7 +157,6 @@ export default function AddressModal({
                   <Form.Control
                     type="text"
                     name="city"
-                    defaultValue={address.city ?? null}
                     {...register("city", {
                       required: true,
                     })}
@@ -159,9 +169,12 @@ export default function AddressModal({
               ) : (
                 <Cities
                   cities={cities}
-                  value={watch("city", address.city)}
+                  value={watch("city")}
                   onChange={(e) => setValue("city", e.target.value)}
                   isInvalid={errors.city}
+                  {...register("city", {
+                    required: true,
+                  })}
                 />
               )}
             </Form.Group>

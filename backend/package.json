@@ -52,7 +52,7 @@
     "@types/axios-token-interceptor": "^0.2.1",
     "adm-zip": "^0.5.3",
     "api-problem": "^9.0.0",
-    "axios": "^0.21.0",
+    "axios": "^1.12.2",
     "axios-oauth-client": "^1.4.0",
     "axios-token-interceptor": "^0.2.0",
     "cookie-parser": "~1.4.4",
@@ -66,24 +66,24 @@
     "helmet": "^4.6.0",
     "jsonwebtoken": "^9.0.2",
     "jwks-rsa": "^3.1.0",
-    "keycloak-connect": "^26.1.1",
     "lodash": "^4.17.21",
     "morgan": "~1.9.1",
+    "openid-client": "^6.8.1",
     "read-excel-file": "^5.0.0"
   },
   "devDependencies": {
+    "@vitest/coverage-v8": "^1.6.0",
     "cross-env": "^7.0.3",
     "eslint": "7.21.0",
     "eslint-config-airbnb-base": "^14.2.0",
     "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-import": "^2.22.0",
     "eslint-plugin-prettier": "^3.1.4",
+    "istanbul-badges-readme": "^1.8.5",
     "nodemon": "^2.0.20",
     "prettier": "^2.0.5",
     "prisma": "^6.3.0",
     "shx": "^0.3.3",
-    "vitest": "^1.6.0",
-    "@vitest/coverage-v8": "^1.6.0",
-    "istanbul-badges-readme": "^1.8.5"
+    "vitest": "^1.6.0"
   }
 }
