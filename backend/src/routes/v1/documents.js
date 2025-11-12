@@ -311,8 +311,8 @@ async function startCertificateJob(licenceIds) {
   return { jobId, documents };
 }
 
-async function generateCertificate(documentId) {
-  const document = await getDocument(documentId);
+async function generateCertificate(prisma, documentId) {
+  const document = await getDocument(prisma, documentId);
 
   const templateFileName = getCertificateTemplateName(
     document.document_type,
@@ -542,8 +542,8 @@ async function startRenewalJob(licenceIds) {
   return { jobId, documents };
 }
 
-async function generateRenewal(documentId) {
-  const document = await getDocument(documentId);
+async function generateRenewal(prisma, documentId) {
+  const document = await getDocument(prisma, documentId);
 
   const templateFileName = getRenewalTemplateName(
     document.document_type,
@@ -785,8 +785,8 @@ async function startDairyTankNoticeJob(tankIds) {
   return { jobId, documents };
 }
 
-async function generateDairyTankNotice(documentId) {
-  const document = await getDocument(documentId);
+async function generateDairyTankNotice(prisma, documentId) {
+  const document = await getDocument(prisma, documentId);
 
   const templateFileName = getDairyTankNoticeTemplateName(
     document.document_type
@@ -1063,8 +1063,8 @@ async function startLicenceExpiryJob(startDate, endDate) {
   return { jobId, documents };
 }
 
-async function generateReport(documentId) {
-  const document = await getDocument(documentId);
+async function generateReport(prisma, documentId) {
+  const document = await getDocument(prisma, documentId);
   const templateFileName = getReportsTemplateName(document.document_type);
 
   if (templateFileName === undefined) {
@@ -1168,12 +1168,10 @@ router.post(
   async (req, res, next) => {
     const documentId = parseInt(req.params.documentId, 10);
 
-    await generateCertificate(documentId)
-      .then(({ status, payload }) => {
-        return res.status(status).send(payload);
-      })
-      .catch(next)
-      .finally(async () => prisma.$disconnect());
+    await withPrisma(async (prisma) => {
+      const result = await generateCertificate(prisma, documentId);
+      return res.status(result.status).send(result.payload);
+    }).catch(next);
   }
 );
 
@@ -1238,12 +1236,10 @@ router.post("/renewals/startJob", async (req, res, next) => {
 router.post("/renewals/generate/:documentId(\\d+)", async (req, res, next) => {
   const documentId = parseInt(req.params.documentId, 10);
 
-  await generateRenewal(documentId)
-    .then(({ status, payload }) => {
-      return res.status(status).send(payload);
-    })
-    .catch(next)
-    .finally(async () => prisma.$disconnect());
+  await withPrisma(async (prisma) => {
+    const result = await generateRenewal(prisma, documentId);
+    return res.status(result.status).send(result.payload);
+  }).catch(next);
 });
 
 router.post("/renewals/completeJob/:jobId(\\d+)", async (req, res, next) => {
@@ -1352,12 +1348,10 @@ router.post(
   async (req, res, next) => {
     const documentId = parseInt(req.params.documentId, 10);
 
-    await generateDairyTankNotice(documentId)
-      .then(({ status, payload }) => {
-        return res.status(status).send(payload);
-      })
-      .catch(next)
-      .finally(async () => prisma.$disconnect());
+    await withPrisma(async (prisma) => {
+      const result = await generateDairyTankNotice(prisma, documentId);
+      return res.status(result.status).send(result.payload);
+    }).catch(next);
   }
 );
 
@@ -1608,12 +1602,10 @@ router.post("/reports/startJob/licenceExpiry", async (req, res, next) => {
 router.post("/reports/generate/:documentId(\\d+)", async (req, res, next) => {
   const documentId = parseInt(req.params.documentId, 10);
 
-  await generateReport(documentId)
-    .then(({ status, payload }) => {
-      return res.status(status).send(payload);
-    })
-    .catch(next)
-    .finally(async () => prisma.$disconnect());
+  await withPrisma(async (prisma) => {
+    const result = await generateReport(prisma, documentId);
+    return res.status(result.status).send(result.payload);
+  }).catch(next);
 });
 
 router.get("/jobs/:jobId(\\d+)", async (req, res, next) => {
