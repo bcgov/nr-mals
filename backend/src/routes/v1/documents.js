@@ -1,5 +1,6 @@
 const express = require("express");
 const { PrismaClient } = require("@prisma/client");
+const { withPrisma } = require("../../db/prisma");
 const axios = require("axios");
 const oauth = require("axios-oauth-client");
 const tokenProvider = require("axios-token-interceptor");
@@ -89,7 +90,7 @@ async function getPendingDocuments(jobId) {
   });
 }
 
-async function getDocument(documentId) {
+async function getDocument(prisma, documentId) {
   return prisma.mal_print_job_output.findUnique({
     where: { id: documentId },
     select: {
@@ -663,8 +664,8 @@ async function startDairyNoticeJob(licenceIds, startDate, endDate) {
   return { jobId, documents };
 }
 
-async function generateDairyNotice(documentId) {
-  const document = await getDocument(documentId);
+async function generateDairyNotice(prisma, documentId) {
+  const document = await getDocument(prisma, documentId);
 
   const templateFileName = getDairyNoticeTemplateName(
     document.document_type,
@@ -1297,12 +1298,10 @@ router.post(
   async (req, res, next) => {
     const documentId = parseInt(req.params.documentId, 10);
 
-    await generateDairyNotice(documentId)
-      .then(({ status, payload }) => {
-        return res.status(status).send(payload);
-      })
-      .catch(next)
-      .finally(async () => prisma.$disconnect());
+    await withPrisma(async (prisma) => {
+      const result = await generateDairyNotice(prisma, documentId);
+      return res.status(result.status).send(result.payload);
+    }).catch(next);
   }
 );
 
