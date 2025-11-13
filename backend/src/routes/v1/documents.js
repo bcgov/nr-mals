@@ -1,5 +1,5 @@
 const express = require("express");
-const { PrismaClient } = require("@prisma/client");
+// const { PrismaClient } = require("@prisma/client");
 const { withPrisma } = require("../../db/prisma");
 const axios = require("axios");
 const oauth = require("axios-oauth-client");
