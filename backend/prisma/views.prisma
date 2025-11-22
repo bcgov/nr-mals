@@ -30,6 +30,7 @@ model mal_licence_summary_vw {
   mail_country         String?
   print_certificate    Boolean
   print_renewal        Boolean
+  premises_ids         String[]
 }
 
 model mal_site_detail_vw {

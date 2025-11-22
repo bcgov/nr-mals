@@ -168,6 +168,7 @@ function convertSearchResultToLogicalModel(input) {
     applicationDate: input.application_date,
     issuedOnDate: input.issue_date,
     expiryDate: input.expiry_date,
+    premisesIds: input.premises_ids,
   };
 
   return output;
