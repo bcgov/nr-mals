@@ -59,6 +59,7 @@ model mal_site_detail_vw {
   licence_region_name               String?
   licence_regional_district_number  String?
   licence_regional_district_name    String?
+  premises_id                       String?
 }
 
 model mal_print_dairy_farm_infraction_vw {

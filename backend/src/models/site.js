@@ -103,6 +103,7 @@ function convertSearchResultToLogicalModel(input) {
     licenceRegion: input.licence_region_name,
     licenceDistrictId: input.licence_regional_district_number,
     licenceDistrict: input.licence_regional_district_name,
+    premisesId: input.premises_id
   };
 
   return output;

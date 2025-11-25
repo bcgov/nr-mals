@@ -70,6 +70,7 @@ function formatResultRow(result) {
       <td className="text-nowrap">
         <Link to={licenceUrl}>{result.licenceNumber}</Link>
       </td>
+      <td className="text-nowrap">{result.premisesId}</td>
       <td className="text-nowrap">{result.licenceCity}</td>
       <td className="text-nowrap">{result.licenceRegion}</td>
       <td className="text-nowrap">{result.licenceDistrict}</td>
@@ -174,6 +175,7 @@ export default function SiteResultsPage() {
               <th className="text-nowrap">Registrant Name</th>
               <th className="text-nowrap">Company Name</th>
               <th className="text-nowrap">Licence Number</th>
+              <th className="text-nowrap">Premises ID</th>
               <th className="text-nowrap">City</th>
               <th>Region</th>
               <th>District</th>

@@ -1099,3 +1099,51 @@ AS SELECT lic.id AS licence_id,
                    FROM mals_app.mal_site site
                   WHERE site.licence_id = lic.id) s
           WHERE s.clean_pid IS NOT NULL) site_agg ON true;
+
+----
+-- MALS2-68/70 - Display the Premises ID field in the registrant's sites list / search results
+----
+-- Add site premises id value to the site search view
+
+CREATE OR REPLACE VIEW mals_app.mal_site_detail_vw
+AS SELECT site.id AS site_id_pk,
+    lic.id AS licence_id,
+    site.status_code_id AS site_status_id,
+    sitestat.code_name AS site_status,
+    lic.status_code_id AS licence_status_id,
+    licstat.code_name AS licence_status,
+    lic.licence_type_id,
+    lictyp.licence_type,
+    lic.licence_number,
+    lic.irma_number AS licence_irma_number,
+    site.apiary_site_id,
+        CASE lictyp.licence_type
+            WHEN 'APIARY'::text THEN concat(lic.licence_number, '-', site.apiary_site_id)
+            ELSE NULL::text
+        END AS apiary_site_id_display,
+    site.contact_name AS site_contact_name,
+    site.address_line_1 AS site_address_line_1,
+    reg.first_name AS registrant_first_name,
+    reg.last_name AS registrant_last_name,
+    NULLIF(btrim(concat(reg.first_name, ' ', reg.last_name)), ''::text) AS registrant_first_last,
+        CASE
+            WHEN reg.first_name IS NOT NULL AND reg.last_name IS NOT NULL THEN concat(reg.last_name, ', ', reg.first_name)::character varying
+            ELSE COALESCE(reg.last_name, reg.first_name)
+        END AS registrant_last_first,
+    lic.company_name,
+    reg.primary_phone AS registrant_primary_phone,
+    reg.email_address AS registrant_email_address,
+    lic.city AS licence_city,
+    r.region_number AS licence_region_number,
+    r.region_name AS licence_region_name,
+    rd.district_number AS licence_regional_district_number,
+    rd.district_name AS licence_regional_district_name,
+    site.premises_id as premises_id
+   FROM mals_app.mal_licence lic
+     JOIN mals_app.mal_site site ON lic.id = site.licence_id
+     JOIN mals_app.mal_status_code_lu sitestat ON site.status_code_id = sitestat.id
+     JOIN mals_app.mal_licence_type_lu lictyp ON lic.licence_type_id = lictyp.id
+     JOIN mals_app.mal_status_code_lu licstat ON lic.status_code_id = licstat.id
+     JOIN mals_app.mal_registrant reg ON lic.primary_registrant_id = reg.id
+     LEFT JOIN mals_app.mal_region_lu r ON site.region_id = r.id
+     LEFT JOIN mals_app.mal_regional_district_lu rd ON site.regional_district_id = rd.id;
