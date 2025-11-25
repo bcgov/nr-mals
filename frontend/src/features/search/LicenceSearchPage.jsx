@@ -266,7 +266,7 @@ export default function LicenceSearchPage() {
                   </Form.Group>
                 </Col>
               </Form.Row>
-              <Form.Row className="mb-5">
+              {/* <Form.Row className="mb-5">
                 <Col lg={6}>
                   <Form.Group controlId="premisesId">
                     <Form.Label>Premises ID</Form.Label>
@@ -280,7 +280,7 @@ export default function LicenceSearchPage() {
                     />
                   </Form.Group>
                 </Col>
-              </Form.Row>
+              </Form.Row> */}
               <Form.Row className="mt-5">
                 <Col lg={{ span: 2, offset: 10 }}>
                   <Button type="submit" variant="primary" block>
