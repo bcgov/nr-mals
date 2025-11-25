@@ -58,6 +58,7 @@ function formatResultRow(result) {
       <td className="text-nowrap">{result.registrantLastName}</td>
       <td className="text-nowrap">{result.registrantFirstName}</td>
       <td className="text-nowrap">{result.siteAddressLine1}</td>
+      <td className="text-nowrap">{result.premisesId}</td>
       <td className="text-nowrap">{result.licenceRegion}</td>
       <td className="text-nowrap">{result.licenceDistrict}</td>
     </tr>
@@ -190,6 +191,7 @@ export default function LicenceSites({ licence }) {
               <th className="text-nowrap">Last Name</th>
               <th className="text-nowrap">First Name</th>
               <th className="text-nowrap">Address</th>
+              <th className="text-nowrap">Premises ID</th>
               <th>Region</th>
               <th>District</th>
             </tr>

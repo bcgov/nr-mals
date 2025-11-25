@@ -1019,3 +1019,137 @@ UNION ALL
         END AS infraction_json
    FROM base
   WHERE base.ih_infraction_flag = true AND base.ih_correspondence_code IS NOT NULL;
+
+----
+-- MALS2-69 - Enable search by Premises ID
+----
+-- Add an array of Premises IDs to each licence returned by the licence summary view
+
+CREATE OR REPLACE VIEW mals_app.mal_licence_summary_vw
+AS SELECT lic.id AS licence_id,
+    lic.licence_type_id,
+    lic.status_code_id,
+    lic.primary_registrant_id,
+    lic.region_id,
+    lic.regional_district_id,
+    lic.plant_code_id,
+    lic.species_code_id,
+    lic.licence_number,
+    lic.irma_number,
+    lictyp.licence_type,
+    reg.last_name,
+    reg.first_name,
+    lic.company_name,
+    lic.primary_phone,
+    lic.secondary_phone,
+    lic.fax_number,
+    reg.email_address,
+    stat.code_description AS licence_status,
+    lic.application_date,
+    lic.issue_date,
+    lic.expiry_date,
+    lic.reissue_date,
+    lic.fee_collected,
+    lic.bond_continuation_expiry_date,
+    rgn.region_name,
+    dist.district_name,
+    lic.address_line_1,
+    lic.address_line_2,
+    lic.city,
+    lic.province,
+    lic.postal_code,
+    lic.country,
+    lic.mail_address_line_1,
+    lic.mail_address_line_2,
+    lic.mail_city,
+    lic.mail_province,
+    lic.mail_postal_code,
+    lic.mail_country,
+        CASE
+            WHEN lic.mail_address_line_1 IS NULL THEN btrim(concat(lic.address_line_1, ' ', lic.address_line_2))
+            ELSE btrim(concat(lic.mail_address_line_1, ' ', lic.mail_address_line_2))
+        END AS derived_mailing_address,
+        CASE
+            WHEN lic.mail_address_line_1 IS NULL THEN lic.city
+            ELSE lic.mail_city
+        END AS derived_mailing_city,
+        CASE
+            WHEN lic.mail_address_line_1 IS NULL THEN lic.province
+            ELSE lic.mail_province
+        END AS derived_mailing_province,
+        CASE
+            WHEN lic.mail_address_line_1 IS NULL THEN concat(substr(lic.postal_code::text, 1, 3), ' ', substr(lic.postal_code::text, 4, 3))
+            ELSE concat(substr(lic.mail_postal_code::text, 1, 3), ' ', substr(lic.mail_postal_code::text, 4, 3))
+        END AS derived_mailing_postal_code,
+    sp.code_name AS licence_species_code,
+    lic.action_required,
+    lic.print_certificate,
+    lic.print_renewal,
+    lic.print_dairy_infraction,
+	COALESCE(
+    (
+        SELECT array_agg(DISTINCT clean_pid ORDER BY clean_pid)
+        FROM (
+            SELECT NULLIF(BTRIM(site.premises_id::text), '') AS clean_pid
+            FROM mals_app.mal_site site
+            WHERE site.licence_id = lic.id
+        ) cleaned
+        WHERE clean_pid IS NOT NULL
+    ),
+    ARRAY[]::varchar[]
+	) AS premises_ids
+   FROM mals_app.mal_licence lic
+     JOIN mals_app.mal_licence_type_lu lictyp ON lic.licence_type_id = lictyp.id
+     JOIN mals_app.mal_status_code_lu stat ON lic.status_code_id = stat.id
+     LEFT JOIN mals_app.mal_registrant reg ON lic.primary_registrant_id = reg.id
+     LEFT JOIN mals_app.mal_region_lu rgn ON lic.region_id = rgn.id
+     LEFT JOIN mals_app.mal_regional_district_lu dist ON lic.regional_district_id = dist.id
+     LEFT JOIN mals_app.mal_licence_species_code_lu sp ON lic.species_code_id = sp.id;
+
+----
+-- MALS2-68/70 - Display the Premises ID field in the registrant's sites list / search results
+----
+-- Add site premises id value to the site search view
+
+CREATE OR REPLACE VIEW mals_app.mal_site_detail_vw
+AS SELECT site.id AS site_id_pk,
+    lic.id AS licence_id,
+    site.status_code_id AS site_status_id,
+    sitestat.code_name AS site_status,
+    lic.status_code_id AS licence_status_id,
+    licstat.code_name AS licence_status,
+    lic.licence_type_id,
+    lictyp.licence_type,
+    lic.licence_number,
+    lic.irma_number AS licence_irma_number,
+    site.apiary_site_id,
+        CASE lictyp.licence_type
+            WHEN 'APIARY'::text THEN concat(lic.licence_number, '-', site.apiary_site_id)
+            ELSE NULL::text
+        END AS apiary_site_id_display,
+    site.contact_name AS site_contact_name,
+    site.address_line_1 AS site_address_line_1,
+    reg.first_name AS registrant_first_name,
+    reg.last_name AS registrant_last_name,
+    NULLIF(btrim(concat(reg.first_name, ' ', reg.last_name)), ''::text) AS registrant_first_last,
+        CASE
+            WHEN reg.first_name IS NOT NULL AND reg.last_name IS NOT NULL THEN concat(reg.last_name, ', ', reg.first_name)::character varying
+            ELSE COALESCE(reg.last_name, reg.first_name)
+        END AS registrant_last_first,
+    lic.company_name,
+    reg.primary_phone AS registrant_primary_phone,
+    reg.email_address AS registrant_email_address,
+    lic.city AS licence_city,
+    r.region_number AS licence_region_number,
+    r.region_name AS licence_region_name,
+    rd.district_number AS licence_regional_district_number,
+    rd.district_name AS licence_regional_district_name,
+    site.premises_id as premises_id
+   FROM mals_app.mal_licence lic
+     JOIN mals_app.mal_site site ON lic.id = site.licence_id
+     JOIN mals_app.mal_status_code_lu sitestat ON site.status_code_id = sitestat.id
+     JOIN mals_app.mal_licence_type_lu lictyp ON lic.licence_type_id = lictyp.id
+     JOIN mals_app.mal_status_code_lu licstat ON lic.status_code_id = licstat.id
+     JOIN mals_app.mal_registrant reg ON lic.primary_registrant_id = reg.id
+     LEFT JOIN mals_app.mal_region_lu r ON site.region_id = r.id
+     LEFT JOIN mals_app.mal_regional_district_lu rd ON site.regional_district_id = rd.id;

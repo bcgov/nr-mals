@@ -233,7 +233,7 @@ export default function LicenceSearchPage() {
                   />
                 </Col>
               </Form.Row>
-              <Form.Row className="mb-5">
+              <Form.Row>
                 <Col lg={3}>
                   <CustomDatePicker
                     id="expiryDateFrom"
@@ -262,6 +262,21 @@ export default function LicenceSearchPage() {
                       name="city"
                       defaultValue={defaultParameters.city}
                       onChange={(e) => setParameter("city", e.target.value)}
+                    />
+                  </Form.Group>
+                </Col>
+              </Form.Row>
+              <Form.Row className="mb-5">
+                <Col lg={6}>
+                  <Form.Group controlId="premisesId">
+                    <Form.Label>Premises ID</Form.Label>
+                    <Form.Control
+                      type="text"
+                      name="premisesId"
+                      defaultValue={defaultParameters.premisesId}
+                      onChange={(e) =>
+                        setParameter("premisesId", e.target.value)
+                      }
                     />
                   </Form.Group>
                 </Col>

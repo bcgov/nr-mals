@@ -114,6 +114,43 @@ async function findLicenceRegistrantXref(licenceId, registrantId) {
   });
 }
 
+async function loadPremisesLicenceIds(params) {
+  if (!params || typeof params.premisesId !== "string") {
+    return;
+  }
+
+  if (params.__premisesLicenceIdsLoaded) {
+    return;
+  }
+
+  const trimmedPremisesId = params.premisesId.trim();
+  if (trimmedPremisesId.length === 0) {
+    params.__premisesLicenceIdsLoaded = true;
+    params.premisesLicenceIds = [];
+    return;
+  }
+
+  const matches = await prisma.mal_site.findMany({
+    where: {
+      premises_id: {
+        contains: trimmedPremisesId,
+        mode: "insensitive",
+      },
+    },
+    distinct: ["licence_id"],
+    select: {
+      licence_id: true,
+    },
+  });
+
+  const uniqueLicenceIds = matches
+    .map((site) => site.licence_id)
+    .filter((id) => typeof id === "number");
+
+  params.premisesLicenceIds = Array.from(new Set(uniqueLicenceIds));
+  params.__premisesLicenceIdsLoaded = true;
+}
+
 function getSearchFilter(params) {
   let filter = {};
   if (params.keyword) {
@@ -202,6 +239,14 @@ function getSearchFilter(params) {
     if (params.expiryDateTo) {
       andArray.push({ expiry_date: { lte: params.expiryDateTo } });
     }
+    if (params.premisesId && params.premisesId.trim().length > 0) {
+      const licenceIds = Array.isArray(params.premisesLicenceIds) ? params.premisesLicenceIds : [];
+      if (licenceIds.length === 0) {
+        andArray.push({ licence_id: -1 });
+      } else {
+        andArray.push({ licence_id: { in: licenceIds } });
+      }
+    }
 
     filter = {
       AND: andArray,
@@ -260,6 +305,7 @@ function getDairyTestHistorySearchFilter(params) {
 }
 
 async function countLicences(params) {
+  await loadPremisesLicenceIds(params);
   const filter = getSearchFilter(params);
   return prisma.mal_licence_summary_vw.count({
     where: filter,
@@ -292,6 +338,7 @@ async function countAssociatedLicences(params) {
 }
 
 async function findLicences(params, skip, take) {
+  await loadPremisesLicenceIds(params);
   console.log("DEBUG: findLicences called, prisma is:", !!prisma);
   console.log("DEBUG: prisma.mal_licence_summary_vw is:", !!prisma.mal_licence_summary_vw);
   const filter = getSearchFilter(params);
