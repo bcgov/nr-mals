@@ -1086,19 +1086,25 @@ AS SELECT lic.id AS licence_id,
     lic.print_certificate,
     lic.print_renewal,
     lic.print_dairy_infraction,
-    COALESCE(site_agg.premises_ids, ARRAY[]::character varying[]::text[]) AS premises_ids
+	COALESCE(
+    (
+        SELECT array_agg(DISTINCT clean_pid ORDER BY clean_pid)
+        FROM (
+            SELECT NULLIF(BTRIM(site.premises_id::text), '') AS clean_pid
+            FROM mals_app.mal_site site
+            WHERE site.licence_id = lic.id
+        ) cleaned
+        WHERE clean_pid IS NOT NULL
+    ),
+    ARRAY[]::varchar[]
+	) AS premises_ids
    FROM mals_app.mal_licence lic
      JOIN mals_app.mal_licence_type_lu lictyp ON lic.licence_type_id = lictyp.id
      JOIN mals_app.mal_status_code_lu stat ON lic.status_code_id = stat.id
      LEFT JOIN mals_app.mal_registrant reg ON lic.primary_registrant_id = reg.id
      LEFT JOIN mals_app.mal_region_lu rgn ON lic.region_id = rgn.id
      LEFT JOIN mals_app.mal_regional_district_lu dist ON lic.regional_district_id = dist.id
-     LEFT JOIN mals_app.mal_licence_species_code_lu sp ON lic.species_code_id = sp.id
-     LEFT JOIN LATERAL ( SELECT array_agg(DISTINCT s.clean_pid ORDER BY s.clean_pid) AS premises_ids
-           FROM ( SELECT NULLIF(btrim(site.premises_id::text), ''::text) AS clean_pid
-                   FROM mals_app.mal_site site
-                  WHERE site.licence_id = lic.id) s
-          WHERE s.clean_pid IS NOT NULL) site_agg ON true;
+     LEFT JOIN mals_app.mal_licence_species_code_lu sp ON lic.species_code_id = sp.id;
 
 ----
 -- MALS2-68/70 - Display the Premises ID field in the registrant's sites list / search results
