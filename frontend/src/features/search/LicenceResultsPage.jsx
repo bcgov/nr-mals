@@ -71,7 +71,7 @@ function formatResultRow(result) {
       <td className="text-nowrap">{result.licenceType}</td>
       <td className="text-nowrap">{formatListShorten(result.lastNames)}</td>
       <td className="text-nowrap">{formatListShorten(result.companyNames)}</td>
-      {/* <td style={{ maxWidth: "180px" }}>{formatPremisesIds(result)}</td> */}
+      <td style={{ maxWidth: "180px" }}>{formatPremisesIds(result)}</td>
       <td className="text-nowrap">{result.licenceStatus}</td>
       <td className="text-nowrap">{formatDateString(result.issuedOnDate)}</td>
       <td className="text-nowrap">{formatDateString(result.expiryDate)}</td>
@@ -159,7 +159,7 @@ export default function LicenceResultsPage() {
               <th className="text-nowrap">Licence Type</th>
               <th className="text-nowrap">Last Names</th>
               <th className="text-nowrap">Company Names</th>
-              {/* <th className="text-nowrap">Premises IDs</th> */}
+              <th className="text-nowrap">Premises IDs</th>
               <th className="text-nowrap">Licence Status</th>
               <th className="text-nowrap">Issued On Date</th>
               <th className="text-nowrap">Expiry Date</th>
