@@ -866,6 +866,7 @@ model mal_licence_summary_vw {
   print_certificate    Boolean
   print_renewal        Boolean
   premises_ids         String[]
+  display_premises_id  String?
 }
 
 model mal_site_detail_vw {

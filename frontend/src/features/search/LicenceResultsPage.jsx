@@ -42,25 +42,6 @@ import {
   clearCurrentSite
 } from "../sites/sitesSlice";
 
-function formatPremisesIds(result) {
-  if (!result.premisesIds || result.premisesIds.length === 0) {
-    return <span className="text-muted">-</span>;
-  }
-
-  const premisesList = result.premisesIds.join(", ");
-  const premisesTitle = result.premisesIds.join("\n");
-
-  return (
-    <span
-      className="d-inline-block text-truncate"
-      style={{ maxWidth: "160px" }}
-      title={premisesTitle}
-    >
-      {premisesList}
-    </span>
-  );
-}
-
 function formatResultRow(result) {
   const url = `${LICENSES_PATHNAME}/${result.licenceId}`;
   return (
@@ -71,7 +52,7 @@ function formatResultRow(result) {
       <td className="text-nowrap">{result.licenceType}</td>
       <td className="text-nowrap">{formatListShorten(result.lastNames)}</td>
       <td className="text-nowrap">{formatListShorten(result.companyNames)}</td>
-      <td style={{ maxWidth: "180px" }}>{formatPremisesIds(result)}</td>
+      <td className="text-nowrap">{result.displayPremisesId}</td>
       <td className="text-nowrap">{result.licenceStatus}</td>
       <td className="text-nowrap">{formatDateString(result.issuedOnDate)}</td>
       <td className="text-nowrap">{formatDateString(result.expiryDate)}</td>
@@ -159,7 +140,7 @@ export default function LicenceResultsPage() {
               <th className="text-nowrap">Licence Type</th>
               <th className="text-nowrap">Last Names</th>
               <th className="text-nowrap">Company Names</th>
-              <th className="text-nowrap">Premises IDs</th>
+              <th className="text-nowrap">Premises ID</th>
               <th className="text-nowrap">Licence Status</th>
               <th className="text-nowrap">Issued On Date</th>
               <th className="text-nowrap">Expiry Date</th>
