@@ -1026,6 +1026,8 @@ UNION ALL
 -- Add an array of Premises IDs to each licence returned by the licence summary view
 -- Add a display_premises_id field to show the best matched premises ID based on address, or fallback to lowest site.id
 
+CREATE EXTENSION IF NOT EXISTS fuzzystrmatch;
+
 CREATE OR REPLACE VIEW mals_app.mal_licence_summary_vw
 AS SELECT lic.id AS licence_id,
     lic.licence_type_id,
