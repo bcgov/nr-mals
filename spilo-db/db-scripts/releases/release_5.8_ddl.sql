@@ -1024,6 +1024,9 @@ UNION ALL
 -- MALS2-69 - Enable search by Premises ID
 ----
 -- Add an array of Premises IDs to each licence returned by the licence summary view
+-- Add a display_premises_id field to show the best matched premises ID based on address, or fallback to lowest site.id
+
+CREATE EXTENSION IF NOT EXISTS fuzzystrmatch;
 
 CREATE OR REPLACE VIEW mals_app.mal_licence_summary_vw
 AS SELECT lic.id AS licence_id,
@@ -1086,25 +1089,54 @@ AS SELECT lic.id AS licence_id,
     lic.print_certificate,
     lic.print_renewal,
     lic.print_dairy_infraction,
-	COALESCE(
-    (
-        SELECT array_agg(DISTINCT clean_pid ORDER BY clean_pid)
-        FROM (
-            SELECT NULLIF(BTRIM(site.premises_id::text), '') AS clean_pid
-            FROM mals_app.mal_site site
-            WHERE site.licence_id = lic.id
-        ) cleaned
-        WHERE clean_pid IS NOT NULL
-    ),
-    ARRAY[]::varchar[]
-	) AS premises_ids
-   FROM mals_app.mal_licence lic
-     JOIN mals_app.mal_licence_type_lu lictyp ON lic.licence_type_id = lictyp.id
-     JOIN mals_app.mal_status_code_lu stat ON lic.status_code_id = stat.id
-     LEFT JOIN mals_app.mal_registrant reg ON lic.primary_registrant_id = reg.id
-     LEFT JOIN mals_app.mal_region_lu rgn ON lic.region_id = rgn.id
-     LEFT JOIN mals_app.mal_regional_district_lu dist ON lic.regional_district_id = dist.id
-     LEFT JOIN mals_app.mal_licence_species_code_lu sp ON lic.species_code_id = sp.id;
+    
+    -- All premises IDs
+    COALESCE((
+        SELECT array_agg(DISTINCT cleaned.clean_pid ORDER BY cleaned.clean_pid)
+        FROM (SELECT NULLIF(btrim(site.premises_id::text), '') AS clean_pid
+              FROM mals_app.mal_site site
+              WHERE site.licence_id = lic.id) cleaned
+        WHERE cleaned.clean_pid IS NOT NULL
+    ), ARRAY[]::text[]) AS premises_ids,
+
+    -- address match -> lowest site.id fallback
+    COALESCE(
+        matched_site.premises_id,
+        fallback_site.premises_id
+    )::text AS display_premises_id
+
+FROM mals_app.mal_licence lic
+JOIN mals_app.mal_licence_type_lu lictyp ON lic.licence_type_id = lictyp.id
+JOIN mals_app.mal_status_code_lu stat ON lic.status_code_id = stat.id
+LEFT JOIN mals_app.mal_registrant reg ON lic.primary_registrant_id = reg.id
+LEFT JOIN mals_app.mal_region_lu rgn ON lic.region_id = rgn.id
+LEFT JOIN mals_app.mal_regional_district_lu dist ON lic.regional_district_id = dist.id
+LEFT JOIN mals_app.mal_licence_species_code_lu sp ON lic.species_code_id = sp.id
+
+-- best address match using soundex + house number
+LEFT JOIN LATERAL (
+    SELECT site.premises_id
+    FROM mals_app.mal_site site
+    WHERE site.licence_id = lic.id
+      AND site.premises_id IS NOT NULL
+      AND soundex(site.address_line_1) = soundex(
+            COALESCE(lic.address_line_1, lic.mail_address_line_1)
+          )
+      AND NULLIF(REGEXP_REPLACE(site.address_line_1, '\D.*$', ''), '') 
+          = NULLIF(REGEXP_REPLACE(COALESCE(lic.address_line_1, lic.mail_address_line_1), '\D.*$', ''), '')
+    ORDER BY site.id
+    LIMIT 1
+) matched_site ON true
+
+-- fallback on any site with premises_id, lowest ID is chosen
+LEFT JOIN LATERAL (
+    SELECT site.premises_id
+    FROM mals_app.mal_site site
+    WHERE site.licence_id = lic.id
+      AND site.premises_id IS NOT NULL
+    ORDER BY site.id
+    LIMIT 1
+) fallback_site ON matched_site.premises_id IS NULL;
 
 ----
 -- MALS2-68/70 - Display the Premises ID field in the registrant's sites list / search results
