@@ -1,0 +1,120 @@
+
+model mal_licence_summary_vw {
+  licence_id           Int       @unique
+  licence_type_id      Int
+  status_code_id       Int
+  region_id            Int?
+  regional_district_id Int?
+  licence_number       Int
+  irma_number          String?
+  licence_type         String?
+  last_name            String?
+  company_name         String?
+  email_address        String?
+  licence_status       String?
+  application_date     DateTime?
+  issue_date           DateTime?
+  expiry_date          DateTime?
+  region_name          String?
+  district_name        String?
+  address_line_1       String?
+  address_line_2       String?
+  city                 String?
+  province             String?
+  postal_code          String?
+  country              String?
+  mail_address_line_1  String?
+  mail_address_line_2  String?
+  mail_city            String?
+  mail_province        String?
+  mail_country         String?
+  print_certificate    Boolean
+  print_renewal        Boolean
+}
+
+model mal_site_detail_vw {
+  site_id_pk                        Int       @unique
+  licence_id                        Int
+  site_status                       String
+  site_status_id                    Int
+  licence_number                    Int 
+  licence_irma_number               String?
+  licence_type                      String
+  licence_type_id                   Int
+  licence_status                    String
+  licence_status_id                 Int
+  apiary_site_id                    Int?
+  apiary_site_id_display            String?
+  site_contact_name                 String?
+  site_address_line_1               String?
+  registrant_first_name             String?
+  registrant_last_name              String?
+  registrant_first_last             String?
+  registrant_last_first             String?
+  registrant_primary_phone          String?
+  registrant_email_address          String?
+  licence_city                      String?
+  licence_region_number             String?
+  licence_region_name               String?
+  licence_regional_district_number  String?
+  licence_regional_district_name    String?
+}
+
+model mal_print_dairy_farm_infraction_vw {
+  dairy_farm_test_result_id         Int
+  licence_id                        Int 
+  licence_number                    Int
+  species_sub_code                  String
+  recorded_date                     DateTime
+  correspondence_code               String
+  correspondence_description        String
+  infraction_json                   Json
+
+  @@unique([dairy_farm_test_result_id, licence_id, species_sub_code], name: "mal_print_dairy_farm_infraction_vw_uk")
+}
+
+model mal_print_dairy_farm_tank_recheck_vw {
+  tank_id                           Int       @unique
+  licence_type                      String
+  licence_id                        Int 
+  licence_number                    Int
+  irma_number                       String
+  last_name                         String
+  region_name                       String?
+  district_name                     String?
+  recheck_year                      String
+  print_recheck_notice              Boolean
+  recheck_notice_json               Json
+}
+
+model mal_dairy_farm_trailer_vw {
+  dairy_farm_trailer_id       Int @unique
+  licence_id                  Int?
+  licence_number              Int?
+  irma_number                 String?   @db.VarChar(10)
+  licence_status              String?   @db.VarChar(50)
+  company_name                String?   @db.VarChar(200)
+  derived_licence_holder_name String?
+  registrant_last_first       String?   @db.VarChar
+  address                     String?
+  city                        String?   @db.VarChar(35)
+  province                    String?   @db.VarChar(4)
+  postal_code                 String?   @db.VarChar(6)
+  registrant_primary_phone    String?   @db.VarChar(10)
+  registrant_secondary_phone  String?   @db.VarChar(10)
+  registrant_fax_number       String?   @db.VarChar(10)
+  registrant_email_address    String?   @db.VarChar(128)
+  issue_date                  DateTime? @db.Date
+  issue_date_display          String?
+  licence_trailer_seq         Int?
+  trailer_number              String?   @db.VarChar(50)
+  geographical_division       String?   @db.VarChar(50)
+  serial_number_vin           String?   @db.VarChar(50)
+  license_plate               String?   @db.VarChar(10)
+  trailer_year                Int?      @db.SmallInt
+  trailer_make                String?   @db.VarChar(50)
+  trailer_type                String?   @db.VarChar(50)
+  trailer_capacity            Int?
+  trailer_compartments        Int?      @db.SmallInt
+  trailer_active_flag         Boolean?
+}

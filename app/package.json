@@ -1,0 +1,95 @@
+{
+  "name": "mals",
+  "version": "5.7.0",
+  "private": true,
+  "scripts": {
+    "serve": "nodemon --inspect server/bin/www",
+    "build": "cd client && npm run build",
+    "start": "node server/bin/www",
+    "lint": "npm run lint-server && npm run lint-client",
+    "lint:fix": "npm run lint-server:fix && npm run lint-client:fix",
+    "format": "npm run format-server && npm run format-client",
+    "format:check": "npm run format-server:check && npm run format-client:check",
+    "lint-server": "eslint --ext js,jsx server",
+    "lint-server:fix": "npm run lint-server -- --fix",
+    "format-server": "prettier --write server",
+    "format-server:check": "prettier server --check",
+    "lint-client": "npm run lint --prefix client",
+    "lint-client:fix": "npm run lint:fix --prefix client",
+    "format-client": "npm run format --prefix client",
+    "format-client:check": "npm run format:check --prefix client",
+    "introspect": "npx prisma db pull && shx cat prisma/views.prisma >> prisma/schema.prisma",
+    "all:ci": "npm ci && cd client && npm ci",
+    "all:build": "npm run build",
+    "client:purge": "cd client && npm run purge"
+  },
+  "eslintConfig": {
+    "env": {
+      "commonjs": true,
+      "es2020": true,
+      "node": true
+    },
+    "extends": [
+      "airbnb-base",
+      "prettier"
+    ],
+    "plugins": [
+      "prettier"
+    ],
+    "parserOptions": {
+      "ecmaVersion": 11
+    },
+    "rules": {}
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bcgov/nr-mals.git"
+  },
+  "keywords": [
+    "express",
+    "prisma"
+  ],
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/bcgov/nr-mals/issues"
+  },
+  "homepage": "https://github.com/bcgov/nr-mals#readme",
+  "dependencies": {
+    "@prisma/client": "^4.5.0",
+    "@types/axios-token-interceptor": "^0.2.1",
+    "adm-zip": "^0.5.3",
+    "api-problem": "^9.0.0",
+    "axios": "^0.21.0",
+    "axios-oauth-client": "^1.4.0",
+    "axios-token-interceptor": "^0.2.0",
+    "cookie-parser": "~1.4.4",
+    "cors": "^2.8.5",
+    "debug": "~2.6.9",
+    "dotenv": "^8.2.0",
+    "express": "^4.18.2",
+    "express-http-context": "^1.2.4",
+    "express-rate-limit": "^7.5.0",
+    "express-session": "^1.17.1",
+    "helmet": "^4.6.0",
+    "jsonwebtoken": "^9.0.2",
+    "jwks-rsa": "^3.1.0",
+    "keycloak-connect": "^26.1.1",
+    "keycloak-js": "^26.1.3",
+    "lodash": "^4.17.21",
+    "morgan": "~1.9.1",
+    "react-bootstrap-typeahead": "^5.1.4",
+    "read-excel-file": "^5.0.0"
+  },
+  "devDependencies": {
+    "concurrently": "^5.2.0",
+    "cross-env": "^7.0.3",
+    "eslint": "7.21.0",
+    "eslint-config-airbnb-base": "^14.2.0",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-plugin-import": "^2.22.0",
+    "eslint-plugin-prettier": "^3.1.4",
+    "prettier": "^2.0.5",
+    "prisma": "^4.5.0",
+    "shx": "^0.3.3"
+  }
+}
