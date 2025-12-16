@@ -69,7 +69,6 @@ function navigateToSearchPage(dispatch, page) {
 
 export default function LicenceResultsPage() {
   const results = useSelector(selectLicenceResults);
-  console.log(results)
 
   const dispatch = useDispatch();
 
