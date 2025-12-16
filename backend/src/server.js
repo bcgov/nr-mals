@@ -8,6 +8,7 @@ const logger = require("morgan");
 const helmet = require("helmet");
 const cors = require("cors");
 const keycloak = require("./keycloak");
+const { version: pkgVersion } = require("../package.json");
 
 const appRouter = require("./routes/v1");
 const { Error, Log, getGitRevision } = require("./utilities/util");
@@ -97,7 +98,7 @@ apiRouter.use("/v1/config", (req, res) => {
   const response = {
     environment: process.env.ENVIRONMENT_LABEL || "dev",
     nodeVersion: process.version,
-    version: process.env.npm_package_version,
+    version: process.env.npm_package_version || pkgVersion,
   };
   return res.send(response);
 });
