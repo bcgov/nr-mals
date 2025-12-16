@@ -1,0 +1,132 @@
+const { discovery, ClientSecretBasic, None } = require('openid-client');
+const jwksClient = require('jwks-rsa');
+const jwt = require('jsonwebtoken');
+const DEFAULT_CLIENT_ID = 'mals-4443';
+
+const getEnvironmentLabel = () => process.env.ENVIRONMENT_LABEL?.toLowerCase() || 'dev';
+const getIssuerUrl = () => {
+  const env = getEnvironmentLabel();
+  if (env === 'prod') return 'https://loginproxy.gov.bc.ca/auth/realms/standard';
+  if (env === 'test') return 'https://test.loginproxy.gov.bc.ca/auth/realms/standard';
+  return 'https://dev.loginproxy.gov.bc.ca/auth/realms/standard';
+};
+const config = {
+  get realmUrl() {
+    return getIssuerUrl();
+  },
+  get jwksUri() {
+    return `${getIssuerUrl()}/protocol/openid-connect/certs`;
+  },
+  get clientId() {
+    return process.env.KEYCLOAK_CLIENT_ID || DEFAULT_CLIENT_ID;
+  },
+  get clientSecret() {
+    return process.env.KEYCLOAK_SECRET;
+  },
+};
+
+const resolveAudience = (audienceOverride) => {
+  if (!audienceOverride) {
+    return config.clientId;
+  }
+
+  if (Array.isArray(audienceOverride)) {
+    return audienceOverride.filter(Boolean);
+  }
+
+  return `${audienceOverride}`.trim();
+};
+
+let client;
+let jwks;
+
+const getJwksClient = () => {
+  if (!jwks) {
+    jwks = jwksClient({
+      jwksUri: config.jwksUri,
+      cache: true,
+      rateLimit: true,
+      jwksRequestsPerMinute: 10,
+    });
+  }
+  return jwks;
+};
+
+const buildClientMetadata = () => {
+  const metadata = {
+    token_endpoint_auth_method: config.clientSecret ? 'client_secret_basic' : 'none',
+  };
+
+  if (config.clientSecret) {
+    metadata.client_secret = config.clientSecret;
+  }
+
+  return metadata;
+};
+
+const buildClientAuth = () => {
+  if (config.clientSecret) {
+    return ClientSecretBasic(config.clientSecret);
+  }
+  return None();
+};
+
+const initClient = async () => {
+  if (client) {
+    return client;
+  }
+
+  try {
+    client = await discovery(new URL(config.realmUrl), config.clientId, buildClientMetadata(), buildClientAuth());
+
+    console.log(`DEBUG: ENVIRONMENT_LABEL = ${process.env.ENVIRONMENT_LABEL}`);
+    console.log(`DEBUG: OIDC client initialized for ${config.realmUrl}`);
+    return client;
+  } catch (err) {
+    console.error('Error initializing OIDC client:', err.message);
+    throw err;
+  }
+};
+
+const verifyAccessToken = async (token, options = {}) => {
+  const header = jwt.decode(token, { complete: true }).header;
+  const key = await getJwksClient().getSigningKey(header.kid);
+  const publicKey = key.getPublicKey();
+
+  const verifyOptions = {
+    issuer: config.realmUrl,
+    algorithms: ['RS256'],
+    clockTolerance: options.clockToleranceSeconds || 5,
+    audience: resolveAudience(options.audience),
+  };
+  return jwt.verify(token, publicKey, verifyOptions);
+};
+
+const validateToken = async (req, res, next) => {
+  const authHeader = req.headers.authorization || req.headers.Authorization;
+  if (!authHeader || !authHeader.toLowerCase().startsWith('bearer ')) {
+    return res.status(401).json({ error: 'Missing or invalid token' });
+  }
+
+  const token = authHeader.slice(7).trim();
+  try {
+    const payload = await verifyAccessToken(token);
+    req.currentUser = payload;
+    req.accessToken = token;
+    return next();
+  } catch (err) {
+    console.error('Token validation error:', err.message);
+    return res.status(401).json({ error: 'Invalid token' });
+  }
+};
+
+module.exports = {
+  initClient,
+  getClient: () => client,
+  getIssuerUrl,
+  getEnvironmentLabel,
+  getJwksClient,
+  verifyAccessToken,
+  validateToken,
+  config,
+};

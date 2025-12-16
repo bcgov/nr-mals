@@ -1,0 +1,194 @@
+---
+kind: Template
+apiVersion: template.openshift.io/v1
+labels:
+  app.kubernetes.io/component: app
+  app.kubernetes.io/instance: "${APP_NAME}-${JOB_NAME}"
+  app.kubernetes.io/name: nodejs
+  app.kubernetes.io/part-of: "${APP_NAME}-${JOB_NAME}"
+  app: "${APP_NAME}-${JOB_NAME}"
+  template: "${REPO_NAME}-dc-template"
+metadata:
+  name: "${REPO_NAME}-dc"
+objects:
+  - apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: "${APP_NAME}-${JOB_NAME}"
+      labels:
+        app.kubernetes.io/component: app
+        app.kubernetes.io/instance: "${APP_NAME}-${JOB_NAME}"
+        app.kubernetes.io/name: nodejs
+        app.kubernetes.io/part-of: "${APP_NAME}-${JOB_NAME}"
+        app: "${APP_NAME}-${JOB_NAME}"
+        role: app
+    spec:
+      replicas: 2
+      revisionHistoryLimit: 10
+      selector:
+        matchLabels:
+          app: "${APP_NAME}-${JOB_NAME}"
+          role: app
+      strategy:
+        type: RollingUpdate
+        rollingUpdate:
+          maxUnavailable: 1
+          maxSurge: 1
+      template:
+        metadata:
+          labels:
+            app: "${APP_NAME}-${JOB_NAME}"
+            role: app
+        spec:
+          containers:
+            - name: app
+              image: "${IMAGE_REGISTRY}/${APP_NAME}:${IMAGE_TAG}"
+              imagePullPolicy: IfNotPresent
+              ports:
+                - containerPort: 8080
+                  protocol: TCP
+              livenessProbe:
+                httpGet:
+                  path: "/hc"
+                  port: 8080
+                  scheme: HTTP
+                initialDelaySeconds: 10
+                timeoutSeconds: 1
+                failureThreshold: 3
+              readinessProbe:
+                httpGet:
+                  path: "/hc"
+                  port: 8080
+                  scheme: HTTP
+                initialDelaySeconds: 10
+                timeoutSeconds: 1
+                failureThreshold: 3
+              resources:
+                requests:
+                  cpu: "${CPU_REQUEST}"
+                  memory: "${MEMORY_REQUEST}"
+                limits:
+                  cpu: "${CPU_LIMIT}"
+                  memory: "${MEMORY_LIMIT}"
+              env:
+                - name: PORT
+                  value: "8080"
+                - name: ENVIRONMENT_LABEL
+                  value: "${ENVIRONMENT_LABEL}"
+                - name: CDOGS_URL
+                  valueFrom:
+                    secretKeyRef:
+                      key: CDOGS_URL
+                      name: "${APP_NAME}"
+                - name: CDOGS_OAUTH_URL
+                  valueFrom:
+                    secretKeyRef:
+                      key: CDOGS_OAUTH_URL
+                      name: "${APP_NAME}"
+                - name: CDOGS_CLIENT_ID
+                  valueFrom:
+                    secretKeyRef:
+                      key: CDOGS_CLIENT_ID
+                      name: "${APP_NAME}"
+                - name: CDOGS_SECRET
+                  valueFrom:
+                    secretKeyRef:
+                      key: CDOGS_SECRET
+                      name: "${APP_NAME}"
+                - name: DATABASE_URL
+                  valueFrom:
+                    secretKeyRef:
+                      key: DATABASE_URL
+                      name: "${APP_NAME}"
+                - name: KEYCLOAK_SECRET
+                  valueFrom:
+                    secretKeyRef:
+                      key: KEYCLOAK_SECRET
+                      name: "${APP_NAME}"
+                - name: KEYCLOAK_PUBLIC_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      key: KEYCLOAK_PUBLIC_KEY
+                      name: "${APP_NAME}"
+          restartPolicy: Always
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      name: "${APP_NAME}-${JOB_NAME}"
+    spec:
+      ports:
+        - name: 8080-tcp
+          port: 8080
+          protocol: TCP
+          targetPort: 8080
+      selector:
+        app: "${APP_NAME}-${JOB_NAME}"
+        role: app
+      sessionAffinity: None
+  - apiVersion: v1
+    kind: Route
+    metadata:
+      name: "${APP_NAME}-${JOB_NAME}"
+    spec:
+      host: "${ROUTE_HOST}"
+      port:
+        targetPort: 8080-tcp
+      tls:
+        insecureEdgeTerminationPolicy: Redirect
+        termination: edge
+      to:
+        kind: Service
+        name: "${APP_NAME}-${JOB_NAME}"
+        weight: 100
+      wildcardPolicy: None
+parameters:
+  - name: APP_NAME
+    description: Application name
+    displayName: Application name
+    required: true
+  - name: ENVIRONMENT_LABEL
+    description: Application environment name
+    displayName: Application environment name
+    required: true
+  - name: ROUTE_HOST
+    description: The host the route will use to expose service outside cluster
+    displayName: Route host
+    required: true
+  - name: JOB_NAME
+    description: Job identifier (i.e. 'pr-5' OR 'master')
+    displayName: Job Branch Name
+    required: true
+  - name: IMAGE_REGISTRY
+    description: The base OpenShift docker registry
+    displayName: Docker Image Registry
+    required: true
+    value: ghcr.io/bcgov
+  - name: IMAGE_TAG
+    description: The GitHub commit short SHA
+    displayName: Image Tag
+    required: true
+    value: latest
+  - name: NAMESPACE
+    description: Target namespace reference (i.e. 'wfezkf-dev')
+    displayName: Target Namespace
+    required: true
+  - name: REPO_NAME
+    description: Application repository name
+    displayName: Repository Name
+    required: true
+  - name: CPU_LIMIT
+    description: Limit Peak CPU per pod (in millicores ex. 1000m)
+    displayName: CPU Limit
+    value: 500m
+  - name: CPU_REQUEST
+    description: Requested CPU per pod (in millicores ex. 500m)
+    displayName: CPU Request
+    value: 100m
+  - name: MEMORY_LIMIT
+    description: Limit Peak Memory per pod (in gigabytes Gi or megabytes Mi ex. 2Gi)
+    displayName: Memory Limit
+    value: 1Gi
+  - name: MEMORY_REQUEST
+    description: Requested Memory per pod (in gigabytes Gi or megabytes Mi ex. 500Mi)
+    displayName: Memory Request
+    value: 512Mi
