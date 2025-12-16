@@ -187,8 +187,6 @@ export const startDairyFarmProducersJob = createAsyncThunk(
       const response = await Api.post(
         `documents/reports/startJob/dairyFarmProducers`
       );
-      console.log("response.data");
-      console.log(response.data);
       return response.data;
     } catch (error) {
       if (error instanceof ApiError) {

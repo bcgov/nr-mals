@@ -21,7 +21,6 @@ export default function ReportDairyProducers() {
   const { pendingDocuments } = job;
 
   useEffect(() => {
-    console.log(job.type);
     if (job.id && job.type === REPORTS.DAIRY_FARM_PRODUCERS) {
       dispatch(fetchReportJob());
 

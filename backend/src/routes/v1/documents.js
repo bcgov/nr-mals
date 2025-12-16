@@ -250,8 +250,6 @@ async function startCertificateJob(prisma, licenceIds) {
 
   await prisma.$transaction(async (tx) => {
     for (const licence of licencesToReissue) {
-      console.log(licence)
-      console.log(licence.irma_number)
       await tx.mal_licence.update({
         where: { id: licence.id },
         data: { reissue_date: new Date(today), reissue_licence: false }
