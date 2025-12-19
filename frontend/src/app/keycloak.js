@@ -41,7 +41,7 @@ const getKeycloak = () => {
 
 async function init(environment) {
   try {
-    _keycloak = new Keycloak(GetKeycloakConfig('dev'))
+    _keycloak = new Keycloak(GetKeycloakConfig(environment))
     const authenticated = await _keycloak.init({
       onLoad: 'check-sso',
       pkceMethod: 'S256',

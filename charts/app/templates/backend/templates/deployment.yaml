@@ -40,8 +40,6 @@ spec:
           env:
             - name: LOG_LEVEL
               value: info
-            - name: ENVIRONMENT_LABEL
-              value: {{ .Values.global.environment | default "uat" }}
           ports:
             - name: http
               containerPort: {{ .Values.backend.service.targetPort }}
