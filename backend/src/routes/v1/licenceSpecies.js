@@ -1,5 +1,6 @@
 const express = require("express");
 const { PrismaClient } = require("@prisma/client");
+const { withPrisma } = require("../../db/prisma");
 const collection = require("lodash/collection");
 
 const {
@@ -7,11 +8,10 @@ const {
   populateAuditColumnsUpdate,
 } = require("../../utilities/auditing");
 
-const prisma = new PrismaClient();
 const router = express.Router();
 
-async function fetchSpecies() {
-  const records = await prisma.mal_licence_species_code_lu.findMany();
+async function fetchSpecies(client = prisma) {
+  const records = await client.mal_licence_species_code_lu.findMany();
   return collection.map(records, (r) => ({
     id: r.id,
     licenceTypeId: r.licence_type_id,
@@ -21,8 +21,8 @@ async function fetchSpecies() {
   }));
 }
 
-async function fetchSubSpecies() {
-  const records = await prisma.mal_licence_species_sub_code_lu.findMany();
+async function fetchSubSpecies(client = prisma) {
+  const records = await client.mal_licence_species_sub_code_lu.findMany();
   return collection.map(records, (r) => ({
     id: r.id,
     speciesCodeId: r.species_code_id,
@@ -32,14 +32,14 @@ async function fetchSubSpecies() {
   }));
 }
 
-async function createSpecies(payload) {
-  return prisma.mal_licence_species_code_lu.create({
+async function createSpecies(client = prisma, payload) {
+  return client.mal_licence_species_code_lu.create({
     data: payload,
   });
 }
 
-async function updateSpecies(id, payload) {
-  return prisma.mal_licence_species_code_lu.update({
+async function updateSpecies(client = prisma, id, payload) {
+  return client.mal_licence_species_code_lu.update({
     data: payload,
     where: {
       id: id,
@@ -48,21 +48,17 @@ async function updateSpecies(id, payload) {
 }
 
 router.get("/species", async (req, res, next) => {
-  await fetchSpecies()
-    .then((records) => {
-      return res.send(collection.sortBy(records, (r) => r.id));
-    })
-    .catch(next)
-    .finally(async () => prisma.$disconnect());
+  await withPrisma(async (client) => {
+    const records = await fetchSpecies(client);
+    return res.send(collection.sortBy(records, (r) => r.id));
+  }).catch(next);
 });
 
 router.get("/subspecies", async (req, res, next) => {
-  await fetchSubSpecies()
-    .then((records) => {
-      return res.send(collection.sortBy(records, (r) => r.id));
-    })
-    .catch(next)
-    .finally(async () => prisma.$disconnect());
+  await withPrisma(async (client) => {
+    const records = await fetchSubSpecies(client);
+    return res.send(collection.sortBy(records, (r) => r.id));
+  }).catch(next);
 });
 
 router.post("/species", async (req, res, next) => {
@@ -84,14 +80,12 @@ router.post("/species", async (req, res, next) => {
     update_timestamp: payloadWithAudit.updatedOn,
   };
 
-  await createSpecies(payload)
-    .then(async () => {
-      const species = await fetchSpecies();
-      const subSpecies = await fetchSubSpecies();
-      return res.status(200).send({ species, subSpecies });
-    })
-    .catch(next)
-    .finally(async () => prisma.$disconnect());
+  await withPrisma(async (client) => {
+    await createSpecies(client, payload);
+    const species = await fetchSpecies(client);
+    const subSpecies = await fetchSubSpecies(client);
+    return res.status(200).send({ species, subSpecies });
+  }).catch(next);
 });
 
 router.put("/species/:id(\\d+)", async (req, res, next) => {
@@ -110,14 +104,12 @@ router.put("/species/:id(\\d+)", async (req, res, next) => {
     update_timestamp: payloadWithAudit.updatedOn,
   };
 
-  await updateSpecies(id, payload)
-    .then(async () => {
-      const species = await fetchSpecies();
-      const subSpecies = await fetchSubSpecies();
-      return res.status(200).send({ species, subSpecies });
-    })
-    .catch(next)
-    .finally(async () => prisma.$disconnect());
+  await withPrisma(async (client) => {
+    await updateSpecies(client, id, payload);
+    const species = await fetchSpecies(client);
+    const subSpecies = await fetchSubSpecies(client);
+    return res.status(200).send({ species, subSpecies });
+  }).catch(next);
 });
 
 module.exports = router;

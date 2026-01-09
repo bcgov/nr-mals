@@ -65,8 +65,8 @@ async function findLicence(licenceId, client = prisma) {
   });
 }
 
-async function findLicenceByNumber(licenceNumber) {
-  return prisma.mal_licence.findFirst({
+async function findLicenceByNumber(client = prisma, licenceNumber) {
+  return client.mal_licence.findFirst({
     where: {
       licence_number: licenceNumber,
     },
@@ -114,7 +114,7 @@ async function findLicenceRegistrantXref(licenceId, registrantId) {
   });
 }
 
-async function loadPremisesLicenceIds(params) {
+async function loadPremisesLicenceIds(client = prisma, params) {
   if (!params || typeof params.premisesId !== "string") {
     return;
   }
@@ -130,7 +130,7 @@ async function loadPremisesLicenceIds(params) {
     return;
   }
 
-  const matches = await prisma.mal_site.findMany({
+  const matches = await client.mal_site.findMany({
     where: {
       premises_id: {
         contains: trimmedPremisesId,
@@ -304,24 +304,24 @@ function getDairyTestHistorySearchFilter(params) {
   return filter;
 }
 
-async function countLicences(params) {
-  await loadPremisesLicenceIds(params);
+async function countLicences(client = prisma, params) {
+  await loadPremisesLicenceIds(client, params);
   const filter = getSearchFilter(params);
-  return prisma.mal_licence_summary_vw.count({
+  return client.mal_licence_summary_vw.count({
     where: filter,
   });
 }
 
-async function countInventoryHistory(params) {
+async function countInventoryHistory(client = prisma, params) {
   const filter = getInventoryHistorySearchFilter(params);
   switch (parseInt(params.licenceTypeId)) {
     case constants.LICENCE_TYPE_ID_GAME_FARM: {
-      return prisma.mal_game_farm_inventory.count({
+      return client.mal_game_farm_inventory.count({
         where: filter,
       });
     }
     case constants.LICENCE_TYPE_ID_FUR_FARM: {
-      return prisma.mal_fur_farm_inventory.count({
+      return client.mal_fur_farm_inventory.count({
         where: filter,
       });
     }
@@ -337,23 +337,23 @@ async function countAssociatedLicences(params) {
   });
 }
 
-async function findLicences(params, skip, take) {
-  await loadPremisesLicenceIds(params);
+async function findLicences(client = prisma, params, skip, take) {
+  await loadPremisesLicenceIds(client, params);
   console.log("DEBUG: findLicences called, prisma is:", !!prisma);
   console.log("DEBUG: prisma.mal_licence_summary_vw is:", !!prisma.mal_licence_summary_vw);
   const filter = getSearchFilter(params);
-  return prisma.mal_licence_summary_vw.findMany({
+  return client.mal_licence_summary_vw.findMany({
     where: filter,
     skip,
     take,
   });
 }
 
-async function findInventoryHistory(params, skip, take) {
+async function findInventoryHistory(client = prisma, params, skip, take) {
   const filter = getInventoryHistorySearchFilter(params);
   switch (parseInt(params.licenceTypeId)) {
     case constants.LICENCE_TYPE_ID_GAME_FARM: {
-      return prisma.mal_game_farm_inventory.findMany({
+      return client.mal_game_farm_inventory.findMany({
         where: filter,
         skip,
         take,
@@ -365,7 +365,7 @@ async function findInventoryHistory(params, skip, take) {
       });
     }
     case constants.LICENCE_TYPE_ID_FUR_FARM: {
-      return prisma.mal_fur_farm_inventory.findMany({
+      return client.mal_fur_farm_inventory.findMany({
         where: filter,
         skip,
         take,
@@ -542,13 +542,13 @@ async function deleteInventory(licenceTypeId, id) {
   }
 }
 
-async function createLicenceAssociations(payloads) {
+async function createLicenceAssociations(client = prisma, payloads) {
   return Promise.all(
     payloads.map(async (payload) => {
       let result = null;
 
       // Make sure we don't violate UK
-      const count = await prisma.mal_licence_parent_child_xref.count({
+      const count = await client.mal_licence_parent_child_xref.count({
         where: {
           parent_licence_id:
             payload.mal_licence_mal_licenceTomal_licence_parent_child_xref_parent_licence_id.connect.id,
@@ -557,7 +557,7 @@ async function createLicenceAssociations(payloads) {
       });
 
       if (count === 0) {
-        result = await prisma.mal_licence_parent_child_xref.create({
+        result = await client.mal_licence_parent_child_xref.create({
           data: payload,
         });
       }
@@ -566,16 +566,16 @@ async function createLicenceAssociations(payloads) {
   );
 }
 
-async function deleteLicenceAssociation(id) {
-  return await prisma.mal_licence_parent_child_xref.delete({
+async function deleteLicenceAssociation(client = prisma, id) {
+  return await client.mal_licence_parent_child_xref.delete({
     where: {
       id,
     },
   });
 }
 
-async function fetchLicenceTypeParentChildXref() {
-  const records = await prisma.mal_licence_type_parent_child_xref.findMany({
+async function fetchLicenceTypeParentChildXref(client = prisma) {
+  const records = await client.mal_licence_type_parent_child_xref.findMany({
     where: {
       active_flag: true,
     },
@@ -637,108 +637,100 @@ async function updateLicenceDairyFarmTestResult(dairyTestResultId, payload) {
 router.get("/:licenceId(\\d+)", async (req, res, next) => {
   const licenceId = parseInt(req.params.licenceId, 10);
 
-  await findLicence(licenceId)
-    .then((record) => {
-      if (record === null) {
-        return res.status(404).send({
-          code: 404,
-          description: "The requested licence could not be found.",
-        });
-      }
+  await withPrisma(async (client) => {
+    const record = await findLicence(licenceId, client);
+    if (record === null) {
+      return res.status(404).send({
+        code: 404,
+        description: "The requested licence could not be found.",
+      });
+    }
 
-      const payload = licence.convertToLogicalModel(record);
-      return res.send(payload);
-    })
-    .catch(next)
-    .finally(async () => prisma.$disconnect());
+    const payload = licence.convertToLogicalModel(record);
+    return res.send(payload);
+  }).catch(next);
 });
 
 router.get("/number/:licenceNumber(\\d+)", async (req, res, next) => {
   const licenceNumber = parseInt(req.params.licenceNumber, 10);
 
-  await findLicenceByNumber(licenceNumber)
-    .then((record) => {
-      if (record === null) {
-        return res.status(404).send({
-          code: 404,
-          description: "The requested licence could not be found.",
-        });
-      }
+  await withPrisma(async (client) => {
+    const record = await findLicenceByNumber(client, licenceNumber);
+    if (record === null) {
+      return res.status(404).send({
+        code: 404,
+        description: "The requested licence could not be found.",
+      });
+    }
 
-      const payload = licence.convertToLogicalModel(record);
-      return res.send(payload);
-    })
-    .catch(next)
-    .finally(async () => prisma.$disconnect());
+    const payload = licence.convertToLogicalModel(record);
+    return res.send(payload);
+  }).catch(next);
 });
 
 router.put("/:licenceId(\\d+)/associated", async (req, res, next) => {
   const licenceId = parseInt(req.params.licenceId, 10);
 
-  await findLicence(licenceId)
-    .then(async (record) => {
-      if (record === null) {
-        return res.status(404).send({
-          code: 404,
-          description: "The requested licence could not be found.",
-        });
-      }
+  await withPrisma(async (client) => {
+    const record = await findLicence(licenceId, client);
+    if (record === null) {
+      return res.status(404).send({
+        code: 404,
+        description: "The requested licence could not be found.",
+      });
+    }
 
-      const logicalFind = licence.convertToLogicalModel(record);
+    const logicalFind = licence.convertToLogicalModel(record);
 
-      const filteredRequest = req.body.filter(
-        (x) => logicalFind.associatedLicences.find((y) => y.id === x.childLicenceId) === undefined,
-      );
+    const filteredRequest = req.body.filter(
+      (x) => logicalFind.associatedLicences.find((y) => y.id === x.childLicenceId) === undefined,
+    );
 
-      const createAssociationsPayload = filteredRequest.map((x) =>
-        licence.convertToAssociatedLicencePhysicalModel(populateAuditColumnsCreate(x, new Date()), false),
-      );
+    const createAssociationsPayload = filteredRequest.map((x) =>
+      licence.convertToAssociatedLicencePhysicalModel(populateAuditColumnsCreate(x, new Date()), false),
+    );
 
-      await createLicenceAssociations(createAssociationsPayload);
+    await createLicenceAssociations(client, createAssociationsPayload);
 
-      const updatedRecord = await findLicence(licenceId);
-      const payload = licence.convertToLogicalModel(updatedRecord);
-      return res.send(payload);
-    })
-    .catch(next)
-    .finally(async () => prisma.$disconnect());
+    const updatedRecord = await findLicence(licenceId, client);
+    const payload = licence.convertToLogicalModel(updatedRecord);
+    return res.send(payload);
+  }).catch(next);
 });
 
 router.put("/:licenceId(\\d+)/associated/delete", async (req, res, next) => {
   const licenceId = parseInt(req.params.licenceId, 10);
 
-  await findLicence(licenceId)
-    .then(async (record) => {
-      if (record === null) {
-        return res.status(404).send({
-          code: 404,
-          description: "The requested licence could not be found.",
-        });
-      }
-
-      // Delete associations for both licences
-      const associatedLicences = await prisma.mal_licence_parent_child_xref.findMany({
-        where: {
-          OR: [{ parent_licence_id: licenceId }, { parent_licence_id: req.body.childLicenceId }],
-        },
+  await withPrisma(async (client) => {
+    const record = await findLicence(licenceId, client);
+    if (record === null) {
+      return res.status(404).send({
+        code: 404,
+        description: "The requested licence could not be found.",
       });
+    }
 
-      const associated = associatedLicences.filter(
-        (x) =>
-          (x.parent_licence_id === licenceId && x.child_licence_id === req.body.childLicenceId) ||
-          (x.parent_licence_id === req.body.childLicenceId && x.child_licence_id === licenceId),
-      );
+    // Delete associations for both licences
+    const associatedLicences = await client.mal_licence_parent_child_xref.findMany({
+      where: {
+        OR: [{ parent_licence_id: licenceId }, { parent_licence_id: req.body.childLicenceId }],
+      },
+    });
 
-      for (let i = 0; i < associated.length; ++i) {
-        await deleteLicenceAssociation(associated[i].id);
-      }
+    const associated = associatedLicences.filter(
+      (x) =>
+        (x.parent_licence_id === licenceId && x.child_licence_id === req.body.childLicenceId) ||
+        (x.parent_licence_id === req.body.childLicenceId && x.child_licence_id === licenceId),
+    );
 
-      const updatedRecord = await findLicence(licenceId);
-      const payload = licence.convertToLogicalModel(updatedRecord);
-      return res.send(payload);
-    })
-    .catch(next)
-    .finally(async () => prisma.$disconnect());
+    for (let i = 0; i < associated.length; ++i) {
+      await deleteLicenceAssociation(client, associated[i].id);
+    }
+
+    const updatedRecord = await findLicence(licenceId, client);
+    const payload = licence.convertToLogicalModel(updatedRecord);
+    return res.send(payload);
+  }).catch(next);
 });
 
 router.get("/search", async (req, res, next) => {
@@ -754,29 +746,27 @@ router.get("/search", async (req, res, next) => {
 
   const params = req.query;
 
-  await findLicences(params, skip, size)
-    .then(async (records) => {
-      if (records === null) {
-        return res.status(404).send({
-          code: 404,
-          description: "The requested licence could not be found.",
-        });
-      }
+  await withPrisma(async (client) => {
+    const records = await findLicences(client, params, skip, size);
+    if (records === null) {
+      return res.status(404).send({
+        code: 404,
+        description: "The requested licence could not be found.",
+      });
+    }
 
-      const results = records.map((record) => licence.convertSearchResultToLogicalModel(record));
+    const results = records.map((record) => licence.convertSearchResultToLogicalModel(record));
 
-      const count = await countLicences(params);
+    const count = await countLicences(client, params);
 
-      const payload = {
-        results,
-        page,
-        count,
-      };
+    const payload = {
+      results,
+      page,
+      count,
+    };
 
-      return res.send(payload);
-    })
-    .catch(next)
-    .finally(async () => prisma.$disconnect());
+    return res.send(payload);
+  }).catch(next);
 });
 
 router.get("/associatedsearch", async (req, res, next) => {
@@ -792,53 +782,51 @@ router.get("/associatedsearch", async (req, res, next) => {
 
   const params = req.query;
 
-  let parents;
-  let children;
-  const searchTypeIds = [];
+  await withPrisma(async (client) => {
+    let parents;
+    let children;
+    const searchTypeIds = [];
 
-  // Filter licences based on allowed type
-  if (params.parentOrChildLicenceTypeId !== null) {
-    const parentChildPairs = await fetchLicenceTypeParentChildXref();
+    // Filter licences based on allowed type
+    if (params.parentOrChildLicenceTypeId !== null) {
+      const parentChildPairs = await fetchLicenceTypeParentChildXref(client);
 
-    parents = parentChildPairs.filter((x) => x.parentLicenceTypeId === parseAsInt(params.parentOrChildLicenceTypeId));
-    children = parentChildPairs.filter((x) => x.childLicenceTypeId === parseAsInt(params.parentOrChildLicenceTypeId));
-    for (let i = 0; i < parents.length; ++i) {
-      if (parents[i].activeFlag) {
-        searchTypeIds.push(parents[i].childLicenceTypeId);
+      parents = parentChildPairs.filter((x) => x.parentLicenceTypeId === parseAsInt(params.parentOrChildLicenceTypeId));
+      children = parentChildPairs.filter((x) => x.childLicenceTypeId === parseAsInt(params.parentOrChildLicenceTypeId));
+      for (let i = 0; i < parents.length; ++i) {
+        if (parents[i].activeFlag) {
+          searchTypeIds.push(parents[i].childLicenceTypeId);
+        }
+      }
+      for (let i = 0; i < children.length; ++i) {
+        if (children[i].activeFlag) {
+          searchTypeIds.push(children[i].parentLicenceTypeId);
+        }
       }
     }
-    for (let i = 0; i < children.length; ++i) {
-      if (children[i].activeFlag) {
-        searchTypeIds.push(children[i].parentLicenceTypeId);
-      }
+
+    params.licenceTypeIdArray = [...searchTypeIds];
+
+    const records = await findLicences(client, params, skip, size);
+    if (records === null) {
+      return res.status(404).send({
+        code: 404,
+        description: "The requested licence could not be found.",
+      });
     }
-  }
 
-  params.licenceTypeIdArray = [...searchTypeIds];
+    const results = records.map((record) => licence.convertSearchResultToLogicalModel(record));
 
-  await findLicences(params, skip, size)
-    .then(async (records) => {
-      if (records === null) {
-        return res.status(404).send({
-          code: 404,
-          description: "The requested licence could not be found.",
-        });
-      }
+    const count = await countLicences(client, params);
 
-      const results = records.map((record) => licence.convertSearchResultToLogicalModel(record));
+    const payload = {
+      results,
+      page,
+      count,
+    };
 
-      const count = await countLicences(params);
-
-      const payload = {
-        results,
-        page,
-        count,
-      };
-
-      return res.send(payload);
-    })
-    .catch(next)
-    .finally(async () => prisma.$disconnect());
+    return res.send(payload);
+  }).catch(next);
 });
 
 router.get("/inventoryhistory", async (req, res, next) => {
@@ -854,36 +842,34 @@ router.get("/inventoryhistory", async (req, res, next) => {
 
   const params = req.query;
 
-  await findInventoryHistory(params, skip, size)
-    .then(async (records) => {
-      if (records === null) {
-        return res.status(404).send({
-          code: 404,
-          description: "The requested licence could not be found.",
-        });
-      }
-
-      const licence = await findLicence(parseInt(params.licenceId, 10));
-
-      const results = records.map((record) => {
-        return {
-          ...inventory.convertToLogicalModel(record),
-          speciesCodeId: licence.species_code_id,
-        };
+  await withPrisma(async (client) => {
+    const records = await findInventoryHistory(client, params, skip, size);
+    if (records === null) {
+      return res.status(404).send({
+        code: 404,
+        description: "The requested licence could not be found.",
       });
+    }
 
-      const count = await countInventoryHistory(params);
+    const licence = await findLicence(parseInt(params.licenceId, 10), client);
 
-      const payload = {
-        results,
-        page,
-        count,
+    const results = records.map((record) => {
+      return {
+        ...inventory.convertToLogicalModel(record),
+        speciesCodeId: licence.species_code_id,
       };
+    });
 
-      return res.send(payload);
-    })
-    .catch(next)
-    .finally(async () => prisma.$disconnect());
+    const count = await countInventoryHistory(client, params);
+
+    const payload = {
+      results,
+      page,
+      count,
+    };
+
+    return res.send(payload);
+  }).catch(next);
 });
 
 router.get("/associated", async (req, res, next) => {
