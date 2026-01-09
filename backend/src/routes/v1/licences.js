@@ -102,11 +102,11 @@ async function findLicenceByNumber(client = prisma, licenceNumber) {
   });
 }
 
-async function findLicenceRegistrantXref(licenceId, registrantId) {
+async function findLicenceRegistrantXref(client = prisma, licenceId, registrantId) {
   if (licenceId === undefined || registrantId === undefined) {
     return null;
   }
-  return prisma.mal_licence_registrant_xref.findFirst({
+  return client.mal_licence_registrant_xref.findFirst({
     where: {
       licence_id: licenceId,
       registrant_id: registrantId,
@@ -330,9 +330,9 @@ async function countInventoryHistory(client = prisma, params) {
   }
 }
 
-async function countAssociatedLicences(params) {
+async function countAssociatedLicences(client = prisma, params) {
   const filter = getAssociatedLicencesSearchFilter(params);
-  return prisma.mal_licence_parent_child_xref.count({
+  return client.mal_licence_parent_child_xref.count({
     where: filter,
   });
 }
@@ -381,10 +381,10 @@ async function findInventoryHistory(client = prisma, params, skip, take) {
   }
 }
 
-async function findAssociatedLicences(params, skip, take) {
+async function findAssociatedLicences(client = prisma, params, skip, take) {
   const filter = getAssociatedLicencesSearchFilter(params);
 
-  return prisma.mal_licence_parent_child_xref.findMany({
+  return client.mal_licence_parent_child_xref.findMany({
     where: filter,
     skip,
     take,
@@ -442,16 +442,16 @@ async function updateLicence(licenceId, payload, client = prisma) {
   });
 }
 
-async function createLicence(payload) {
-  return prisma.mal_licence.create({
+async function createLicence(client = prisma, payload) {
+  return client.mal_licence.create({
     data: payload,
   });
 }
 
-async function createRegistrants(payloads) {
+async function createRegistrants(client = prisma, payloads) {
   return Promise.all(
     payloads.map(async (payload) => {
-      const result = await prisma.mal_licence_registrant_xref.create({
+      const result = await client.mal_licence_registrant_xref.create({
         data: payload,
       });
       return result;
@@ -459,21 +459,21 @@ async function createRegistrants(payloads) {
   );
 }
 
-async function deleteRegistrants(licenceId, registrants) {
+async function deleteRegistrants(client = prisma, licenceId, registrants) {
   return Promise.all(
     registrants.map(async (r) => {
-      const xref = await findLicenceRegistrantXref(licenceId, r.id);
+      const xref = await findLicenceRegistrantXref(client, licenceId, r.id);
       if (xref === null) {
         return null;
       }
 
-      await prisma.mal_licence_registrant_xref.delete({
+      await client.mal_licence_registrant_xref.delete({
         where: {
           id: xref.id,
         },
       });
 
-      const result = await prisma.mal_registrant.delete({
+      const result = await client.mal_registrant.delete({
         where: {
           id: r.id,
         },
@@ -484,32 +484,32 @@ async function deleteRegistrants(licenceId, registrants) {
   );
 }
 
-async function updateRegistrants(licenceId, payloads) {
+async function updateRegistrants(client = prisma, licenceId, payloads) {
   return Promise.all(
     payloads.map(async (payload) => {
-      const xref = await findLicenceRegistrantXref(licenceId, payload.where.id);
+      const xref = await findLicenceRegistrantXref(client, licenceId, payload.where.id);
       if (xref === null) {
         return null;
       }
 
-      const result = await prisma.mal_registrant.update(payload);
+      const result = await client.mal_registrant.update(payload);
       return result;
     }),
   );
 }
 
-async function createInventory(licenceTypeId, payloads) {
+async function createInventory(client = prisma, licenceTypeId, payloads) {
   return Promise.all(
     payloads.map(async (payload) => {
       switch (licenceTypeId) {
         case constants.LICENCE_TYPE_ID_GAME_FARM: {
-          const result = await prisma.mal_game_farm_inventory.create({
+          const result = await client.mal_game_farm_inventory.create({
             data: payload,
           });
           return result;
         }
         case constants.LICENCE_TYPE_ID_FUR_FARM: {
-          const result = await prisma.mal_fur_farm_inventory.create({
+          const result = await client.mal_fur_farm_inventory.create({
             data: payload,
           });
           return result;
@@ -521,17 +521,17 @@ async function createInventory(licenceTypeId, payloads) {
   );
 }
 
-async function deleteInventory(licenceTypeId, id) {
+async function deleteInventory(client = prisma, licenceTypeId, id) {
   switch (licenceTypeId) {
     case constants.LICENCE_TYPE_ID_GAME_FARM: {
-      return await prisma.mal_game_farm_inventory.delete({
+      return await client.mal_game_farm_inventory.delete({
         where: {
           id,
         },
       });
     }
     case constants.LICENCE_TYPE_ID_FUR_FARM: {
-      return await prisma.mal_fur_farm_inventory.delete({
+      return await client.mal_fur_farm_inventory.delete({
         where: {
           id,
         },
@@ -589,16 +589,16 @@ async function fetchLicenceTypeParentChildXref(client = prisma) {
   }));
 }
 
-async function countDairyTestResultHistory(params) {
+async function countDairyTestResultHistory(client = prisma, params) {
   const filter = getDairyTestHistorySearchFilter(params);
-  return prisma.mal_dairy_farm_test_result.count({
+  return client.mal_dairy_farm_test_result.count({
     where: filter,
   });
 }
 
-async function findDairyTestResultHistory(params, skip, take) {
+async function findDairyTestResultHistory(client = prisma, params, skip, take) {
   const filter = getDairyTestHistorySearchFilter(params);
-  const result = await prisma.mal_dairy_farm_test_result.findMany({
+  const result = await client.mal_dairy_farm_test_result.findMany({
     where: filter,
     orderBy: [
       {
@@ -618,16 +618,16 @@ async function findDairyTestResultHistory(params, skip, take) {
   return result.slice(skip, skip + take);
 }
 
-async function fetchLicenceDairyFarmTestResult(licenceId) {
-  return await prisma.mal_dairy_farm_test_result.findMany({
+async function fetchLicenceDairyFarmTestResult(client = prisma, licenceId) {
+  return await client.mal_dairy_farm_test_result.findMany({
     where: {
       licence_id: licenceId,
     },
   });
 }
 
-async function updateLicenceDairyFarmTestResult(dairyTestResultId, payload) {
-  const result = await prisma.mal_dairy_farm_test_result.update({
+async function updateLicenceDairyFarmTestResult(client = prisma, dairyTestResultId, payload) {
+  const result = await client.mal_dairy_farm_test_result.update({
     where: { id: dairyTestResultId },
     data: payload,
   });
@@ -885,34 +885,32 @@ router.get("/associated", async (req, res, next) => {
 
   const params = req.query;
 
-  await findAssociatedLicences(params, skip, size)
-    .then(async (records) => {
-      if (records === null) {
-        return res.status(404).send({
-          code: 404,
-          description: "The requested licence could not be found.",
-        });
-      }
+  await withPrisma(async (client) => {
+    const records = await findAssociatedLicences(client, params, skip, size);
+    if (records === null) {
+      return res.status(404).send({
+        code: 404,
+        description: "The requested licence could not be found.",
+      });
+    }
 
-      const results = records.map((record) =>
-        licence.convertAssociatdLicenceToLogicalModel({
-          associatedOnDate: record.create_timestamp,
-          ...record.mal_licence_mal_licenceTomal_licence_parent_child_xref_child_licence_id,
-        }),
-      );
+    const results = records.map((record) =>
+      licence.convertAssociatdLicenceToLogicalModel({
+        associatedOnDate: record.create_timestamp,
+        ...record.mal_licence_mal_licenceTomal_licence_parent_child_xref_child_licence_id,
+      }),
+    );
 
-      const count = await countAssociatedLicences(params);
+    const count = await countAssociatedLicences(client, params);
 
-      const payload = {
-        results,
-        page,
-        count,
-      };
+    const payload = {
+      results,
+      page,
+      count,
+    };
 
-      return res.send(payload);
-    })
-    .catch(next)
-    .finally(async () => prisma.$disconnect());
+    return res.send(payload);
+  }).catch(next);
 });
 
 router.get("/dairytesthistory", async (req, res, next) => {
@@ -928,60 +926,56 @@ router.get("/dairytesthistory", async (req, res, next) => {
 
   const params = req.query;
 
-  await findDairyTestResultHistory(params, skip, size)
-    .then(async (records) => {
-      if (records === null) {
-        return res.status(404).send({
-          code: 404,
-          description: "The requested licence could not be found.",
-        });
-      }
+  await withPrisma(async (client) => {
+    const records = await findDairyTestResultHistory(client, params, skip, size);
+    if (records === null) {
+      return res.status(404).send({
+        code: 404,
+        description: "The requested licence could not be found.",
+      });
+    }
 
-      const results = records.map((record) => dairyTestResult.convertToLogicalModel(record));
+    const results = records.map((record) => dairyTestResult.convertToLogicalModel(record));
 
-      const count = await countDairyTestResultHistory(params);
+    const count = await countDairyTestResultHistory(client, params);
 
-      const payload = {
-        results,
-        page,
-        count,
-      };
+    const payload = {
+      results,
+      page,
+      count,
+    };
 
-      return res.send(payload);
-    })
-    .catch(next)
-    .finally(async () => prisma.$disconnect());
+    return res.send(payload);
+  }).catch(next);
 });
 
 router.get("/dairytestresults/:licenceId(\\d+)", async (req, res, next) => {
-  await fetchLicenceDairyFarmTestResult(parseAsInt(req.params.licenceId, 10))
-    .then(async (records) => {
-      if (records === null) {
-        return res.status(404).send({
-          code: 404,
-          description: "The requested licence could not be found.",
-        });
-      }
-      const results = records.map((record) => dairyTestResult.convertToLogicalModel(record));
+  await withPrisma(async (client) => {
+    const records = await fetchLicenceDairyFarmTestResult(client, parseAsInt(req.params.licenceId, 10));
+    if (records === null) {
+      return res.status(404).send({
+        code: 404,
+        description: "The requested licence could not be found.",
+      });
+    }
+    const results = records.map((record) => dairyTestResult.convertToLogicalModel(record));
 
-      const latestTestJobId = Math.max.apply(
-        Math,
-        results.map(function (o) {
-          return o.testJobId;
-        }),
-      );
+    const latestTestJobId = Math.max.apply(
+      Math,
+      results.map(function (o) {
+        return o.testJobId;
+      }),
+    );
 
-      let latestResults = null;
+    let latestResults = null;
 
-      // -1 is the ID from the MALS1 data load, we dont want to pull the entire set if no other load has occured
-      if (latestTestJobId !== -1) {
-        latestResults = results.filter((x) => x.testJobId === latestTestJobId);
-      }
+    // -1 is the ID from the MALS1 data load, we dont want to pull the entire set if no other load has occured
+    if (latestTestJobId !== -1) {
+      latestResults = results.filter((x) => x.testJobId === latestTestJobId);
+    }
 
-      return res.send(latestResults);
-    })
-    .catch(next)
-    .finally(async () => prisma.$disconnect());
+    return res.send(latestResults);
+  }).catch(next);
 });
 
 router.put("/dairytestresults/:licenceId(\\d+)", async (req, res, next) => {
@@ -997,10 +991,10 @@ router.put("/dairytestresults/:licenceId(\\d+)", async (req, res, next) => {
 
   const updatePayload = dairyTestResult.convertToPhysicalModel(populateAuditColumnsUpdate(req.body, now), true);
 
-  await updateLicenceDairyFarmTestResult(req.body.id, updatePayload)
-    .then(() => res.status(200).send())
-    .catch(next)
-    .finally(async () => prisma.$disconnect());
+  await withPrisma(async (client) => {
+    await updateLicenceDairyFarmTestResult(client, req.body.id, updatePayload);
+    res.status(200).send();
+  }).catch(next);
 });
 
 router.put("/dairyactions/:licenceId(\\d+)", async (req, res, next) => {
@@ -1151,20 +1145,18 @@ router.put("/:licenceId(\\d+)", async (req, res, next) => {
 
   const licencePayload = licence.convertToPhysicalModel(populateAuditColumnsUpdate(req.body, now), true);
 
-  await updateLicence(licenceId, licencePayload)
-    .then(async (record) => {
-      if (record === null) {
-        return res.status(404).send({
-          code: 404,
-          description: "The requested licence could not be found.",
-        });
-      }
+  await withPrisma(async (client) => {
+    const record = await updateLicence(licenceId, licencePayload, client);
+    if (record === null) {
+      return res.status(404).send({
+        code: 404,
+        description: "The requested licence could not be found.",
+      });
+    }
 
-      const payload = licence.convertToLogicalModel(record);
-      return res.send(payload);
-    })
-    .catch(next)
-    .finally(async () => prisma.$disconnect());
+    const payload = licence.convertToLogicalModel(record);
+    return res.send(payload);
+  }).catch(next);
 });
 
 router.put("/:licenceId(\\d+)/registrants", async (req, res, next) => {
@@ -1185,126 +1177,122 @@ router.put("/:licenceId(\\d+)/registrants", async (req, res, next) => {
   );
   const updateRegistrantPayloads = registrantsToUpdate.map((r) => registrant.convertToUpdatePhysicalModel(r, now));
 
-  await findLicence(licenceId)
-    .then(async (record) => {
-      if (record === null) {
-        return res.status(404).send({
-          code: 404,
-          description: "The requested licence could not be found.",
-        });
+  await withPrisma(async (client) => {
+    const record = await findLicence(licenceId, client);
+    if (record === null) {
+      return res.status(404).send({
+        code: 404,
+        description: "The requested licence could not be found.",
+      });
+    }
+
+    await createRegistrants(client, createRegistrantPayloads);
+
+    // Current primary registrant could be getting deleted which would break the FK
+    // Find the oldest registrant not in the deleted list and update primary registrant
+    // FK and company names to that
+
+    const updatedRecord = await findLicence(licenceId, client);
+    const updatedRecordLogical = licence.convertToLogicalModel(updatedRecord);
+    const recordRegistrants = updatedRecordLogical.registrants;
+    recordRegistrants.sort((a, b) =>
+      a.createTimestamp > b.createTimestamp ? 1 : b.createTimestamp > a.createTimestamp ? -1 : 0,
+    );
+
+    let newPrimaryRegistrant;
+    for (let r = 0; r < recordRegistrants.length; ++r) {
+      if (registrantsToDelete.find((x) => x.id === recordRegistrants[r].id) === undefined) {
+        newPrimaryRegistrant = recordRegistrants[r];
+        break;
       }
+    }
 
-      await createRegistrants(createRegistrantPayloads);
+    // Update licence primary registrant id and company name columns
+    updatedRecordLogical.primaryRegistrantId = newPrimaryRegistrant.id;
 
-      return licenceId;
-    })
-    .then(async (licenceId) => {
-      // Current primary registrant could be getting deleted which would break the FK
-      // Find the oldest registrant not in the deleted list and update primary registrant
-      // FK and company names to that
+    // Update issued and expiry dates
+    updatedRecordLogical.issuedOnDate = new Date(updatedRecordLogical.issuedOnDate);
+    updatedRecordLogical.expiryDate = new Date(updatedRecordLogical.expiryDate);
+    if (updatedRecordLogical.bondContinuationExpiryDate !== null) {
+      updatedRecordLogical.bondContinuationExpiryDate = new Date(updatedRecordLogical.bondContinuationExpiryDate);
+    }
 
-      const updatedRecord = await findLicence(licenceId);
-      const updatedRecordLogical = licence.convertToLogicalModel(updatedRecord);
-      const recordRegistrants = updatedRecordLogical.registrants;
-      recordRegistrants.sort((a, b) =>
-        a.createTimestamp > b.createTimestamp ? 1 : b.createTimestamp > a.createTimestamp ? -1 : 0,
-      );
+    // Reset some connect variables for the update
+    updatedRecordLogical.licenceType = updatedRecordLogical.licenceTypeId;
+    updatedRecordLogical.licenceStatus = updatedRecordLogical.licenceStatusId;
+    updatedRecordLogical.regionalDistrict = updatedRecordLogical.regionalDistrictId;
+    updatedRecordLogical.region = updatedRecordLogical.regionId;
 
-      let newPrimaryRegistrant;
-      for (r = 0; r < recordRegistrants.length; ++r) {
-        if (registrantsToDelete.find((x) => x.id === recordRegistrants[r].id) === undefined) {
-          newPrimaryRegistrant = recordRegistrants[r];
-          break;
-        }
-      }
+    const fromBodyPrimaryRegistrant = registrants.find(
+      (x) => x.firstName === newPrimaryRegistrant.firstName && x.lastName === newPrimaryRegistrant.lastName,
+    );
+    updatedRecordLogical.companyName =
+      fromBodyPrimaryRegistrant !== undefined ? fromBodyPrimaryRegistrant.companyName : undefined;
+    updatedRecordLogical.companyNameOverride =
+      fromBodyPrimaryRegistrant !== undefined ? fromBodyPrimaryRegistrant.companyNameOverride : false;
 
-      // Update licence primary registrant id and company name columns
-      updatedRecordLogical.primaryRegistrantId = newPrimaryRegistrant.id;
+    const updatedLicencePayload = licence.convertToPhysicalModel(
+      populateAuditColumnsUpdate(updatedRecordLogical, now, now),
+      true,
+    );
+    await updateLicence(licenceId, updatedLicencePayload, client);
 
-      // Update issued and expiry dates
-      updatedRecordLogical.issuedOnDate = new Date(updatedRecordLogical.issuedOnDate);
-      updatedRecordLogical.expiryDate = new Date(updatedRecordLogical.expiryDate);
-      if (updatedRecordLogical.bondContinuationExpiryDate !== null) {
-        updatedRecordLogical.bondContinuationExpiryDate = new Date(updatedRecordLogical.bondContinuationExpiryDate);
-      }
+    // Complete registrant updates
+    await deleteRegistrants(client, licenceId, registrantsToDelete);
+    await updateRegistrants(client, licenceId, updateRegistrantPayloads);
 
-      // Reset some connect variables for the update
-      updatedRecordLogical.licenceType = updatedRecordLogical.licenceTypeId;
-      updatedRecordLogical.licenceStatus = updatedRecordLogical.licenceStatusId;
-      updatedRecordLogical.regionalDistrict = updatedRecordLogical.regionalDistrictId;
-      updatedRecordLogical.region = updatedRecordLogical.regionId;
+    const finalUpdatedRecord = await findLicence(licenceId, client);
 
-      const fromBodyPrimaryRegistrant = registrants.find(
-        (x) => x.firstName === newPrimaryRegistrant.firstName && x.lastName === newPrimaryRegistrant.lastName,
-      );
-      updatedRecordLogical.companyName =
-        fromBodyPrimaryRegistrant !== undefined ? fromBodyPrimaryRegistrant.companyName : undefined;
-      updatedRecordLogical.companyNameOverride =
-        fromBodyPrimaryRegistrant !== undefined ? fromBodyPrimaryRegistrant.companyNameOverride : false;
-
-      const updatedLicencePayload = licence.convertToPhysicalModel(
-        populateAuditColumnsUpdate(updatedRecordLogical, now, now),
-        true,
-      );
-      await updateLicence(licenceId, updatedLicencePayload);
-
-      return licenceId;
-    })
-    .then(async (licenceId) => {
-      // Complete registrant updates
-      await deleteRegistrants(licenceId, registrantsToDelete);
-      await updateRegistrants(licenceId, updateRegistrantPayloads);
-
-      const updatedRecord = await findLicence(licenceId);
-
-      const payload = licence.convertToLogicalModel(updatedRecord);
-      return res.send(payload);
-    })
-    .catch(next)
-    .finally(async () => prisma.$disconnect());
+    const payload = licence.convertToLogicalModel(finalUpdatedRecord);
+    return res.send(payload);
+  }).catch(next);
 });
 
 router.put("/:licenceId(\\d+)/inventory", async (req, res, next) => {
   const licenceId = parseInt(req.params.licenceId, 10);
   const now = new Date();
 
-  let record = await findLicence(licenceId);
-  record = licence.convertToLogicalModel(record);
+  await withPrisma(async (client) => {
+    let record = await findLicence(licenceId, client);
+    record = licence.convertToLogicalModel(record);
 
-  const inventoryData = req.body.inventory.map((r) => ({
-    ...r,
-    id: parseInt(r.id, 10),
-    licenceId,
-  }));
-  const { totalValue } = req.body;
+    const inventoryData = req.body.inventory.map((r) => ({
+      ...r,
+      id: parseInt(r.id, 10),
+      licenceId,
+    }));
+    const { totalValue } = req.body;
 
-  const inventoryToCreate = inventoryData.filter((r) => r.id === -1);
+    const inventoryToCreate = inventoryData.filter((r) => r.id === -1);
 
-  const createInventoryPayload = inventoryToCreate.map((r) =>
-    inventory.convertToPhysicalModel(populateAuditColumnsCreate(r, now), false, record.licenceTypeId),
-  );
+    const createInventoryPayload = inventoryToCreate.map((r) =>
+      inventory.convertToPhysicalModel(populateAuditColumnsCreate(r, now), false, record.licenceTypeId),
+    );
 
-  await createInventory(record.licenceTypeId, createInventoryPayload);
+    await createInventory(client, record.licenceTypeId, createInventoryPayload);
 
-  const updatedRecord = await findLicence(licenceId);
+    const updatedRecord = await findLicence(licenceId, client);
 
-  const payload = licence.convertToLogicalModel(updatedRecord);
-  return res.send(payload);
+    const payload = licence.convertToLogicalModel(updatedRecord);
+    return res.send(payload);
+  }).catch(next);
 });
 
 router.put("/:licenceId(\\d+)/inventory/delete/:inventoryId(\\d+)", async (req, res, next) => {
   const licenceId = parseInt(req.params.licenceId, 10);
   const inventoryId = parseInt(req.params.inventoryId, 10);
 
-  let record = await findLicence(licenceId);
-  record = licence.convertToLogicalModel(record);
+  await withPrisma(async (client) => {
+    let record = await findLicence(licenceId, client);
+    record = licence.convertToLogicalModel(record);
 
-  await deleteInventory(record.licenceTypeId, inventoryId);
+    await deleteInventory(client, record.licenceTypeId, inventoryId);
 
-  const updatedRecord = await findLicence(licenceId);
+    const updatedRecord = await findLicence(licenceId, client);
 
-  const payload = licence.convertToLogicalModel(updatedRecord);
-  return res.send(payload);
+    const payload = licence.convertToLogicalModel(updatedRecord);
+    return res.send(payload);
+  }).catch(next);
 });
 
 router.post("/", async (req, res, next) => {
@@ -1320,61 +1308,53 @@ router.post("/", async (req, res, next) => {
 
   const { commentText } = req.body;
 
-  await createLicence(licencePayload)
-    .then(async (record) => {
-      const licenceId = record.id;
+  await withPrisma(async (client) => {
+    const record = await createLicence(client, licencePayload);
+    const licenceId = record.id;
 
-      const newRegistrantPayloads = newRegistrants.map((r) =>
-        registrant.convertToNewLicenceXrefPhysicalModel(r, licenceId, now),
+    const newRegistrantPayloads = newRegistrants.map((r) =>
+      registrant.convertToNewLicenceXrefPhysicalModel(r, licenceId, now),
+    );
+    await createRegistrants(client, newRegistrantPayloads);
+
+    if (commentText !== undefined && commentText.length > 0) {
+      const commentPayload = comment.convertToPhysicalModel(
+        populateAuditColumnsCreate({ licenceId, licenceComment: commentText }, now, now),
       );
-      await createRegistrants(newRegistrantPayloads);
+      await comments.createComment(commentPayload);
+    }
 
-      if (commentText !== undefined && commentText.length > 0) {
-        const commentPayload = comment.convertToPhysicalModel(
-          populateAuditColumnsCreate({ licenceId, licenceComment: commentText }, now, now),
-        );
-        await comments.createComment(commentPayload);
-      }
+    // Update the primary registrant id
+    const updatedRecord = await findLicence(licenceId, client);
+    const updatedRecordLogical = licence.convertToLogicalModel(updatedRecord);
+    const { registrants } = updatedRecordLogical;
+    registrants.sort((a, b) =>
+      a.createTimestamp > b.createTimestamp ? 1 : b.createTimestamp > a.createTimestamp ? -1 : 0,
+    );
+    updatedRecordLogical.primaryRegistrantId = registrants[0].id;
 
-      return licenceId;
-    })
-    .then(async (licenceId) => {
-      // Update the primary registrant id
-      const updatedRecord = await findLicence(licenceId);
-      const updatedRecordLogical = licence.convertToLogicalModel(updatedRecord);
-      const { registrants } = updatedRecordLogical;
-      registrants.sort((a, b) =>
-        a.createTimestamp > b.createTimestamp ? 1 : b.createTimestamp > a.createTimestamp ? -1 : 0,
-      );
-      updatedRecordLogical.primaryRegistrantId = registrants[0].id;
+    // Convert dates from string to date objects
+    updatedRecordLogical.issuedOnDate = new Date(updatedRecordLogical.issuedOnDate);
+    updatedRecordLogical.expiryDate = new Date(updatedRecordLogical.expiryDate);
+    if (updatedRecordLogical.bondContinuationExpiryDate !== null) {
+      updatedRecordLogical.bondContinuationExpiryDate = new Date(updatedRecordLogical.bondContinuationExpiryDate);
+    }
 
-      // Convert dates from string to date objects
-      updatedRecordLogical.issuedOnDate = new Date(updatedRecordLogical.issuedOnDate);
-      updatedRecordLogical.expiryDate = new Date(updatedRecordLogical.expiryDate);
-      if (updatedRecordLogical.bondContinuationExpiryDate !== null) {
-        updatedRecordLogical.bondContinuationExpiryDate = new Date(updatedRecordLogical.bondContinuationExpiryDate);
-      }
+    // Reset some connect variables for the update
+    updatedRecordLogical.licenceType = updatedRecordLogical.licenceTypeId;
+    updatedRecordLogical.licenceStatus = updatedRecordLogical.licenceStatusId;
+    updatedRecordLogical.regionalDistrict = updatedRecordLogical.regionalDistrictId;
+    updatedRecordLogical.region = updatedRecordLogical.regionId;
 
-      // Reset some connect variables for the update
-      updatedRecordLogical.licenceType = updatedRecordLogical.licenceTypeId;
-      updatedRecordLogical.licenceStatus = updatedRecordLogical.licenceStatusId;
-      updatedRecordLogical.regionalDistrict = updatedRecordLogical.regionalDistrictId;
-      updatedRecordLogical.region = updatedRecordLogical.regionId;
+    // Send new primary registrant id
+    const updatedLicencePayload = licence.convertToPhysicalModel(
+      populateAuditColumnsUpdate(updatedRecordLogical, now, now),
+      true,
+    );
+    await updateLicence(licenceId, updatedLicencePayload, client);
 
-      // Send new primary registrant id
-      const updatedLicencePayload = licence.convertToPhysicalModel(
-        populateAuditColumnsUpdate(updatedRecordLogical, now, now),
-        true,
-      );
-      await updateLicence(licenceId, updatedLicencePayload);
-
-      return licenceId;
-    })
-    .then((licenceId) => {
-      return res.send({ id: licenceId });
-    })
-    .catch(next)
-    .finally(async () => prisma.$disconnect());
+    return res.send({ id: licenceId });
+  }).catch(next);
 });
 
 module.exports = router;
