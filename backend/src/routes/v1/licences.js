@@ -21,6 +21,7 @@ const prisma = new PrismaClient();
 
 console.log("DEBUG: Prisma client initialized:", !!prisma);
 console.log("DEBUG: Prisma client type:", typeof prisma);
+//
 
 const REGISTRANT_STATUS = {
   NEW: "new",
