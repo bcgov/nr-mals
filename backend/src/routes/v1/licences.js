@@ -28,8 +28,8 @@ const REGISTRANT_STATUS = {
   DELETED: "deleted",
 };
 
-async function findLicence(licenceId) {
-  return prisma.mal_licence.findUnique({
+async function findLicence(licenceId, client = prisma) {
+  return client.mal_licence.findUnique({
     where: {
       id: licenceId,
     },
@@ -405,8 +405,8 @@ async function findAssociatedLicences(params, skip, take) {
   });
 }
 
-async function updateLicence(licenceId, payload) {
-  return prisma.mal_licence.update({
+async function updateLicence(licenceId, payload, client = prisma) {
+  return client.mal_licence.update({
     data: payload,
     where: {
       id: licenceId,
@@ -1079,8 +1079,9 @@ router.put("/renew/:licenceId(\\d+)", async (req, res, next) => {
   const licenceId = parseInt(req.params.licenceId, 10);
   const { issueDate, expiryDate } = req.body;
 
-  await findLicence(licenceId)
-    .then(async (record) => {
+  try {
+    await withPrisma(async (client) => {
+      const record = await findLicence(licenceId, client);
       if (record === null) {
         return res.status(404).send({
           code: 404,
@@ -1108,14 +1109,15 @@ router.put("/renew/:licenceId(\\d+)", async (req, res, next) => {
       const now = new Date();
       const licencePayload = licence.convertToPhysicalModel(populateAuditColumnsUpdate(update, now), true);
 
-      await updateLicence(licenceId, licencePayload);
-      const updatedRecord = await findLicence(licenceId);
+      await updateLicence(licenceId, licencePayload, client);
+      const updatedRecord = await findLicence(licenceId, client);
 
       const payload = licence.convertToLogicalModel(updatedRecord);
       return res.send(payload);
-    })
-    .catch(next)
-    .finally(async () => prisma.$disconnect());
+    });
+  } catch (error) {
+    next(error);
+  }
 });
 
 router.put("/checkboxes/:licenceId(\\d+)", async (req, res, next) => {
