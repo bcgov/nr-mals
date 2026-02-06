@@ -61,7 +61,7 @@ AS $procedure$
 		on lic.id = rslt.licence_id
 		where greatest(spc1_date, scc_date, cry_date, ffa_date, ih_date) 
 				 between ip_start_date and ip_end_date
-		and greatest(spc1_infraction_flag, scc_infraction_flag, cry_infraction_flag, ih_infraction_flag) = true
+		and greatest(spc1_infraction_flag, scc_infraction_flag, cry_infraction_flag, ffa_infraction_flag, ih_infraction_flag) = true
 		),
 	infractions as (
 		select licence_id,
