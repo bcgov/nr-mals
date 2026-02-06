@@ -61,10 +61,11 @@ AS $procedure$
 		on lic.id = rslt.licence_id
 		where greatest(spc1_date, scc_date, cry_date, ffa_date, ih_date) 
 				 between ip_start_date and ip_end_date
-		and greatest(spc1_infraction_flag, scc_infraction_flag, cry_infraction_flag, ffa_infraction_flag, ih_infraction_flag) = true
+		and greatest(spc1_infraction_flag, scc_infraction_flag, cry_infraction_flag, ih_infraction_flag) = true
 		),
 	infractions as (
 		select licence_id,
+			derived_test_date,
 			rtrim(concat(
 				case when num_infractions > 1 then spc1_penalty_issued || ' SPC1, ' else spc1_penalty_issued end, 
 				case when num_infractions > 1 then scc_penalty_issued || ' SCC, ' else scc_penalty_issued end, 
@@ -81,10 +82,11 @@ AS $procedure$
 										  'FFA_Result',             rb.ffa_value,
 										  'IH_Result',              rb.ih_value,
 										  'PenaltyIssued',          inf.penalties_issued)
-						order by irma_number) licence_json
+						order by irma_number, rb.derived_test_date asc) licence_json
 		from result_base rb
 		left join infractions inf
-		on rb.licence_id = inf.licence_id),
+		on rb.licence_id = inf.licence_id
+		and rb.derived_test_date = inf.derived_test_date),
 	result_summary as (
 		select 
 			count(spc1_value) spc1_count,
