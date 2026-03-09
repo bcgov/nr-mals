@@ -217,7 +217,7 @@ router.post("/dairytestresults", async (req, res, next) => {
         in: data.map((x) => x.irmaNumber),
       },
     };
-
+    //
     // Assign licence associations
     const licences = await prisma.mal_licence.findMany({
       where: licenceFilterCriteria,
