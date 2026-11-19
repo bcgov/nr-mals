@@ -16,7 +16,10 @@ import {
 import VerticalField from "../../components/VerticalField";
 
 import { getLicenceTypeConfiguration } from "./licenceTypeUtility";
-import { LICENCE_TYPE_ID_DAIRY_TANK_TRUCK } from "./constants";
+import {
+  LICENCE_TYPE_ID_DAIRY_FARM,
+  LICENCE_TYPE_ID_DAIRY_TANK_TRUCK,
+} from "./constants";
 
 export default function LicenceDetailsView({ licence }) {
   const config = getLicenceTypeConfiguration(licence.licenceTypeId);
@@ -188,6 +191,22 @@ export default function LicenceDetailsView({ licence }) {
               />
             </Col>
           )}
+        </Row>
+      )}
+      {licence.licenceTypeId === LICENCE_TYPE_ID_DAIRY_FARM && (
+        <Row className="mt-3">
+          <Col lg={4}>
+            <VerticalField
+              label="Inspection Date"
+              value={formatDateString(licence.inspectionDate)}
+            />
+          </Col>
+          <Col lg={4}>
+            <VerticalField
+              label="Re-check Date"
+              value={formatDateString(licence.recheckDate)}
+            />
+          </Col>
         </Row>
       )}
     </>

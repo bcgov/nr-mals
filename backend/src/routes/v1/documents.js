@@ -1016,6 +1016,20 @@ async function startDairyTankRecheckJob(prisma, recheckYear) {
   return { jobId, documents };
 }
 
+async function startDairyInspectionRecheckJob(prisma, recheckYear) {
+  const [procedureResult] = await prisma.$transaction([
+    prisma.$queryRawUnsafe(
+      `CALL mals_app.pr_generate_print_json_dairy_farm_inspection_recheck('${recheckYear}', NULL)`
+    ),
+  ]);
+
+  const jobId = procedureResult[0].iop_print_job_id;
+
+  const documents = await getPendingDocuments(prisma, jobId);
+
+  return { jobId, documents };
+}
+
 async function startLicenceTypeLocationJob(prisma, licenceTypeId) {
   const [procedureResult] = await prisma.$transaction([
     prisma.$queryRawUnsafe(
@@ -1515,6 +1529,22 @@ router.post("/reports/startJob/dairyTankRecheck", async (req, res, next) => {
   await withPrisma(async (prisma) => {
     const { jobId, documents } = await startDairyTankRecheckJob(prisma, req.body.recheckYear);
     return res.send({ jobId, documents, type: REPORTS.DAIRY_FARM_TANK });
+  }).catch(next);
+});
+
+router.post("/reports/startJob/dairyInspectionRecheck", async (req, res, next) => {
+  // Year is interpolated into the CALL statement, so only accept a 4-digit year
+  const recheckYear = String(req.body.recheckYear ?? "").trim();
+  if (!/^\d{4}$/.test(recheckYear)) {
+    return res.status(400).send({
+      code: 400,
+      description: "A valid 4-digit re-check year is required.",
+    });
+  }
+
+  await withPrisma(async (prisma) => {
+    const { jobId, documents } = await startDairyInspectionRecheckJob(prisma, recheckYear);
+    return res.send({ jobId, documents, type: REPORTS.DAIRY_FARM_INSPECTION_RECHECK });
   }).catch(next);
 });
 

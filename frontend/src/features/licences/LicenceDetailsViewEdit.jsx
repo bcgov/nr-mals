@@ -78,6 +78,8 @@ export default function LicenceDetailsViewEdit({ licence }) {
     register('applicationDate')
     register('issuedOnDate', { required: true })
     register('expiryDate')
+    register('inspectionDate')
+    register('recheckDate')
   }, [register])
 
   const initialFormValues = {
@@ -93,6 +95,8 @@ export default function LicenceDetailsViewEdit({ licence }) {
     printLicence: licence.data.printLicence,
     reissueLicence: licence.data.reissueLicence,
     renewalNotice: licence.data.renewalNotice,
+    inspectionDate: parseAsDate(licence.data.inspectionDate),
+    recheckDate: parseAsDate(licence.data.recheckDate),
     irmaNumber: licence.data.irmaNumber,
     totalHives: licence.data.totalHives,
     hivesPerApiary: licence.data.hivesPerApiary,
@@ -119,6 +123,8 @@ export default function LicenceDetailsViewEdit({ licence }) {
     setValue('actionRequired', licence.data.actionRequired)
     setValue('printLicence', licence.data.printLicence)
     setValue('renewalNotice', licence.data.renewalNotice)
+    setValue('inspectionDate', parseAsDate(licence.data.inspectionDate))
+    setValue('recheckDate', parseAsDate(licence.data.recheckDate))
     setValue('irmaNumber', licence.data.irmaNumber)
     setValue('totalHives', licence.data.totalHives)
     setValue('hivesPerApiary', licence.data.hivesPerApiary)
@@ -135,6 +141,8 @@ export default function LicenceDetailsViewEdit({ licence }) {
     licence.data.actionRequired,
     licence.data.printLicence,
     licence.data.renewalNotice,
+    licence.data.inspectionDate,
+    licence.data.recheckDate,
     licence.data.irmaNumber,
     licence.data.totalHives,
     licence.data.hivesPerApiary,

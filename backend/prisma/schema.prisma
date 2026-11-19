@@ -368,6 +368,8 @@ model mal_licence {
   update_userid                                                                              String                          @db.VarChar(63)
   update_timestamp                                                                           DateTime                        @db.Timestamp(6)
   reissue_licence                                                                            Boolean?
+  inspection_date                                                                            DateTime?                       @db.Date
+  recheck_date                                                                               DateTime?                       @db.Date
   mal_licence_type_lu                                                                        mal_licence_type_lu             @relation(fields: [licence_type_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "lic_lictyp_fk")
   mal_licence_species_code_lu                                                                mal_licence_species_code_lu?    @relation(fields: [species_code_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "lic_lsc_fk")
   mal_plant_code_lu                                                                          mal_plant_code_lu?              @relation(fields: [plant_code_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "lic_plnt_fk")

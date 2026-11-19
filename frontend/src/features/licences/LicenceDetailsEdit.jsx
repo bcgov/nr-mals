@@ -4,6 +4,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { PatternFormat } from "react-number-format";
 import { Controller } from "react-hook-form";
 import { Button, Form, Col, InputGroup } from "react-bootstrap";
+import { add, isValid } from "date-fns";
 
 import {
   LICENCE_MODE,
@@ -37,6 +38,7 @@ import {
   LICENCE_TYPE_ID_GAME_FARM,
   LICENCE_TYPE_ID_FUR_FARM,
   LICENCE_TYPE_ID_DAIRY_TANK_TRUCK,
+  LICENCE_TYPE_ID_DAIRY_FARM,
 } from "./constants";
 
 import { selectLicenceSpecies } from "../lookups/licenceSpeciesSlice";
@@ -201,6 +203,20 @@ export default function LicenceDetailsEdit({
 
   const handleValueChange = (field, value) => {
     setValue(field, value);
+  };
+
+  // Dairy farms are re-inspected every 2 years. Choosing an inspection date
+  // pre-fills the re-check date, which the user can still override.
+  const [recheckDateDefault, setRecheckDateDefault] = useState(
+    initialValues.recheckDate ?? null
+  );
+  const handleInspectionDateChange = (value) => {
+    setValue("inspectionDate", value);
+    if (value && isValid(value)) {
+      const recheckDate = add(value, { years: 2 });
+      setValue("recheckDate", recheckDate);
+      setRecheckDateDefault(recheckDate);
+    }
   };
 
   const watchPaymentReceived = watch(
@@ -523,6 +539,27 @@ export default function LicenceDetailsEdit({
           </Col>
         </Form.Row>
       )}
+      {mode === LICENCE_MODE.EDIT &&
+        licenceTypeId === LICENCE_TYPE_ID_DAIRY_FARM && (
+          <Form.Row className="mt-3">
+            <Col lg={4}>
+              <CustomDatePicker
+                id="inspectionDate"
+                label="Inspection Date"
+                notifyOnChange={handleInspectionDateChange}
+                defaultValue={initialValues.inspectionDate}
+              />
+            </Col>
+            <Col lg={4}>
+              <CustomDatePicker
+                id="recheckDate"
+                label="Re-check Date"
+                notifyOnChange={handleFieldChange("recheckDate")}
+                defaultValue={recheckDateDefault}
+              />
+            </Col>
+          </Form.Row>
+        )}
     </>
   );
 }
