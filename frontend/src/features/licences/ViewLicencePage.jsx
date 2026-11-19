@@ -24,6 +24,7 @@ import LicenceTrailers from "./LicenceTrailers";
 import LicenceInventory from "./LicenceInventory";
 import LicenceInventoryHistory from "./LicenceInventoryHistory";
 import LicenceDairyTestInventory from "./LicenceDairyTestInventory";
+import LicenceApiaryInspections from "./LicenceApiaryInspections";
 import AssociatedLicences from "./AssociatedLicences";
 import {
   LICENCE_TYPE_ID_GAME_FARM,
@@ -36,6 +37,7 @@ import {
   LICENCE_TYPE_ID_MEDICATED_FEED,
   LICENCE_TYPE_ID_DAIRY_FARM,
   LICENCE_TYPE_ID_DAIRY_TANK_TRUCK,
+  LICENCE_TYPE_ID_APIARY,
 } from "./constants";
 
 import Comments from "../comments/Comments";
@@ -97,6 +99,9 @@ export default function ViewLicencePage() {
         )}
         {licence.data.licenceTypeId === LICENCE_TYPE_ID_DAIRY_FARM ? (
           <LicenceDairyTestInventory licence={licence} />
+        ) : null}
+        {licence.data.licenceTypeId === LICENCE_TYPE_ID_APIARY ? (
+          <LicenceApiaryInspections licence={licence} />
         ) : null}
         {licence.data.licenceTypeId === LICENCE_TYPE_ID_GAME_FARM ||
         licence.data.licenceTypeId === LICENCE_TYPE_ID_FUR_FARM ? (

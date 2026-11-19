@@ -65,6 +65,8 @@ export default function InspectionDetailsViewEdit({
     nosemaResult: null,
     varroaMiteResult: null,
     varroaMiteResultPercent: null,
+    varroaAvgYard: null,
+    inspectionTypeId: null,
     otherResultDescription: null,
     supersInspected: null,
     supersDestroyed: null,
@@ -98,6 +100,8 @@ export default function InspectionDetailsViewEdit({
       "varroaMiteResultPercent",
       inspection.data.varroaMiteResultPercent
     );
+    setValue("varroaAvgYard", inspection.data.varroaAvgYard);
+    setValue("inspectionTypeId", inspection.data.inspectionTypeId ?? "");
     setValue("otherResultDescription", inspection.data.otherResultDescription);
     setValue("supersInspected", inspection.data.supersInspected);
     setValue("supersDestroyed", inspection.data.supersDestroyed);
@@ -119,6 +123,8 @@ export default function InspectionDetailsViewEdit({
     inspection.data.nosemaResult,
     inspection.data.varroaMiteResult,
     inspection.data.varroaMiteResultPercent,
+    inspection.data.varroaAvgYard,
+    inspection.data.inspectionTypeId,
     inspection.data.otherResultDescription,
     inspection.data.supersInspected,
     inspection.data.supersDestroyed,
@@ -177,6 +183,9 @@ export default function InspectionDetailsViewEdit({
           nosemaResult: parseAsInt(data.nosemaResult),
           varroaMiteResult: parseAsInt(data.varroaMiteResult),
           varroaMiteResultPercent: parseAsFloat(data.varroaMiteResultPercent),
+          // ?? null so clearing the field on edit actually clears it
+          varroaAvgYard: parseAsFloat(data.varroaAvgYard) ?? null,
+          inspectionTypeId: parseAsInt(data.inspectionTypeId) ?? null,
           otherResultDescription:
             data.otherResultDescription?.length === 0
               ? null

@@ -41,6 +41,7 @@ import Reports from "./features/reports/Reports";
 import AdminConfig from "./features/admin/AdminConfig";
 import AdminDairyTestResults from "./features/admin/AdminDairyTestResults";
 import AdminPremisesId from "./features/admin/AdminPremisesId";
+import AdminApiaryInspectionImport from "./features/admin/AdminApiaryInspectionImport";
 
 import ViewTrailerPage from "./features/trailers/ViewTrailerPage";
 
@@ -178,6 +179,12 @@ function App() {
             </ProtectedRoute>
             <ProtectedRoute path={`${Constant.ADMIN_PREMISES_ID_PATHNAME}`}>
               <AdminPremisesId />
+            </ProtectedRoute>
+            <ProtectedRoute
+              path={`${Constant.ADMIN_APIARY_INSPECTIONS_PATHNAME}`}
+              validRoles={[Constant.SYSTEM_ROLES.SYSTEM_ADMIN]}
+            >
+              <AdminApiaryInspectionImport />
             </ProtectedRoute>
             <ProtectedRoute path="/">
               <Redirect to={`${Constant.SEARCH_LICENSES_PATHNAME}`} />

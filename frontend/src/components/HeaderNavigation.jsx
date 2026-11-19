@@ -132,6 +132,11 @@ function HeaderNavigation() {
                     <DropdownNavLink to={Constant.ADMIN_PREMISES_ID_PATHNAME}>
                       Premises ID
                     </DropdownNavLink>
+                    <DropdownNavLink
+                      to={Constant.ADMIN_APIARY_INSPECTIONS_PATHNAME}
+                    >
+                      Apiary Inspections
+                    </DropdownNavLink>
                   </HeaderDropdown>
                 </RenderOnRole>
               </Nav>

@@ -31,6 +31,14 @@ export default function ApiaryInspectionDetailsView({ inspection, site }) {
       <Row>
         <Col lg={3}>
           <VerticalField
+            label="Inspection Type"
+            value={inspection.inspectionTypeDescription}
+          />
+        </Col>
+      </Row>
+      <Row>
+        <Col lg={3}>
+          <VerticalField
             label="Live Colonies in Yard"
             value={inspection.liveColonies}
           />
@@ -94,16 +102,22 @@ export default function ApiaryInspectionDetailsView({ inspection, site }) {
             </Col>
           </Row>
           <Row>
-            <Col lg={6}>
+            <Col lg={4}>
               <VerticalField
                 label="Varroa Mites"
                 value={inspection.varroaMiteResult}
               />
             </Col>
-            <Col lg={6}>
+            <Col lg={4}>
               <VerticalField
                 label="Varroa Mites (%)"
                 value={inspection.varroaMiteResultPercent}
+              />
+            </Col>
+            <Col lg={4}>
+              <VerticalField
+                label="Varroa Avg for Yard"
+                value={inspection.varroaAvgYard}
               />
             </Col>
           </Row>

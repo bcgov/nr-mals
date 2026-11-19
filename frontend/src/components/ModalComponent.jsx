@@ -12,6 +12,9 @@ import LicenceSearchModal, {
 import DairyTestHistoryModal, {
   DAIRY_TEST_HISTORY_SEARCH,
 } from "../modals/DairyTestHistoryModal";
+import ApiaryInspectionHistoryModal, {
+  APIARY_INSPECTION_HISTORY,
+} from "../modals/ApiaryInspectionHistoryModal";
 import UserModal, { USER } from "../modals/UserModal";
 import DairyFarmTestThresholdsModal, {
   THRESHOLD,
@@ -34,6 +37,7 @@ const MODAL_COMPONENTS = {
   [COMMENT]: CommentModal,
   [LICENCE_SEARCH]: LicenceSearchModal,
   [DAIRY_TEST_HISTORY_SEARCH]: DairyTestHistoryModal,
+  [APIARY_INSPECTION_HISTORY]: ApiaryInspectionHistoryModal,
   [USER]: UserModal,
   [THRESHOLD]: DairyFarmTestThresholdsModal,
   [LICENCE_TYPE]: LicenceTypeModal,

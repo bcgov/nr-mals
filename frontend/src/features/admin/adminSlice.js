@@ -142,6 +142,25 @@ export const updatePremisesIdResults = createAsyncThunk(
   }
 );
 
+export const importApiaryInspections = createAsyncThunk(
+  "admin/importApiaryInspections",
+  async (data, thunkApi) => {
+    try {
+      const response = await Api.post(
+        `admin/apiaryinspectionimport`,
+        data,
+        240000
+      ); // Override timeout to 4 minutes for large imports
+      return response.data;
+    } catch (error) {
+      if (error instanceof ApiError) {
+        return thunkApi.rejectWithValue(error.serialize());
+      }
+      return thunkApi.rejectWithValue({ code: -1, description: error.message });
+    }
+  }
+);
+
 export const adminSlice = createSlice({
   name: "admin",
   initialState: {
@@ -170,6 +189,11 @@ export const adminSlice = createSlice({
       error: undefined,
       status: REQUEST_STATUS.IDLE,
     },
+    apiaryInspectionImport: {
+      data: undefined,
+      error: undefined,
+      status: REQUEST_STATUS.IDLE,
+    },
   },
   reducers: {
     clearDairyTestResults: (state) => {
@@ -181,6 +205,11 @@ export const adminSlice = createSlice({
       state.premisesIdResults.data = undefined;
       state.premisesIdResults.error = undefined;
       state.premisesIdResults.status = REQUEST_STATUS.IDLE;
+    },
+    clearApiaryInspectionImport: (state) => {
+      state.apiaryInspectionImport.data = undefined;
+      state.apiaryInspectionImport.error = undefined;
+      state.apiaryInspectionImport.status = REQUEST_STATUS.IDLE;
     },
   },
   extraReducers: {
@@ -296,6 +325,20 @@ export const adminSlice = createSlice({
       state.premisesIdResults.error = action.payload;
       state.premisesIdResults.status = REQUEST_STATUS.REJECTED;
     },
+    [importApiaryInspections.pending]: (state) => {
+      state.apiaryInspectionImport.error = undefined;
+      state.apiaryInspectionImport.status = REQUEST_STATUS.PENDING;
+    },
+    [importApiaryInspections.fulfilled]: (state, action) => {
+      state.apiaryInspectionImport.data = action.payload;
+      state.apiaryInspectionImport.error = undefined;
+      state.apiaryInspectionImport.status = REQUEST_STATUS.FULFILLED;
+    },
+    [importApiaryInspections.rejected]: (state, action) => {
+      state.apiaryInspectionImport.data = undefined;
+      state.apiaryInspectionImport.error = action.payload;
+      state.apiaryInspectionImport.status = REQUEST_STATUS.REJECTED;
+    },
   },
 });
 
@@ -305,9 +348,15 @@ export const selectDairyTestResults = (state) => state.admin.dairyTestResults;
 export const selectDairyTestThresholds = (state) =>
   state.admin.dairyTestThresholds;
 export const selectPremisesIdResults = (state) => state.admin.premisesIdResults;
+export const selectApiaryInspectionImport = (state) =>
+  state.admin.apiaryInspectionImport;
 
 const { actions, reducer } = adminSlice;
 
-export const { clearDairyTestResults, clearPremisesIdResults } = actions;
+export const {
+  clearDairyTestResults,
+  clearPremisesIdResults,
+  clearApiaryInspectionImport,
+} = actions;
 
 export default reducer;

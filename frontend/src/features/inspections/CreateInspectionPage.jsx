@@ -1,11 +1,20 @@
 import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { Redirect, useHistory, useParams } from "react-router-dom";
+import {
+  Redirect,
+  useHistory,
+  useLocation,
+  useParams,
+} from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { Container, Form } from "react-bootstrap";
 import { startOfToday } from "date-fns";
 
-import { REQUEST_STATUS, SITES_PATHNAME } from "../../utilities/constants";
+import {
+  REQUEST_STATUS,
+  SITES_PATHNAME,
+  LICENSES_PATHNAME,
+} from "../../utilities/constants";
 import { parseAsInt, parseAsFloat } from "../../utilities/parsing";
 
 import ErrorMessageRow from "../../components/ErrorMessageRow";
@@ -48,6 +57,9 @@ function submissionController(licence, site, setError, clearErrors, dispatch) {
           nosemaResult: parseAsInt(data.nosemaResult),
           varroaMiteResult: parseAsInt(data.varroaMiteResult),
           varroaMiteResultPercent: parseAsFloat(data.varroaMiteResultPercent),
+          // ?? null so clearing the field on edit actually clears it
+          varroaAvgYard: parseAsFloat(data.varroaAvgYard) ?? null,
+          inspectionTypeId: parseAsInt(data.inspectionTypeId) ?? null,
           otherResultDescription:
             data.otherResultDescription.length === 0
               ? null
@@ -85,6 +97,8 @@ const initialFormValues = {
   nosemaResult: null,
   varroaMiteResult: null,
   varroaMiteResultPercent: null,
+  varroaAvgYard: null,
+  inspectionTypeId: null,
   otherResultDescription: null,
   supersInspected: null,
   supersDestroyed: null,
@@ -96,6 +110,13 @@ export default function CreateInspectionPage() {
   const dispatch = useDispatch();
 
   const { id } = useParams();
+  const location = useLocation();
+
+  // When launched from the licence page's Inspection Details section, return there afterwards
+  const returnToLicenceId = location.state?.returnToLicenceId;
+  const returnPath = returnToLicenceId
+    ? `${LICENSES_PATHNAME}/${returnToLicenceId}`
+    : `${SITES_PATHNAME}/${id}`;
 
   const site = useSelector(selectCurrentSite);
   const licence = useSelector(selectCurrentLicence);
@@ -117,7 +138,7 @@ export default function CreateInspectionPage() {
   }, [dispatch]);
 
   const onCancel = () => {
-    history.push(`${SITES_PATHNAME}/${id}`);
+    history.push(returnPath);
   };
 
   const { onSubmit } = submissionController(
@@ -138,7 +159,7 @@ export default function CreateInspectionPage() {
   const submissionLabel = submitting ? "Submitting..." : "Create";
 
   if (inspection.status === REQUEST_STATUS.FULFILLED) {
-    return <Redirect to={`${SITES_PATHNAME}/${id}`} />;
+    return <Redirect to={returnPath} />;
   }
 
   let content;

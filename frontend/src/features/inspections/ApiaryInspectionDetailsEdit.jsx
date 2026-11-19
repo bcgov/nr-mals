@@ -1,9 +1,15 @@
-import React from "react";
+import React, { useEffect } from "react";
 import PropTypes from "prop-types";
+import { useDispatch, useSelector } from "react-redux";
 import { Form, Row, Col } from "react-bootstrap";
 
 import CustomDatePicker from "../../components/CustomDatePicker";
 import SectionHeading from "../../components/SectionHeading";
+import { REQUEST_STATUS } from "../../utilities/constants";
+import {
+  fetchApiaryInspectionTypes,
+  selectApiaryInspectionTypes,
+} from "./inspectionsSlice";
 
 export default function ApiaryInspectionDetailsEdit({
   form,
@@ -12,9 +18,27 @@ export default function ApiaryInspectionDetailsEdit({
 }) {
   const {
     setValue,
+    getValues,
     register,
     formState: { errors },
   } = form;
+
+  const dispatch = useDispatch();
+  const inspectionTypes = useSelector(selectApiaryInspectionTypes);
+
+  useEffect(() => {
+    if (inspectionTypes.status === REQUEST_STATUS.IDLE) {
+      dispatch(fetchApiaryInspectionTypes());
+    }
+  }, [dispatch, inspectionTypes.status]);
+
+  // Options load asynchronously; re-apply the current value once they exist so the select shows it
+  useEffect(() => {
+    const current = getValues("inspectionTypeId");
+    if (current !== undefined && current !== null && current !== "") {
+      setValue("inspectionTypeId", current);
+    }
+  }, [inspectionTypes.data, getValues, setValue]);
 
   const handleFieldChange = (field) => {
     return (value) => {
@@ -66,6 +90,26 @@ export default function ApiaryInspectionDetailsEdit({
               defaultValue={initialValues.inspectorName}
               {...register("inspectorName")}
             />
+          </Form.Group>
+        </Col>
+      </Row>
+      <Row>
+        <Col lg={3}>
+          <Form.Group controlId="inspectionTypeId">
+            <Form.Label>Inspection Type</Form.Label>
+            <Form.Control
+              as="select"
+              name="inspectionTypeId"
+              defaultValue={initialValues.inspectionTypeId ?? ""}
+              {...register("inspectionTypeId")}
+            >
+              <option value="" />
+              {inspectionTypes.data.map((x) => (
+                <option key={x.id} value={x.id}>
+                  {x.codeDescription}
+                </option>
+              ))}
+            </Form.Control>
           </Form.Group>
         </Col>
       </Row>
@@ -202,7 +246,7 @@ export default function ApiaryInspectionDetailsEdit({
             </Col>
           </Row>
           <Row>
-            <Col lg={6}>
+            <Col lg={4}>
               <Form.Group controlId="varroaMiteResult">
                 <Form.Label>Varroa Mites</Form.Label>
                 <Form.Control
@@ -213,7 +257,7 @@ export default function ApiaryInspectionDetailsEdit({
                 />
               </Form.Group>
             </Col>
-            <Col lg={6}>
+            <Col lg={4}>
               <Form.Group controlId="varroaMiteResultPercent">
                 <Form.Label>Varroa Mites (%)</Form.Label>
                 <Form.Control
@@ -221,6 +265,18 @@ export default function ApiaryInspectionDetailsEdit({
                   name="varroaMiteResultPercent"
                   defaultValue={initialValues.varroaMiteResultPercent}
                   {...register("varroaMiteResultPercent")}
+                />
+              </Form.Group>
+            </Col>
+            <Col lg={4}>
+              <Form.Group controlId="varroaAvgYard">
+                <Form.Label>Varroa Avg for Yard</Form.Label>
+                <Form.Control
+                  type="number"
+                  step="0.01"
+                  name="varroaAvgYard"
+                  defaultValue={initialValues.varroaAvgYard}
+                  {...register("varroaAvgYard")}
                 />
               </Form.Group>
             </Col>

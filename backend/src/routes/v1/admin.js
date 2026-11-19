@@ -13,6 +13,10 @@ const role = require("../../models/role");
 const dairyTestResult = require("../../models/dairyTestResult");
 const dairyTestThreshold = require("../../models/dairyTestThreshold");
 const premisesDetail = require("../../models/premisesDetail");
+const inspection = require("../../models/inspection");
+const { resolveImportRows } = require("../../utilities/apiaryInspectionImport");
+const { withPrisma } = require("../../db/prisma");
+const { parseAsInt } = require("../../utilities/parsing");
 
 const prisma = new PrismaClient();
 const router = express.Router();
@@ -377,6 +381,85 @@ router.post("/premisesidresults", async (req, res, next) => {
   } finally {
     async () => prisma.$disconnect();
   }
+});
+
+// MALS2-124 - Import apiary inspections exported from CHEFS as CSV.
+// Body: array of rows keyed by logical field name (see utilities/apiaryInspectionImport.js).
+// Valid rows are inserted in one transaction; invalid and duplicate rows are skipped and reported.
+router.post("/apiaryinspectionimport", async (req, res, next) => {
+  const rows = Array.isArray(req.body) ? req.body : [];
+  if (rows.length === 0) {
+    return res.status(400).send({
+      code: 400,
+      description: "No inspection rows were provided.",
+    });
+  }
+
+  const licenceNumbers = [
+    ...new Set(
+      rows.map((r) => parseAsInt(r.licenceNumber)).filter((x) => x !== undefined)
+    ),
+  ];
+
+  return withPrisma(async (client) => {
+    const [siteRecords, typeRecords] = await Promise.all([
+      client.mal_site.findMany({
+        where: { mal_licence: { licence_number: { in: licenceNumbers } } },
+        select: {
+          id: true,
+          apiary_site_id: true,
+          mal_licence: { select: { licence_number: true } },
+        },
+      }),
+      client.mal_apiary_inspection_type_lu.findMany(),
+    ]);
+
+    const existingRecords = await client.mal_apiary_inspection.findMany({
+      where: { site_id: { in: siteRecords.map((x) => x.id) } },
+      select: { site_id: true, inspection_date: true, inspector_id: true },
+    });
+
+    const { inserts, errors, duplicateCount } = resolveImportRows(rows, {
+      sites: siteRecords.map((x) => ({
+        id: x.id,
+        apiarySiteId: x.apiary_site_id,
+        licenceNumber: x.mal_licence.licence_number,
+      })),
+      types: typeRecords.map((x) => ({
+        id: x.id,
+        codeName: x.code_name,
+        codeDescription: x.code_description,
+      })),
+      existing: existingRecords.map((x) => ({
+        siteId: x.site_id,
+        inspectionDate: x.inspection_date,
+        inspectorId: x.inspector_id,
+      })),
+    });
+
+    if (inserts.length > 0) {
+      const now = new Date();
+      await client.mal_apiary_inspection.createMany({
+        data: inserts.map((x) =>
+          inspection.convertApiaryInspectionToPhysicalModel(
+            populateAuditColumnsCreate(x, now, now)
+          )
+        ),
+      });
+    }
+
+    Util.Log(
+      `Apiary Inspection Import: ${rows.length} rows, ${inserts.length} inserted, ${duplicateCount} duplicates, ${errors.length} errors`
+    );
+
+    return res.send({
+      attemptCount: rows.length,
+      insertCount: inserts.length,
+      duplicateCount,
+      errorCount: errors.length,
+      errors,
+    });
+  }).catch(next);
 });
 
 module.exports = router;

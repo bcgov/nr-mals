@@ -45,8 +45,25 @@ model mal_apiary_inspection {
   create_userid              String   @db.VarChar(30)
   create_timestamp           DateTime @db.Timestamp(6)
   update_userid              String   @db.VarChar(30)
-  update_timestamp           DateTime @db.Timestamp(6)
-  live_colonies_in_yard      Int?
+  update_timestamp              DateTime                       @db.Timestamp(6)
+  live_colonies_in_yard         Int?
+  inspection_type_id            Int?
+  varroa_avg_yard               Decimal?                       @db.Decimal(5, 2)
+  mal_apiary_inspection_type_lu mal_apiary_inspection_type_lu? @relation(fields: [inspection_type_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "apinsp_apinsptyp_fk")
+
+  @@index([site_id], map: "mal_apiary_inspection_site_id_idx")
+}
+
+model mal_apiary_inspection_type_lu {
+  id                    Int                     @id @default(autoincrement())
+  code_name             String                  @unique(map: "mal_apinsptyp_code_name_uk") @db.VarChar(50)
+  code_description      String?                 @db.VarChar(120)
+  active_flag           Boolean                 @default(true)
+  create_userid         String                  @db.VarChar(63)
+  create_timestamp      DateTime                @db.Timestamp(6)
+  update_userid         String                  @db.VarChar(63)
+  update_timestamp      DateTime                @db.Timestamp(6)
+  mal_apiary_inspection mal_apiary_inspection[]
 }
 
 model mal_application_role {

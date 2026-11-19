@@ -19,6 +19,10 @@ function convertApiaryInspectionToLogicalModel(input) {
     nosemaResult: input.nosema_result,
     varroaMiteResult: input.varroa_mite_result,
     varroaMiteResultPercent: input.varroa_mite_result_percent,
+    varroaAvgYard: input.varroa_avg_yard,
+    inspectionTypeId: input.inspection_type_id,
+    inspectionTypeDescription:
+      input.mal_apiary_inspection_type_lu?.code_description ?? null,
     otherResultDescription: input.other_result_description,
     supersInspected: input.supers_inspected,
     supersDestroyed: input.supers_destroyed,
@@ -46,6 +50,8 @@ function convertApiaryInspectionToPhysicalModel(input) {
     nosema_result: input.nosemaResult,
     varroa_mite_result: input.varroaMiteResult,
     varroa_mite_result_percent: input.varroaMiteResultPercent,
+    varroa_avg_yard: input.varroaAvgYard,
+    inspection_type_id: input.inspectionTypeId,
     other_result_description: input.otherResultDescription,
     supers_inspected: input.supersInspected,
     supers_destroyed: input.supersDestroyed,
@@ -57,6 +63,15 @@ function convertApiaryInspectionToPhysicalModel(input) {
   };
 
   return output;
+}
+
+function convertApiaryInspectionTypeToLogicalModel(input) {
+  return {
+    id: input.id,
+    codeName: input.code_name,
+    codeDescription: input.code_description,
+    active: input.active_flag,
+  };
 }
 
 function convertTrailerInspectionToLogicalModel(input) {
@@ -88,6 +103,7 @@ function convertTrailerInspectionToPhysicalModel(input) {
 module.exports = {
   convertApiaryInspectionToLogicalModel,
   convertApiaryInspectionToPhysicalModel,
+  convertApiaryInspectionTypeToLogicalModel,
   convertTrailerInspectionToLogicalModel,
   convertTrailerInspectionToPhysicalModel,
 };
