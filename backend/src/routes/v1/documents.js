@@ -22,7 +22,7 @@ const {
   getReportsTemplateName,
 } = require("../../utilities/documents");
 const { formatDate } = require("../../utilities/formatting");
-const { parseAsInt } = require("../../utilities/parsing");
+const { parseAsInt, parseAsYear } = require("../../utilities/parsing");
 const { REPORTS } = require("../../utilities/constants");
 const router = express.Router();
 
@@ -42,6 +42,11 @@ const reportsTemplateDir = path.join(
   __dirname,
   "../../static/templates/reports"
 );
+
+const INVALID_RECHECK_YEAR = {
+  code: 400,
+  description: "A valid 4-digit re-check year is required.",
+};
 
 // As templates are converted to base 64 for the first time they will be pushed to this for reuse
 const templateBuffers = [];
@@ -1004,9 +1009,7 @@ async function startDairyThresholdJob(prisma, startDate, endDate) {
 
 async function startDairyTankRecheckJob(prisma, recheckYear) {
   const [procedureResult] = await prisma.$transaction([
-    prisma.$queryRawUnsafe(
-      `CALL mals_app.pr_generate_print_json_dairy_farm_tank_recheck('${recheckYear}', NULL)`
-    ),
+    prisma.$queryRaw`CALL mals_app.pr_generate_print_json_dairy_farm_tank_recheck(${String(recheckYear)}::varchar, NULL)`,
   ]);
 
   const jobId = procedureResult[0].iop_print_job_id;
@@ -1018,9 +1021,7 @@ async function startDairyTankRecheckJob(prisma, recheckYear) {
 
 async function startDairyInspectionRecheckJob(prisma, recheckYear) {
   const [procedureResult] = await prisma.$transaction([
-    prisma.$queryRawUnsafe(
-      `CALL mals_app.pr_generate_print_json_dairy_farm_inspection_recheck('${recheckYear}', NULL)`
-    ),
+    prisma.$queryRaw`CALL mals_app.pr_generate_print_json_dairy_farm_inspection_recheck(${recheckYear}::int, NULL)`,
   ]);
 
   const jobId = procedureResult[0].iop_print_job_id;
@@ -1526,20 +1527,21 @@ router.post("/reports/startJob/dairyThreshold", async (req, res, next) => {
 });
 
 router.post("/reports/startJob/dairyTankRecheck", async (req, res, next) => {
+  const recheckYear = parseAsYear(req.body.recheckYear);
+  if (recheckYear === undefined) {
+    return res.status(400).send(INVALID_RECHECK_YEAR);
+  }
+
   await withPrisma(async (prisma) => {
-    const { jobId, documents } = await startDairyTankRecheckJob(prisma, req.body.recheckYear);
+    const { jobId, documents } = await startDairyTankRecheckJob(prisma, recheckYear);
     return res.send({ jobId, documents, type: REPORTS.DAIRY_FARM_TANK });
   }).catch(next);
 });
 
 router.post("/reports/startJob/dairyInspectionRecheck", async (req, res, next) => {
-  // Year is interpolated into the CALL statement, so only accept a 4-digit year
-  const recheckYear = String(req.body.recheckYear ?? "").trim();
-  if (!/^\d{4}$/.test(recheckYear)) {
-    return res.status(400).send({
-      code: 400,
-      description: "A valid 4-digit re-check year is required.",
-    });
+  const recheckYear = parseAsYear(req.body.recheckYear);
+  if (recheckYear === undefined) {
+    return res.status(400).send(INVALID_RECHECK_YEAR);
   }
 
   await withPrisma(async (prisma) => {

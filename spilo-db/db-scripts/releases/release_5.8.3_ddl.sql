@@ -8,9 +8,9 @@ ALTER TABLE mals_app.mal_licence ADD COLUMN inspection_date date;
 ALTER TABLE mals_app.mal_licence ADD COLUMN recheck_date date;
 
 -- Report: active Dairy Farm licences whose re-check date falls in the requested year
--- DROP PROCEDURE mals_app.pr_generate_print_json_dairy_farm_inspection_recheck(in varchar, inout int4);
+-- DROP PROCEDURE mals_app.pr_generate_print_json_dairy_farm_inspection_recheck(in int4, inout int4);
 
-CREATE OR REPLACE PROCEDURE mals_app.pr_generate_print_json_dairy_farm_inspection_recheck(IN ip_recheck_year character varying, INOUT iop_print_job_id integer)
+CREATE OR REPLACE PROCEDURE mals_app.pr_generate_print_json_dairy_farm_inspection_recheck(IN ip_recheck_year integer, INOUT iop_print_job_id integer)
  LANGUAGE plpgsql
 AS $procedure$
   declare
@@ -47,7 +47,8 @@ AS $procedure$
 		on lic.primary_registrant_id = reg.id
 		where lictyp.licence_type = 'DAIRY FARM'
 		and stat.code_name = 'ACT'
-		and to_char(lic.recheck_date, 'yyyy') = ip_recheck_year)
+		and lic.recheck_date >= make_date(ip_recheck_year, 1, 1)
+		and lic.recheck_date < make_date(ip_recheck_year + 1, 1, 1))
 	--
 	--  MAIN QUERY
 	--
@@ -69,7 +70,7 @@ AS $procedure$
 		'DAIRY_FARM_INSPECTION_RECHECK',
 		json_build_object('DateTime',            to_char(current_timestamp, 'fmyyyy-mm-dd hh24mi'),
 						  'Licence_Type',        'DAIRY FARM',
-						  'RecheckYear',         ip_recheck_year,
+						  'RecheckYear',         ip_recheck_year::varchar,
 						  'Reg',                 licence_json,
 						  'Total_Num_Licences',  num_licences) report_json,
 		null,
@@ -92,3 +93,6 @@ AS $procedure$
 end;
 $procedure$
 ;
+
+GRANT ALL ON PROCEDURE mals_app.pr_generate_print_json_dairy_farm_inspection_recheck(in int4, inout int4) TO mals;
+GRANT EXECUTE ON PROCEDURE mals_app.pr_generate_print_json_dairy_farm_inspection_recheck(in int4, inout int4) TO mals_app_role;
