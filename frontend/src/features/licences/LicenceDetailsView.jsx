@@ -190,6 +190,22 @@ export default function LicenceDetailsView({ licence }) {
           )}
         </Row>
       )}
+      {config.inspectionRecheckYears && (
+        <Row className="mt-3">
+          <Col lg={4}>
+            <VerticalField
+              label="Inspection Date"
+              value={formatDateString(licence.inspectionDate)}
+            />
+          </Col>
+          <Col lg={4}>
+            <VerticalField
+              label="Re-check Date"
+              value={formatDateString(licence.recheckDate)}
+            />
+          </Col>
+        </Row>
+      )}
     </>
   );
 }

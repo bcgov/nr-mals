@@ -17,6 +17,7 @@ import ReportClientDetails from "./ReportClientDetails";
 import ReportDairyClientDetails from "./ReportDairyClientDetails";
 import ReportDairyThreshold from "./ReportDairyThreshold";
 import ReportDairyTankRecheck from "./ReportDairyTankRecheck";
+import ReportDairyInspectionRecheck from "./ReportDairyInspectionRecheck";
 import ReportLicenceTypeLocation from "./ReportLicenceTypeLocation";
 import ReportLicenceExpiry from "./ReportLicenceExpiry";
 
@@ -75,6 +76,9 @@ export default function Reports() {
       break;
     case REPORTS.DAIRY_FARM_TANK:
       control = <ReportDairyTankRecheck />;
+      break;
+    case REPORTS.DAIRY_FARM_INSPECTION_RECHECK:
+      control = <ReportDairyInspectionRecheck />;
       break;
     case REPORTS.DAIRY_TEST_THRESHOLD:
       control = <ReportDairyThreshold />;
@@ -191,6 +195,18 @@ export default function Reports() {
               >
                 <option value={REPORTS.DAIRY_FARM_PRODUCERS}>
                   Dairy Farm Producers
+                </option>
+              </RenderOnRole>
+
+              <RenderOnRole
+                roles={[
+                  SYSTEM_ROLES.READ_ONLY,
+                  SYSTEM_ROLES.USER,
+                  SYSTEM_ROLES.SYSTEM_ADMIN,
+                ]}
+              >
+                <option value={REPORTS.DAIRY_FARM_INSPECTION_RECHECK}>
+                  Dairy Inspection Recheck
                 </option>
               </RenderOnRole>
 

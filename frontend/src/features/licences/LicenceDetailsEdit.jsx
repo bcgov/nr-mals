@@ -25,6 +25,7 @@ import RegionalDistricts from "../lookups/RegionalDistricts";
 
 import { getLicenceTypeConfiguration } from "./licenceTypeUtility";
 import { formatIrmaNumber } from "./irmaNumberUtility";
+import InspectionDatesEdit from "./InspectionDatesEdit";
 
 import { ADDRESS } from "../../modals/AddressModal";
 import { PHONE } from "../../modals/PhoneNumberModal";
@@ -522,6 +523,13 @@ export default function LicenceDetailsEdit({
             )}
           </Col>
         </Form.Row>
+      )}
+      {mode === LICENCE_MODE.EDIT && config.inspectionRecheckYears && (
+        <InspectionDatesEdit
+          setValue={setValue}
+          initialValues={initialValues}
+          recheckYears={config.inspectionRecheckYears}
+        />
       )}
     </>
   );

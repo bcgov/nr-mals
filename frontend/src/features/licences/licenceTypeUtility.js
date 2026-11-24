@@ -30,7 +30,10 @@ export const getLicenceTypeConfiguration = (licenceTypeId) => {
     case LICENCE_TYPE_ID_SLAUGHTERHOUSE:
       return { expiryMonth: 3 };
     case LICENCE_TYPE_ID_DAIRY_FARM:
-      return { replaceExpiryDateWithIrmaNumber: true };
+      return {
+        replaceExpiryDateWithIrmaNumber: true,
+        inspectionRecheckYears: 2,
+      };
     case LICENCE_TYPE_ID_FUR_FARM:
       return { expiryMonth: 3 };
     case LICENCE_TYPE_ID_PUBLIC_SALE_YARD_OPERATOR:

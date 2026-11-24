@@ -251,6 +251,24 @@ export const startDairyTankRecheckJob = createAsyncThunk(
   }
 );
 
+export const startDairyInspectionRecheckJob = createAsyncThunk(
+  "reports/startDairyInspectionRecheckJob",
+  async (payload, thunkApi) => {
+    try {
+      const response = await Api.post(
+        `documents/reports/startJob/dairyInspectionRecheck`,
+        payload
+      );
+      return response.data;
+    } catch (error) {
+      if (error instanceof ApiError) {
+        return thunkApi.rejectWithValue(error.serialize());
+      }
+      return thunkApi.rejectWithValue({ code: -1, description: error.message });
+    }
+  }
+);
+
 export const startLicenceTypeLocationJob = createAsyncThunk(
   "reports/startLicenceTypeLocationJob",
   async (payload, thunkApi) => {
@@ -429,6 +447,9 @@ export const reportsSlice = createSlice({
     [startDairyTankRecheckJob.pending]: pendingStartJobReducer,
     [startDairyTankRecheckJob.fulfilled]: fulfilledStartJobReducer,
     [startDairyTankRecheckJob.rejected]: rejectionStartJobReducer,
+    [startDairyInspectionRecheckJob.pending]: pendingStartJobReducer,
+    [startDairyInspectionRecheckJob.fulfilled]: fulfilledStartJobReducer,
+    [startDairyInspectionRecheckJob.rejected]: rejectionStartJobReducer,
     [startDairyThresholdJob.pending]: pendingStartJobReducer,
     [startDairyThresholdJob.fulfilled]: fulfilledStartJobReducer,
     [startDairyThresholdJob.rejected]: rejectionStartJobReducer,
