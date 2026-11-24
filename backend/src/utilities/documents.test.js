@@ -13,9 +13,12 @@ const templatePath = (reportType) =>
   );
 
 describe("report templates", () => {
-  it.each(Object.values(REPORTS))("has a template file for %s", (reportType) => {
-    expect(fs.existsSync(templatePath(reportType))).toBe(true);
-  });
+  it.each(Object.values(REPORTS))(
+    "has a template file for %s",
+    (reportType) => {
+      expect(fs.existsSync(templatePath(reportType))).toBe(true);
+    }
+  );
 
   it("uses the fields produced by the dairy inspection recheck procedure", () => {
     const strings = new AdmZip(
