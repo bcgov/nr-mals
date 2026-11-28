@@ -1,0 +1,180 @@
+{{- if and .Values.continuousArchive.enabled (eq .Values.continuousArchive.storage "s3") .Values.backupNotification.enabled }}
+{{- $fullname := include "spilo.fullname" . }}
+# Checks the wal-g base backups in S3 after the nightly backup window and emails
+# the result (success or failure) through BC Notify, using a stored template
+# (see spilo-db/notify/backup-notification-template.md).
+# Running as a separate CronJob (rather than hooking Spilo's in-pod cron) means a
+# backup that never ran - pod down, cron broken - is still reported as a failure.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $fullname }}-backup-notify
+  labels: {{ include "spilo.labels" . | nindent 4 }}
+data:
+  notify.sh: |
+    #!/bin/bash
+    # Env: NOTIFY_URL, NOTIFY_API_KEY, NOTIFY_TEMPLATE_ID, NOTIFY_RECIPIENTS (comma separated),
+    #      ENVIRONMENT_NAME, MAX_AGE_HOURS, JOB_NAME, NAMESPACE, WALG_S3_PREFIX + AWS_* (wal-g)
+    # Set DRY_RUN=1 to print the request body instead of sending it.
+    set -uo pipefail
+
+    # Format an epoch as "2026-11-27 01:00 PST (09:00 UTC)"; UTC only if tz data is missing.
+    fmt_time() {
+      if [ -f /usr/share/zoneinfo/America/Vancouver ]; then
+        echo "$(TZ=America/Vancouver date -d "@$1" '+%Y-%m-%d %H:%M %Z') ($(date -u -d "@$1" '+%H:%M UTC'))"
+      else
+        date -u -d "@$1" '+%Y-%m-%d %H:%M UTC'
+      fi
+    }
+
+    NOW=$(date -u +%s)
+    STATUS="succeeded"
+    FAILED=false
+    SUMMARY="The nightly base backup completed and was uploaded to object storage."
+    BACKUP_NAME="-"
+    FINISHED="-"
+    SIZE="-"
+    COUNT="-"
+
+    if ! LIST=$(wal-g backup-list --detail --json 2>/tmp/walg.err) || [ -z "$LIST" ] || [ "$LIST" = "null" ]; then
+      STATUS="FAILED"
+      FAILED=true
+      SUMMARY="Could not list backups in object storage: $(tail -c 500 /tmp/walg.err)"
+    else
+      LATEST=$(echo "$LIST" | jq -c 'max_by(.finish_time)')
+      BACKUP_NAME=$(echo "$LATEST" | jq -r '.backup_name')
+      FINISHED_EPOCH=$(echo "$LATEST" | jq -r '.finish_time | sub("\\.[0-9]+"; "") | fromdateiso8601')
+      FINISHED=$(fmt_time "$FINISHED_EPOCH")
+      SIZE=$(echo "$LATEST" | jq -r '"\((.compressed_size / 1048576) | floor) MB compressed (\((.uncompressed_size / 1048576) | floor) MB raw)"')
+      COUNT=$(echo "$LIST" | jq -r 'length')
+      AGE_HOURS=$(( (NOW - FINISHED_EPOCH) / 3600 ))
+      if [ $(( NOW - FINISHED_EPOCH )) -gt $(( MAX_AGE_HOURS * 3600 )) ]; then
+        STATUS="FAILED"
+        FAILED=true
+        SUMMARY="No base backup in the last ${MAX_AGE_HOURS}h - the latest is ${AGE_HOURS}h old."
+      fi
+    fi
+
+    BODY=$(jq -n \
+      --arg templateId "$NOTIFY_TEMPLATE_ID" \
+      --arg recipients "$NOTIFY_RECIPIENTS" \
+      --arg environment "$ENVIRONMENT_NAME" \
+      --arg status "$STATUS" \
+      --arg summary "$SUMMARY" \
+      --argjson failed "$FAILED" \
+      --arg backupName "$BACKUP_NAME" \
+      --arg finishedAt "$FINISHED" \
+      --arg backupSize "$SIZE" \
+      --arg backupCount "$COUNT" \
+      --arg checkedAt "$(fmt_time "$NOW")" \
+      --arg jobName "$JOB_NAME" \
+      --arg namespace "$NAMESPACE" \
+      '{
+        recipients: { to: ($recipients | split(",") | map(gsub("^\\s+|\\s+$"; "")) | map(select(. != ""))) },
+        content: { templateId: $templateId },
+        params: {
+          environment: $environment, status: $status, summary: $summary, failed: $failed,
+          backupName: $backupName, finishedAt: $finishedAt, backupSize: $backupSize,
+          backupCount: $backupCount, checkedAt: $checkedAt, jobName: $jobName, namespace: $namespace
+        }
+      }')
+
+    echo "Backup status: $STATUS - $SUMMARY"
+    if [ "${DRY_RUN:-}" = "1" ]; then
+      echo "$BODY"
+    else
+      HTTP_CODE=$(curl -sS --max-time 30 -o /tmp/notify-response.json -w '%{http_code}' \
+        -X POST "${NOTIFY_URL%/}/api/v1/notifysimple/email" \
+        -H "Content-Type: application/json" \
+        -H "X-API-KEY: $NOTIFY_API_KEY" \
+        -d "$BODY")
+      echo "Notify responded HTTP $HTTP_CODE: $(head -c 1000 /tmp/notify-response.json)"
+      [ "$HTTP_CODE" = "202" ] || { echo "ERROR: Notify did not accept the email"; exit 2; }
+    fi
+
+    # Fail the Job on a failed backup so it is also visible in OpenShift.
+    [ "$FAILED" = "false" ]
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ $fullname }}-backup-notify
+  labels: {{ include "spilo.labels" . | nindent 4 }}
+spec:
+  schedule: {{ .Values.backupNotification.schedule | quote }}
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      # No retries: a retry would send a duplicate email.
+      backoffLimit: 0
+      activeDeadlineSeconds: 600
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: {{ include "spilo.name" . }}-backup-notify
+            app.kubernetes.io/instance: {{ $fullname }}-backup-notify
+        spec:
+          restartPolicy: Never
+          containers:
+          - name: backup-notify
+            image: "{{ .Values.image.repository }}:{{ default .Chart.AppVersion .Values.image.tag }}"
+            imagePullPolicy: {{ .Values.image.pullPolicy }}
+            command: ["/bin/bash", "/opt/backup-notify/notify.sh"]
+            env:
+            - name: ENVIRONMENT_NAME
+              value: {{ .Values.backupNotification.environmentName | quote }}
+            - name: MAX_AGE_HOURS
+              value: {{ .Values.backupNotification.maxAgeHours | quote }}
+            - name: JOB_NAME
+              value: {{ printf "%s-backup-notify" $fullname | quote }}
+            - name: NAMESPACE
+              value: {{ .Release.Namespace | quote }}
+            - name: NOTIFY_URL
+              value: {{ .Values.backupNotification.notify.url | quote }}
+            - name: NOTIFY_TEMPLATE_ID
+              value: {{ .Values.backupNotification.notify.templateId | quote }}
+            - name: NOTIFY_RECIPIENTS
+              value: {{ join "," .Values.backupNotification.notify.recipients | quote }}
+            - name: NOTIFY_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.backupNotification.notify.apiKeySecret.name }}
+                  key: {{ .Values.backupNotification.notify.apiKeySecret.key }}
+            # Same prefix Spilo derives for its own wal-g backups.
+            - name: WALG_S3_PREFIX
+              value: "s3://{{ .Values.continuousArchive.s3.bucket }}/spilo/{{ .Release.Namespace }}-{{ $fullname }}/wal/{{ .Values.postgresMajorVersion }}"
+            - name: AWS_S3_FORCE_PATH_STYLE
+              value: "true"
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.continuousArchive.s3.secretName }}
+                  key: AWS_ACCESS_KEY_ID
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.continuousArchive.s3.secretName }}
+                  key: AWS_SECRET_ACCESS_KEY
+            - name: AWS_ENDPOINT
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.continuousArchive.s3.secretName }}
+                  key: AWS_ENDPOINT
+            resources:
+              requests:
+                cpu: 10m
+                memory: 64Mi
+              limits:
+                cpu: 200m
+                memory: 256Mi
+            volumeMounts:
+            - name: script
+              mountPath: /opt/backup-notify
+              readOnly: true
+          volumes:
+          - name: script
+            configMap:
+              name: {{ $fullname }}-backup-notify
+{{- end }}
