@@ -62,6 +62,26 @@ continuousArchive:
       # Name of the secret that holds the credentials to the bucket
       credentialSecretName: ~
                 
+# Emails the result of each nightly base backup through BC Notify (see templates/backup-notification.yaml
+# and spilo-db/notify/backup-notification-template.md). The API key secret must be created before deploying:
+#   oc create secret generic mals-backup-notify --from-literal=NOTIFY_API_KEY='<Notify API key>'
+backupNotification:
+  enabled: true
+  # UTC, 30 minutes after continuousArchive.scheduleCronJob. Base backup runs 09:00 UTC.
+  schedule: "30 9 * * *"
+  # Report a failure if the newest base backup is older than this.
+  maxAgeHours: 2
+  environmentName: "MALS (prod)"
+  notify:
+    url: https://notify.digital.gov.bc.ca
+    templateId: 09757613-f9fb-401e-adf4-520f347431ba
+    # Addresses that receive the backup emails.
+    recipients:
+      - barrett@barrettfalk.ca
+    apiKeySecret:
+      name: mals-backup-notify
+      key: NOTIFY_API_KEY
+
 persistentVolume:
   enabled: true
   size: 1Gi
