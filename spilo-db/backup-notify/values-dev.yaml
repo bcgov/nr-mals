@@ -1,0 +1,8 @@
+# Backup notification settings for 30245e-dev.
+schedule: "30 18 * * *"   # Spilo base backup runs at 17:45 UTC
+environmentName: "MALS (dev)"
+spilo:
+  name: mals-dev-spilo
+  s3:
+    bucket: dyeycx
+    secretName: mals-dev-spilo-s3

@@ -1,0 +1,60 @@
+name: .Backup Notification Deployer
+
+# Deploys the backup notification CronJob (spilo-db/backup-notify) to one
+# environment. Only that chart is deployed - never the Spilo database chart.
+
+on:
+  workflow_call:
+    inputs:
+      target:
+        description: Target environment; selects values-<target>.yaml (dev, test or prod)
+        required: true
+        type: string
+      environment:
+        description: GitHub environment holding the OpenShift secrets; omit for dev
+        required: false
+        type: string
+    secrets:
+      oc_namespace:
+        description: OpenShift namespace
+        required: true
+      oc_token:
+        description: OpenShift token
+        required: true
+
+permissions: {}
+
+jobs:
+  deploy:
+    name: Helm (${{ inputs.target }})
+    environment: ${{ inputs.environment }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Helm Deploy
+        uses: bcgov/action-oc-runner@10033668ef4374d9bb78149faa73e4ccda0e93dd # v1.2.3
+        with:
+          oc_namespace: ${{ secrets.oc_namespace }}
+          oc_token: ${{ secrets.oc_token }}
+          oc_server: ${{ vars.oc_server }}
+          ref: ${{ github.ref }}
+          commands: |
+            # Guard: refuse to deploy one environment's values into another namespace
+            NAMESPACE=$(oc project -q)
+            if [[ "${NAMESPACE}" != *-${{ inputs.target }} ]]; then
+              echo "Namespace ${NAMESPACE} does not match target ${{ inputs.target }}; aborting"
+              exit 1
+            fi
+
+            # The job reads this secret on every run; it is created manually (see spilo-db/README.md)
+            oc get secret mals-backup-notify -o name \
+              || { echo "Secret mals-backup-notify is missing in ${NAMESPACE}; create it first"; exit 1; }
+
+            cd spilo-db/backup-notify
+            helm upgrade --install mals-backup-notify . \
+              --values values-${{ inputs.target }}.yaml \
+              --wait --timeout 5m
+
+            helm history mals-backup-notify --max 3

@@ -1,6 +1,6 @@
 <!--
 BC Notify email template for the Spilo backup notification CronJob
-(spilo-db/openshift/templates/backup-notification.yaml).
+(spilo-db/backup-notify/templates/cronjob.yaml).
 
 Template ID: 09757613-f9fb-401e-adf4-520f347431ba
 Engine:      mustache

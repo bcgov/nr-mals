@@ -1,0 +1,66 @@
+name: Backup Notification
+
+# Deploys the database backup notification CronJob (spilo-db/backup-notify).
+# - On merge to master with changes to that chart: dev, then test, then prod.
+# - Manually (Run workflow): a single chosen environment.
+# Recipients and the Notify API key live in the mals-backup-notify secret, so
+# changing them needs no deployment.
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'spilo-db/backup-notify/**'
+      - '.github/workflows/backup-notify.yml'
+      - '.github/workflows/.backup-notify-deployer.yml'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Environment to deploy to
+        type: choice
+        options: [dev, test, prod]
+        default: dev
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+permissions: {}
+
+jobs:
+  deploy-dev:
+    name: Deploy (DEV)
+    if: github.event_name == 'push' || inputs.environment == 'dev'
+    uses: ./.github/workflows/.backup-notify-deployer.yml
+    # Dev uses the repository-level secrets, as the PR deployments do
+    secrets:
+      oc_namespace: ${{ secrets.OC_NAMESPACE }}
+      oc_token: ${{ secrets.OC_TOKEN }}
+    with:
+      target: dev
+
+  deploy-test:
+    name: Deploy (TEST)
+    needs: [deploy-dev]
+    if: |
+      always() &&
+      ((github.event_name == 'push' && needs.deploy-dev.result == 'success') ||
+       (github.event_name == 'workflow_dispatch' && inputs.environment == 'test'))
+    uses: ./.github/workflows/.backup-notify-deployer.yml
+    secrets: inherit
+    with:
+      target: test
+      environment: test
+
+  deploy-prod:
+    name: Deploy (PROD)
+    needs: [deploy-test]
+    if: |
+      always() &&
+      ((github.event_name == 'push' && needs.deploy-test.result == 'success') ||
+       (github.event_name == 'workflow_dispatch' && inputs.environment == 'prod'))
+    uses: ./.github/workflows/.backup-notify-deployer.yml
+    secrets: inherit
+    with:
+      target: prod
+      environment: prod

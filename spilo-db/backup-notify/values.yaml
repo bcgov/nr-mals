@@ -1,0 +1,46 @@
+# Defaults for the backup notification CronJob. Environment-specific settings
+# are in values-<env>.yaml. See spilo-db/README.md for how this fits together.
+
+# Cron schedule (UTC). Set to ~30 minutes after the Spilo base backup
+# (continuousArchive.scheduleCronJob in spilo-db/openshift/values-<env>.yaml).
+schedule: "30 9 * * *"
+
+# Report a failure if the newest base backup finished longer ago than this.
+maxAgeHours: 2
+
+# Shown in the email subject and body, e.g. "MALS (prod)".
+environmentName: ""
+
+# The Spilo image already contains wal-g, jq and curl. Keep it in step with the
+# image used by the Spilo StatefulSet.
+image:
+  repository: registry.opensource.zalan.do/acid/spilo-14
+  tag: "2.1-p4"
+  pullPolicy: IfNotPresent
+
+# Where the Spilo cluster writes its wal-g backups.
+spilo:
+  # Name of the Spilo StatefulSet, e.g. mals-test-spilo.
+  name: ""
+  postgresMajorVersion: 14
+  s3:
+    bucket: ""
+    # Existing secret with AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY and AWS_ENDPOINT.
+    secretName: ""
+
+notify:
+  url: https://notify.digital.gov.bc.ca
+  templateId: 09757613-f9fb-401e-adf4-520f347431ba
+  # Existing secret (created manually, not by this chart) with two keys:
+  #   NOTIFY_API_KEY     - the BC Notify API key
+  #   NOTIFY_RECIPIENTS  - comma-separated email addresses
+  # Both are read each time the job runs, so changes need no redeploy.
+  secretName: mals-backup-notify
+
+resources:
+  requests:
+    cpu: 10m
+    memory: 64Mi
+  limits:
+    cpu: 200m
+    memory: 256Mi
