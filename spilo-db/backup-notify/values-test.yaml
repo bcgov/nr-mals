@@ -1,0 +1,8 @@
+# Backup notification settings for 30245e-test.
+schedule: "30 9 * * *"   # Spilo base backup runs at 09:00 UTC
+environmentName: "MALS (test)"
+spilo:
+  name: mals-test-spilo
+  s3:
+    bucket: ekffvi
+    secretName: mals-dev-spilo-s3

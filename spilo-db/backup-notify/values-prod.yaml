@@ -1,0 +1,8 @@
+# Backup notification settings for 30245e-prod.
+schedule: "30 9 * * *"   # Spilo base backup runs at 09:00 UTC
+environmentName: "MALS (prod)"
+spilo:
+  name: mals-prod-spilo
+  s3:
+    bucket: baqmeq
+    secretName: mals-prod-spilo-s3

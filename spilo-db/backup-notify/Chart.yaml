@@ -1,0 +1,6 @@
+apiVersion: v2
+name: mals-backup-notify
+description: Emails the result of the nightly Spilo (wal-g) base backup through BC Notify.
+type: application
+version: 0.1.0
+home: https://github.com/bcgov/nr-mals/tree/master/spilo-db/backup-notify

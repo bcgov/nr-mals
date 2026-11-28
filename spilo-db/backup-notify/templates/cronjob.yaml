@@ -1,15 +1,15 @@
-{{- if and .Values.continuousArchive.enabled (eq .Values.continuousArchive.storage "s3") .Values.backupNotification.enabled }}
-{{- $fullname := include "spilo.fullname" . }}
+{{- $name := .Release.Name }}
+{{- $labels := dict "app.kubernetes.io/name" .Chart.Name "app.kubernetes.io/instance" .Release.Name "app.kubernetes.io/managed-by" .Release.Service "helm.sh/chart" (printf "%s-%s" .Chart.Name .Chart.Version) }}
 # Checks the wal-g base backups in S3 after the nightly backup window and emails
 # the result (success or failure) through BC Notify, using a stored template
-# (see spilo-db/notify/backup-notification-template.md).
+# (see ../notify-template.md).
 # Running as a separate CronJob (rather than hooking Spilo's in-pod cron) means a
 # backup that never ran - pod down, cron broken - is still reported as a failure.
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ $fullname }}-backup-notify
-  labels: {{ include "spilo.labels" . | nindent 4 }}
+  name: {{ $name }}
+  labels: {{ toYaml $labels | nindent 4 }}
 data:
   notify.sh: |
     #!/bin/bash
@@ -17,6 +17,11 @@ data:
     #      ENVIRONMENT_NAME, MAX_AGE_HOURS, JOB_NAME, NAMESPACE, WALG_S3_PREFIX + AWS_* (wal-g)
     # Set DRY_RUN=1 to print the request body instead of sending it.
     set -uo pipefail
+
+    if [ -z "$(echo "${NOTIFY_RECIPIENTS:-}" | tr -d ' ,')" ]; then
+      echo "ERROR: NOTIFY_RECIPIENTS is empty - add addresses to the NOTIFY_RECIPIENTS key of the Notify secret"
+      exit 3
+    fi
 
     # Format an epoch as "2026-11-27 01:00 PST (09:00 UTC)"; UTC only if tz data is missing.
     fmt_time() {
@@ -98,10 +103,10 @@ data:
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: {{ $fullname }}-backup-notify
-  labels: {{ include "spilo.labels" . | nindent 4 }}
+  name: {{ $name }}
+  labels: {{ toYaml $labels | nindent 4 }}
 spec:
-  schedule: {{ .Values.backupNotification.schedule | quote }}
+  schedule: {{ required "schedule is required" .Values.schedule | quote }}
   concurrencyPolicy: Forbid
   successfulJobsHistoryLimit: 3
   failedJobsHistoryLimit: 3
@@ -113,62 +118,61 @@ spec:
       template:
         metadata:
           labels:
-            app.kubernetes.io/name: {{ include "spilo.name" . }}-backup-notify
-            app.kubernetes.io/instance: {{ $fullname }}-backup-notify
+            app.kubernetes.io/name: {{ .Chart.Name }}
+            app.kubernetes.io/instance: {{ .Release.Name }}
         spec:
           restartPolicy: Never
           containers:
           - name: backup-notify
-            image: "{{ .Values.image.repository }}:{{ default .Chart.AppVersion .Values.image.tag }}"
+            image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
             imagePullPolicy: {{ .Values.image.pullPolicy }}
             command: ["/bin/bash", "/opt/backup-notify/notify.sh"]
             env:
             - name: ENVIRONMENT_NAME
-              value: {{ .Values.backupNotification.environmentName | quote }}
+              value: {{ required "environmentName is required" .Values.environmentName | quote }}
             - name: MAX_AGE_HOURS
-              value: {{ .Values.backupNotification.maxAgeHours | quote }}
+              value: {{ .Values.maxAgeHours | quote }}
             - name: JOB_NAME
-              value: {{ printf "%s-backup-notify" $fullname | quote }}
+              value: {{ $name | quote }}
             - name: NAMESPACE
               value: {{ .Release.Namespace | quote }}
             - name: NOTIFY_URL
-              value: {{ .Values.backupNotification.notify.url | quote }}
+              value: {{ .Values.notify.url | quote }}
             - name: NOTIFY_TEMPLATE_ID
-              value: {{ .Values.backupNotification.notify.templateId | quote }}
-            - name: NOTIFY_RECIPIENTS
-              value: {{ join "," .Values.backupNotification.notify.recipients | quote }}
+              value: {{ .Values.notify.templateId | quote }}
+            # Read from the secret at the start of every run, so editing the secret
+            # changes the next email without redeploying anything.
             - name: NOTIFY_API_KEY
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.backupNotification.notify.apiKeySecret.name }}
-                  key: {{ .Values.backupNotification.notify.apiKeySecret.key }}
+                  name: {{ .Values.notify.secretName }}
+                  key: NOTIFY_API_KEY
+            - name: NOTIFY_RECIPIENTS
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.notify.secretName }}
+                  key: NOTIFY_RECIPIENTS
             # Same prefix Spilo derives for its own wal-g backups.
             - name: WALG_S3_PREFIX
-              value: "s3://{{ .Values.continuousArchive.s3.bucket }}/spilo/{{ .Release.Namespace }}-{{ $fullname }}/wal/{{ .Values.postgresMajorVersion }}"
+              value: "s3://{{ required "spilo.s3.bucket is required" .Values.spilo.s3.bucket }}/spilo/{{ .Release.Namespace }}-{{ required "spilo.name is required" .Values.spilo.name }}/wal/{{ .Values.spilo.postgresMajorVersion }}"
             - name: AWS_S3_FORCE_PATH_STYLE
               value: "true"
             - name: AWS_ACCESS_KEY_ID
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.continuousArchive.s3.secretName }}
+                  name: {{ required "spilo.s3.secretName is required" .Values.spilo.s3.secretName }}
                   key: AWS_ACCESS_KEY_ID
             - name: AWS_SECRET_ACCESS_KEY
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.continuousArchive.s3.secretName }}
+                  name: {{ .Values.spilo.s3.secretName }}
                   key: AWS_SECRET_ACCESS_KEY
             - name: AWS_ENDPOINT
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.continuousArchive.s3.secretName }}
+                  name: {{ .Values.spilo.s3.secretName }}
                   key: AWS_ENDPOINT
-            resources:
-              requests:
-                cpu: 10m
-                memory: 64Mi
-              limits:
-                cpu: 200m
-                memory: 256Mi
+            resources: {{ toYaml .Values.resources | nindent 14 }}
             volumeMounts:
             - name: script
               mountPath: /opt/backup-notify
@@ -176,5 +180,4 @@ spec:
           volumes:
           - name: script
             configMap:
-              name: {{ $fullname }}-backup-notify
-{{- end }}
+              name: {{ $name }}
